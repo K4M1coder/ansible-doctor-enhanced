@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+**Phase 6 - CLI Interface (T072-T082)** - MVP Feature
+
+**CLI Tests Written First (T072-T074)** - TDD Red Phase
+- Unit tests: `tests/unit/test_cli.py` (20 test methods)
+  - CLI entry point and command structure
+  - Parse command with role_path argument
+  - Flags: --output, --recursive, --validate, --log-level
+  - Exit codes: 0 (success), 1 (error), 2 (validation failure)
+  - JSON output format validation
+  - Integration with minimal_role and complex_role fixtures
+  - Recursive mode for multiple roles
+  - Error handling: missing paths, invalid roles
+
+**CLI Implementation (T075-T078)** - TDD Green Phase
+- `ansibledoctor/cli.py`: Command-line interface with click
+  - `cli()`: Main group with version option
+  - `parse()`: Parse command with full flag support
+    - `role_path`: Required argument (Path with exists check)
+    - `--output`: Optional output file
+    - `--recursive`: Parse multiple roles in directory
+    - `--validate`: Validate role structure before parsing
+    - `--log-level`: DEBUG, INFO, WARNING, ERROR
+    - `--json-output`: JSON format (default: True)
+  - `_parse_single_role()`: Single role parsing logic
+    - Metadata extraction via MetadataParser
+    - Variables extraction via VariableParser
+    - Variable statistics (total, documented, by type, by source)
+    - Error handling with structured context
+  - `_parse_roles_recursive()`: Recursive parsing
+    - Auto-detect role directories (has tasks/)
+    - Parse each role independently
+    - Summary: total, successful, failed
+  - Exit codes: 0 (success), 1 (parsing error), 2 (validation error)
+  - Comprehensive error handling with user-friendly messages
+
+**Entry Point Configuration (T079-T080)**
+- pyproject.toml: Entry point `ansible-doctor-enhanced = ansibledoctor.cli:main`
+- CLI callable via `ansible-doctor-enhanced parse <role_path>`
+
 **Phase 3 - User Story 2: Variables Parser (T032-T047)** - MVP Feature
 
 **Tests Written First (T032-T034)** - TDD Red Phase

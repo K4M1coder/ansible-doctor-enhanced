@@ -37,7 +37,7 @@ isort = "^5.13.0"
 ruff = "^0.1.0"
 
 [tool.poetry.scripts]
-ansibledoctor = "ansibledoctor.cli:main"
+ansible-doctor-enhanced = "ansibledoctor.cli:main"
 
 [tool.black]
 line-length = 100
