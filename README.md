@@ -92,7 +92,28 @@ ansible-doctor-enhanced generate --input role-docs.json --output README.md --tem
 
 ## 📖 Usage
 
-### Parsing Roles
+### Library API (Phase 2 Complete)
+
+```python
+from pathlib import Path
+from ansibledoctor.parser import MetadataParser, RuamelYAMLLoader
+
+# Initialize parser
+yaml_loader = RuamelYAMLLoader()
+metadata_parser = MetadataParser(yaml_loader)
+
+# Parse role metadata
+role_meta_dir = Path("/path/to/ansible-role/meta")
+metadata = metadata_parser.parse_metadata(role_meta_dir)
+
+# Access parsed metadata
+print(f"Author: {metadata.author}")
+print(f"License: {metadata.license}")
+print(f"Platforms: {metadata.get_supported_platforms_summary()}")
+print(f"Has dependencies: {metadata.has_dependencies()}")
+```
+
+### CLI Interface (Coming in Phase 6)
 
 ```bash
 # Basic parsing

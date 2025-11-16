@@ -70,6 +70,11 @@ class RoleMetadata(BaseModel):
     Core entity in the Parsing Context bounded context.
     """
 
+    # Raw galaxy_info for extensibility
+    galaxy_info: dict[str, Any] = Field(
+        default_factory=dict, description="Raw galaxy_info dict from meta/main.yml"
+    )
+
     # Galaxy Info (from galaxy_info section)
     author: Optional[str] = Field(None, description="Role author name")
     description: Optional[str] = Field(None, description="Role description")

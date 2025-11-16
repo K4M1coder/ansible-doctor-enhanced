@@ -8,6 +8,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+**Phase 2 - User Story 1: Metadata Parser (T021-T031)** - MVP Feature
+
+**Tests Written First (T021-T022)** - TDD Red Phase
+- Unit tests: `tests/unit/test_metadata_parser.py` (18 test methods)
+  - Basic galaxy_info parsing
+  - Complex metadata with dependencies
+  - Platform version handling (list, string, missing)
+  - Dependency formats (string, dict with name/role key)
+  - argument_specs.yml parsing (Ansible 2.11+)
+  - Edge cases: missing files, malformed YAML, empty metadata
+- Integration tests: `tests/integration/test_metadata_integration.py` (12 test methods)
+  - End-to-end parsing with minimal_role fixture
+  - Complex role with dependencies and multiple platforms
+  - Optional argument_specs.yml handling
+  - Error scenarios with graceful degradation
+
+**MetadataParser Implementation (T023-T028)** - TDD Green Phase
+- `ansibledoctor/parser/metadata_parser.py`: Domain service for metadata extraction
+  - `parse_metadata()`: Main entry point combining galaxy_info + argument_specs
+  - `parse_galaxy_info()`: Extract author, description, license, platforms, dependencies
+  - `parse_argument_specs()`: Parse optional argument_specs.yml (Ansible 2.11+)
+  - `_parse_platforms()`: Handle versions as list/string/"all"
+  - `_parse_dependencies()`: Support string and dict formats
+  - Structured logging for all operations
+  - Comprehensive error handling with ParsingError context
+
+**Domain Model Enhancement**
+- `RoleMetadata`: Added `galaxy_info` raw dict field for extensibility
+- `meta_file_path` tracking for debugging and error context
 - Project initialization with spec-kit methodology
 - Constitution v1.2.0 with 10 core principles (Library-First, CLI Interface, Test-Driven Development, Integration Testing, Observability, Semantic Versioning, Simplicity Gate, Keep a Changelog, Living Documentation, Domain-Driven Design)
 - Article X: Domain-Driven Design (DDD) with Ubiquitous Language, Bounded Contexts, Entity/Value Objects, Aggregates, Domain Services

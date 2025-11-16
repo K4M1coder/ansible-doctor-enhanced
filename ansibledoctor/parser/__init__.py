@@ -1,5 +1,6 @@
 """Parser package for Ansible role parsing logic."""
 
+from ansibledoctor.parser.metadata_parser import MetadataParser
 from ansibledoctor.parser.protocols import (
     AnnotationExtractor,
     RoleParser,
@@ -12,4 +13,5 @@ __all__ = [
     "AnnotationExtractor",
     "RoleParser",
     "RuamelYAMLLoader",
+    "MetadataParser",
 ]
