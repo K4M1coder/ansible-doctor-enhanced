@@ -12,6 +12,8 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 
 ## ✨ Key Features
 
+- **Test-Driven Development (TDD)**: Mandatory Red-Green-Refactor cycle with 80%+ code coverage
+- **Domain-Driven Design (DDD)**: Ubiquitous Language from Ansible domain, Bounded Contexts, rich domain models
 - **Intelligent Role Parsing**: Extract metadata from `meta/main.yml`, variables from `defaults/` and `vars/`, task tags, and inline documentation annotations
 - **Annotation System**: Support for `@var`, `@tag`, `@todo`, `@example`, and `@meta` annotations with multiple formats (single-line, multiline, JSON)
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
@@ -19,7 +21,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates
 - **CLI-First Design**: Scriptable command-line interface with JSON output for pipeline integration
 - **Type-Safe**: Full type hints with mypy strict mode validation
-- **Well-Tested**: 80%+ code coverage with unit, integration, and contract tests
+- **Constitutional Governance**: 10 core principles ensuring quality, maintainability, and SOLID architecture
 
 ## 🚀 Installation
 

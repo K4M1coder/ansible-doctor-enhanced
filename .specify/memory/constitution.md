@@ -1,12 +1,11 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
-- Added VIII. Change Documentation (Keep a Changelog)
-- Enhanced VI. Versioning with explicit Semantic Versioning practices
-- Added IX. Living Documentation (README maintenance)
-- Principles defined: 9 core principles
+- Version change: 1.1.0 → 1.2.0
+- Added X. Domain-Driven Design (DDD) - Ubiquitous Language & Bounded Contexts
+- Enhanced III. Test-First Development with explicit TDD mention
+- Principles defined: 10 core principles (added DDD)
 - Templates: ✅ All templates ready for use
-- Follow-up: Update plan-template.md and tasks-template.md to include CHANGELOG.md and README.md updates
+- Follow-up: Apply DDD principles to domain model design in all features
 -->
 
 # Ansible Doctor Enhanced Constitution
@@ -33,15 +32,19 @@ Every library MUST expose its functionality through a command-line interface:
 
 **Rationale**: Ensures debuggability, scriptability, and integration with CI/CD pipelines.
 
-### III. Test-First Development (NON-NEGOTIABLE)
-Test-Driven Development is MANDATORY for all code:
-- Tests MUST be written BEFORE implementation
-- Red-Green-Refactor cycle strictly enforced: Write failing test → Implement → Refactor
+### III. Test-Driven Development - TDD (NON-NEGOTIABLE)
+Test-Driven Development (TDD) is MANDATORY for all code:
+- Tests MUST be written BEFORE implementation (Red-Green-Refactor)
+- **TDD Cycle strictly enforced**: 
+  1. **RED**: Write failing test that defines desired behavior
+  2. **GREEN**: Write minimal code to make test pass
+  3. **REFACTOR**: Improve code quality while keeping tests green
 - Minimum code coverage: 80% for all new code, 90% for core logic
 - Tests MUST be readable and serve as living documentation
 - No code review approval without accompanying tests
+- Unit tests for isolated logic, integration tests for workflows
 
-**Rationale**: Prevents regression, documents intended behavior, and ensures code quality from the start.
+**Rationale**: TDD prevents regression, documents intended behavior, ensures code quality from the start, and drives better API design through usage-first thinking.
 
 ### IV. Integration & Contract Testing
 Integration tests are REQUIRED for:
@@ -198,6 +201,58 @@ README.md MUST be kept current and serve as the primary entry point:
 
 **Rationale**: README is often the first (and sometimes only) documentation users read. Outdated README creates friction and support burden.
 
+### X. Domain-Driven Design - DDD
+Apply Domain-Driven Design principles to maintain a clear, expressive domain model:
+
+**Ubiquitous Language**:
+- Use consistent terminology from the Ansible domain throughout code
+- Domain terms MUST match specification language: Role, Variable, Annotation, Task, Tag, Metadata
+- Avoid generic names (e.g., use `RoleMetadata` not `Data`, use `VariableParser` not `Processor`)
+- Class/function names should read like domain documentation
+- Code comments use domain vocabulary, not technical jargon
+
+**Bounded Contexts**:
+- Separate domain concerns into clear contexts:
+  - **Parsing Context**: Extract structured data from Ansible files (parser/, models/)
+  - **Documentation Context**: Generate human-readable documentation (generators/, templates/)
+  - **Configuration Context**: Manage tool settings and runtime config (config/)
+  - **CLI Context**: Command-line interface and user interaction (cli/)
+- Each context has its own models and vocabulary
+- Cross-context communication via well-defined interfaces (protocols)
+- No shared mutable state between contexts
+
+**Entity & Value Object Design**:
+- **Entities** (with identity): AnsibleRole, TodoItem (tracked by location)
+- **Value Objects** (immutable): Variable, Annotation, Tag, Metadata
+- Value objects MUST be immutable (Pydantic frozen models)
+- Entities track identity and lifecycle
+- Rich domain models: behavior lives with data (not anemic models)
+
+**Aggregates & Consistency Boundaries**:
+- `AnsibleRole` is the root aggregate containing Variables, Metadata, Tags
+- All modifications to aggregate children go through the root
+- Aggregates enforce invariants (e.g., variable names unique within role)
+- Transactions (file writes) occur at aggregate boundaries
+
+**Domain Services**:
+- Complex operations spanning multiple entities: `RoleParser`, `DocumentationGenerator`
+- Services are stateless and operate on domain entities
+- Services coordinate workflows but don't contain domain logic
+
+**Anti-Corruption Layer**:
+- Shield domain model from external dependencies (ruamel.yaml, file system)
+- `YAMLLoader` protocol abstracts YAML library details
+- File system access isolated in `utils/paths.py`
+- External data transformed to domain models at boundaries
+
+**Strategic Design Benefits**:
+- Domain experts can read and validate code structure
+- Changes isolated to specific bounded contexts
+- Clear separation between technical infrastructure and business logic
+- Refactoring within contexts doesn't affect other contexts
+
+**Rationale**: DDD ensures the codebase reflects real-world Ansible concepts, making it intuitive for Ansible developers to understand and extend. Ubiquitous language reduces cognitive load and communication errors.
+
 ## Technical Standards
 
 ### Python & Tooling Requirements
@@ -311,4 +366,4 @@ Constitution amendments require:
 ### Living Document
 This constitution evolves with the project. Regular reviews (quarterly) ensure principles remain aligned with project goals and community needs.
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-16 | **Last Amended**: 2025-11-16
+**Version**: 1.2.0 | **Ratified**: 2025-11-16 | **Last Amended**: 2025-11-16
