@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+**Phase 3 - User Story 2: Variables Parser (T032-T047)** - MVP Feature
+
+**Tests Written First (T032-T034)** - TDD Red Phase
+- Unit tests: `tests/unit/test_annotation_extractor.py` (21 test methods)
+  - Single-line @var annotations
+  - Multiline @var annotations with YAML attributes
+  - JSON-formatted annotations
+  - @tag, @todo, @example annotations
+  - Line number tracking
+  - Comment extraction utilities
+- Unit tests: `tests/unit/test_variable_parser.py` (24 test methods)
+  - Basic variable parsing from defaults/vars
+  - Type inference (string, number, boolean, list, dict, null)
+  - Annotation merging with variables
+  - Nested structures (dict, list)
+  - Required/example/deprecated attributes
+  - Edge cases: empty files, missing annotations, malformed YAML
+- Integration tests: `tests/integration/test_variable_integration.py` (15 test methods)
+  - minimal_role: simple variables with annotations
+  - complex_role: nested structures, JSON annotations, multiline
+  - Variable statistics and analysis
+  - Deprecated variable filtering
+
+**AnnotationExtractor Implementation (T035-T037)** - TDD Green Phase
+- `ansibledoctor/parser/annotation_extractor.py`: Domain service for annotation parsing
+  - `extract_annotations()`: Main entry point for extracting all annotation types
+  - Regex patterns for @var, @tag, @todo, @example, @meta
+  - Multiline annotation support (continuation detection)
+  - `parse_annotation_attributes()`: Parse JSON/YAML/plain text formats
+  - `extract_comment_lines_with_numbers()`: Line number tracking
+  - Structured logging for observability
+
+**VariableParser Implementation (T038-T043)** - TDD Green Phase
+- `ansibledoctor/parser/variable_parser.py`: Domain service for variable extraction
+  - `parse_role_variables()`: Parse both defaults/ and vars/ directories
+  - `parse_variables_file()`: Parse single file with annotation merging
+  - Type inference via `Variable.infer_type()` (automatic detection)
+  - Annotation attribute extraction (description, required, example, deprecated)
+  - Source tracking (defaults vs vars)
+  - Comprehensive error handling
+  - Structured logging throughout
+
 **Phase 2 - User Story 1: Metadata Parser (T021-T031)** - MVP Feature
 
 **Tests Written First (T021-T022)** - TDD Red Phase
