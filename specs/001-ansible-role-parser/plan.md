@@ -74,6 +74,17 @@ Build a Python library that parses Ansible role directories, extracting metadata
 - No speculative features (MVP only: P1 user stories)
 - Module count: 6 core modules (roles, metadata, variables, annotations, tags, cli)
 
+### Article VIII: Change Documentation (Keep a Changelog) ✅
+- CHANGELOG.md created following keepachangelog.com format
+- All tasks MUST update [Unreleased] section with appropriate category
+- Release process includes moving Unreleased to versioned section
+
+### Article IX: Living Documentation (README Maintenance) ✅
+- README.md created with all required sections
+- Quick Start example includes parser usage
+- Installation instructions for Poetry and PyPI
+- Usage examples for common scenarios
+
 **Status**: All gates PASS - no violations
 
 ## Project Structure
@@ -287,6 +298,42 @@ This phase is handled by the spec-kit tasks command, which will:
 - Annotation syntax matches existing ansible-doctor patterns
 - Users familiar with command-line tools
 
+## Documentation Requirements (Constitution Articles VIII & IX)
+
+Every task implementing this feature MUST:
+
+### CHANGELOG.md Updates
+- Add entry to `[Unreleased]` section under appropriate category:
+  - **Added**: New parser modules, new annotation types
+  - **Changed**: Modifications to parsing behavior
+  - **Fixed**: Bug fixes in parsing logic
+  - **Security**: Security-related parser fixes
+- Format: `- Brief description of change ([#issue](link) if applicable)`
+- Example: `- Add support for meta/argument_specs.yml parsing for Ansible 2.11+`
+
+### README.md Updates
+Update when:
+- Adding new CLI commands or options → Update **Usage** section
+- Changing installation dependencies → Update **Installation** section
+- Adding new features → Update **Key Features** section
+- Changing Quick Start example → Validate example still works
+
+### Commit Message Format
+```
+type(scope): description
+
+- Update CHANGELOG.md [Unreleased] section
+- Update README.md if user-facing changes
+```
+
+Example:
+```
+feat(parser): add meta/argument_specs.yml support
+
+- Update CHANGELOG.md: Added Ansible 2.11+ argument specs parsing
+- Update README.md: Add example showing argument specs in output
+```
+
 ## Non-Functional Requirements Mapping
 
 | NFR | Implementation Approach |
@@ -296,6 +343,7 @@ This phase is handled by the spec-kit tasks command, which will:
 | **Maintainability** | Protocol-based design, comprehensive docstrings, type hints |
 | **Observability** | structlog with context, correlation IDs, performance metrics |
 | **Compatibility** | Support Ansible 2.9+, existing annotation syntax |
+| **Documentation** | CHANGELOG.md updated per task, README.md kept current |
 
 ## Success Criteria Verification
 
