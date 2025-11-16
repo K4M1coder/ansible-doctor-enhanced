@@ -1,0 +1,9 @@
+---
+# @var test_variable: A simple test variable
+test_variable: "hello world"
+
+# @var test_number: Numeric variable example
+test_number: 42
+
+# @var test_boolean: Boolean flag
+test_boolean: true

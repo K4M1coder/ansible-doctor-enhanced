@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Entity: TodoItem (identity by file location)
   - Enums: VariableType, AnnotationType
   - Type inference for variables (string, number, boolean, list, dict, null)
+- YAML loader implementation (RuamelYAMLLoader) with Anti-Corruption Layer for ruamel.yaml
+- Path utilities: RolePathValidator, IgnorePatternMatcher (.ansibledoctor-ignore support)
+- Integration test fixtures: minimal_role and complex_role with comprehensive test data
 
 ### Changed
 - Enhanced Article III: Test-First renamed to Test-Driven Development (TDD) with explicit Red-Green-Refactor cycle

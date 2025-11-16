@@ -1,0 +1,29 @@
+---
+# Complex tasks with multiple tags
+
+# @tag install: Install application packages
+- name: Install application
+  package:
+    name: "{{ app_name }}"
+    state: present
+  tags:
+    - install
+    - setup
+
+# @tag configure: Configure application settings
+- name: Configure application
+  template:
+    src: config.j2
+    dest: "/etc/{{ app_name }}/config.yml"
+  tags:
+    - configure
+    - setup
+
+- name: Start application service
+  service:
+    name: "{{ app_name }}"
+    state: started
+    enabled: true
+  tags:
+    - service
+    - configure

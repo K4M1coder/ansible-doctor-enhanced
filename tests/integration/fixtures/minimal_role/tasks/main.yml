@@ -1,0 +1,9 @@
+---
+# Minimal task file for testing
+
+- name: Test task
+  debug:
+    msg: "Hello from minimal role"
+  tags:
+    - test
+    - minimal

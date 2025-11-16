@@ -1,0 +1,37 @@
+---
+# Complex variables with various annotation formats
+
+# @var app_name: Application name
+app_name: "myapp"
+
+# @var app_port: $ {"type": "number", "example": "8080", "required": true}
+app_port: 8080
+
+# @var app_config: >
+# Complex application configuration dictionary
+# with multiple nested settings
+# @end
+app_config:
+  database:
+    host: localhost
+    port: 5432
+  cache:
+    enabled: true
+    ttl: 3600
+
+# @var deprecated_var: $ {"deprecated": "Use app_config.database.host instead"}
+deprecated_var: "localhost"
+
+# @var app_features: List of enabled features
+app_features:
+  - auth
+  - logging
+  - metrics
+
+# @todo: Add support for custom authentication backends
+# @example: >
+# - name: Configure app
+#   template:
+#     src: config.j2
+#     dest: /etc/myapp/config.yml
+# @end
