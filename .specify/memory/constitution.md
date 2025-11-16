@@ -1,10 +1,12 @@
 <!--
 Sync Impact Report:
-- Version change: Initial → 1.0.0
-- Initial constitution ratification
-- Principles defined: 7 core principles
+- Version change: 1.0.0 → 1.1.0
+- Added VIII. Change Documentation (Keep a Changelog)
+- Enhanced VI. Versioning with explicit Semantic Versioning practices
+- Added IX. Living Documentation (README maintenance)
+- Principles defined: 9 core principles
 - Templates: ✅ All templates ready for use
-- Follow-up: None
+- Follow-up: Update plan-template.md and tasks-template.md to include CHANGELOG.md and README.md updates
 -->
 
 # Ansible Doctor Enhanced Constitution
@@ -64,16 +66,41 @@ All code MUST be observable and debuggable:
 
 **Rationale**: Enables troubleshooting in production, performance optimization, and understanding system behavior.
 
-### VI. Versioning & Backward Compatibility
-Semantic versioning (MAJOR.MINOR.PATCH) is MANDATORY:
-- **MAJOR**: Breaking changes to CLI interface, configuration schema, or library contracts
-- **MINOR**: New features, new CLI options (backward compatible)
-- **PATCH**: Bug fixes, documentation updates, refactoring
-- Deprecation warnings MUST precede breaking changes by at least one MINOR version
-- Maintain compatibility with ansible-doctor configuration files for 2+ major versions
-- Migration guides REQUIRED for all MAJOR version bumps
+### VI. Semantic Versioning & Backward Compatibility
+Semantic Versioning (SemVer 2.0.0) is MANDATORY for all releases:
 
-**Rationale**: Users depend on stable interfaces; predictable versioning builds trust and eases upgrades.
+**Version Format**: MAJOR.MINOR.PATCH (e.g., 1.4.2)
+
+- **MAJOR** (X.0.0): Incompatible API changes
+  - Breaking changes to CLI interface, configuration schema, or library contracts
+  - Removal of deprecated features (after appropriate warning period)
+  - Changes requiring user action or code modification
+  - Migration guides REQUIRED for all MAJOR bumps
+
+- **MINOR** (0.X.0): Backward-compatible new features
+  - New features, new CLI options, new library functions
+  - Deprecation announcements (features remain functional)
+  - Performance improvements without behavior changes
+  - Dependency updates that add features
+
+- **PATCH** (0.0.X): Backward-compatible bug fixes
+  - Bug fixes, security patches
+  - Documentation corrections
+  - Internal refactoring without API changes
+  - Dependency updates for bug fixes
+
+**Version Lifecycle**:
+- Pre-release: 0.x.x (API not stable, breaking changes allowed between minors)
+- Stable: 1.0.0+ (SemVer guarantees enforced)
+- Deprecation period: Minimum 1 MINOR version before removal (e.g., deprecate in 1.2.0, remove in 2.0.0)
+- LTS versions: Major versions supported for 2+ years
+
+**Backward Compatibility**:
+- Maintain compatibility with ansible-doctor configuration files for 2+ major versions
+- Deprecation warnings logged at runtime with clear migration path
+- Old API maintained alongside new API during deprecation period
+
+**Rationale**: Semantic Versioning provides predictable expectations for users. Clear versioning builds trust and eases upgrade decisions.
 
 ### VII. Simplicity Gate (KISS Principle)
 Start simple, add complexity only when proven necessary:
@@ -85,6 +112,91 @@ Start simple, add complexity only when proven necessary:
 - Complex logic MUST include inline documentation explaining "why"
 
 **Rationale**: Simple code is maintainable code. Complexity is a liability that must be justified by concrete requirements.
+
+### VIII. Change Documentation (Keep a Changelog)
+All changes MUST be documented following Keep a Changelog 1.1.0 principles:
+
+**CHANGELOG.md Structure**:
+```markdown
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+### Added
+- New features in development
+
+### Changed
+- Changes to existing functionality
+
+### Deprecated
+- Features marked for removal
+
+### Removed
+- Features removed
+
+### Fixed
+- Bug fixes
+
+### Security
+- Security vulnerability fixes
+
+## [1.0.0] - YYYY-MM-DD
+### Added
+- Initial release features
+```
+
+**Change Categories** (use appropriate sections):
+- **Added**: New features
+- **Changed**: Changes to existing functionality
+- **Deprecated**: Features marked for future removal (with removal version)
+- **Removed**: Features removed (MAJOR version only)
+- **Fixed**: Bug fixes
+- **Security**: Security vulnerability fixes
+
+**Changelog Update Requirements**:
+- Every PR MUST update CHANGELOG.md [Unreleased] section
+- On release: Move [Unreleased] to versioned section with date
+- Include links to issues/PRs where relevant
+- Write for users (what changed), not developers (how it changed)
+- Breaking changes MUST be clearly marked with `**BREAKING:**` prefix
+
+**Rationale**: Changelog provides users with clear understanding of project evolution and upgrade impacts without reading commit history.
+
+### IX. Living Documentation (README Maintenance)
+README.md MUST be kept current and serve as the primary entry point:
+
+**Required README Sections**:
+1. **Project Description**: Clear one-paragraph summary
+2. **Key Features**: Bullet list of main capabilities
+3. **Installation**: Step-by-step installation instructions
+4. **Quick Start**: Minimal working example (copy-paste ready)
+5. **Usage**: Common use cases with examples
+6. **Configuration**: Configuration options with defaults
+7. **Documentation**: Links to full docs, API reference
+8. **Contributing**: Link to CONTRIBUTING.md
+9. **License**: License type with link to LICENSE file
+10. **Changelog**: Link to CHANGELOG.md
+
+**README Update Requirements**:
+- Update README.md when adding/removing features
+- Update installation instructions on dependency changes
+- Update examples when CLI interface changes
+- Keep Quick Start example working (validate in CI)
+- Version compatibility matrix for Ansible versions
+- Performance metrics updated quarterly
+
+**Documentation Style**:
+- Examples MUST be tested and working
+- Use code blocks with language tags for syntax highlighting
+- Include expected output for commands
+- Add badges for build status, coverage, version, license
+- Keep README concise (<500 lines) - link to detailed docs
+
+**Rationale**: README is often the first (and sometimes only) documentation users read. Outdated README creates friction and support burden.
 
 ## Technical Standards
 
@@ -137,7 +249,10 @@ Every commit MUST:
   - Examples: `feat(parser): add support for meta/argument_specs.yml`, `fix(logging): correct correlation ID propagation`
 - Be independently buildable and testable (no broken intermediate states)
 - Include tests for new functionality or bug fixes
-- Update relevant documentation (README, CHANGELOG)
+- Update relevant documentation:
+  - **CHANGELOG.md**: Add entry to [Unreleased] section with appropriate category
+  - **README.md**: Update if CLI interface, features, or installation process changes
+  - **Inline docs**: Update docstrings for modified functions/classes
 - Pass all CI checks (tests, linting, type checking)
 
 ### Branch Strategy
@@ -149,11 +264,17 @@ Every commit MUST:
 
 ### Code Review Requirements
 All changes require review approval with verification of:
-- Constitutional compliance (follows all 7 core principles)
+- Constitutional compliance (follows all 9 core principles)
 - Test coverage meets 80% minimum threshold
 - No security vulnerabilities introduced
-- Documentation updated (inline docs, README, changelog)
-- Breaking changes flagged and justified in PR description
+- Documentation updated:
+  - CHANGELOG.md entry present in [Unreleased]
+  - README.md updated if user-facing changes
+  - Docstrings current for modified code
+- Breaking changes flagged and justified in PR description with:
+  - CHANGELOG.md marked with `**BREAKING:**`
+  - README.md migration notes
+  - Deprecation warnings if applicable
 - Performance implications assessed for hot paths
 
 ### Quality Gates (CI/CD Pipeline)
@@ -190,4 +311,4 @@ Constitution amendments require:
 ### Living Document
 This constitution evolves with the project. Regular reviews (quarterly) ensure principles remain aligned with project goals and community needs.
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-16 | **Last Amended**: 2025-11-16
+**Version**: 1.1.0 | **Ratified**: 2025-11-16 | **Last Amended**: 2025-11-16
