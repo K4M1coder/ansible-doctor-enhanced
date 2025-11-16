@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project structure: ansibledoctor/{models/, parser/, cli/, utils/}, tests/{unit/, integration/}
 - Exception hierarchy (AnsibleDoctorError, ParsingError, ValidationError, ConfigError, TemplateError)
 - Structured logging infrastructure with correlation IDs and JSON output support
+- Protocol definitions (RoleParser, YAMLLoader, AnnotationExtractor) for Dependency Inversion
+- Pydantic domain models following DDD principles:
+  - Aggregate Root: AnsibleRole with rich behavior methods
+  - Value Objects: RoleMetadata, Variable, Tag, Annotation, Example (all immutable/frozen)
+  - Entity: TodoItem (identity by file location)
+  - Enums: VariableType, AnnotationType
+  - Type inference for variables (string, number, boolean, list, dict, null)
 
 ### Changed
 - Enhanced Article III: Test-First renamed to Test-Driven Development (TDD) with explicit Red-Green-Refactor cycle

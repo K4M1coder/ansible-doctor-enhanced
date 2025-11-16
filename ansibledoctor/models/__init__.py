@@ -1,1 +1,34 @@
-"""Models package for Pydantic domain models."""
+"""
+Models package for Pydantic domain models.
+
+Following Constitution Article X (Domain-Driven Design):
+- Aggregate Root: AnsibleRole
+- Value Objects: Variable, Tag, Annotation, Example, RoleMetadata
+- Entities: TodoItem (identity by location)
+"""
+
+from ansibledoctor.models.annotation import Annotation, AnnotationType, Example, TodoItem
+from ansibledoctor.models.metadata import ArgumentSpec, Dependency, Platform, RoleMetadata
+from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.models.tag import Tag
+from ansibledoctor.models.variable import Variable, VariableType
+
+__all__ = [
+    # Aggregate Root
+    "AnsibleRole",
+    # Metadata
+    "RoleMetadata",
+    "Platform",
+    "Dependency",
+    "ArgumentSpec",
+    # Variables
+    "Variable",
+    "VariableType",
+    # Annotations
+    "Annotation",
+    "AnnotationType",
+    "TodoItem",
+    "Example",
+    # Tags
+    "Tag",
+]
