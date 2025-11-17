@@ -1,4 +1,5 @@
 """Documentation generator module."""
+from ansibledoctor.generator.engine import TemplateEngine
 from ansibledoctor.generator.errors import (
     GeneratorError,
     RenderError,
@@ -21,6 +22,7 @@ __all__ = [
     "RstRenderer",
     "RenderResult",
     "TemplateContext",
+    "TemplateEngine",
     "FILTERS",
     "GeneratorError",
     "TemplateError",
