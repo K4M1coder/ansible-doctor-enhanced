@@ -1,0 +1,57 @@
+---
+# Main tasks file for phase8_test_role
+# @todo(critical): Add error handling for failed service start
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - curl
+    - wget
+  tags:
+    - installation
+    - packages
+    - setup
+
+- name: Create service configuration directory
+  ansible.builtin.file:
+    path: "/etc/{{ phase8_service_name }}"
+    state: directory
+    mode: "0755"
+  tags:
+    - configuration
+    - setup
+
+- name: Deploy service configuration
+  ansible.builtin.template:
+    src: "config.j2"
+    dest: "/etc/{{ phase8_service_name }}/config.yml"
+    mode: "0644"
+  tags:
+    - configuration
+    - deployment
+  notify: restart service
+
+- name: Start and enable service
+  ansible.builtin.systemd:
+    name: "{{ phase8_service_name }}"
+    state: started
+    enabled: "{{ phase8_enabled }}"
+  tags:
+    - service
+    - deployment
+
+# @example Running specific task groups
+# ansible-playbook site.yml --tags "installation"
+# ansible-playbook site.yml --tags "configuration,deployment"
+# @end
+
+- name: Verify service is running
+  ansible.builtin.uri:
+    url: "http://localhost:{{ phase8_port }}/health"
+    method: GET
+    status_code: 200
+  tags:
+    - verification
+    - monitoring

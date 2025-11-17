@@ -31,7 +31,7 @@ class RuamelYAMLLoader:
         self.yaml.preserve_quotes = True
         self.yaml.default_flow_style = False
 
-    def load_file(self, file_path: Path) -> dict[str, Any]:
+    def load_file(self, file_path: Path) -> dict[str, Any] | list[Any]:
         """
         Load and parse a YAML file.
         
@@ -39,7 +39,7 @@ class RuamelYAMLLoader:
             file_path: Path to YAML file
             
         Returns:
-            Parsed YAML content as dictionary
+            Parsed YAML content as dictionary or list
             
         Raises:
             ParsingError: If file not found or YAML syntax is invalid
@@ -66,7 +66,10 @@ class RuamelYAMLLoader:
                 file_path=str(file_path),
                 keys_count=len(data) if isinstance(data, dict) else 0,
             )
-            return dict(data) if isinstance(data, dict) else {}
+            # Return data as-is (can be dict or list for tasks)
+            if isinstance(data, (dict, list)):
+                return data
+            return {}
             
         except Exception as e:
             logger.error(

@@ -1,0 +1,13 @@
+---
+# Handlers for phase8_test_role
+
+- name: restart service
+  ansible.builtin.systemd:
+    name: "{{ phase8_service_name }}"
+    state: restarted
+  tags:
+    - service
+    - restart
+
+# @todo: Add handler for service reload (graceful restart)
+# @todo(low): Add notification handler for monitoring systems
