@@ -6,6 +6,7 @@ from ansibledoctor.generator.errors import (
     TemplateNotFoundError,
     TemplateValidationError,
 )
+from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.protocols import DocumentRenderer, TemplateLoader
 from ansibledoctor.generator.renderers import HtmlRenderer, MarkdownRenderer, RstRenderer
@@ -17,6 +18,8 @@ __all__ = [
     "MarkdownRenderer",
     "HtmlRenderer",
     "RstRenderer",
+    "RenderResult",
+    "TemplateContext",
     "GeneratorError",
     "TemplateError",
     "TemplateNotFoundError",

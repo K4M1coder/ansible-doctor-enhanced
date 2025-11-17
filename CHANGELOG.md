@@ -52,7 +52,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Inline code with double backticks
   - 23 unit tests with 100% coverage
 
-**Metrics**: +102 tests (262 → 364), renderers at 100% coverage
+- **T206**: TemplateContext dataclass
+  - Context data passed to templates for rendering
+  - Computed properties: has_variables, variable_count, has_tags, tag_count, etc.
+  - role_name, role_description, format_name properties
+  - to_dict() method for template compatibility
+  - Supports custom_data for extended context
+  - 10 unit tests with 100% coverage
+
+- **T207**: RenderResult dataclass
+  - Result container for documentation rendering operations
+  - Properties: file_extension, size_bytes, line_count
+  - save_to_file() method for output persistence
+  - Includes metadata (timestamp, source_file, template_name)
+  - 9 unit tests with 100% coverage
+
+**Metrics**: +121 tests (262 → 383), generator module at 100% coverage, 87% overall
 
 ## [0.2.0] - 2025-11-17
 
