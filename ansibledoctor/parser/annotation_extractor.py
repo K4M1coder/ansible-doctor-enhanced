@@ -242,6 +242,10 @@ class AnnotationExtractor:
         if not content:
             return {}
         
+        # Strip dollar sign prefix if present (JSON format marker)
+        if content.startswith("$"):
+            content = content[1:].strip()
+        
         # Try JSON format first
         if content.startswith("{"):
             try:

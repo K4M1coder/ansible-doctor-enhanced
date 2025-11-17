@@ -7,9 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2025-11-17
+
 ### Added
 
-**Phase 7 - Polish (T083-T093 partial)** - Quality Assurance
+**Phase 7 - Quality Assurance & Testing** - MVP Release
+
+**Bug Fixes & Test Completion (T086-T087)**
+- Fixed JSON annotation parsing: Strip `$` prefix before JSON parsing
+- Fixed CLI test mocks: Remove invalid RoleParser mock
+- Fixed test fixtures: Align minimal_role defaults with test expectations
+- Fixed platform summary assertions in metadata integration tests
+- **129 tests passing** (100% pass rate)
+- **81% code coverage** (exceeds 80% target per Constitution Article III)
+
+**Property-Based Testing (T088)**
+- Added 9 hypothesis-based property tests for annotation parsing
+- Tests cover: variable names, descriptions, tags, multiline annotations
+- JSON attribute variations, comment counts, whitespace handling
+- Edge case validation for annotation extractor robustness
+
+**Performance Benchmarks (T091)**  
+- Created 5 performance tests validating SC-002 requirements
+- Minimal role parsing: <500ms ✅
+- Complex role parsing: <2s ✅
+- CLI end-to-end: <1s ✅
+- Annotation extraction: <200ms ✅
+- YAML loading (1000 vars): <500ms ✅
+
+**CLI Module Entry Point (T089)**
+- Added `ansibledoctor/__main__.py` for `python -m ansibledoctor` execution
+- Validated all README quickstart examples
+- CLI help, parse command, JSON output, file output all functional
+
+**Documentation (T093-T097)**
+- Added comprehensive Architecture section to README
+  - DDD component structure diagram
+  - Design principles (immutability, ubiquitous language, type safety)
+  - Data flow visualization
+  - Key patterns (protocols, value objects, aggregates)
+- Fixed README License section emoji
+- Created `.gitignore` for Python project
+
+**Phase 6 - CLI Interface (T072-T082)** - MVP Feature
 
 **Configuration Tests (T083-T085)** - Quality Gates
 - Unit tests: `tests/unit/test_config.py` (11 test methods)

@@ -1,9 +1,9 @@
 ---
-# @var test_variable: A simple test variable
-test_variable: "hello world"
+# @var minimal_role_port: Port number for the service
+minimal_role_port: 8080
 
-# @var test_number: Numeric variable example
-test_number: 42
+# @var minimal_role_enabled: Whether the role is enabled
+minimal_role_enabled: true
 
-# @var test_boolean: Boolean flag
-test_boolean: true
+# @var minimal_role_name: Name of the service
+minimal_role_name: "test"

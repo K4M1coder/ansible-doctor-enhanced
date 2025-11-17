@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from ansibledoctor.cli import cli, parse_command
+from ansibledoctor.cli import cli
 
 
 class TestCliBasics:
@@ -21,11 +21,11 @@ class TestCliBasics:
         assert callable(cli)
 
     def test_parse_command_exists(self):
-        """RED: Test that parse command is callable."""
-        assert callable(parse_command)
+        """RED: Test that parse command is available in CLI group."""
+        # Parse command should be registered in CLI group
+        assert "parse" in [cmd.name for cmd in cli.commands.values()]
 
-    @patch("ansibledoctor.cli.click")
-    def test_cli_group_decorator(self, mock_click):
+    def test_cli_group_decorator(self):
         """RED: Test that CLI is a click group."""
         # CLI should be a click group for subcommands
         assert hasattr(cli, "command")
@@ -34,17 +34,19 @@ class TestCliBasics:
 class TestParseCommand:
     """Test suite for parse command."""
 
-    @patch("ansibledoctor.cli.RoleParser")
-    @patch("ansibledoctor.cli.Path")
-    def test_parse_command_basic(self, mock_path, mock_role_parser, tmp_path):
+    def test_parse_command_basic(self, tmp_path):
         """RED: Test basic parse command execution."""
         from click.testing import CliRunner
 
         runner = CliRunner()
         
-        # Mock role path
+        # Create minimal role structure
         role_path = tmp_path / "test_role"
         role_path.mkdir()
+        (role_path / "meta").mkdir()
+        (role_path / "meta" / "main.yml").write_text("---\nrole_name: test_role\n")
+        (role_path / "defaults").mkdir()
+        (role_path / "defaults" / "main.yml").write_text("---\ntest_var: value\n")
         
         result = runner.invoke(cli, ["parse", str(role_path)])
         

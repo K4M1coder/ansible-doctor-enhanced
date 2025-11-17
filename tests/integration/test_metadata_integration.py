@@ -78,8 +78,11 @@ class TestMinimalRoleMetadata:
         
         summary = metadata.get_supported_platforms_summary()
         
-        assert "Ubuntu" in summary
-        assert "20.04" in summary or "22.04" in summary
+        # Summary is list of strings like "Ubuntu (20.04, 22.04)"
+        assert len(summary) > 0
+        assert any("Ubuntu" in platform for platform in summary)
+        summary_str = " ".join(summary)
+        assert "20.04" in summary_str or "22.04" in summary_str
 
 
 class TestComplexRoleMetadata:

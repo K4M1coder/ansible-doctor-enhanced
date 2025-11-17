@@ -23,6 +23,59 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Type-Safe**: Full type hints with mypy strict mode validation
 - **Constitutional Governance**: 10 core principles ensuring quality, maintainability, and SOLID architecture
 
+## 🏗️ Architecture
+
+Ansible Doctor Enhanced follows **Domain-Driven Design (DDD)** principles with clean architecture:
+
+### Core Components
+
+```
+ansibledoctor/
+├── models/           # Domain Models (DDD Value Objects & Entities)
+│   ├── annotation.py    - Annotation value objects (@var, @tag, @todo, @example, @meta)
+│   ├── metadata.py      - Role metadata entity (author, platforms, dependencies)
+│   ├── variable.py      - Variable value object (name, type, value, annotations)
+│   ├── tag.py           - Task tag value object
+│   └── role.py          - Aggregate root combining all role information
+├── parser/           # Domain Services (Anti-Corruption Layer)
+│   ├── annotation_extractor.py  - Extract annotations from YAML comments
+│   ├── metadata_parser.py       - Parse meta/main.yml into Metadata entity
+│   ├── variable_parser.py       - Parse defaults/vars with type inference
+│   ├── yaml_loader.py           - YAML loading abstraction (ruamel.yaml)
+│   └── protocols.py             - Parser protocols (interfaces)
+├── cli/              # Application Layer (CLI Interface)
+│   └── __init__.py      - Click-based CLI with parse command
+├── utils/            # Infrastructure Layer (Cross-cutting concerns)
+│   ├── logging.py       - Structured logging with correlation IDs
+│   └── paths.py         - Path validation and role structure checks
+└── exceptions.py     # Domain Exceptions (AnsibleDoctorError hierarchy)
+```
+
+### Design Principles
+
+1. **Immutability**: All domain models are frozen Pydantic models (value objects)
+2. **Ubiquitous Language**: Terminology from Ansible domain (role, variable, meta, defaults, handlers)
+3. **Bounded Contexts**: Clear separation between parsing (input) and generation (output - Phase 2)
+4. **Type Safety**: 100% type hints with mypy --strict validation
+5. **Testability**: Protocol-based design enabling dependency injection and mocking
+
+### Data Flow
+
+```
+Role Directory → YAMLLoader → Parsers → Domain Models → CLI Output (JSON/Text)
+                    ↓            ↓           ↓
+                  YAML     Annotations  Immutable
+                 Content    Extraction   Entities
+```
+
+### Key Patterns
+
+- **Parser Protocol**: Abstract interface for all parsers (metadata, variable, tag)
+- **Value Objects**: Annotation, Variable, Tag (immutable, equality by value)
+- **Entity**: Metadata (identity by role name)
+- **Aggregate Root**: Role (composition of metadata + variables + tags)
+- **Anti-Corruption Layer**: Parsers shield domain from YAML library changes
+
 ## 🚀 Installation
 
 ### Prerequisites
@@ -297,7 +350,7 @@ Key principles:
 - **Performance Optimization**: <500ms per role target
 - **Cross-platform Testing**: Windows, macOS, Linux validation
 
-## 📜 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 

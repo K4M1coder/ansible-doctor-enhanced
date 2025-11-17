@@ -46,9 +46,9 @@ class Variable(BaseModel):
     
     # Annotation attributes (from @var annotations)
     description: Optional[str] = Field(None, description="Variable description from @var")
-    example: Optional[str] = Field(None, description="Usage example from annotation")
-    required: bool = Field(default=False, description="Whether variable is required")
-    deprecated: Optional[str] = Field(
+    example: Optional[Any] = Field(None, description="Usage example from annotation")
+    required: Optional[bool] = Field(None, description="Whether variable is required")
+    deprecated: Optional[Any] = Field(
         None, description="Deprecation message if variable is deprecated"
     )
     default: Optional[str] = Field(
