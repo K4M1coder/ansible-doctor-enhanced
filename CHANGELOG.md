@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+**Feature 002 - Documentation Generator (Phase 9 Foundation - T201-T203)**
+
+- **T201**: OutputFormat enum with MARKDOWN, HTML, RST support
+  - File extension mapping (.md, .html, .rst)
+  - MIME type support (text/markdown, text/html, text/x-rst)
+  - Case-insensitive format lookup via from_string()
+  - Validation with descriptive error messages
+  - 8 unit tests with 100% coverage
+
+- **T202**: DocumentRenderer and TemplateLoader protocols
+  - DocumentRenderer protocol: render(), escape(), code_block()
+  - TemplateLoader protocol: load_template(), discover_templates(), validate_template()
+  - Runtime checkable protocols with @runtime_checkable
+  - 7 contract tests validating protocol compliance
+
+- **T203**: MarkdownRenderer implementation
+  - Full GitHub Flavored Markdown (GFM) support
+  - Methods: heading(), list_item(), link(), bold(), italic(), inline_code()
+  - Proper escape handling for Markdown special characters
+  - Code block formatting with syntax highlighting hints
+  - 24 unit tests with 100% coverage
+
+- **Exception hierarchy for generator errors**
+  - GeneratorError (base exception)
+  - TemplateError, TemplateNotFoundError, TemplateValidationError
+  - RenderError with context tracking
+  - 10 exception tests with detailed error messages
+
+**Metrics**: +49 tests (262 → 311), generator module at 100% coverage
+
 ## [0.2.0] - 2025-11-17
 
 ### Added
