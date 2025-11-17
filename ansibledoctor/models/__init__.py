@@ -7,10 +7,12 @@ Following Constitution Article X (Domain-Driven Design):
 - Entities: TodoItem (identity by location)
 """
 
-from ansibledoctor.models.annotation import Annotation, AnnotationType, Example, TodoItem
+from ansibledoctor.models.annotation import Annotation, AnnotationType
+from ansibledoctor.models.example import Example
 from ansibledoctor.models.metadata import ArgumentSpec, Dependency, Platform, RoleMetadata
 from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.models.tag import Tag
+from ansibledoctor.models.todo import TodoItem
 from ansibledoctor.models.variable import Variable, VariableType
 
 __all__ = [

@@ -12,9 +12,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-from ansibledoctor.models.annotation import Annotation, Example, TodoItem
+from ansibledoctor.models.annotation import Annotation
+from ansibledoctor.models.example import Example
 from ansibledoctor.models.metadata import RoleMetadata
 from ansibledoctor.models.tag import Tag
+from ansibledoctor.models.todo import TodoItem
 from ansibledoctor.models.variable import Variable
 
 
