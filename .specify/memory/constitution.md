@@ -106,30 +106,35 @@ ansible-doctor-enhanced aims to become a complete Ansible documentation solution
   - Parse Ansible role metadata, variables, tags, TODOs, examples
   - CLI `parse` command with JSON output
   - Foundation for all documentation features
+  - Spec: `specs/001-role-parser/` (COMPLETE)
 
 - **v0.3.0**: Role Documentation Generator (Feature 002) - IN PROGRESS 📋
   - Generate role documentation (Markdown/HTML/RST)
   - Template system with Jinja2
   - CLI `generate` command
   - **GATE**: Must complete role documentation before collection/project features
+  - Spec: `specs/002-doc-generator/` (specification COMPLETE, implementation pending)
 
-- **v0.4.0**: Role Documentation Parity
+- **v0.4.0**: Role Documentation Parity (Feature 003) - PLANNED
   - All features from original ansible-doctor for roles
   - Performance optimization (<500ms per role)
   - Template system stabilization
   - **GATE**: Achieve parity with original tool before adding new features
+  - Spec: `specs/003-role-parity/spec.md` (high-level spec ready, detailed planning pending)
 
-- **v0.5.0**: Collection Documentation (NEW - Beyond original)
+- **v0.5.0**: Collection Documentation (Feature 004) - PLANNED (NEW - Beyond original)
   - Parse Ansible collections (galaxy.yml, multiple roles, plugins)
   - Collection-level documentation generation
   - Cross-role dependency analysis
   - **PREREQUISITE**: v0.4.0 role documentation complete
+  - Spec: `specs/004-collection-docs/spec.md` (high-level spec ready, detailed planning pending)
 
-- **v0.6.0**: Project Documentation (NEW - Beyond original)
+- **v0.6.0**: Project Documentation (Feature 005) - PLANNED (NEW - Beyond original)
   - Full Ansible project parsing (roles, collections, playbooks, inventory)
   - Project-level architecture documentation
   - Playbook documentation with task flows
   - **PREREQUISITE**: v0.5.0 collection documentation complete
+  - Spec: `specs/005-project-docs/spec.md` (high-level spec ready, detailed planning pending)
 
 - **v1.0.0**: Production Release
   - Complete Ansible documentation solution (Role → Collection → Project)
