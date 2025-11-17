@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  author: Phase 8 Test Author
+  description: Test role for Phase 8 features (tags, todos, examples)
+  company: Test Company
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
+    - name: Debian
+      versions:
+        - "11"
+        - "12"
+  
+  galaxy_tags:
+    - testing
+    - phase8
+    - documentation
+
+dependencies: []

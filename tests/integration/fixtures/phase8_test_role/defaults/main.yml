@@ -1,0 +1,33 @@
+---
+# @var phase8_service_name:description: Name of the service to manage
+# @var phase8_service_name:type: string
+# @var phase8_service_name:example: "my-app"
+# @var phase8_service_name:required: true
+phase8_service_name: "test-service"
+
+# @var phase8_port:description: Port number for the service
+# @var phase8_port:type: number
+# @var phase8_port:example: 8080
+phase8_port: 8080
+
+# @var phase8_enabled:description: Whether the service is enabled
+# @var phase8_enabled:type: boolean
+phase8_enabled: true
+
+# @todo: Add validation for phase8_service_name format  
+# @todo(high): Implement SSL/TLS support for secure connections  
+# @todo(medium): Add health check endpoint configuration  
+
+# @example Basic service configuration
+# phase8_service_name: "web-app"
+# phase8_port: 3000
+# phase8_enabled: true
+# @end
+
+# @example Advanced configuration with custom settings
+# phase8_service_name: "api-server"
+# phase8_port: 8443
+# phase8_enabled: true
+# phase8_ssl_enabled: true
+# phase8_ssl_cert_path: "/etc/ssl/certs/server.crt"
+# @end

@@ -1,0 +1,28 @@
+---
+# Complex role for testing advanced features
+
+galaxy_info:
+  author: Complex Author
+  description: A complex test role with multiple features
+  license: BSD-3-Clause
+  company: Test Corp
+  min_ansible_version: "2.11"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+  
+  galaxy_tags:
+    - testing
+    - complex
+    - advanced
+
+dependencies:
+  - name: geerlingguy.docker
+    version: ">=4.0.0"

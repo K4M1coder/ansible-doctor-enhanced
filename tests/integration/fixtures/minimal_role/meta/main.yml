@@ -1,0 +1,20 @@
+---
+# Minimal role for testing basic metadata parsing
+
+galaxy_info:
+  author: Test Author
+  description: A minimal test role for ansible-doctor-enhanced
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "20.04"
+        - "22.04"
+  
+  galaxy_tags:
+    - testing
+    - minimal
+
+dependencies: []

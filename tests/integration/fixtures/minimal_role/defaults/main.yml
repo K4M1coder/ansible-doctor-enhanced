@@ -1,0 +1,9 @@
+---
+# @var minimal_role_port: Port number for the service
+minimal_role_port: 8080
+
+# @var minimal_role_enabled: Whether the role is enabled
+minimal_role_enabled: true
+
+# @var minimal_role_name: Name of the service
+minimal_role_name: "test"
