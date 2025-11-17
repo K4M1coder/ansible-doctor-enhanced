@@ -14,7 +14,10 @@ import click
 from ansibledoctor import __version__
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, ValidationError
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
+from ansibledoctor.parser.example_parser import ExampleParser
 from ansibledoctor.parser.metadata_parser import MetadataParser
+from ansibledoctor.parser.task_parser import TaskParser
+from ansibledoctor.parser.todo_parser import TodoParser
 from ansibledoctor.parser.variable_parser import VariableParser
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 from ansibledoctor.utils.logging import get_logger, setup_logging
@@ -177,6 +180,9 @@ def _parse_single_role(role_path: Path, validate: bool) -> dict:
     annotation_extractor = AnnotationExtractor()
     metadata_parser = MetadataParser(yaml_loader)
     variable_parser = VariableParser(yaml_loader, annotation_extractor)
+    task_parser = TaskParser(yaml_loader)
+    todo_parser = TodoParser()
+    example_parser = ExampleParser()
 
     # Parse role components
     result = {
@@ -256,6 +262,57 @@ def _parse_single_role(role_path: Path, validate: bool) -> dict:
         logger.warning("variables_parse_failed", error=str(e))
         result["variables"] = []
         result["variable_stats"] = {}
+
+    # Parse task tags (Phase 8 - US3)
+    try:
+        tags = task_parser.parse_tasks(role_path)
+        result["tags"] = [
+            {
+                "name": t.name,
+                "description": t.description,
+                "usage_count": t.usage_count,
+                "file_locations": t.file_locations,
+            }
+            for t in tags
+        ]
+        logger.debug("tags_parsed", count=len(tags))
+    except Exception as e:
+        logger.warning("tags_parse_failed", error=str(e))
+        result["tags"] = []
+
+    # Parse TODO annotations (Phase 8 - US4)
+    try:
+        todos = todo_parser.parse_role(role_path)
+        result["todos"] = [
+            {
+                "description": t.description,
+                "file_path": t.file_path,
+                "line_number": t.line_number,
+                "priority": t.priority,
+            }
+            for t in todos
+        ]
+        logger.debug("todos_parsed", count=len(todos))
+    except Exception as e:
+        logger.warning("todos_parse_failed", error=str(e))
+        result["todos"] = []
+
+    # Parse example code blocks (Phase 8 - US4)
+    try:
+        examples = example_parser.parse_role(role_path)
+        result["examples"] = [
+            {
+                "title": ex.title,
+                "code": ex.code,
+                "description": ex.description,
+                "language": ex.language,
+            }
+            for ex in examples
+        ]
+        logger.debug("examples_parsed", count=len(examples))
+    except Exception as e:
+        logger.warning("examples_parse_failed", error=str(e))
+        result["examples"] = []
 
     logger.info("role_parsed_successfully", role_name=result["name"])
     return result
