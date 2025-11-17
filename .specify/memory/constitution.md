@@ -98,12 +98,58 @@ Semantic Versioning (SemVer 2.0.0) is MANDATORY for all releases:
 - Deprecation period: Minimum 1 MINOR version before removal (e.g., deprecate in 1.2.0, remove in 2.0.0)
 - LTS versions: Major versions supported for 2+ years
 
+**Milestone Definitions for v1.0.0**:
+
+ansible-doctor-enhanced aims to become a complete Ansible documentation solution. The v1.0.0 milestone represents feature parity with the original ansible-doctor for roles PLUS new capabilities for collections and projects.
+
+- **v0.1.0-v0.2.0**: Role Parser (Feature 001) - COMPLETED ✅
+  - Parse Ansible role metadata, variables, tags, TODOs, examples
+  - CLI `parse` command with JSON output
+  - Foundation for all documentation features
+
+- **v0.3.0**: Role Documentation Generator (Feature 002) - IN PROGRESS 📋
+  - Generate role documentation (Markdown/HTML/RST)
+  - Template system with Jinja2
+  - CLI `generate` command
+  - **GATE**: Must complete role documentation before collection/project features
+
+- **v0.4.0**: Role Documentation Parity
+  - All features from original ansible-doctor for roles
+  - Performance optimization (<500ms per role)
+  - Template system stabilization
+  - **GATE**: Achieve parity with original tool before adding new features
+
+- **v0.5.0**: Collection Documentation (NEW - Beyond original)
+  - Parse Ansible collections (galaxy.yml, multiple roles, plugins)
+  - Collection-level documentation generation
+  - Cross-role dependency analysis
+  - **PREREQUISITE**: v0.4.0 role documentation complete
+
+- **v0.6.0**: Project Documentation (NEW - Beyond original)
+  - Full Ansible project parsing (roles, collections, playbooks, inventory)
+  - Project-level architecture documentation
+  - Playbook documentation with task flows
+  - **PREREQUISITE**: v0.5.0 collection documentation complete
+
+- **v1.0.0**: Production Release
+  - Complete Ansible documentation solution (Role → Collection → Project)
+  - Stable API and CLI interface guaranteed
+  - 90%+ test coverage maintained
+  - Production-ready templates and comprehensive documentation
+  - Migration guide from ansible-doctor
+
+**Development Priority Rules**:
+1. **No new scope before foundation**: Collection/Project features MUST wait until role documentation is complete and stable
+2. **Parity before innovation**: Match original ansible-doctor capabilities for roles before adding collection/project features
+3. **Incremental milestones**: Each minor version must be independently valuable and deployable
+4. **Template system first**: Template infrastructure (Feature 002) is prerequisite for all documentation features
+
 **Backward Compatibility**:
 - Maintain compatibility with ansible-doctor configuration files for 2+ major versions
 - Deprecation warnings logged at runtime with clear migration path
 - Old API maintained alongside new API during deprecation period
 
-**Rationale**: Semantic Versioning provides predictable expectations for users. Clear versioning builds trust and eases upgrade decisions.
+**Rationale**: Semantic Versioning provides predictable expectations for users. Clear versioning builds trust and eases upgrade decisions. Milestone gating prevents scope creep and ensures solid foundations before expansion.
 
 ### VII. Simplicity Gate (KISS Principle)
 Start simple, add complexity only when proven necessary:

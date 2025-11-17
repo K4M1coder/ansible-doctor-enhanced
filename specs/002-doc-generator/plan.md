@@ -1,6 +1,7 @@
 # Implementation Plan: Documentation Generator with Templates
 
-**Branch**: `002-doc-generator` | **Date**: 2025-11-17 | **Spec**: [spec.md](./spec.md)
+**Branch**: `002-doc-generator` | **Date**: 2025-11-17 | **Spec**: [spec.md](./spec.md)  
+**Milestone**: v0.3.0 | **Prerequisites**: v0.2.0 (Role Parser) COMPLETE ✅
 
 ## Summary
 
@@ -8,6 +9,8 @@ Build a documentation generator that transforms parsed Ansible role data (JSON f
 
 **Primary requirement**: Generate README.md from parsed role with zero configuration  
 **Technical approach**: Jinja2 template engine + format-specific renderers + embedded default templates
+
+**Milestone Context**: This is Feature 002, targeting v0.3.0. It establishes the template infrastructure that will be reused for collection (v0.5.0) and project (v0.6.0) documentation. Must achieve stable template system before adding new scope.
 
 ## Technical Context
 

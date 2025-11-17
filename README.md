@@ -386,13 +386,43 @@ Key principles:
   - Recursive mode for parsing multiple roles
   - 20 test methods ensuring correctness
 
-#### ⏳ Planned Features (remaining tasks)
+#### 🎯 Roadmap to v1.0.0
 
-- **Documentation Generator**: Markdown/HTML templates with customizable themes
-- **Performance Optimization**: <500ms per role target with caching
-- **Cross-platform Testing**: Windows, macOS, Linux validation
-- **Web UI**: Interactive documentation browser
-- **CI/CD Integration**: GitHub Actions, GitLab CI templates
+**v0.3.0 - Role Documentation Generator** (Feature 002 - NEXT)
+- Markdown/HTML/RST output formats with Jinja2 templates
+- Customizable templates (project, user, embedded defaults)
+- Template inheritance and custom filters
+- CLI `generate` command integration
+
+**v0.4.0 - Documentation Parity** (Remaining Role Features)
+- All features from original ansible-doctor for roles
+- Performance optimization (<500ms per role)
+- Cross-platform validation (Windows, macOS, Linux)
+- Template system stabilization
+
+**v0.5.0 - Collection Documentation** (NEW - Not in original)
+- Parse Ansible collections (multiple roles, plugins, modules)
+- Collection-level metadata (galaxy.yml, requirements.yml)
+- Cross-role dependency visualization
+- Collection README generation
+
+**v0.6.0 - Project Documentation** (NEW - Not in original)
+- Full Ansible project parsing (roles, collections, playbooks)
+- Project-level documentation (architecture, inventory, vars)
+- Playbook documentation with task flow
+- Multi-format project reports
+
+**v1.0.0 - Production Release**
+- Complete Ansible documentation solution (Role → Collection → Project)
+- Stable API and CLI interface
+- Comprehensive test coverage (90%+)
+- Production-ready templates and themes
+- Complete user documentation
+
+**Post v1.0.0**
+- Web UI for interactive browsing
+- CI/CD integration templates
+- Plugin ecosystem for custom renderers
 
 ## 📄 License
 
