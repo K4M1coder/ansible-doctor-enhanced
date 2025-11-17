@@ -2,189 +2,156 @@
 TaskParser for extracting tags from Ansible task files.
 
 Parses tasks/*.yml files to discover all tags used in task definitions.
-Aggregates tags with usage counts and file locations for documentation.
+Aggregates tag usage counts and tracks file locations.
 
-Part of Phase 8 US3 (Task Tags extraction).
+Following Constitution Article X (Domain-Driven Design):
+- Domain Service: TaskParser extracts tags from infrastructure (YAML files)
+- Uses Protocol-based dependency injection for testability
 """
 
-import structlog
 from pathlib import Path
-from typing import Protocol
+from typing import Any
+
+import structlog
 
 from ansibledoctor.models.tag import Tag
+from ansibledoctor.parser.protocols import YAMLLoader
 
-
-class YamlLoaderProtocol(Protocol):
-    """Protocol for YAML loading dependency."""
-
-    def load_file(self, file_path: Path) -> list | dict:
-        """Load and parse YAML file."""
-        ...
+logger = structlog.get_logger()
 
 
 class TaskParser:
     """
-    Parser for extracting tags from Ansible task files.
-    
-    Discovers all task files in a role's tasks/ directory, extracts tag
-    definitions, and aggregates them with usage statistics.
-    
-    Follows DDD Repository pattern for accessing task data.
+    Domain Service: Parse Ansible task files to extract tags.
+
+    Discovers all task files in the tasks/ directory, extracts tags from
+    task definitions, aggregates usage counts, and tracks file locations.
+
+    This parser focuses solely on tag extraction. Tag descriptions from
+    @tag annotations are handled separately by the annotation parser and
+    merged at the RoleParser level.
     """
 
-    def __init__(self, yaml_loader: YamlLoaderProtocol) -> None:
+    def __init__(self, yaml_loader: YAMLLoader):
         """
-        Initialize TaskParser.
-        
+        Initialize TaskParser with dependencies.
+
         Args:
             yaml_loader: YAML file loader for reading task files
         """
         self.yaml_loader = yaml_loader
-        self.logger = structlog.get_logger()
 
-    def parse_task_file(self, task_file: Path) -> list[Tag]:
+    def parse_tasks(self, role_path: Path) -> list[Tag]:
         """
-        Parse a single task file and extract tags.
-        
+        Parse all task files in role to extract tags.
+
+        Reads tasks/main.yml (and potentially included files) to discover
+        all tags used in the role. Aggregates tag usage counts and tracks
+        file locations.
+
         Args:
-            task_file: Path to task YAML file
-            
+            role_path: Absolute path to role directory
+
         Returns:
-            List of unique Tag objects found in the file
+            List of Tag objects with usage counts and file locations
+
+        Note:
+            Returns empty list if tasks directory doesn't exist or contains
+            no valid task files. Logs warnings for parsing errors.
         """
+        tags_dict: dict[str, dict[str, Any]] = {}
+        tasks_file = role_path / "tasks" / "main.yml"
+
         try:
-            content = self.yaml_loader.load_file(task_file)
-            
-            # Task files should contain a list of tasks
-            if not isinstance(content, list):
-                self.logger.warning(
-                    "task_file_not_list",
-                    file=str(task_file),
-                    type=type(content).__name__,
+            # Load task file
+            tasks = self.yaml_loader.load_file(tasks_file)
+
+            if not tasks or not isinstance(tasks, list):
+                logger.debug(
+                    "empty_or_invalid_tasks_file",
+                    role_path=str(role_path),
+                    tasks_file=str(tasks_file),
                 )
                 return []
-            
-            # Collect all tags from all tasks
-            tag_map: dict[str, dict] = {}  # name -> {count, locations}
-            
-            for task_index, task in enumerate(content):
+
+            # Extract tags from each task
+            for task_index, task in enumerate(tasks):
                 if not isinstance(task, dict):
                     continue
-                
-                # Extract tags field (can be string or list)
-                tags_field = task.get("tags")
-                if not tags_field:
+
+                task_tags = task.get("tags")
+                if not task_tags:
                     continue
-                
-                # Normalize to list
-                if isinstance(tags_field, str):
-                    tag_names = [tags_field]
-                elif isinstance(tags_field, list):
-                    tag_names = tags_field
-                else:
+
+                # Handle both string and list formats
+                if isinstance(task_tags, str):
+                    task_tags = [task_tags]
+                elif not isinstance(task_tags, list):
+                    logger.warning(
+                        "invalid_tags_type",
+                        task_index=task_index,
+                        task_name=task.get("name", "unnamed"),
+                        tags_type=type(task_tags).__name__,
+                    )
                     continue
-                
+
                 # Process each tag
-                for tag_name in tag_names:
+                task_name = task.get("name", f"task_{task_index}")
+                file_location = f"tasks/main.yml:{task_index + 1}"
+
+                for tag_name in task_tags:
                     if not isinstance(tag_name, str):
                         continue
-                    
-                    # Clean tag name
+
                     tag_name = tag_name.strip()
                     if not tag_name:
                         continue
-                    
-                    # Track tag usage
-                    if tag_name not in tag_map:
-                        tag_map[tag_name] = {"count": 0, "locations": []}
-                    
-                    tag_map[tag_name]["count"] += 1
-                    # Store location (simplified - could be enhanced with line numbers)
-                    location = f"{task_file.name}:{task_index + 1}"
-                    tag_map[tag_name]["locations"].append(location)
-            
-            # Convert to Tag objects
-            tags = []
-            for tag_name, data in tag_map.items():
-                tag = Tag(
-                    name=tag_name,
-                    usage_count=data["count"],
-                    file_locations=data["locations"],
-                )
-                tags.append(tag)
-            
-            return tags
-            
-        except Exception as exc:
-            self.logger.error(
-                "task_file_parse_error",
-                file=str(task_file),
-                error=str(exc),
+
+                    # Aggregate tag information
+                    if tag_name not in tags_dict:
+                        tags_dict[tag_name] = {
+                            "name": tag_name,
+                            "usage_count": 0,
+                            "file_locations": [],
+                        }
+
+                    tags_dict[tag_name]["usage_count"] += 1
+                    if file_location not in tags_dict[tag_name]["file_locations"]:
+                        tags_dict[tag_name]["file_locations"].append(file_location)
+
+            logger.debug(
+                "tags_extracted",
+                role_path=str(role_path),
+                unique_tags=len(tags_dict),
+                total_tasks=len(tasks),
+            )
+
+        except FileNotFoundError:
+            logger.warning(
+                "tasks_file_not_found",
+                role_path=str(role_path),
+                tasks_file=str(tasks_file),
             )
             return []
 
-    def parse_role_tasks(self, role_path: Path) -> list[Tag]:
-        """
-        Parse all task files in a role's tasks/ directory.
-        
-        Args:
-            role_path: Path to role root directory
-            
-        Returns:
-            List of unique Tag objects aggregated from all task files
-        """
-        tasks_dir = role_path / "tasks"
-        
-        if not tasks_dir.exists():
-            self.logger.info(
-                "tasks_directory_missing",
-                role=role_path.name,
-                tasks_dir=str(tasks_dir),
+        except (ValueError, TypeError) as e:
+            logger.warning(
+                "task_parsing_error",
+                role_path=str(role_path),
+                tasks_file=str(tasks_file),
+                error=str(e),
             )
             return []
-        
-        # Find all YAML files in tasks/
-        task_files = list(tasks_dir.glob("*.yml")) + list(tasks_dir.glob("*.yaml"))
-        
-        if not task_files:
-            self.logger.info(
-                "no_task_files_found",
-                role=role_path.name,
-                tasks_dir=str(tasks_dir),
+
+        # Convert dictionary to Tag objects
+        tags = [
+            Tag(
+                name=tag_data["name"],
+                usage_count=tag_data["usage_count"],
+                file_locations=tag_data["file_locations"],
             )
-            return []
-        
-        # Aggregate tags from all files
-        global_tag_map: dict[str, dict] = {}
-        
-        for task_file in sorted(task_files):
-            file_tags = self.parse_task_file(task_file)
-            
-            for tag in file_tags:
-                if tag.name not in global_tag_map:
-                    global_tag_map[tag.name] = {
-                        "count": 0,
-                        "locations": [],
-                    }
-                
-                global_tag_map[tag.name]["count"] += tag.usage_count
-                global_tag_map[tag.name]["locations"].extend(tag.file_locations)
-        
-        # Convert to final Tag objects
-        tags = []
-        for tag_name, data in global_tag_map.items():
-            tag = Tag(
-                name=tag_name,
-                usage_count=data["count"],
-                file_locations=data["locations"],
-            )
-            tags.append(tag)
-        
-        self.logger.info(
-            "role_tasks_parsed",
-            role=role_path.name,
-            task_files=len(task_files),
-            unique_tags=len(tags),
-        )
-        
-        return tags
+            for tag_data in tags_dict.values()
+        ]
+
+        # Return sorted by name for consistency
+        return sorted(tags, key=lambda t: t.name)
