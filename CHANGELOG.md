@@ -37,7 +37,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - RenderError with context tracking
   - 10 exception tests with detailed error messages
 
-**Metrics**: +49 tests (262 → 311), generator module at 100% coverage
+- **T204**: HtmlRenderer implementation
+  - Full HTML5 semantic markup support
+  - Methods: paragraph(), heading(), list_item(), link(), bold(), italic(), inline_code()
+  - HTML entity escaping using html.escape()
+  - Code blocks with language class attributes
+  - 30 unit tests with 100% coverage
+
+- **T205**: RstRenderer implementation
+  - reStructuredText (RST) / Sphinx format support
+  - Heading underlines with proper characters (=, -, ~, ^, ", #)
+  - Code-block directive with language support
+  - RST link syntax (`text <url>`_)
+  - Inline code with double backticks
+  - 23 unit tests with 100% coverage
+
+**Metrics**: +102 tests (262 → 364), renderers at 100% coverage
 
 ## [0.2.0] - 2025-11-17
 
