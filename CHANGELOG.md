@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-17
+
+### Added
+
+**Phase 8 - Task Tags & TODO/Examples** - Feature Complete
+
+**Task Tags Parser (US3 - T101-T107)**
+- Created `Tag` value object with name, description, usage_count, file_locations
+- Implemented `TaskParser` domain service to extract tags from tasks/*.yml
+- Parses both string and list tag formats
+- Aggregates tag usage counts across multiple tasks
+- Tracks file:line locations for each tag occurrence
+- Handles errors gracefully with detailed logging
+- 21 tests with 94% coverage
+
+**TODO Annotations Parser (US4 - T108-T110)**
+- Created `TodoItem` value object with description, file_path, line_number, priority
+- Implemented `TodoParser` domain service for @todo annotation extraction
+- Supports formats: `@todo:`, `@TODO`, `@todo(priority)`
+- Priority levels: low, medium, high, critical
+- Scans all .yml/.yaml files recursively in role directory
+- 23 tests with 81% coverage
+
+**Example Code Blocks Parser (US4 - T111-T113)**
+- Created `Example` value object with title, code, description, language
+- Implemented `ExampleParser` domain service for @example block extraction
+- Parses multiline blocks: `@example Title\n# code\n@end`
+- Auto-detects language: yaml, bash, python, json, jinja2
+- Preserves code formatting exactly (no whitespace stripping)
+- Single-line format support: `@example: code`
+- 17 tests with 96% coverage
+
+**CLI Integration (T114)**
+- Integrated TaskParser, TodoParser, ExampleParser into CLI _parse_single_role()
+- Added `tags[]`, `todos[]`, `examples[]` to JSON output structure
+- Graceful error handling with structured logging for all parsers
+- Tested with minimal_role and complex_role fixtures
+
+**Integration Tests (T115-T117)**
+- Created phase8_test_role fixture with complete Phase 8 features
+- Added 18 integration tests validating end-to-end parsing workflow:
+  * 4 tests for task tag extraction and aggregation
+  * 5 tests for TODO annotation parsing with priorities
+  * 5 tests for example code block extraction
+  * 4 tests for complete integration and JSON serialization
+- All 262 tests passing (244 baseline + 18 new)
+- 84% code coverage maintained
+
+**Documentation (T118-T120)**
+- Updated README with US3/US4 examples in output JSON
+- Added Task Tags Parser and TODO/Examples Parser to feature list
+- Created comprehensive ANNOTATION_GUIDE.md (400+ lines):
+  * Variable annotations (@var) with all attributes
+  * TODO annotations (@todo) with priority levels
+  * Example annotations (@example) with multiline blocks
+  * Tag documentation and usage statistics
+  * Best practices and complete template examples
+- Updated CHANGELOG for v0.2.0 release
+
+### Changed
+
+- Modified `RuamelYAMLLoader.load_file()` return type from `dict` to `dict | list`
+- Enables TaskParser to correctly parse tasks files (list format vs dict)
+- Updated `AnsibleRole` model imports to use separated Tag, TodoItem, Example
+
+### Fixed
+
+- Fixed YAML loader to return lists for task files instead of forcing dict conversion
+- Fixed test assertions to match actual parser behavior
+
 ## [0.1.0] - 2025-11-17
 
 ### Added

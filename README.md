@@ -139,7 +139,36 @@ ansible-doctor-enhanced generate --input role-docs.json --output README.md --tem
       "description": "HTTP port for web server"
     }
   ],
-  "tags": ["install", "configure"]
+  "tags": [
+    {
+      "name": "installation",
+      "description": null,
+      "usage_count": 3,
+      "file_locations": ["tasks/main.yml:5", "tasks/install.yml:2"]
+    },
+    {
+      "name": "configuration",
+      "description": null,
+      "usage_count": 2,
+      "file_locations": ["tasks/main.yml:15", "tasks/configure.yml:1"]
+    }
+  ],
+  "todos": [
+    {
+      "description": "Add SSL certificate validation",
+      "file_path": "tasks/main.yml",
+      "line_number": 42,
+      "priority": "high"
+    }
+  ],
+  "examples": [
+    {
+      "title": "Basic web server setup",
+      "code": "web_port: 8080\nweb_ssl_enabled: true",
+      "description": null,
+      "language": "yaml"
+    }
+  ]
 }
 ```
 
@@ -335,6 +364,20 @@ Key principles:
   - Required/example/deprecated attributes
   - 60 test methods ensuring correctness
 
+- **Task Tags Parser (US3)**: Extract and analyze task tags
+  - Parse tags from `tasks/*.yml` and `handlers/*.yml`
+  - Track tag usage counts across tasks
+  - Record file locations for each tag occurrence
+  - Support both string and list tag formats
+  - 21 test methods ensuring correctness
+
+- **TODO & Examples Parser (US4)**: Extract inline documentation
+  - Parse `@todo` annotations with priority levels (low, medium, high, critical)
+  - Extract `@example` code blocks with language detection
+  - Support multiline blocks with `@example...@end` syntax
+  - Track file paths and line numbers for all annotations
+  - 40 test methods ensuring correctness
+
 - **CLI Interface**: Command-line tool ready for production
   - `parse` command with role_path argument
   - Flags: `--output`, `--recursive`, `--validate`, `--log-level`
@@ -343,12 +386,13 @@ Key principles:
   - Recursive mode for parsing multiple roles
   - 20 test methods ensuring correctness
 
-#### ⏳ Planned Features (49 remaining tasks)
-- **Task Tags (US3 - P2)**: Extract and document task tags
-- **TODO/Examples (US4 - P3)**: Collect @todo and @example annotations
-- **Documentation Generator**: Markdown/HTML templates
-- **Performance Optimization**: <500ms per role target
+#### ⏳ Planned Features (remaining tasks)
+
+- **Documentation Generator**: Markdown/HTML templates with customizable themes
+- **Performance Optimization**: <500ms per role target with caching
 - **Cross-platform Testing**: Windows, macOS, Linux validation
+- **Web UI**: Interactive documentation browser
+- **CI/CD Integration**: GitHub Actions, GitLab CI templates
 
 ## 📄 License
 
