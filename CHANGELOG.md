@@ -67,7 +67,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Includes metadata (timestamp, source_file, template_name)
   - 9 unit tests with 100% coverage
 
-**Metrics**: +121 tests (262 → 383), generator module at 100% coverage, 87% overall
+- **T208**: Custom Jinja2 filters
+  - markdown_escape: Escape Markdown special characters (\\ ` * _ { } [ ] ( ) # + - . !)
+  - code_fence: Wrap code in Markdown fenced code blocks (```language)
+  - format_priority: Format TODO priorities with emoji indicators (🟢🟡🔴🚨)
+  - rst_escape: Escape reStructuredText special characters (\\ * ` _ |)
+  - html_attrs: Convert dict to HTML attribute string (class="value")
+  - list_items: Format list items as Markdown (ordered/unordered)
+  - FILTERS registry for Jinja2 environment registration
+  - 47 unit tests with 100% coverage
+
+**Metrics**: +168 tests (262 → 430), generator module at 100% coverage, 87% overall
 
 ## [0.2.0] - 2025-11-17
 
