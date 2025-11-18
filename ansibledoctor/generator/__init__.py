@@ -16,6 +16,7 @@ from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.protocols import DocumentRenderer, TemplateLoader
 from ansibledoctor.generator.renderers import HtmlRenderer, MarkdownRenderer, RstRenderer
+from ansibledoctor.generator.validator import TemplateValidator
 
 __all__ = [
     "OutputFormat",
@@ -29,6 +30,7 @@ __all__ = [
     "TemplateEngine",
     "FileSystemTemplateLoader",
     "EmbeddedTemplateLoader",
+    "TemplateValidator",
     "FILTERS",
     "GeneratorError",
     "TemplateError",

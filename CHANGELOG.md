@@ -129,6 +129,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Metrics**: +216 tests (262 → 478), generator module at 99%, 88% overall
 
+- **T213**: Template validation system
+  - **TemplateValidator**: Comprehensive Jinja2 template validation
+    - Syntax validation with detailed error messages
+    - Undeclared variable detection
+    - Required variable validation
+    - Unused context variable checking
+    - File validation with existence and type checks
+  - **Validation methods**:
+    - `validate_syntax()`: Parse and validate Jinja2 syntax
+    - `validate_file()`: Validate template files
+    - `get_undeclared_variables()`: Extract used variables
+    - `validate_required_variables()`: Ensure required vars present
+    - `check_variable_usage()`: Detect unused context variables
+    - `validate_template()`: Comprehensive validation with result dict
+  - **Error handling**:
+    - TemplateValidationError with template name and details
+    - Line number reporting for syntax errors
+    - Missing variable lists
+  - 23 tests covering all validation scenarios
+  - 96% coverage on validator.py
+
+**Metrics**: +239 tests (262 → 501), generator module at 99%, 89% overall
+
 ## [0.2.0] - 2025-11-17
 
 ### Added
