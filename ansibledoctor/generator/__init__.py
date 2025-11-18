@@ -15,7 +15,7 @@ from ansibledoctor.generator.loaders import (
 from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.protocols import DocumentRenderer, TemplateLoader
-from ansibledoctor.generator.renderers import HtmlRenderer, MarkdownRenderer, RstRenderer
+from ansibledoctor.generator.renderers import MarkdownRenderer
 from ansibledoctor.generator.validator import TemplateValidator
 
 __all__ = [
@@ -23,8 +23,6 @@ __all__ = [
     "DocumentRenderer",
     "TemplateLoader",
     "MarkdownRenderer",
-    "HtmlRenderer",
-    "RstRenderer",
     "RenderResult",
     "TemplateContext",
     "TemplateEngine",
