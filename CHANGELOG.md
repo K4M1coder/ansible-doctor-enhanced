@@ -152,6 +152,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Metrics**: +239 tests (262 → 501), generator module at 99%, 89% overall
 
+- **T214**: Integration tests for generator Foundation
+  - **End-to-end tests**: Complete generation pipeline testing
+    - Markdown generation with full role data
+    - HTML generation with responsive design
+    - RST generation with Sphinx compatibility
+    - All 3 formats tested with same input data
+  - **Template engine integration**: Template loading and rendering
+    - FileSystemTemplateLoader discovery tests
+    - Custom Jinja2 filters availability
+    - Template resolution in format directories
+  - **Cross-format consistency**: All formats handle same role
+    - Markdown, HTML, RST render identically structured roles
+    - Minimal roles handled gracefully
+    - Empty collections don't break templates
+  - **Error handling**: Missing templates and validation
+    - Template not found errors handled
+    - Template validation integration
+    - File validation with TemplateValidator
+  - **Metadata generation**: Generation info in output
+    - Generator version appears in all formats
+    - Generation date formatted correctly
+    - Output format extensions correct (.md, .html, .rst)
+  - 12 integration tests covering complete workflows
+  - **Filter improvements**: rst_escape handles non-string values
+    - Accepts Any type, converts to string
+    - None returns empty string
+    - Integers, booleans handled correctly
+
+**Metrics**: +251 tests (262 → 513), generator module at 99%, 89% overall
+
 ## [0.2.0] - 2025-11-17
 
 ### Added

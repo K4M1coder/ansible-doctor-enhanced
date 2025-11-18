@@ -169,7 +169,7 @@ class TestRstEscape:
 
     def test_escape_none(self):
         """Test with None."""
-        assert rst_escape(None) is None
+        assert rst_escape(None) == ""
 
 
 class TestHtmlAttrs:

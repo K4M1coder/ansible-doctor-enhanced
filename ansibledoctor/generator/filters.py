@@ -72,13 +72,13 @@ def format_priority(priority: str) -> str:
     return priority_map.get(priority.lower(), f"⚪ {priority.capitalize()}")
 
 
-def rst_escape(text: str) -> str:
+def rst_escape(text: Any) -> str:
     """Escape special reStructuredText characters.
     
     Escapes: \\ * ` _ |
     
     Args:
-        text: Text to escape
+        text: Text to escape (will be converted to string)
         
     Returns:
         Escaped text safe for RST
@@ -88,8 +88,9 @@ def rst_escape(text: str) -> str:
         'Hello \\*world\\*'
     """
     if not text:
-        return text
+        return str(text) if text is not None else ""
     
+    text = str(text)
     special_chars = r"\*`_|"
     for char in special_chars:
         text = text.replace(char, f"\\{char}")
