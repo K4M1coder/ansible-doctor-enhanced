@@ -88,7 +88,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 19 unit tests with 100% coverage
   - Added Jinja2 ^3.1.0 dependency via Poetry
 
-**Metrics**: +187 tests (262 → 449), generator module at 100% coverage, 87% overall
+- **T210**: FileSystemTemplateLoader for template discovery
+  - Multi-level template discovery with priority hierarchy
+  - Search paths: format dir → format suffix → generic
+  - Template validation (exists, readable, .j2 extension)
+  - Directory structure: templates/{format}/{name}.j2 or templates/{name}.{ext}.j2
+  - discover_templates() returns available templates for format
+  - validate_template() checks existence
+  - 17 unit tests with 93% coverage
+
+- **T211**: EmbeddedTemplateLoader for package resources
+  - Load templates from package resources (ansibledoctor.generator.templates/)
+  - Python 3.9+ importlib.resources support
+  - discover_templates() lists embedded templates
+  - validate_template() checks resource existence
+  - Graceful fallback when resources missing
+  - 6 unit tests with 93% coverage
+
+**Metrics**: +210 tests (262 → 472), generator module at 98%, 88% overall
 
 ## [0.2.0] - 2025-11-17
 

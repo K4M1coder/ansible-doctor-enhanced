@@ -8,6 +8,10 @@ from ansibledoctor.generator.errors import (
     TemplateValidationError,
 )
 from ansibledoctor.generator.filters import FILTERS
+from ansibledoctor.generator.loaders import (
+    EmbeddedTemplateLoader,
+    FileSystemTemplateLoader,
+)
 from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.protocols import DocumentRenderer, TemplateLoader
@@ -23,6 +27,8 @@ __all__ = [
     "RenderResult",
     "TemplateContext",
     "TemplateEngine",
+    "FileSystemTemplateLoader",
+    "EmbeddedTemplateLoader",
     "FILTERS",
     "GeneratorError",
     "TemplateError",
