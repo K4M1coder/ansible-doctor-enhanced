@@ -220,9 +220,11 @@ class TestMarkdownRendererWithCompleteData:
         assert "Complete Author" in result
         assert "Complete role description" in result
         
-        # Check variables section exists
-        assert "app_port" in result
-        assert "app_debug" in result
+        # Check variables section exists (names are escaped in Markdown)
+        assert "app_port" in result or "app\\_port" in result
+        assert "app_debug" in result or "app\\_debug" in result
+        assert "Application port" in result
+        assert "Enable debug mode" in result
 
     def test_render_complete_role_includes_metadata(self, complete_role):
         """Test complete role includes generation metadata."""
