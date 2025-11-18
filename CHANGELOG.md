@@ -105,7 +105,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Graceful fallback when resources missing
   - 6 unit tests with 93% coverage
 
-**Metrics**: +210 tests (262 → 472), generator module at 98%, 88% overall
+- **T212**: Default templates for all output formats
+  - **Markdown template** (role.j2): Clean, readable format with GFM support
+    - Table of contents with section links
+    - Variables with type, required, value, source
+    - Tags with usage counts and locations
+    - TODOs with priority emoji indicators
+    - Examples with syntax-highlighted code blocks
+  - **HTML template** (role.j2): Modern, responsive design
+    - Embedded CSS with clean typography
+    - Semantic HTML5 markup
+    - Badge components for required/optional
+    - Syntax highlighting hints for code
+    - Mobile-responsive layout
+  - **RST template** (role.j2): Sphinx-compatible documentation
+    - Proper RST heading underlines
+    - Field lists for metadata
+    - code-block directives with language
+    - Table of contents with depth control
+  - All templates use custom Jinja2 filters (markdown_escape, rst_escape, code_fence, format_priority)
+  - Conditional rendering (only show sections if data exists)
+  - 6 smoke tests validating all templates render without errors
+
+**Metrics**: +216 tests (262 → 478), generator module at 99%, 88% overall
 
 ## [0.2.0] - 2025-11-17
 
