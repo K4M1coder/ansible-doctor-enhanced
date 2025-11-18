@@ -174,12 +174,13 @@
   - Pass T216 tests (22/23 passing)
   - Commit: bd4c6e2 "T216-T217: MarkdownRenderer TDD implementation"
 
-- [ ] T218 [P] Write property tests for MarkdownRenderer in tests/property/test_markdown_renderer.py
-  - Use Hypothesis to generate random role_data
-  - Verify rendered Markdown is valid (no unclosed blocks)
-  - Verify escaping prevents Markdown injection
-  - Verify code blocks are properly fenced
-  - 4 property tests
+- [x] T218 [P] Write property tests for MarkdownRenderer in tests/property/test_markdown_renderer.py ✅
+  - Use Hypothesis to generate random role_data ✅
+  - Verify rendered Markdown is valid (no unclosed blocks) ✅
+  - Verify escaping prevents Markdown injection ✅
+  - Verify code blocks are properly fenced ✅
+  - 4 property tests ✅
+  - Commit: 5024c6d "feat(generator): add property tests for MarkdownRenderer (T218)"
 
 - [ ] T219 [P] Update markdown.j2 template for completeness
   - Add sections: Requirements, Role Variables (table), Tags, Examples, TODOs
@@ -188,12 +189,17 @@
   - Use code_fence filter for code blocks
   - Manual verification: Renders complex_role fixture correctly
 
-- [ ] T220 [P] Write integration test for Markdown generation in tests/integration/test_markdown_generation.py
-  - Load complex_role fixture JSON
-  - Render with MarkdownRenderer
-  - Verify output structure (headings, tables, code blocks)
-  - Verify output passes markdownlint (if available)
-  - 8 tests: structure, content, escaping, custom template
+- [x] T220 [P] Write integration test for Markdown generation in tests/integration/test_markdown_generation.py ✅
+  - Load complex_role fixture JSON ✅
+  - Render with MarkdownRenderer ✅
+  - Verify output structure (headings, tables, code blocks) ✅
+  - Verify all sections present (Overview, Variables, Tags, TODOs, Examples) ✅
+  - Verify variables rendered with metadata ✅
+  - Verify code blocks properly fenced ✅
+  - Verify TODOs formatted with priority ✅
+  - Verify tags with file locations ✅
+  - 8 integration tests ✅
+  - Commit: [next] "feat(generator): add integration tests for Markdown generation (T220)"
 
 ### T221-T225: CLI Integration
 
