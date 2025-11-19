@@ -661,3 +661,232 @@ class TestGenerateRstFormat:
             sphinx_compat=False,
             template_path=None
         )
+
+
+class TestGenerateRecursive:
+    """Test suite for generate command with --recursive flag (T251)."""
+
+    @pytest.fixture
+    def runner(self):
+        """Create Click test runner."""
+        return CliRunner()
+
+    @pytest.fixture
+    def roles_directory(self, tmp_path):
+        """Create a directory structure with multiple roles."""
+        roles_dir = tmp_path / "roles"
+        roles_dir.mkdir()
+        
+        # Create multiple role directories
+        for role_name in ["role1", "role2", "role3"]:
+            role_path = roles_dir / role_name
+            role_path.mkdir()
+            (role_path / "meta").mkdir()
+            (role_path / "tasks").mkdir()
+            (role_path / "defaults").mkdir()
+        
+        # Create a non-role directory (should be skipped)
+        (roles_dir / "not-a-role").mkdir()
+        
+        return roles_dir
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.MarkdownRenderer")
+    def test_generate_recursive_discovers_multiple_roles(
+        self, mock_renderer_class, mock_parse, mock_validate, runner, roles_directory
+    ):
+        """Test that --recursive discovers and processes all roles in directory."""
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        
+        def create_mock_role(name, path):
+            return AnsibleRole(
+                name=name,
+                path=path.resolve(),
+                metadata=RoleMetadata(author="Test", description=f"Role {name}"),
+                variables=[],
+                tags=[],
+                todos=[],
+                examples=[],
+            )
+        
+        # Mock parser to return different roles
+        mock_parse.side_effect = lambda path: create_mock_role(path.name, path)
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "# Test\n\nGenerated docs"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        
+        # Should succeed
+        assert result.exit_code == 0
+        
+        # Should parse exactly 3 roles (not the "not-a-role" directory)
+        assert mock_parse.call_count == 3
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.MarkdownRenderer")
+    def test_generate_recursive_with_output_directory(
+        self, mock_renderer_class, mock_parse, mock_validate, runner, roles_directory, tmp_path
+    ):
+        """Test --recursive with --output-dir creates separate files per role."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        
+        def create_mock_role(name, path):
+            return AnsibleRole(
+                name=name,
+                path=path.resolve(),
+                metadata=RoleMetadata(author="Test", description=f"Role {name}"),
+                variables=[],
+                tags=[],
+                todos=[],
+                examples=[],
+            )
+        
+        mock_parse.side_effect = lambda path: create_mock_role(path.name, path)
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "# Test\n\nGenerated docs"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, [
+            "generate",
+            str(roles_directory),
+            "--recursive",
+            "--output-dir", str(output_dir)
+        ])
+        
+        # Should succeed
+        assert result.exit_code == 0
+        
+        # Should create separate files for each role
+        assert (output_dir / "role1.md").exists()
+        assert (output_dir / "role2.md").exists()
+        assert (output_dir / "role3.md").exists()
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.MarkdownRenderer")
+    def test_generate_recursive_shows_progress(
+        self, mock_renderer_class, mock_parse, mock_validate, runner, roles_directory
+    ):
+        """Test --recursive shows progress indicator for batch operations."""
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        
+        def create_mock_role(name, path):
+            return AnsibleRole(
+                name=name,
+                path=path.resolve(),
+                metadata=RoleMetadata(author="Test", description=f"Role {name}"),
+                variables=[],
+                tags=[],
+                todos=[],
+                examples=[],
+            )
+        
+        mock_parse.side_effect = lambda path: create_mock_role(path.name, path)
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "# Test\n\nGenerated docs"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        
+        # Should show progress information in stderr
+        assert result.exit_code == 0
+        # Progress messages should appear (e.g., "Processing role 1/3")
+        assert "role" in result.output.lower() or "processing" in result.output.lower()
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    def test_generate_recursive_handles_parse_errors(
+        self, mock_parse, mock_validate, runner, roles_directory
+    ):
+        """Test --recursive continues processing when one role fails."""
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        from ansibledoctor.exceptions import ParsingError
+        
+        def create_mock_role_or_fail(path):
+            if path.name == "role2":
+                raise ParsingError("Failed to parse role2", {"path": str(path)})
+            return AnsibleRole(
+                name=path.name,
+                path=path.resolve(),
+                metadata=RoleMetadata(author="Test", description=f"Role {path.name}"),
+                variables=[],
+                tags=[],
+                todos=[],
+                examples=[],
+            )
+        
+        mock_parse.side_effect = create_mock_role_or_fail
+        
+        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        
+        # Should continue despite one failure
+        # Exit code might be 0 (partial success) or 1 (with warnings)
+        assert result.exit_code in [0, 1]
+        
+        # Should process all 3 roles
+        assert mock_parse.call_count == 3
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_recursive_respects_format_option(
+        self, mock_renderer_class, mock_parse, mock_validate, runner, roles_directory, tmp_path
+    ):
+        """Test --recursive respects --format option for all roles."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        
+        def create_mock_role(name, path):
+            return AnsibleRole(
+                name=name,
+                path=path.resolve(),
+                metadata=RoleMetadata(author="Test", description=f"Role {name}"),
+                variables=[],
+                tags=[],
+                todos=[],
+                examples=[],
+            )
+        
+        mock_parse.side_effect = lambda path: create_mock_role(path.name, path)
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html><body>Test</body></html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, [
+            "generate",
+            str(roles_directory),
+            "--recursive",
+            "--format", "html",
+            "--output-dir", str(output_dir)
+        ])
+        
+        # Should succeed
+        assert result.exit_code == 0
+        
+        # Should create HTML files (not markdown)
+        assert (output_dir / "role1.html").exists()
+        assert (output_dir / "role2.html").exists()
+        assert (output_dir / "role3.html").exists()
