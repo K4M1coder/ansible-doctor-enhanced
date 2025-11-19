@@ -190,6 +190,11 @@ description: "Task breakdown for Feature 001: Ansible Role Parser"
 - [ ] T086 Run full test suite: pytest tests/ --cov=ansibledoctor --cov-report=term-missing
 - [ ] T087 Verify coverage ≥80% (Article III requirement), add tests for uncovered lines
 - [ ] T088 [P] Add property-based tests for annotation parsing using hypothesis (edge cases)
+  - **KNOWN BUG**: Fix annotation parsing when content is just `:` (e.g., `@var test_var: :`)
+  - Current behavior: ValidationError - parsed_attributes.None.[key] expects string, got None
+  - Discovered by hypothesis in test_var_annotation_with_any_description (falsifying example: description=':')
+  - Root cause: parse_annotation_attributes() returns dict with None key when content is single colon
+  - Expected: Should handle edge case gracefully (empty description or skip None keys)
 - [ ] T089 [P] Create quickstart.md validation: manual test of documented examples
 - [ ] T090 Test error scenarios: malformed YAML, circular dependencies, missing files
 - [ ] T091 Performance testing: verify <500ms for typical role, <2s for large role (SC-002)
