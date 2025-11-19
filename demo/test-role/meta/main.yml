@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: John Doe
+  description: Nginx web server with SSL support and load balancing
+  company: ACME Corp
+  license: MIT
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+  
+  galaxy_tags:
+    - web
+    - nginx
+    - ssl
+    - loadbalancer
+
+dependencies:
+  - role: geerlingguy.certbot
+    version: "4.0.0"
+  - role: common-firewall

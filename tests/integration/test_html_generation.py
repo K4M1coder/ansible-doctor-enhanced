@@ -130,7 +130,7 @@ class TestHtmlGenerationIntegration:
         # Verify meta tags
         assert '<meta charset="UTF-8">' in result
         assert '<meta name="viewport"' in result
-        assert '<meta name="generator" content="ansible-doctor' in result
+        assert '<meta name="generator" content="ansible-doctor-enhanced' in result
 
     def test_html_generation_with_toc(self, complex_role):
         """Test HTML generation includes table of contents."""

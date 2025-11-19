@@ -95,10 +95,11 @@ class TemplateContext:
         custom_data: Additional custom data for templates
     
     Example:
+        >>> from ansibledoctor import __version__
         >>> context = TemplateContext(
         ...     role=my_role,
         ...     output_format=OutputFormat.MARKDOWN,
-        ...     generator_version="0.3.0"
+        ...     generator_version=__version__
         ... )
         >>> context.has_variables
         True
@@ -108,8 +109,8 @@ class TemplateContext:
 
     role: AnsibleRole
     output_format: OutputFormat
+    generator_version: str  # Must be passed explicitly from __version__
     generation_date: datetime = field(default_factory=datetime.now)
-    generator_version: str = "0.3.0"
     custom_data: dict[str, Any] = field(default_factory=dict)
 
     @property

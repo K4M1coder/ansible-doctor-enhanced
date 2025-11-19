@@ -1,0 +1,39 @@
+---
+# @meta description: Configure Nginx web server port
+# @meta type: integer
+# @meta required: false
+nginx_port: 80
+
+# @meta description: Enable HTTPS/SSL support
+# @meta type: boolean
+nginx_ssl_enabled: false
+
+# @meta description: SSL certificate path (required if SSL enabled)
+# @meta type: string
+# @meta required: true
+nginx_ssl_cert: /etc/ssl/certs/nginx.crt
+
+# @meta description: SSL private key path (required if SSL enabled)
+nginx_ssl_key: /etc/ssl/private/nginx.key
+
+# @meta description: Maximum number of worker processes
+# @meta default: auto
+nginx_worker_processes: auto
+
+# @meta description: Backend servers for load balancing
+# @meta type: list
+nginx_backends:
+  - 192.168.1.10:8080
+  - 192.168.1.11:8080
+
+# @meta description: Health check interval in seconds
+nginx_health_check_interval: 30
+
+# @meta description: Access log format (combined or json)
+nginx_log_format: combined
+
+# @meta description: Enable rate limiting
+nginx_rate_limit_enabled: true
+
+# @meta description: Rate limit (requests per second)
+nginx_rate_limit: 100

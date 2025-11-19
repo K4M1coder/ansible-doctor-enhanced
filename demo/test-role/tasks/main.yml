@@ -1,0 +1,67 @@
+---
+# @todo: Add support for custom Nginx modules
+# @todo: Implement automated SSL certificate renewal via Let's Encrypt (priority: high)
+# @todo: Add Nginx caching configuration (priority: medium)
+
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+  tags:
+    - installation
+    - packages
+
+- name: Create Nginx configuration directory
+  ansible.builtin.file:
+    path: /etc/nginx/conf.d
+    state: directory
+    mode: '0755'
+  tags:
+    - configuration
+
+- name: Configure Nginx main config
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: '0644'
+  notify: reload nginx
+  tags:
+    - configuration
+
+- name: Configure SSL certificates
+  ansible.builtin.copy:
+    src: "{{ nginx_ssl_cert }}"
+    dest: /etc/nginx/ssl/
+    mode: '0644'
+  when: nginx_ssl_enabled
+  tags:
+    - ssl
+    - configuration
+
+- name: Configure backend load balancing
+  ansible.builtin.template:
+    src: upstream.conf.j2
+    dest: /etc/nginx/conf.d/upstream.conf
+    mode: '0644'
+  notify: reload nginx
+  tags:
+    - loadbalancer
+    - configuration
+
+- name: Start and enable Nginx service
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  tags:
+    - service
+
+- name: Configure firewall rules
+  ansible.builtin.ufw:
+    rule: allow
+    port: "{{ nginx_port }}"
+    proto: tcp
+  tags:
+    - firewall
+    - security

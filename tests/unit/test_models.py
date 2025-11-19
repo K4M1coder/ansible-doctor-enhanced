@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+from ansibledoctor import __version__
 from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.models.metadata import RoleMetadata
@@ -173,18 +174,20 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.role == sample_role
         assert context.output_format == OutputFormat.MARKDOWN
         assert isinstance(context.generation_date, datetime)
-        assert context.generator_version == "0.3.0"
+        assert context.generator_version == __version__
 
     def test_template_context_role_name(self, sample_role):
         """Test role_name property."""
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.role_name == "test-role"
@@ -194,6 +197,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.role_description == "A test role"
@@ -203,6 +207,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.has_variables is True
@@ -213,6 +218,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.has_tags is True
@@ -223,6 +229,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.has_todos is True
@@ -233,6 +240,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         assert context.has_examples is True
@@ -243,18 +251,21 @@ class TestTemplateContext:
         context_md = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         assert context_md.format_name == "Markdown"
         
         context_html = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.HTML,
+            generator_version=__version__,
         )
         assert context_html.format_name == "HTML"
         
         context_rst = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.RST,
+            generator_version=__version__,
         )
         assert context_rst.format_name == "reStructuredText"
 
@@ -263,6 +274,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
         )
         
         context_dict = context.to_dict()
@@ -288,6 +300,7 @@ class TestTemplateContext:
         context = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.MARKDOWN,
+            generator_version=__version__,
             custom_data=custom_data,
         )
         

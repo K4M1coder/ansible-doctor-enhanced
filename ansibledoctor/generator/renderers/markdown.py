@@ -21,7 +21,8 @@ class MarkdownRenderer:
     
     Example:
         >>> renderer = MarkdownRenderer()
-        >>> context = TemplateContext(role=role, generator_version="0.3.0", ...)
+        >>> from ansibledoctor import __version__
+        >>> context = TemplateContext(role=role, generator_version=__version__, ...)
         >>> markdown = renderer.render(context)
     """
     

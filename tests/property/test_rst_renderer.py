@@ -208,7 +208,7 @@ class TestRstRendererProperties:
         
         # Property 2: Footer note should be present
         assert ".. note::" in result
-        assert "ansible-doctor" in result.lower()
+        assert "ansible-doctor-enhanced" in result.lower()
         
         # Property 3: Section order should be consistent
         # Find positions of standard sections

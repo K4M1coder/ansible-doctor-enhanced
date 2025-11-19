@@ -273,4 +273,4 @@ class TestRstGenerationIntegration:
         
         # Verify footer note
         assert ".. note::" in result
-        assert "ansible-doctor" in result
+        assert "ansible-doctor-enhanced" in result
