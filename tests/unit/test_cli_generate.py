@@ -289,3 +289,214 @@ class TestGenerateCommand:
         assert "--format" in result.output
         assert "--output" in result.output
         assert "--template" in result.output or "template" in result.output.lower()
+
+
+class TestGenerateHtmlFormat:
+    """Test suite for HTML format generation (T236)."""
+
+    @pytest.fixture
+    def runner(self):
+        """Create Click test runner."""
+        return CliRunner()
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_format(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --format html."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_role = AnsibleRole(
+            name="test-role",
+            path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test", description="Test role"),
+            variables=[],
+            tags=[],
+            todos=[],
+            examples=[],
+        )
+        mock_parse.return_value = mock_role
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<!DOCTYPE html><html><body>Test</body></html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "html"])
+        
+        assert result.exit_code == 0
+        # HtmlRenderer should be instantiated with default options
+        mock_renderer_class.assert_called_once_with(
+            embed_css=True,
+            generate_toc=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_with_embed_css(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --embed-css flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_parse.return_value = AnsibleRole(
+            name="test-role", path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test"), variables=[], tags=[], todos=[], examples=[]
+        )
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html>Embedded CSS</html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "html", "--embed-css"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            embed_css=True,
+            generate_toc=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_with_no_embed_css(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --no-embed-css flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_parse.return_value = AnsibleRole(
+            name="test-role", path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test"), variables=[], tags=[], todos=[], examples=[]
+        )
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html>External CSS</html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "html", "--no-embed-css"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            embed_css=False,
+            generate_toc=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_with_generate_toc(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --generate-toc flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_parse.return_value = AnsibleRole(
+            name="test-role", path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test"), variables=[], tags=[], todos=[], examples=[]
+        )
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html>With TOC</html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "html", "--generate-toc"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            embed_css=True,
+            generate_toc=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_with_no_generate_toc(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --no-generate-toc flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_parse.return_value = AnsibleRole(
+            name="test-role", path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test"), variables=[], tags=[], todos=[], examples=[]
+        )
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html>No TOC</html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "html", "--no-generate-toc"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            embed_css=True,
+            generate_toc=False,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.HtmlRenderer")
+    def test_generate_html_with_all_options(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with all HTML options combined."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_parse.return_value = AnsibleRole(
+            name="test-role", path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test"), variables=[], tags=[], todos=[], examples=[]
+        )
+        
+        output_file = tmp_path / "index.html"
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "<html>Complete HTML</html>"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, [
+            "generate",
+            str(role_path),
+            "--format", "html",
+            "--output", str(output_file),
+            "--no-embed-css",
+            "--no-generate-toc"
+        ])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            embed_css=False,
+            generate_toc=False,
+            template_path=None
+        )

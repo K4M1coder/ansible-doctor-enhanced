@@ -14,6 +14,7 @@ import click
 from ansibledoctor import __version__
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, ValidationError
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
+from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.models import AnsibleRole
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
@@ -407,6 +408,16 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     help="Custom template file path",
 )
 @click.option(
+    "--embed-css/--no-embed-css",
+    default=True,
+    help="Embed CSS in HTML output (default: embed)",
+)
+@click.option(
+    "--generate-toc/--no-generate-toc",
+    default=True,
+    help="Generate table of contents in HTML output (default: generate)",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -418,7 +429,7 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     default="INFO",
     help="Set logging level (default: INFO)",
 )
-def generate(role_path, format, output, template, verbose, log_level):
+def generate(role_path, format, output, template, embed_css, generate_toc, verbose, log_level):
     """
     Generate documentation for an Ansible role.
     
@@ -508,10 +519,18 @@ def generate(role_path, format, output, template, verbose, log_level):
         # Select renderer based on format
         if format.lower() == "markdown":
             renderer = MarkdownRenderer(template_path=str(template) if template else None)
+            output_format = OutputFormat.MARKDOWN
+        elif format.lower() == "html":
+            renderer = HtmlRenderer(
+                embed_css=embed_css,
+                generate_toc=generate_toc,
+                template_path=str(template) if template else None
+            )
+            output_format = OutputFormat.HTML
         else:
             raise ValidationError(
                 f"Format '{format}' not yet implemented",
-                "Use 'markdown' format for now. HTML and RST coming soon.",
+                "Use 'markdown' or 'html' format for now. RST coming soon.",
                 {"requested_format": format}
             )
         
@@ -519,7 +538,7 @@ def generate(role_path, format, output, template, verbose, log_level):
         context = TemplateContext(
             role=role,
             generator_version=__version__,
-            output_format=OutputFormat.MARKDOWN,
+            output_format=output_format,
         )
         
         # Render documentation
