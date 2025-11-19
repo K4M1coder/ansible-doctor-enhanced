@@ -1,54 +1,85 @@
 """Renderer implementations for different output formats."""
 import html
 import re
+from typing import Any, Dict, Optional
+
+from ansibledoctor.generator.engine import TemplateEngine
+from ansibledoctor.generator.loaders import FileSystemTemplateLoader
+from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.protocols import DocumentRenderer
 
 
 class MarkdownRenderer:
     """Renderer for GitHub Flavored Markdown (GFM) format.
     
-    Implements the DocumentRenderer protocol to generate Markdown-formatted
-    documentation. Follows GFM specification for compatibility with GitHub,
-    GitLab, and other Markdown processors.
+    Implements rendering of role documentation to Markdown format using
+    Jinja2 templates. Provides methods for escaping and code block formatting.
+    
+    T217: Implementation to pass T216 tests.
     
     Example:
         >>> renderer = MarkdownRenderer()
-        >>> renderer.heading("My Role", level=1)
-        '# My Role'
-        >>> renderer.code_block("print('hello')", "python")
-        '```python\\nprint(\\'hello\\')\\n```'
+        >>> context = TemplateContext(role=role, generator_version="0.3.0", ...)
+        >>> markdown = renderer.render(context)
     """
-
-    def render(self, content: str) -> str:
-        """Render content in Markdown format.
-        
-        For Markdown, rendering simply returns content as-is since Markdown
-        is already a text format that doesn't require transformation.
+    
+    format = OutputFormat.MARKDOWN
+    
+    def __init__(self, template_path: Optional[str] = None):
+        """Initialize Markdown renderer.
         
         Args:
-            content: Raw Markdown content to render
+            template_path: Optional custom template path. If None, uses default.
+        """
+        self._template_path = template_path
+        self._engine: Optional[TemplateEngine] = None
+        self._loader: Optional[FileSystemTemplateLoader] = None
+    
+    def _get_engine(self) -> TemplateEngine:
+        """Get or create template engine instance (lazy initialization)."""
+        if self._engine is None:
+            self._engine = TemplateEngine.create()
+        return self._engine
+    
+    def _get_loader(self) -> FileSystemTemplateLoader:
+        """Get or create template loader instance (lazy initialization)."""
+        if self._loader is None:
+            self._loader = FileSystemTemplateLoader()
+        return self._loader
+    
+    def render(self, context: TemplateContext) -> str:
+        """Render role documentation to Markdown format.
+        
+        Args:
+            context: Template context containing role data and metadata
             
         Returns:
-            Content unchanged
+            Rendered Markdown documentation
         """
-        return content
-
-    def escape(self, text: str) -> str:
+        engine = self._get_engine()
+        
+        # Determine template to use
+        if self._template_path:
+            # Custom template provided
+            from pathlib import Path
+            template_content = Path(self._template_path).read_text(encoding="utf-8")
+            template = engine.environment.from_string(template_content)
+        else:
+            # Use default template
+            template = engine.get_template("markdown/role.j2")
+        
+        # Render template with context
+        return template.render(**context.to_dict())
+    
+    def escape(self, text: Optional[str]) -> str:
         """Escape special Markdown characters.
         
         Escapes characters that have special meaning in Markdown:
-        - Backslash (\\)
-        - Backtick (`)
         - Asterisk (*)
         - Underscore (_)
         - Brackets ([ ])
-        - Braces ({ })
-        - Parentheses (( ))
+        - Backtick (`)
         - Hash (#)
-        - Plus (+)
-        - Minus (-)
-        - Dot after number (.)
-        - Exclamation mark (!)
         
         Args:
             text: Text potentially containing special characters
@@ -57,14 +88,16 @@ class MarkdownRenderer:
             Text with special characters escaped using backslash
             
         Example:
-            >>> renderer.escape("Text with [link]")
-            'Text with \\\\[link\\\\]'
+            >>> renderer.escape("*bold* _italic_")
+            '\\*bold\\* \\_italic\\_'
         """
+        if text is None:
+            return ""
         if not text:
             return text
         
         # Characters that need escaping in Markdown
-        special_chars = r'\`*_{}[]()#+-.!'
+        special_chars = "*_[]`#"
         
         # Escape each special character with backslash
         for char in special_chars:
@@ -89,6 +122,18 @@ class MarkdownRenderer:
             '```python\\nx = 42\\n```'
         """
         return f"```{language}\n{code}\n```"
+    
+    def validate_options(self, options: Dict[str, Any]) -> None:
+        """Validate renderer options.
+        
+        Args:
+            options: Options dictionary to validate
+            
+        Raises:
+            TypeError: If gfm_mode is not a boolean
+        """
+        if "gfm_mode" in options and not isinstance(options["gfm_mode"], bool):
+            raise TypeError(f"gfm_mode must be bool, got {type(options['gfm_mode']).__name__}")
 
     def heading(self, text: str, level: int = 1) -> str:
         """Generate Markdown heading.
