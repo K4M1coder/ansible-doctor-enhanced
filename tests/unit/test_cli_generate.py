@@ -720,7 +720,12 @@ class TestGenerateRecursive:
         mock_renderer.render.return_value = "# Test\n\nGenerated docs"
         mock_renderer_class.return_value = mock_renderer
         
-        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        output_dir = roles_directory.parent / "output"
+        output_dir.mkdir()
+        
+        result = runner.invoke(cli, [
+            "generate", str(roles_directory), "--recursive", "--output-dir", str(output_dir)
+        ])
         
         # Should succeed
         assert result.exit_code == 0
@@ -802,7 +807,12 @@ class TestGenerateRecursive:
         mock_renderer.render.return_value = "# Test\n\nGenerated docs"
         mock_renderer_class.return_value = mock_renderer
         
-        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        output_dir = roles_directory.parent / "output"
+        output_dir.mkdir()
+        
+        result = runner.invoke(cli, [
+            "generate", str(roles_directory), "--recursive", "--output-dir", str(output_dir)
+        ])
         
         # Should show progress information in stderr
         assert result.exit_code == 0
@@ -835,7 +845,12 @@ class TestGenerateRecursive:
         
         mock_parse.side_effect = create_mock_role_or_fail
         
-        result = runner.invoke(cli, ["generate", str(roles_directory), "--recursive"])
+        output_dir = roles_directory.parent / "output"
+        output_dir.mkdir()
+        
+        result = runner.invoke(cli, [
+            "generate", str(roles_directory), "--recursive", "--output-dir", str(output_dir)
+        ])
         
         # Should continue despite one failure
         # Exit code might be 0 (partial success) or 1 (with warnings)

@@ -403,6 +403,18 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     help="Output file path (default: stdout)",
 )
 @click.option(
+    "--output-dir",
+    "-d",
+    type=click.Path(path_type=Path),
+    help="Output directory for recursive generation (one file per role)",
+)
+@click.option(
+    "--recursive",
+    "-r",
+    is_flag=True,
+    help="Recursively generate documentation for all roles in directory",
+)
+@click.option(
     "--template",
     "-t",
     type=click.Path(exists=True, path_type=Path),
@@ -435,9 +447,9 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     default="INFO",
     help="Set logging level (default: INFO)",
 )
-def generate(role_path, format, output, template, embed_css, generate_toc, sphinx_compat, verbose, log_level):
+def generate(role_path, format, output, output_dir, recursive, template, embed_css, generate_toc, sphinx_compat, verbose, log_level):
     """
-    Generate documentation for an Ansible role.
+    Generate documentation for an Ansible role or multiple roles recursively.
     
     Parses the role structure (metadata, variables, tasks, tags, TODOs, examples)
     and generates formatted documentation in your choice of output format:
@@ -512,9 +524,17 @@ def generate(role_path, format, output, template, embed_css, generate_toc, sphin
     setup_logging(log_level)
     
     logger.info(f"Generating documentation for role: {role_path}")
-    logger.debug(f"Format: {format}, Output: {output}, Template: {template}")
+    logger.debug(f"Format: {format}, Output: {output}, Template: {template}, Recursive: {recursive}")
     
     try:
+        # Handle recursive generation
+        if recursive:
+            _generate_recursive(
+                role_path, format, output_dir, template,
+                embed_css, generate_toc, sphinx_compat
+            )
+            return
+        
         # Validate role path - raises ValidationError if invalid
         RolePathValidator.validate_role_structure(role_path)
         
@@ -626,6 +646,128 @@ def _parse_role_for_generation(role_path: Path) -> AnsibleRole:
     )
     
     return role
+
+
+def _generate_recursive(
+    roles_dir: Path,
+    format: str,
+    output_dir: Path | None,
+    template: str | None,
+    embed_css: bool,
+    generate_toc: bool,
+    sphinx_compat: bool,
+) -> None:
+    """Generate documentation recursively for all roles in directory.
+    
+    Args:
+        roles_dir: Directory containing multiple role directories
+        format: Output format (markdown, html, rst)
+        output_dir: Output directory for generated files (required for recursive)
+        template: Custom template path
+        embed_css: Embed CSS in HTML output
+        generate_toc: Generate table of contents in HTML
+        sphinx_compat: Use Sphinx directives in RST
+        
+    Raises:
+        ValidationError: If output_dir not provided for recursive mode
+    """
+    if not output_dir:
+        raise ValidationError(
+            message="Output directory (--output-dir) is required for recursive generation",
+            context={"roles_dir": str(roles_dir)},
+            suggestion="Use --output-dir to specify where to save generated documentation files"
+        )
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Discover roles
+    role_paths = []
+    for potential_role in roles_dir.iterdir():
+        if not potential_role.is_dir():
+            continue
+        
+        # Check if it's a valid role (has tasks/ or meta/ directory)
+        if (potential_role / "tasks").exists() or (potential_role / "meta").exists():
+            role_paths.append(potential_role)
+            logger.debug(f"Discovered role: {potential_role.name}")
+    
+    if not role_paths:
+        logger.warning(f"No roles found in {roles_dir}")
+        click.echo(f"No roles found in {roles_dir}", err=True)
+        return
+    
+    total_roles = len(role_paths)
+    successful = 0
+    failed = 0
+    
+    logger.info(f"Processing {total_roles} roles from {roles_dir}")
+    click.echo(f"Processing {total_roles} roles...", err=True)
+    
+    # Process each role
+    for idx, role_path in enumerate(role_paths, 1):
+        try:
+            logger.info(f"Processing role {idx}/{total_roles}: {role_path.name}")
+            click.echo(f"[{idx}/{total_roles}] Generating {role_path.name}...", err=True)
+            
+            # Parse role
+            role = _parse_role_for_generation(role_path)
+            
+            # Select renderer based on format
+            if format.lower() == "markdown":
+                renderer = MarkdownRenderer(template_path=template)
+                output_format = OutputFormat.MARKDOWN
+                ext = ".md"
+            elif format.lower() == "html":
+                renderer = HtmlRenderer(
+                    embed_css=embed_css,
+                    generate_toc=generate_toc,
+                    template_path=template
+                )
+                output_format = OutputFormat.HTML
+                ext = ".html"
+            elif format.lower() == "rst":
+                renderer = RstRenderer(
+                    sphinx_compat=sphinx_compat,
+                    template_path=template
+                )
+                output_format = OutputFormat.RST
+                ext = ".rst"
+            else:
+                raise ValidationError(
+                    f"Format '{format}' not yet implemented",
+                    "Use 'markdown', 'html', or 'rst' format.",
+                    {"requested_format": format}
+                )
+            
+            # Create template context
+            context = TemplateContext(
+                role=role,
+                generator_version=__version__,
+                output_format=output_format,
+            )
+            
+            # Render documentation
+            rendered_content = renderer.render(context)
+            
+            # Write to file
+            output_file = output_dir / f"{role_path.name}{ext}"
+            output_file.write_text(rendered_content, encoding="utf-8")
+            
+            logger.info(f"Generated: {output_file}")
+            successful += 1
+            
+        except Exception as e:
+            logger.error(f"Failed to process {role_path.name}: {e}")
+            click.echo(f"  ✗ Failed: {e}", err=True)
+            failed += 1
+            # Continue with next role
+    
+    # Summary
+    click.echo(f"\nComplete: {successful} successful, {failed} failed", err=True)
+    logger.info(f"Recursive generation complete: {successful}/{total_roles} successful")
+    
+    if failed > 0:
+        sys.exit(1)
 
 
 def main():
