@@ -9,6 +9,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+**Feature 002 - Documentation Generator (Phase 11: RST Renderer - T241-T250)**
+
+- **T241-T242**: RstRenderer implementation with Sphinx compatibility
+  - reStructuredText (RST) documentation renderer
+  - escape() method for RST special characters (*, `, _, \\, |)
+  - code_block() with .. code-block:: directive and 3-space indentation
+  - render() using Jinja2 template with sphinx_compat option
+  - validate_options() for sphinx_compat boolean validation
+  - 16 unit tests (TDD RED → GREEN), 94% coverage
+  - Follows same pattern as HtmlRenderer/MarkdownRenderer (SOLID, DRY)
+
+- **T243**: RST template with conditional Sphinx directives
+  - Template rst/role.j2 (151 lines) enhanced with Sphinx support
+  - Default sphinx_compat=True for Sphinx directive usage
+  - .. warning:: directive for high/critical priority TODOs
+  - Simple list format fallback when sphinx_compat=False
+  - Proper RST structure: field lists, heading underlines, code blocks
+  - 23 unit tests passing with template rendering
+
+- **T244**: RST integration tests (8 tests)
+  - End-to-end RST generation with complex_role fixture
+  - Validates RST structure: headings, underlines, field lists, TOC directive
+  - Validates code blocks: .. code-block:: yaml with proper indentation
+  - Validates Sphinx directives: .. warning:: for high priority TODOs
+  - Validates sphinx_compat True/False behavior
+  - Tests complete document sections: Overview, Variables, Tags, TODOs, Examples
+
+- **T245**: CLI support for RST format (4 tests)
+  - --format rst option added to generate command
+  - --sphinx-compat / --no-sphinx-compat flag (default: True)
+  - RstRenderer instantiated with sphinx_compat from CLI
+  - Compatible with --output, --template options
+  - Consistent CLI UX across all formats (Markdown, HTML, RST)
+
+- **T246**: Property-based tests with Hypothesis (4 tests)
+  - 100 random test cases per property (400 total test cases)
+  - Verifies RST structure consistency with random role data
+  - Verifies escaping prevents RST injection
+  - Verifies all variables appear in output
+  - Verifies section order consistency
+
+- **T247**: RST validation tests with docutils (3 tests, optional)
+  - Validates RST parses without syntax errors using docutils
+  - Validates proper document structure (headings, field lists)
+  - Validates Sphinx directives (.. warning::, .. note::, .. code-block::)
+  - Tests skip gracefully if docutils not installed
+
+- **T248**: Documentation with Sphinx integration guide
+  - README.md updated with RST generation examples
+  - 5-step Sphinx integration workflow documented
+  - conf.py and index.rst examples provided
+  - Sphinx directives explained (warning, note, code-block)
+
+- **T249**: Coverage verification (82% maintained)
+  - 550 total tests (543 passing, 7 skipped, 2 pre-existing failures)
+  - RstRenderer: 94% coverage, 35 tests total
+  - Phase 11: 85 new tests (50 HTML + 35 RST)
+
 **Feature 002 - Documentation Generator (Phase 9 Foundation - T201-T203)**
 
 - **T201**: OutputFormat enum with MARKDOWN, HTML, RST support
