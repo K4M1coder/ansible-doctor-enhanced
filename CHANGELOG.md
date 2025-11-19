@@ -182,6 +182,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Metrics**: +251 tests (262 → 513), generator module at 99%, 89% overall
 
+**Feature 002 - Documentation Generator (Phase 10 - US5 Markdown MVP - T216-T222)**
+
+- **T216-T217**: MarkdownRenderer implementation with TDD
+  - Full DocumentRenderer protocol implementation
+  - Created ansibledoctor/generator/renderers/ package structure
+  - Uses EmbeddedTemplateLoader for default templates
+  - Markdown escaping for special characters (*, _, [, ], `, #)
+  - Code block formatting with language hints (```language)
+  - Thread-safe concurrent rendering support
+  - Custom template path support
+  - 23 unit tests with 100% coverage
+  - Commits: bd4c6e2, 27c6351 (fixup)
+
+- **T218**: Property-based testing with Hypothesis
+  - 4 property tests for robustness validation
+  - Random role data generation with valid Pydantic types
+  - Tests: valid structure, injection prevention, variable presence, consistency
+  - Commit: 5024c6d
+
+- **T220**: Integration tests for Markdown generation
+  - 8 end-to-end tests for complete pipeline
+  - Tests: complete docs, sections present, variables rendered, code blocks, TODOs, tags, examples
+  - Validates entire parse → render → output workflow
+  - Commit: aa56e6a
+
+- **T221**: Unit tests for CLI generate command (TDD RED phase)
+  - 11 test methods for CLI functionality
+  - Tests: role path, format option, output file, custom template, verbose flag, all options
+  - Error handling: nonexistent path, invalid format, rendering errors
+  - Mocking strategy: Isolate CLI logic from dependencies
+  - Commit: a2aed17
+
+- **T222**: CLI generate command implementation (TDD GREEN phase)
+  - Added generate command with full functionality
+  - Options: --format, --output, --template, --verbose, --log-level
+  - Role parsing via _parse_role_for_generation() helper
+  - MarkdownRenderer integration for MVP
+  - TemplateContext creation with complete role data
+  - Structured logging with correlation IDs
+  - User-friendly error messages
+  - Commit: 972dc64
+
+**Metrics**: +221 tests (262 → 483), Phase 10 at 33% (5/15 tasks: T216-T218, T220-T222)
+
 ## [0.2.0] - 2025-11-17
 
 ### Added

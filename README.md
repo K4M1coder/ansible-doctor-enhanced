@@ -461,9 +461,15 @@ Key principles:
 
 ## 📊 Project Status
 
-**MVP Status**: ✅ **COMPLETE**
+**Current Release**: v0.2.0 (Role Parser MVP) ✅  
+**In Development**: v0.3.0 (Documentation Generator) - Phase 10 at 33%
 
-### Completed Features (51/100 tasks)
+### Test Metrics
+- **Total Tests**: 483 (262 Feature 001 + 221 Feature 002)
+- **Coverage**: 89% overall (99% generator module)
+- **Status**: All passing ✅
+
+### Completed Features
 
 #### ✅ Core Functionality (MVP)
 - **Metadata Parser (US1)**: Extract role metadata from `meta/main.yml`
@@ -504,16 +510,16 @@ Key principles:
 
 #### 🎯 Roadmap to v1.0.0
 
-**v0.3.0 - Role Documentation Generator** (Feature 002 - 93% COMPLETE)
-- ✅ Phase 9 Foundation: Template engine, loaders, renderers, validators
-- ✅ Markdown/HTML/RST output formats with Jinja2 templates
-- ✅ Default templates with responsive HTML and Sphinx-compatible RST
-- ✅ Custom filters: rst_escape, code_block, header_anchor, etc.
-- ✅ Template validation: syntax checking, variable detection
-- ✅ Integration tests: 12 end-to-end workflow tests
-- ⏳ Phase 10: CLI `generate` command integration (NEXT)
-- ⏳ Phase 11: Custom template support and template inheritance
-- ⏳ Phase 12: Testing, polish, and documentation finalization
+**v0.3.0 - Role Documentation Generator** (Feature 002 - 55% COMPLETE - IN PROGRESS)
+- ✅ Phase 9 Foundation (T201-T215): Template engine, loaders, renderers, validators (513 tests, 89% coverage)
+- ✅ Phase 10 (33%): Markdown MVP implementation (T216-T222)
+  - ✅ MarkdownRenderer with TDD (23 tests)
+  - ✅ Property-based testing with Hypothesis (4 tests)
+  - ✅ Integration tests for Markdown generation (8 tests)
+  - ✅ CLI `generate` command with tests (11 tests)
+- ⏳ Phase 10 Remaining: T223-T230 (CLI help, E2E tests, benchmarks, README, CHANGELOG)
+- ⏳ Phase 11: HTML and RST renderers (T231-T255)
+- **Metrics**: 483 tests (+221 since v0.2.0), 89% coverage, 5/15 Phase 10 tasks complete
 
 **v0.4.0 - Documentation Parity** (Remaining Role Features)
 - All features from original ansible-doctor for roles
