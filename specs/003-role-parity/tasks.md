@@ -223,23 +223,26 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (TDD RED → GREEN)
 
-- [ ] T025 [P] [US3] Unit tests for parent directory discovery in `tests/unit/test_config_loader.py`
+- [X] T025 [P] [US3] Unit tests for parent directory discovery in `tests/unit/test_config_loader.py`
   - Test config found in grandparent directory (../../.ansibledoctor.yml)
   - Test config in role dir overrides parent dir (nearest wins)
   - Test discovery stops at filesystem root
+  - **Complete**: All 8 config discovery tests passing
 
-- [ ] T026 [P] [US3] Integration tests for validation in `tests/integration/test_config_integration.py`
+- [X] T026 [P] [US3] Integration tests for validation in `tests/integration/test_config_integration.py`
   - Test `config validate` command with valid config (exit code 0)
   - Test `config validate` command with invalid config (exit code 1, error shown)
   - Test `config show` displays merged config from parent dir
+  - **Complete**: 12 integration tests passing, Unicode encoding fixed for Windows
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Update find_config_file() for parent directory search
+- [X] T027 [US3] Update find_config_file() for parent directory search
   - Walk up directory tree: current → parent → grandparent → root
   - Check for .ansibledoctor.yml and .ansibledoctor.yaml at each level
   - Return first found (nearest wins)
   - Already implemented in T010, enhance tests here
+  - **Complete**: Already implemented and tested with T025/T026
 
 - [ ] T028 [US3] Add validation output formatting to `config validate` command
   - Print "✓ Config valid: <path>" on success (green)
