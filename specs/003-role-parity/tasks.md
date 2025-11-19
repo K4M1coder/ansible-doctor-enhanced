@@ -151,13 +151,13 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (TDD RED → GREEN)
 
-- [ ] T016 [P] [US2] Unit tests for debouncer in `tests/unit/test_debouncer.py`
+- [X] T016 [P] [US2] Unit tests for debouncer in `tests/unit/test_debouncer.py`
   - Test single file change triggers callback after quiet period (500ms)
   - Test burst of 10 changes debounces to single callback
   - Test multiple files changing simultaneously debounces correctly
   - Test clear() cancels pending callback
 
-- [ ] T017 [P] [US2] Unit tests for file monitor in `tests/unit/test_monitor.py`
+- [X] T017 [P] [US2] Unit tests for file monitor in `tests/unit/test_monitor.py`
   - Test monitor detects file modifications in `defaults/`
   - Test monitor detects new files created in `tasks/`
   - Test monitor ignores excluded patterns (e.g., `.git/`, `*.pyc`)
@@ -171,19 +171,19 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement Debouncer class in `ansibledoctor/watcher/debouncer.py`
+- [X] T019 [US2] Implement Debouncer class in `ansibledoctor/watcher/debouncer.py`
   - __init__(callback, delay=0.5) - callback function, delay in seconds
   - trigger() method - schedule callback after delay, cancel previous
   - clear() method - cancel pending callback
   - Use threading.Timer for delayed execution
 
-- [ ] T020 [US2] Implement FileChangeHandler in `ansibledoctor/watcher/handler.py`
+- [X] T020 [US2] Implement FileChangeHandler in `ansibledoctor/watcher/handler.py`
   - Extend watchdog.events.FileSystemEventHandler
   - on_modified(), on_created() methods filter relevant files
   - Call debouncer.trigger() on file events
   - Ignore directories, .pyc, __pycache__, .git
 
-- [ ] T021 [US2] Implement WatchMonitor class in `ansibledoctor/watcher/monitor.py`
+- [X] T021 [US2] Implement WatchMonitor class in `ansibledoctor/watcher/monitor.py`
   - __init__(role_path, on_change_callback) - setup watchdog observer
   - Watch paths: meta/, defaults/, vars/, tasks/, handlers/, .ansibledoctor.yml
   - start() - begin monitoring
