@@ -46,6 +46,7 @@ def cli():
     Available Commands:
         parse      - Parse role and extract documentation
         generate   - Generate formatted documentation
+        watch      - Watch role directory and auto-regenerate docs
         templates  - Manage custom templates
         config     - Configuration file management
     """
@@ -1084,6 +1085,161 @@ def validate(path: Path):
         logger.error(f"Error validating config: {e}")
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
+
+
+@cli.command()
+@click.argument("role_path", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@click.option(
+    "--format",
+    type=click.Choice(["markdown", "html", "rst"], case_sensitive=False),
+    default="markdown",
+    help="Output format for generated documentation (default: markdown)",
+)
+@click.option(
+    "--output",
+    type=click.Path(),
+    help="Output file path (optional, prints to stdout if not specified)",
+)
+def watch(role_path: str, format: str, output: str | None):
+    """
+    Watch role directory and auto-regenerate documentation on changes.
+    
+    Monitors the role directory for file changes and automatically regenerates
+    documentation when files are modified. Useful for real-time preview during
+    role development.
+    
+    \b
+    Monitored paths:
+        - meta/
+        - defaults/
+        - vars/
+        - tasks/
+        - handlers/
+        - .ansibledoctor.yml (config file)
+    
+    \b
+    Examples:
+        # Watch role with markdown output
+        ansible-doctor-enhanced watch ./my-role
+        
+        # Watch with HTML output to file
+        ansible-doctor-enhanced watch ./my-role --format html --output docs/index.html
+        
+        # Watch and auto-update README
+        ansible-doctor-enhanced watch . --output README.md
+    
+    Press Ctrl+C to stop watching.
+    """
+    import signal
+    import time
+    from datetime import datetime
+    
+    from ansibledoctor.watcher.monitor import WatchMonitor
+    
+    role_path_obj = Path(role_path).resolve()
+    
+    # Load config if present
+    config_file_path = find_config_file(role_path_obj)
+    file_config = None
+    if config_file_path:
+        logger.info(f"Found config file: {config_file_path}")
+        file_config = load_config(config_file_path)
+    
+    # Build CLI config
+    cli_config = ConfigModel(
+        output=str(output) if output else None,
+        output_format=format.lower() if format else None,
+    )
+    
+    # Merge configs
+    merged_config = merge_config(file_config, cli_config)
+    output_format = merged_config.output_format or "markdown"
+    output_path = Path(merged_config.output) if merged_config.output else None
+    
+    # Regeneration callback
+    def regenerate_docs():
+        """Regenerate documentation (called by file watcher)."""
+        try:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            logger.info(f"[{timestamp}] Regenerating documentation...")
+            
+            # Parse role
+            role = _parse_role_for_generation(role_path_obj)
+            
+            # Select renderer based on format
+            if output_format == "markdown":
+                renderer = MarkdownRenderer()
+            elif output_format == "html":
+                renderer = HtmlRenderer()
+            elif output_format == "rst":
+                renderer = RstRenderer()
+            else:
+                raise ValidationError(f"Unsupported format: {output_format}")
+            
+            # Create template context and render
+            context = TemplateContext(
+                role=role,
+                generator_version=__version__,
+                output_format=OutputFormat[output_format.upper()],
+            )
+            content = renderer.render(context)
+            
+            # Write output
+            if output_path:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(content, encoding="utf-8")
+                logger.info(f"[{timestamp}] ✓ Documentation updated: {output_path}")
+            else:
+                click.echo("\n" + "="*60)
+                click.echo(content)
+                click.echo("="*60 + "\n")
+                logger.info(f"[{timestamp}] ✓ Documentation generated")
+                
+        except Exception as e:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            logger.error(f"[{timestamp}] ✗ Generation failed: {e}")
+            click.echo(f"[{timestamp}] ✗ Error: {e}", err=True)
+            # Don't propagate - watch should continue
+    
+    # Initial generation
+    click.echo(f"Watching {role_path_obj}")
+    click.echo(f"Output format: {output_format}")
+    if output_path:
+        click.echo(f"Output file: {output_path}")
+    click.echo("\nGenerating initial documentation...")
+    regenerate_docs()
+    click.echo("\nMonitoring for changes... (Press Ctrl+C to stop)")
+    
+    # Create and start monitor
+    monitor = WatchMonitor(
+        role_path_obj,
+        callback=regenerate_docs,
+        debounce_delay=0.5,
+        exclude_patterns=["*.pyc", "__pycache__", ".git", "*.swp", "*.tmp"]
+    )
+    
+    # Setup signal handlers for graceful shutdown
+    def signal_handler(signum, frame):
+        """Handle shutdown signals."""
+        click.echo("\n\nStopping watch mode...")
+        monitor.stop()
+        click.echo("Watch stopped.")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    # Start monitoring
+    monitor.start()
+    
+    # Keep main thread alive
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        click.echo("\n\nStopping watch mode...")
+        monitor.stop()
+        click.echo("Watch stopped.")
 
 
 def main():
