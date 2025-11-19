@@ -31,9 +31,29 @@ def find_config_file(start_path: Path) -> Optional[Path]:
         Path("/project/.ansibledoctor.yml")
     
     Feature: US1 - Config File Support
+    Task: T010 - Config file discovery
     """
-    # TODO: Implement in T010
-    raise NotImplementedError("T010: find_config_file() not implemented")
+    current = start_path.resolve()
+    
+    # Walk up directory tree until filesystem root
+    while True:
+        # Check for .yml first (preferred)
+        yml_config = current / ".ansibledoctor.yml"
+        if yml_config.exists() and yml_config.is_file():
+            return yml_config
+        
+        # Check for .yaml (alternate extension)
+        yaml_config = current / ".ansibledoctor.yaml"
+        if yaml_config.exists() and yaml_config.is_file():
+            return yaml_config
+        
+        # Check if we've reached filesystem root
+        parent = current.parent
+        if parent == current:
+            # Reached root, no config found
+            return None
+        
+        current = parent
 
 
 def load_config(config_path: Path) -> ConfigModel:
@@ -57,9 +77,42 @@ def load_config(config_path: Path) -> ConfigModel:
         'html'
     
     Feature: US1 - Config File Support
+    Task: T011 - Config file loading and validation
     """
-    # TODO: Implement in T011
-    raise NotImplementedError("T011: load_config() not implemented")
+    # Check file exists
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    
+    # Load YAML content
+    yaml = YAML()
+    yaml.default_flow_style = False
+    
+    try:
+        with config_path.open("r", encoding="utf-8") as f:
+            data = yaml.load(f)
+        
+        # Handle empty file
+        if data is None:
+            data = {}
+        
+        # Validate with Pydantic (let ValidationError propagate for testing)
+        config = ConfigModel(**data)
+        return config
+        
+    except FileNotFoundError:
+        # Re-raise FileNotFoundError as-is
+        raise
+    except Exception as e:
+        # Check if it's a Pydantic ValidationError - let it propagate
+        from pydantic import ValidationError
+        if isinstance(e, ValidationError):
+            raise
+        # Wrap YAML errors with clear message
+        error_msg = str(e).lower()
+        if "yaml" in error_msg or "scan" in error_msg:
+            raise ConfigError(f"YAML syntax error in {config_path}: {e}") from e
+        # Wrap other errors
+        raise ConfigError(f"Failed to load config from {config_path}: {e}") from e
 
 
 def merge_config(
@@ -88,6 +141,50 @@ def merge_config(
         'custom.html'
     
     Feature: US1 - Config File Support
+    Task: T012 - Config merging with priority
     """
-    # TODO: Implement in T012
-    raise NotImplementedError("T012: merge_config() not implemented")
+    # Start with defaults from ConfigModel
+    defaults = ConfigModel()
+    
+    # Build merged dict with priority: CLI > file > defaults
+    merged_data = {}
+    
+    # Get all fields from ConfigModel
+    for field_name in ConfigModel.model_fields.keys():
+        cli_value = getattr(cli_config, field_name)
+        file_value = getattr(file_config, field_name) if file_config else None
+        default_value = getattr(defaults, field_name)
+        
+        # Priority: CLI (if not None) > file (if not None/default) > default
+        # Special handling for boolean 'recursive' - False is a valid CLI value
+        if field_name == "recursive":
+            # If CLI explicitly set recursive to True, use it
+            if cli_value is True:
+                merged_data[field_name] = cli_value
+            # Else use file value if available
+            elif file_value is not None:
+                merged_data[field_name] = file_value
+            # Else use default
+            else:
+                merged_data[field_name] = default_value
+        # For exclude_patterns, default is a list - check if CLI differs from default
+        elif field_name == "exclude_patterns":
+            if cli_value != default_value:
+                # CLI has custom patterns
+                merged_data[field_name] = cli_value
+            elif file_value is not None:
+                # Use file patterns
+                merged_data[field_name] = file_value
+            else:
+                # Use default
+                merged_data[field_name] = default_value
+        # Standard None-aware merging for other fields
+        else:
+            if cli_value is not None:
+                merged_data[field_name] = cli_value
+            elif file_value is not None:
+                merged_data[field_name] = file_value
+            else:
+                merged_data[field_name] = default_value
+    
+    return ConfigModel(**merged_data)

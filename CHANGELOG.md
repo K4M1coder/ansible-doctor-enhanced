@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Tests cover: valid/invalid formats, defaults, whitespace stripping, extra fields, edge cases
   - ConfigModel ready for use in US1 (config file loading) and US2 (watch mode)
 
+- **Feature 003 - Phase 3 US1 Config File Support (T007, T010-T012)**: Config discovery and loading implemented
+  - `find_config_file()`: Walk directory tree to find `.ansibledoctor.yml` or `.ansibledoctor.yaml`
+  - `load_config()`: Load and validate YAML config with Pydantic, clear error messages
+  - `merge_config()`: Merge configs with priority: CLI > file > defaults
+  - 21 unit tests (TDD RED → GREEN), 92% coverage of loader.py
+  - Proper error handling: FileNotFoundError, YAML syntax errors, ValidationError
+
 ### Changed
 
 - **Branding**: Updated project name from "ansible-doctor" to "ansible-doctor-enhanced" across all output formats
