@@ -422,22 +422,72 @@ def generate(role_path, format, output, template, verbose, log_level):
     """
     Generate documentation for an Ansible role.
     
-    Parses role structure and generates formatted documentation in Markdown,
-    HTML, or reStructuredText format.
+    Parses the role structure (metadata, variables, tasks, tags, TODOs, examples)
+    and generates formatted documentation in your choice of output format:
+    Markdown (.md), HTML (.html), or reStructuredText (.rst).
     
-    Examples:
+    The generator uses Jinja2 templates with custom filters optimized for
+    documentation rendering. Default templates are provided for all formats,
+    or you can specify custom templates for branded documentation.
+    
+    \b
+    ROLE_PATH: Path to the Ansible role directory (must contain tasks/ or meta/)
+    
+    \b
+    Common Usage Examples:
     
         \b
-        # Generate Markdown to stdout
+        # Generate Markdown README to stdout (default)
         $ ansible-doctor generate my-role/
         
         \b
-        # Generate HTML to file
-        $ ansible-doctor generate my-role/ --format html --output docs/role.html
+        # Generate Markdown and save to file
+        $ ansible-doctor generate my-role/ --output README.md
         
         \b
-        # Use custom template
-        $ ansible-doctor generate my-role/ --template custom.j2 --output README.md
+        # Generate HTML documentation with CSS
+        $ ansible-doctor generate my-role/ --format html --output docs/index.html
+        
+        \b
+        # Generate RST for Sphinx documentation
+        $ ansible-doctor generate my-role/ --format rst --output docs/role.rst
+        
+        \b
+        # Use custom Jinja2 template
+        $ ansible-doctor generate my-role/ --template custom-readme.md.j2
+        
+        \b
+        # Debug with verbose logging
+        $ ansible-doctor generate my-role/ --verbose --log-level DEBUG
+        
+        \b
+        # Complete example with all options
+        $ ansible-doctor generate my-role/ \\
+            --format markdown \\
+            --output docs/README.md \\
+            --template templates/custom.j2 \\
+            --verbose
+    
+    \b
+    Template Variables Available:
+        - role_name: Role directory name
+        - metadata: RoleMetadata object (author, description, license, etc.)
+        - variables: List of Variable objects with annotations
+        - tags: List of Tag objects with usage counts
+        - todos: List of TodoItem objects with priorities
+        - examples: List of Example code blocks
+        - has_variables, has_tags, has_todos, has_examples: Boolean flags
+    
+    \b
+    Output Formats:
+        - markdown: GitHub Flavored Markdown with fenced code blocks
+        - html: HTML5 with embedded CSS and responsive design
+        - rst: reStructuredText compatible with Sphinx documentation
+    
+    \b
+    Exit Codes:
+        0: Success - documentation generated successfully
+        1: Error - role parsing or rendering failed (check logs)
     """
     # Setup logging
     if verbose:
