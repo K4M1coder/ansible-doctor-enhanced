@@ -424,6 +424,27 @@ ansible-doctor templates validate my-template.j2
 ansible-doctor generate /role --template my-template.j2 --output README.md
 ```
 
+**Watch Mode - Auto-Regenerate on File Changes (NEW in v0.4.0-alpha.2):**
+
+```bash
+# Watch role directory and auto-regenerate docs on changes
+ansible-doctor watch /path/to/role
+
+# Watch with specific output format and file
+ansible-doctor watch ./my-role --format html --output docs/index.html
+
+# Watch and auto-update README on changes
+ansible-doctor watch . --output README.md
+
+# Watch mode features:
+# - Monitors meta/, defaults/, vars/, tasks/, handlers/, .ansibledoctor.yml
+# - Debounces rapid changes (500ms quiet period)
+# - Excludes .pyc, __pycache__, .git, .swp, .tmp
+# - Continues watching even if generation fails
+# - Graceful shutdown with Ctrl+C
+# - Timestamps for each regeneration event
+```
+
 **Advanced Usage:**
 
 ```bash
@@ -438,6 +459,9 @@ ansible-doctor generate my-role/ > documentation.md
 # Create nested documentation structure
 ansible-doctor generate my-role/ --output docs/generated/README.md
 # Creates docs/generated/ directory automatically
+
+# Watch mode with config file (discovers .ansibledoctor.yml automatically)
+ansible-doctor watch ./my-role  # Uses settings from .ansibledoctor.yml
 ```
 
 **Generated Documentation Includes:**
@@ -649,12 +673,12 @@ Key principles:
 
 ## 📊 Project Status
 
-**Current Release**: v0.4.0-alpha.1 (Configuration File Support) ✅  
-**In Development**: v0.4.0-alpha.2 (Watch Mode) - US2 at 30%
+**Current Release**: v0.4.0-alpha.2 (Watch Mode Auto-Regeneration) ✅  
+**In Development**: v0.4.0-alpha.3 (Config Discovery in Parent Directories) - Planning
 
 ### Test Metrics
-- **Total Tests**: 641 (262 Feature 001 + 233 Feature 002 + 146 Feature 003)
-- **Coverage**: 81% overall (100% config/debouncer modules)
+- **Total Tests**: 660 (262 Feature 001 + 233 Feature 002 + 165 Feature 003)
+- **Coverage**: 79% overall (100% watch modules: debouncer, monitor)
 - **Status**: All passing ✅
 
 ### Completed Features
