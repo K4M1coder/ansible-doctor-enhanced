@@ -13,6 +13,9 @@ import click
 
 from ansibledoctor import __version__
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, ValidationError
+from ansibledoctor.generator.models import OutputFormat, TemplateContext
+from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
+from ansibledoctor.models import AnsibleRole
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.example_parser import ExampleParser
 from ansibledoctor.parser.metadata_parser import MetadataParser
@@ -380,6 +383,175 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     )
 
     return results
+
+
+@cli.command()
+@click.argument("role_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["markdown", "html", "rst"], case_sensitive=False),
+    default="markdown",
+    help="Output format (default: markdown)",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(path_type=Path),
+    help="Output file path (default: stdout)",
+)
+@click.option(
+    "--template",
+    "-t",
+    type=click.Path(exists=True, path_type=Path),
+    help="Custom template file path",
+)
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    help="Enable verbose output",
+)
+@click.option(
+    "--log-level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"], case_sensitive=False),
+    default="INFO",
+    help="Set logging level (default: INFO)",
+)
+def generate(role_path, format, output, template, verbose, log_level):
+    """
+    Generate documentation for an Ansible role.
+    
+    Parses role structure and generates formatted documentation in Markdown,
+    HTML, or reStructuredText format.
+    
+    Examples:
+    
+        \b
+        # Generate Markdown to stdout
+        $ ansible-doctor generate my-role/
+        
+        \b
+        # Generate HTML to file
+        $ ansible-doctor generate my-role/ --format html --output docs/role.html
+        
+        \b
+        # Use custom template
+        $ ansible-doctor generate my-role/ --template custom.j2 --output README.md
+    """
+    # Setup logging
+    if verbose:
+        log_level = "DEBUG"
+    setup_logging(log_level)
+    
+    logger.info(f"Generating documentation for role: {role_path}")
+    logger.debug(f"Format: {format}, Output: {output}, Template: {template}")
+    
+    try:
+        # Validate role path - raises ValidationError if invalid
+        RolePathValidator.validate_role_structure(role_path)
+        
+        # Parse role
+        logger.info("Parsing role structure...")
+        role = _parse_role_for_generation(role_path)
+        
+        # Select renderer based on format
+        if format.lower() == "markdown":
+            renderer = MarkdownRenderer(template_path=str(template) if template else None)
+        else:
+            raise ValidationError(
+                f"Format '{format}' not yet implemented",
+                "Use 'markdown' format for now. HTML and RST coming soon.",
+                {"requested_format": format}
+            )
+        
+        # Create template context
+        context = TemplateContext(
+            role=role,
+            generator_version=__version__,
+            output_format=OutputFormat.MARKDOWN,
+        )
+        
+        # Render documentation
+        logger.info(f"Rendering documentation in {format} format...")
+        rendered_content = renderer.render(context)
+        
+        # Write output
+        if output:
+            logger.info(f"Writing output to {output}")
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(rendered_content, encoding="utf-8")
+            click.echo(f"Documentation generated: {output}", err=True)
+        else:
+            # Output to stdout
+            click.echo(rendered_content)
+        
+        logger.info("Documentation generation complete")
+        
+    except (ParsingError, ValidationError, AnsibleDoctorError) as e:
+        logger.error(f"Error generating documentation: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        click.echo(f"Unexpected error: {e}", err=True)
+        sys.exit(1)
+
+
+def _parse_role_for_generation(role_path: Path) -> AnsibleRole:
+    """Parse role for documentation generation.
+    
+    Args:
+        role_path: Path to Ansible role directory
+        
+    Returns:
+        Parsed AnsibleRole object
+        
+    Raises:
+        ParsingError: If role parsing fails
+    """
+    yaml_loader = RuamelYAMLLoader()
+    
+    # Parse metadata
+    metadata_parser = MetadataParser(yaml_loader)
+    metadata = metadata_parser.parse_metadata(role_path / "meta")
+    
+    # Parse variables
+    variable_parser = VariableParser(yaml_loader)
+    variables = []
+    
+    for var_dir in ["defaults", "vars"]:
+        var_path = role_path / var_dir
+        if var_path.exists():
+            variables.extend(variable_parser.parse_variables(var_path))
+    
+    # Parse tags
+    task_parser = TaskParser(yaml_loader)
+    tags = []
+    tasks_path = role_path / "tasks"
+    if tasks_path.exists():
+        tags = task_parser.parse_task_tags(tasks_path)
+    
+    # Parse TODOs
+    todo_parser = TodoParser()
+    todos = todo_parser.parse_directory(role_path)
+    
+    # Parse examples
+    example_parser = ExampleParser()
+    examples = example_parser.parse_directory(role_path)
+    
+    # Create AnsibleRole aggregate
+    role = AnsibleRole(
+        name=role_path.name,
+        path=role_path.resolve(),
+        metadata=metadata,
+        variables=variables,
+        tags=tags,
+        todos=todos,
+        examples=examples,
+    )
+    
+    return role
 
 
 def main():
