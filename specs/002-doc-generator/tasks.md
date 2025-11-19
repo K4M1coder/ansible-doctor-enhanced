@@ -457,11 +457,14 @@
   - ✅ 8 integration tests → Commit: 7e351de
   - ✅ All tests passing
 
-- [ ] T245 [P] Add RST format to CLI `generate` command
-  - Support `--format rst`
-  - Instantiate RstRenderer when format=rst
-  - Add --sphinx-compat / --no-sphinx-compat flag
-  - 4 tests in test_cli_generate.py
+- [x] T245 [P] Add RST format to CLI `generate` command
+  - ✅ Import RstRenderer in CLI module
+  - ✅ Support `--format rst` option
+  - ✅ Instantiate RstRenderer when format=rst
+  - ✅ Add --sphinx-compat / --no-sphinx-compat flag (default: True)
+  - ✅ Pass sphinx_compat to RstRenderer constructor
+  - ✅ 4 CLI tests → Commit: bd92f71
+  - ✅ All tests passing
 
 - [ ] T246 [P] Write property tests for RstRenderer in tests/property/test_rst_renderer.py
   - Verify escaping prevents RST injection
