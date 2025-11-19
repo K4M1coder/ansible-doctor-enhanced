@@ -1004,10 +1004,16 @@ def show(path: Path):
         cli_config = ConfigModel()
         merged_config = merge_config(file_config, cli_config)
         
-        # Display as YAML
+        # Display as YAML with resolved paths
         click.echo("Effective configuration:")
         click.echo("---")
         config_dict = merged_config.model_dump(exclude_none=True)
+        
+        # Resolve relative paths to absolute if present
+        if 'output' in config_dict and config_dict['output']:
+            output_path = Path(config_dict['output'])
+            if not output_path.is_absolute():
+                config_dict['output'] = str(output_path.resolve())
         
         from ruamel.yaml import YAML
         from io import StringIO
@@ -1016,6 +1022,14 @@ def show(path: Path):
         stream = StringIO()
         yaml.dump(config_dict, stream)
         click.echo(stream.getvalue())
+        
+        # Show which settings come from file vs defaults
+        if file_config:
+            file_dict = file_config.model_dump(exclude_none=True)
+            if file_dict:
+                click.echo("Settings from config file:", err=True)
+                for key in file_dict.keys():
+                    click.echo(f"  - {key}", err=True)
         
     except Exception as e:
         logger.error(f"Error displaying config: {e}")
@@ -1071,14 +1085,31 @@ def validate(path: Path):
             
         except Exception as e:
             click.echo(f"[INVALID] Config invalid: {config_file_path}", err=True)
-            click.echo(f"  Error: {e}", err=True)
             
-            # Try to provide more specific error info
-            error_str = str(e).lower()
-            if "yaml" in error_str or "syntax" in error_str:
+            # Enhanced error reporting
+            from ruamel.yaml import YAMLError
+            from pydantic import ValidationError
+            
+            if isinstance(e, YAMLError):
+                # YAML syntax error - extract line/column info
+                click.echo(f"  YAML Syntax Error: {e.problem}", err=True)
+                if hasattr(e, 'problem_mark') and e.problem_mark:
+                    mark = e.problem_mark
+                    click.echo(f"  Line {mark.line + 1}, Column {mark.column + 1}", err=True)
                 click.echo("  Check YAML syntax (quotes, indentation, colons)", err=True)
-            elif "validation" in error_str or "output_format" in error_str:
+                
+            elif isinstance(e, ValidationError):
+                # Pydantic validation error - extract field info
+                click.echo(f"  Schema Validation Error:", err=True)
+                for error in e.errors():
+                    field = '.'.join(str(x) for x in error['loc'])
+                    msg = error['msg']
+                    click.echo(f"    Field '{field}': {msg}", err=True)
                 click.echo("  Valid output_format values: markdown, html, rst", err=True)
+                
+            else:
+                # Generic error
+                click.echo(f"  Error: {e}", err=True)
             
             sys.exit(1)
             
