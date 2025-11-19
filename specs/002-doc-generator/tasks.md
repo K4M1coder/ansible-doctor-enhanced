@@ -249,11 +249,14 @@
   - Bug fixes: VariableParser initialization, parse_role_variables(), parse_tasks(), format_priority filter ✅
   - Commit: abc212f "test(integration): add E2E tests for CLI generate command (T224)"
 
-- [ ] T225 Update README.md with `generate` command examples
-  - Add "Generating Documentation" section
-  - Show basic usage: `ansible-doctor generate my-role/`
-  - Show advanced usage: custom templates, output paths
-  - Add to "Completed Features" list
+- [x] T225 Update README.md with `generate` command examples ✅
+  - Add "Generating Documentation (Phase 10 MVP)" section with working examples ✅
+  - Show basic usage: stdout, file output, format selection, verbose logging ✅
+  - Show advanced usage: batch processing, pipelines, nested directories ✅
+  - Document all included sections: overview, requirements, variables, tags, TODOs, examples, license ✅
+  - Update test metrics: 495 tests, 89% coverage ✅
+  - Update progress: Phase 10 at 40% (6/15 tasks) ✅
+  - Commit: 558921e "docs(readme): add generate command usage examples and update metrics (T225)"
 
 ### T226-T230: MVP Validation
 
