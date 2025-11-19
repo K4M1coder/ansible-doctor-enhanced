@@ -12,6 +12,8 @@ from pathlib import Path
 import click
 
 from ansibledoctor import __version__
+from ansibledoctor.config.loader import find_config_file, load_config, merge_config
+from ansibledoctor.config.models import ConfigModel
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, ValidationError
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
@@ -39,6 +41,13 @@ def cli():
     
     Extract metadata, variables, tags, and annotations from Ansible roles
     following KISS, SMART, and SOLID principles.
+    
+    \b
+    Available Commands:
+        parse      - Parse role and extract documentation
+        generate   - Generate formatted documentation
+        templates  - Manage custom templates
+        config     - Configuration file management
     """
     pass
 
@@ -527,6 +536,46 @@ def generate(role_path, format, output, output_dir, recursive, template, embed_c
     logger.debug(f"Format: {format}, Output: {output}, Template: {template}, Recursive: {recursive}")
     
     try:
+        # T013: Load config file and merge with CLI arguments
+        config_file_path = find_config_file(role_path)
+        file_config = None
+        
+        if config_file_path:
+            logger.info(f"Found config file: {config_file_path}")
+            file_config = load_config(config_file_path)
+        else:
+            logger.debug("No config file found, using defaults")
+        
+        # Build CLI config from arguments
+        cli_config = ConfigModel(
+            output=str(output) if output else None,
+            output_format=format.lower() if format else None,
+            template=str(template) if template else None,
+            recursive=recursive,
+            output_dir=str(output_dir) if output_dir else None,
+        )
+        
+        # Merge configs with priority: CLI > file > defaults
+        merged_config = merge_config(file_config, cli_config)
+        
+        # Use merged config values
+        format = merged_config.output_format or "markdown"
+        if merged_config.output and not output:
+            output = Path(merged_config.output)
+        if merged_config.template and not template:
+            template = Path(merged_config.template)
+        if merged_config.output_dir and not output_dir:
+            output_dir = Path(merged_config.output_dir)
+        recursive = merged_config.recursive
+        
+        logger.debug(f"Merged config - Format: {format}, Output: {output}, Recursive: {recursive}")
+        
+    except Exception as e:
+        logger.error(f"Error loading config: {e}")
+        click.echo(f"Config error: {e}", err=True)
+        sys.exit(1)
+    
+    try:
         # Handle recursive generation
         if recursive:
             _generate_recursive(
@@ -891,6 +940,149 @@ def templates_validate(template_path):
         
     except Exception as e:
         click.echo(f"✗ Error reading template: {e}", err=True)
+        sys.exit(1)
+
+
+@cli.group()
+def config():
+    """
+    Configuration file management commands.
+    
+    Manage .ansibledoctor.yml configuration files for persistent settings.
+    Configuration files can be placed in the role directory or any parent
+    directory, with the nearest file taking precedence.
+    
+    \b
+    Examples:
+        # Show effective configuration
+        $ ansible-doctor config show
+        
+        # Validate config file
+        $ ansible-doctor config validate
+    """
+    pass
+
+
+@config.command()
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    default=Path.cwd(),
+    help="Starting directory for config search (default: current directory)",
+)
+def show(path: Path):
+    """
+    Display effective configuration with merged settings.
+    
+    Shows the configuration that would be used when running commands,
+    including values from config file, CLI defaults, and where each
+    value comes from.
+    
+    \b
+    PATH: Starting directory for config file search (default: current directory)
+    
+    \b
+    Exit Codes:
+        0: Success - configuration displayed
+        1: Error - failed to load configuration
+    """
+    setup_logging("INFO")
+    
+    try:
+        # Find config file
+        config_file_path = find_config_file(path)
+        
+        if config_file_path:
+            click.echo(f"Config file: {config_file_path}\n", err=True)
+            file_config = load_config(config_file_path)
+        else:
+            click.echo("No config file found, showing defaults\n", err=True)
+            file_config = None
+        
+        # Merge with empty CLI config to show effective config
+        cli_config = ConfigModel()
+        merged_config = merge_config(file_config, cli_config)
+        
+        # Display as YAML
+        click.echo("Effective configuration:")
+        click.echo("---")
+        config_dict = merged_config.model_dump(exclude_none=True)
+        
+        from ruamel.yaml import YAML
+        from io import StringIO
+        yaml = YAML()
+        yaml.default_flow_style = False
+        stream = StringIO()
+        yaml.dump(config_dict, stream)
+        click.echo(stream.getvalue())
+        
+    except Exception as e:
+        logger.error(f"Error displaying config: {e}")
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@config.command()
+@click.option(
+    "--path",
+    type=click.Path(exists=True, path_type=Path),
+    default=Path.cwd(),
+    help="Starting directory for config search (default: current directory)",
+)
+def validate(path: Path):
+    """
+    Validate configuration file syntax and schema.
+    
+    Finds and validates the .ansibledoctor.yml config file, checking:
+    - YAML syntax correctness
+    - Schema validation (valid fields and types)
+    - Value constraints (e.g., output_format must be markdown/html/rst)
+    
+    \b
+    PATH: Starting directory for config file search (default: current directory)
+    
+    \b
+    Exit Codes:
+        0: Success - configuration is valid
+        1: Error - configuration has errors
+    """
+    setup_logging("INFO")
+    
+    try:
+        # Find config file
+        config_file_path = find_config_file(path)
+        
+        if not config_file_path:
+            click.echo("✗ No config file found", err=True)
+            click.echo(f"  Searched from: {path}", err=True)
+            click.echo("  Looking for: .ansibledoctor.yml or .ansibledoctor.yaml", err=True)
+            sys.exit(1)
+        
+        # Try to load and validate
+        try:
+            config = load_config(config_file_path)
+            click.echo(f"✓ Config valid: {config_file_path}")
+            click.echo(f"  Format: {config.output_format or 'not specified'}")
+            click.echo(f"  Recursive: {config.recursive}")
+            click.echo(f"  Exclude patterns: {len(config.exclude_patterns)} patterns")
+            sys.exit(0)
+            
+        except Exception as e:
+            click.echo(f"✗ Config invalid: {config_file_path}", err=True)
+            click.echo(f"  Error: {e}", err=True)
+            
+            # Try to provide more specific error info
+            error_str = str(e).lower()
+            if "yaml" in error_str or "syntax" in error_str:
+                click.echo("  Check YAML syntax (quotes, indentation, colons)", err=True)
+            elif "validation" in error_str or "output_format" in error_str:
+                click.echo("  Valid output_format values: markdown, html, rst", err=True)
+            
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Error validating config: {e}")
+        click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
