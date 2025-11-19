@@ -318,8 +318,17 @@ ansible-doctor generate /path/to/ansible-role
 # Save to file
 ansible-doctor generate /path/to/ansible-role --output README.md
 
-# Generate with explicit format (Markdown only in v0.3.0 MVP)
+# Generate with explicit format
 ansible-doctor generate /path/to/ansible-role --format markdown --output docs/README.md
+
+# Generate HTML documentation (NEW in v0.3.0 Phase 11)
+ansible-doctor generate /path/to/ansible-role --format html --output docs/index.html
+
+# HTML with external CSS (instead of embedded)
+ansible-doctor generate /path/to/ansible-role --format html --no-embed-css --output docs/index.html
+
+# HTML without table of contents
+ansible-doctor generate /path/to/ansible-role --format html --no-generate-toc --output docs/index.html
 
 # Enable verbose logging
 ansible-doctor generate /path/to/ansible-role --verbose --output README.md
@@ -351,16 +360,34 @@ ansible-doctor generate my-role/ --output docs/generated/README.md
 - 💡 **Examples**: Usage examples from role documentation
 - 📜 **License**: License information from metadata
 
-**Foundation Components Available:**
+**Output Formats Available:**
 
-- ✅ **Markdown Renderer**: Production-ready Markdown generation (MVP)
+- ✅ **Markdown Renderer**: Production-ready Markdown generation (GitHub Flavored Markdown)
+  - Fenced code blocks with syntax highlighting
+  - Table of contents with anchor links
+  - Emoji support for visual clarity
+  - Responsive tables for variables
+
+- ✅ **HTML Renderer**: Modern HTML5 documentation (NEW in v0.3.0 Phase 11)
+  - Responsive design with mobile breakpoint (@media 768px)
+  - Embedded CSS or external stylesheet option (`--embed-css / --no-embed-css`)
+  - Table of contents with smooth scroll anchors (`--generate-toc / --no-generate-toc`)
+  - Semantic HTML5 markup (proper heading hierarchy, sections, nav)
+  - XSS protection with automatic HTML entity escaping
+  - Code blocks with syntax highlighting classes
+  - Print-friendly styles
+
+- 🚧 **RST Renderer**: reStructuredText for Sphinx (Coming soon in Phase 11)
+
+**Foundation Components:**
+
 - ✅ **Template Engine**: Jinja2-based rendering with custom filters
 - ✅ **Template Loaders**: Filesystem and embedded template support
-- ✅ **Custom Filters**: `rst_escape`, `code_block`, `header_anchor`, `format_date`, `pluralize`, `wordwrap_filter`, `format_priority`
+- ✅ **Custom Filters**: `html_escape`, `markdown_escape`, `rst_escape`, `code_block`, `header_anchor`, `format_date`, `pluralize`, `wordwrap_filter`, `format_priority`
 - ✅ **Template Validation**: Syntax checking, variable detection, required variable validation
-- ✅ **Default Templates**: Production-ready Markdown template
-- ✅ **E2E Testing**: 12 integration tests validating complete workflow
-- 🚧 **HTML & RST Renderers**: Coming in Phase 11
+- ✅ **Default Templates**: Production-ready Markdown and HTML templates
+- ✅ **E2E Testing**: 20 integration tests validating complete workflow (12 Markdown + 8 HTML)
+- ✅ **Property Testing**: Hypothesis-based tests for XSS prevention and output validation
 
 ## ⚙️ Configuration
 
