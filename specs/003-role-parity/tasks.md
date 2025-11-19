@@ -163,11 +163,12 @@ description: "Task list template for feature implementation"
   - Test monitor ignores excluded patterns (e.g., `.git/`, `*.pyc`)
   - Test monitor handles config file changes (`.ansibledoctor.yml`)
 
-- [ ] T018 [P] [US2] Integration tests in `tests/integration/test_watch_integration.py`
+- [X] T018 [P] [US2] Integration tests in `tests/integration/test_watch_mode.py`
   - Test watch command starts and monitors role directory
   - Test modifying `defaults/main.yml` triggers regeneration
   - Test generation errors don't crash watch mode (displays error, continues)
   - Test Ctrl+C exits gracefully
+  - 9 integration tests: file monitoring, debouncing, exclusions, config changes, graceful shutdown, error handling
 
 ### Implementation for User Story 2
 
@@ -190,26 +191,27 @@ description: "Task list template for feature implementation"
   - stop() - graceful shutdown
   - Use watchdog.observers.Observer with FileChangeHandler
 
-- [ ] T022 [US2] Implement regeneration callback in `ansibledoctor/watcher/handler.py`
-  - generate_docs(role_path, config) function
-  - Call existing generate command logic
-  - Catch exceptions, log errors, don't propagate (watch continues)
-  - Log timestamp, duration, success/failure
+- [X] T022 [US2] Implement regeneration callback in `ansibledoctor/cli/__init__.py`
+  - regenerate_docs() function inside watch command
+  - Calls _parse_role_for_generation() and renderer.render()
+  - Catches exceptions, logs errors with timestamps, doesn't propagate (watch continues)
+  - Writes to output file or stdout
 
-- [ ] T023 [US2] Add `watch` command in `ansibledoctor/cli/__init__.py`
-  - New Click command group: `ansible-doctor watch <role-path>`
-  - Load config from role directory (integrate US1)
-  - Create WatchMonitor with regeneration callback
-  - Print "Watching <path>... Press Ctrl+C to stop"
-  - Handle KeyboardInterrupt for graceful exit
-  - Display generation status on each trigger
+- [X] T023 [US2] Add `watch` command in `ansibledoctor/cli/__init__.py`
+  - New Click command: `ansible-doctor watch <role-path>`
+  - Loads config from role directory (integrates US1)
+  - Creates WatchMonitor with regeneration callback
+  - Prints "Watching <path>... Press Ctrl+C to stop"
+  - Handles KeyboardInterrupt for graceful exit
+  - Displays generation status on each trigger with timestamps
 
-- [ ] T024 [US2] Add signal handling for graceful shutdown
-  - Register SIGINT/SIGTERM handlers
-  - Call monitor.stop() before exit
-  - Print "Watch stopped" message
+- [X] T024 [US2] Add signal handling for graceful shutdown
+  - Registers SIGINT/SIGTERM handlers using signal.signal()
+  - Calls monitor.stop() before exit
+  - Prints "Watch stopped" message
+  - Also handles KeyboardInterrupt exception as fallback
 
-**Checkpoint**: Watch mode complete - docs auto-regenerate on file changes
+**Checkpoint**: Watch mode complete - docs auto-regenerate on file changes ✅ (US2 complete)
 
 ---
 
