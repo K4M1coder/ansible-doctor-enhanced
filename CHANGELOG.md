@@ -9,7 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-## [0.4.0-alpha.1] - 2025-11-19
+## [0.4.0-alpha.2] - 2025-01-20
+
+### Added
+
+- **Feature 003 - Phase 4 US2 Watch Mode (T016-T024)**: Auto-regeneration on file changes
+  - **Watch Infrastructure (T016-T017, T019-T021)**:
+    - `Debouncer`: Rate-limits callback execution to prevent rapid regeneration bursts (100% coverage)
+    - `FileChangeHandler`: Processes watchdog file system events with pattern filtering (95% coverage)
+    - `WatchMonitor`: Monitors role directory recursively using watchdog.observers.Observer (100% coverage)
+    - Watches: meta/, defaults/, vars/, tasks/, handlers/, .ansibledoctor.yml
+    - Excludes: *.pyc, __pycache__/, .git/, *.swp, *.tmp
+    - 19 unit tests (8 debouncer + 11 monitor/handler), all passing
+  
+  - **Watch CLI Command (T022-T024)**:
+    - `ansible-doctor watch <role-path>`: Monitor role and auto-regenerate docs on changes
+    - `--format` option: Choose output format (markdown/html/rst)
+    - `--output` option: Write to file or stdout
+    - Integrates with US1 config file support (auto-discovers .ansibledoctor.yml)
+    - Regeneration callback with error handling and timestamp logging
+    - Signal handling for graceful shutdown (SIGINT/SIGTERM)
+    - Initial generation on watch start
+    - Continues monitoring even if generation fails
+    - 9 integration tests covering end-to-end functionality
+  
+  - **Test Coverage (T018)**:
+    - Integration tests: File monitoring, debouncing, exclusions, config changes
+    - Tests graceful shutdown, error handling, multiple directory monitoring
+    - Total: 660 tests passing (652 baseline + 8 new), 79% coverage
+    - Watch modules: debouncer 100%, handler 95%, monitor 100%
+
+### Changed
+
+- CLI help text updated to include `watch` command in available commands list
+- Watch command displays timestamps for each regeneration event
+- Error messages include timestamps when generation fails during watch mode
+
+## [0.4.0-alpha.1] - 2025-01-19
 
 ### Added
 
