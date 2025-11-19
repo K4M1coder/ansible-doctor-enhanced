@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created test fixtures in `tests/fixtures/config_files/` for config validation testing
   - All module stubs include TODO markers referencing implementation tasks (T005-T029)
 
+- **Feature 003 - Phase 2 Foundational (T005-T006)**: ConfigModel schema complete and tested
+  - Comprehensive unit tests for ConfigModel validation (19 tests, 92% coverage)
+  - Tests cover: valid/invalid formats, defaults, whitespace stripping, extra fields, edge cases
+  - ConfigModel ready for use in US1 (config file loading) and US2 (watch mode)
+
 ### Changed
 
 - **Branding**: Updated project name from "ansible-doctor" to "ansible-doctor-enhanced" across all output formats
