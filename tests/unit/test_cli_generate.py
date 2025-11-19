@@ -500,3 +500,164 @@ class TestGenerateHtmlFormat:
             generate_toc=False,
             template_path=None
         )
+
+
+class TestGenerateRstFormat:
+    """Test suite for RST format generation (T245)."""
+
+    @pytest.fixture
+    def runner(self):
+        """Create Click test runner."""
+        return CliRunner()
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.RstRenderer")
+    def test_generate_rst_format(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --format rst."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_role = AnsibleRole(
+            name="test-role",
+            path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test", description="Test role"),
+            variables=[],
+            tags=[],
+            todos=[],
+            examples=[],
+        )
+        mock_parse.return_value = mock_role
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "test-role\n=========\n\nTest role"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "rst"])
+        
+        assert result.exit_code == 0
+        # RstRenderer should be instantiated with default sphinx_compat=True
+        mock_renderer_class.assert_called_once_with(
+            sphinx_compat=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.RstRenderer")
+    def test_generate_rst_with_sphinx_compat(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --sphinx-compat flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_role = AnsibleRole(
+            name="test-role",
+            path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test", description="Test role"),
+            variables=[],
+            tags=[],
+            todos=[],
+            examples=[],
+        )
+        mock_parse.return_value = mock_role
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "test-role\n=========\n\n.. warning:: Test"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "rst", "--sphinx-compat"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            sphinx_compat=True,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.RstRenderer")
+    def test_generate_rst_with_no_sphinx_compat(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with --no-sphinx-compat flag."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_role = AnsibleRole(
+            name="test-role",
+            path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test", description="Test role"),
+            variables=[],
+            tags=[],
+            todos=[],
+            examples=[],
+        )
+        mock_parse.return_value = mock_role
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "test-role\n=========\n\n- Simple TODO"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, ["generate", str(role_path), "--format", "rst", "--no-sphinx-compat"])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            sphinx_compat=False,
+            template_path=None
+        )
+
+    @patch("ansibledoctor.cli.RolePathValidator.validate_role_structure")
+    @patch("ansibledoctor.cli._parse_role_for_generation")
+    @patch("ansibledoctor.cli.RstRenderer")
+    def test_generate_rst_with_all_options(self, mock_renderer_class, mock_parse, mock_validate, runner, tmp_path):
+        """Test generate command with all RST options."""
+        role_path = tmp_path / "test-role"
+        role_path.mkdir()
+        (role_path / "meta").mkdir()
+        output_file = tmp_path / "role.rst"
+        
+        # Mock validation to pass
+        mock_validate.return_value = True
+        
+        from ansibledoctor.models import AnsibleRole, RoleMetadata
+        mock_role = AnsibleRole(
+            name="test-role",
+            path=role_path.resolve(),
+            metadata=RoleMetadata(author="Test", description="Test role"),
+            variables=[],
+            tags=[],
+            todos=[],
+            examples=[],
+        )
+        mock_parse.return_value = mock_role
+        
+        mock_renderer = MagicMock()
+        mock_renderer.render.return_value = "test-role\n=========\n\nTest"
+        mock_renderer_class.return_value = mock_renderer
+        
+        result = runner.invoke(cli, [
+            "generate",
+            str(role_path),
+            "--format", "rst",
+            "--output", str(output_file),
+            "--no-sphinx-compat"
+        ])
+        
+        assert result.exit_code == 0
+        mock_renderer_class.assert_called_once_with(
+            sphinx_compat=False,
+            template_path=None
+        )

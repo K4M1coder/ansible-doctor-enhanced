@@ -447,13 +447,15 @@
   - ✅ Proper indentation: blank line + 3-space indent for directive content
   - ✅ All 23 RstRenderer tests passing → Commit: c9ff0c5
 
-- [ ] T244 [P] Write integration test for RST generation in tests/integration/test_rst_generation.py
-  - Render complex_role with RstRenderer
-  - Verify RST structure (headings, directives)
-  - Verify code blocks use .. code-block::
-  - Verify tables use .. list-table::
-  - Verify critical TODOs use .. warning::
-  - 8 tests
+- [x] T244 [P] Write integration test for RST generation in tests/integration/test_rst_generation.py
+  - ✅ Render complex_role with RstRenderer
+  - ✅ Verify RST structure (headings, underlines, field lists)
+  - ✅ Verify code blocks use .. code-block:: with indentation
+  - ✅ Verify Sphinx directives (.. warning:: for high priority TODOs)
+  - ✅ Verify sphinx_compat True/False behavior
+  - ✅ Verify all sections present (Overview, Variables, Tags, TODOs, Examples)
+  - ✅ 8 integration tests → Commit: 7e351de
+  - ✅ All tests passing
 
 - [ ] T245 [P] Add RST format to CLI `generate` command
   - Support `--format rst`

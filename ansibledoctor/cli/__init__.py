@@ -16,6 +16,7 @@ from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, Validatio
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
+from ansibledoctor.generator.renderers.rst import RstRenderer
 from ansibledoctor.models import AnsibleRole
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.example_parser import ExampleParser
@@ -418,6 +419,11 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     help="Generate table of contents in HTML output (default: generate)",
 )
 @click.option(
+    "--sphinx-compat/--no-sphinx-compat",
+    default=True,
+    help="Use Sphinx directives in RST output (default: use)",
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -429,7 +435,7 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     default="INFO",
     help="Set logging level (default: INFO)",
 )
-def generate(role_path, format, output, template, embed_css, generate_toc, verbose, log_level):
+def generate(role_path, format, output, template, embed_css, generate_toc, sphinx_compat, verbose, log_level):
     """
     Generate documentation for an Ansible role.
     
@@ -527,10 +533,16 @@ def generate(role_path, format, output, template, embed_css, generate_toc, verbo
                 template_path=str(template) if template else None
             )
             output_format = OutputFormat.HTML
+        elif format.lower() == "rst":
+            renderer = RstRenderer(
+                sphinx_compat=sphinx_compat,
+                template_path=str(template) if template else None
+            )
+            output_format = OutputFormat.RST
         else:
             raise ValidationError(
                 f"Format '{format}' not yet implemented",
-                "Use 'markdown' or 'html' format for now. RST coming soon.",
+                "Use 'markdown', 'html', or 'rst' format.",
                 {"requested_format": format}
             )
         
