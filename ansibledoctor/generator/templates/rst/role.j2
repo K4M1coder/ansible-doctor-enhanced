@@ -1,3 +1,4 @@
+{% if sphinx_compat is not defined %}{% set sphinx_compat = true %}{% endif %}
 {{ role_name | rst_escape }}
 {{ '=' * (role_name | length) }}
 
@@ -112,7 +113,15 @@ No TODOs found.
 {{ todo_count }} TODO(s):
 
 {% for todo in role.todos %}
+{% if sphinx_compat and todo.priority in ['high', 'critical'] %}
+.. warning:: {{ todo.description | rst_escape }}
+
+   :Priority: {{ todo.priority | upper }}
+   :Location: ``{{ todo.file_path }}:{{ todo.line_number }}``
+
+{% else %}
 - {{ todo.priority | format_priority }} **{{ todo.description | rst_escape }}** (``{{ todo.file_path }}:{{ todo.line_number }}``)
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endif %}
