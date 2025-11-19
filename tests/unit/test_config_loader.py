@@ -103,6 +103,23 @@ class TestConfigFileDiscovery:
         
         assert result is None, "Should return None when no config found"
     
+    def test_find_config_file_in_grandparent_directory(self, tmp_path):
+        """Test find_config_file() discovers config in grandparent directory (T025)."""
+        # Create config in grandparent (tmp_path)
+        grandparent_config = tmp_path / ".ansibledoctor.yml"
+        grandparent_config.write_text("output_format: rst\n")
+        
+        # Create nested subdirectories: tmp_path/parent/child/grandchild
+        grandchild_dir = tmp_path / "parent" / "child" / "grandchild"
+        grandchild_dir.mkdir(parents=True)
+        
+        # Search from grandchild should find grandparent config
+        result = find_config_file(grandchild_dir)
+        
+        assert result is not None
+        assert result == grandparent_config
+        assert result.parent == tmp_path, "Should find config in grandparent directory"
+    
     def test_find_config_file_stops_at_filesystem_root(self, tmp_path):
         """Test search stops at filesystem root (doesn't loop forever)."""
         # Search from temp directory with no config
