@@ -308,7 +308,7 @@
 
 ### T231-T240: HtmlRenderer Implementation
 
-- [ ] T231 [P] Write unit tests for HtmlRenderer in tests/unit/generator/test_html_renderer.py (TDD)
+- [x] T231 [P] Write unit tests for HtmlRenderer in tests/unit/generator/test_html_renderer.py (TDD)
   - Test format property returns OutputFormat.HTML
   - Test escape() uses markupsafe.escape
   - Test code_block() with <pre><code class="language-X">
@@ -316,7 +316,8 @@
   - Test render() with generate_toc=True (table of contents)
   - Test render() injects styles.css content
   - Test HTML validation (basic structure)
-  - 18 tests
+  - 46 tests written (exceeds target of 18)
+  - ✅ RED state confirmed: ModuleNotFoundError for HtmlRenderer
 
 - [ ] T232 Implement HtmlRenderer in ansibledoctor/generator/renderers/html.py
   - Implement DocumentRenderer protocol
