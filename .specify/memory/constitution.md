@@ -256,6 +256,8 @@ README.md MUST be kept current and serve as the primary entry point:
 Apply Domain-Driven Design principles to maintain a clear, expressive domain model:
 
 **Ubiquitous Language**:
+
+**Ubiquitous Language**:
 - Use consistent terminology from the Ansible domain throughout code
 - Domain terms MUST match specification language: Role, Variable, Annotation, Task, Tag, Metadata
 - Avoid generic names (e.g., use `RoleMetadata` not `Data`, use `VariableParser` not `Processor`)
@@ -304,11 +306,62 @@ Apply Domain-Driven Design principles to maintain a clear, expressive domain mod
 
 **Rationale**: DDD ensures the codebase reflects real-world Ansible concepts, making it intuitive for Ansible developers to understand and extend. Ubiquitous language reduces cognitive load and communication errors.
 
+### XI. Tag-Changelog Synchronization (MANDATORY)
+Git tags MUST be synchronized with CHANGELOG.md entries to maintain traceability:
+
+**Tag Creation Workflow**:
+1. **Before tagging**: CHANGELOG.md MUST have corresponding version section with date
+2. **Tag format**: Use SemVer without 'v' prefix (e.g., `0.2.4` not `v0.2.4`)
+3. **Tag message**: MUST reference CHANGELOG section: `Release {version} - {brief description}`
+4. **Commit before tag**: All changes including CHANGELOG.md MUST be committed before creating tag
+5. **Tag after commit**: Create annotated tag AFTER final commit: `git tag -a {version} -m "Release {version} - {description}"`
+
+**Tag Naming Convention**:
+- Format: `MAJOR.MINOR.PATCH` (e.g., 0.2.4, 1.0.0, 2.1.3)
+- NO 'v' prefix (Poetry and Python packaging standards)
+- Use annotated tags: `git tag -a 0.2.4 -m "Release 0.2.4 - RST Renderer Complete"`
+- Lightweight tags NOT allowed for releases
+
+**CHANGELOG.md Synchronization**:
+```markdown
+## [0.2.4] - 2025-11-19
+### Added
+- RST renderer with Sphinx compatibility
+- Property-based tests using Hypothesis
+
+### Fixed
+- Template escaping for special characters
+```
+
+**Tag-CHANGELOG Validation** (CI/CD check):
+- Every git tag MUST have matching CHANGELOG.md section
+- CHANGELOG.md section MUST include date in ISO format (YYYY-MM-DD)
+- Tag message MUST reference the feature/phase completed
+- pyproject.toml version MUST match latest git tag
+
+**pyproject.toml Version Sync**:
+- Update `[tool.poetry] version = "0.2.4"` BEFORE tagging
+- Run `poetry version patch|minor|major` to bump version
+- Commit version change with CHANGELOG update in same commit
+
+**Enforcement**:
+- Pre-tag hook: Verify CHANGELOG.md has entry for version
+- PR checklist: "CHANGELOG.md updated" + "Version bumped if needed"
+- Release process: Automated check that tag matches CHANGELOG + pyproject.toml
+
+**Rationale**: Tag-Changelog-Version synchronization ensures releases are fully documented, version history is traceable, and semantic versioning is consistently applied. Python packaging (Poetry) requires version in pyproject.toml to match git tags for proper distribution.
+
 ## Technical Standards
 
 ### Python & Tooling Requirements
 - **Python Version**: 3.11+ (for improved error messages, performance, typing features)
-- **Package Manager**: Poetry for dependency management and packaging
+- **Package Manager**: Poetry (MANDATORY) for dependency management and packaging
+  - Install via pipx: `pipx install poetry`
+  - Dependency management: `poetry add <package>` / `poetry add --group dev <package>`
+  - Virtual environment: `poetry install` (creates/updates .venv automatically)
+  - Run commands: `poetry run <command>` or activate shell with `poetry shell`
+  - Version management: Edit `pyproject.toml` [tool.poetry] version field
+  - Lock file: `poetry.lock` (MUST be committed to git)
 - **Code Quality**: 
   - Type hints REQUIRED for all public APIs (validated with mypy --strict)
   - Code formatting: Black (line length 100)

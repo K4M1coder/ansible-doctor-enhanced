@@ -16,6 +16,12 @@ Build a documentation generator that transforms parsed Ansible role data (JSON f
 
 **Language/Version**: Python 3.11+
 
+**Package Manager**: Poetry (installed via pipx)
+- Dependency management: `poetry add <package>`
+- Environment setup: `poetry install`
+- Run tests: `poetry run pytest`
+- Version management: `poetry version patch|minor|major`
+
 **Primary Dependencies**:
 
 - Jinja2 3.1+ (template engine)
@@ -27,6 +33,12 @@ Build a documentation generator that transforms parsed Ansible role data (JSON f
 **Testing**: pytest with 90%+ coverage target
 
 **Target Platform**: Cross-platform (Windows, macOS, Linux)
+
+**Version Management** (Constitution Article XI):
+- pyproject.toml version MUST match git tags
+- CHANGELOG.md MUST have entry before tagging
+- Tag format: `X.Y.Z` (no 'v' prefix, e.g., `0.2.4`)
+- Workflow: Update version → Update CHANGELOG → Commit → Tag
 
 **Performance Goals**:
 

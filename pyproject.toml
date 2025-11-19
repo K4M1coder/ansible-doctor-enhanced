@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ansibledoctor"
-version = "0.1.0"
+version = "0.2.4"
 description = "Enhanced Ansible role documentation generator with annotation support, logging, error handling, and reporting"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Cédric Thédrez <kamicth@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/yourusername/ansible-doctor-enhanced"
