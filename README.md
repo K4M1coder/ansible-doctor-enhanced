@@ -481,33 +481,78 @@ ansible-doctor generate my-role/ --output docs/generated/README.md
 
 ## ⚙️ Configuration
 
-Configuration via `.ansibledoctor.yml` in role directory or project root:
+**NEW in v0.4.0**: Configuration file support for persistent settings
+
+### Configuration File (`.ansibledoctor.yml`)
+
+Place a `.ansibledoctor.yml` or `.ansibledoctor.yaml` file in your role directory or any parent directory. The tool automatically discovers and uses the nearest config file.
+
+**Example configuration:**
 
 ```yaml
-# Annotation types to extract
-annotations:
-  - var
-  - tag
-  - todo
-  - example
+# Output settings
+output_format: html          # markdown, html, or rst
+output: docs/README.html     # Output file path
+output_dir: docs/            # Output directory for recursive mode
 
-# Output formatting
-output:
-  format: json
-  pretty: true
-
-# Logging configuration
-logging:
-  level: INFO
-  format: structured
-  
 # Template settings
-template:
-  provider: local
-  path: ./templates
+template: custom-template.j2 # Custom template path
+template_dir: ./templates    # Template directory
+
+# Processing options
+recursive: false             # Process subdirectories
+exclude_patterns:            # Patterns to exclude
+  - "*.pyc"
+  - __pycache__
+  - .git
+  - test_*
 ```
 
-Environment variables (override config file):
+**Configuration Priority:** CLI arguments > config file > defaults
+
+### Configuration Commands
+
+```bash
+# Validate your config file
+ansible-doctor config validate
+
+# Show effective configuration (merged defaults + file + CLI)
+ansible-doctor config show
+
+# Validate config in specific directory
+ansible-doctor config validate --path /path/to/role
+
+# Show config from specific directory
+ansible-doctor config show --path /path/to/role
+```
+
+**Config File Discovery:**
+- Searches current directory for `.ansibledoctor.yml` or `.ansibledoctor.yaml`
+- If not found, searches parent directories up to filesystem root
+- Nearest config file wins (like `.gitconfig`)
+
+**Example Usage with Config File:**
+
+```bash
+# Create config file
+cat > .ansibledoctor.yml << 'EOF'
+output_format: html
+recursive: true
+exclude_patterns:
+  - "*.pyc"
+  - .git
+EOF
+
+# Generate docs using config (no flags needed!)
+ansible-doctor generate .
+
+# Override config with CLI flag
+ansible-doctor generate . --format markdown  # Markdown wins over config's html
+```
+
+### Environment Variables
+
+Environment variables override config file settings:
 
 - `ANSIBLE_DOCTOR_LOG_LEVEL`: Set log level (DEBUG, INFO, WARNING, ERROR)
 - `ANSIBLE_DOCTOR_OUTPUT`: Default output file path
@@ -604,12 +649,12 @@ Key principles:
 
 ## 📊 Project Status
 
-**Current Release**: v0.2.0 (Role Parser MVP) ✅  
-**In Development**: v0.3.0 (Documentation Generator) - Phase 10 at 40%
+**Current Release**: v0.4.0-alpha.1 (Configuration File Support) ✅  
+**In Development**: v0.4.0-alpha.2 (Watch Mode) - US2 at 30%
 
 ### Test Metrics
-- **Total Tests**: 495 (262 Feature 001 + 233 Feature 002)
-- **Coverage**: 89% overall (99% generator module)
+- **Total Tests**: 641 (262 Feature 001 + 233 Feature 002 + 146 Feature 003)
+- **Coverage**: 81% overall (100% config/debouncer modules)
 - **Status**: All passing ✅
 
 ### Completed Features
@@ -653,24 +698,34 @@ Key principles:
 
 #### 🎯 Roadmap to v1.0.0
 
-**v0.3.0 - Role Documentation Generator** (Feature 002 - 58% COMPLETE - IN PROGRESS)
-- ✅ Phase 9 Foundation (T201-T215): Template engine, loaders, renderers, validators (513 tests, 89% coverage)
-- ✅ Phase 10 (40%): Markdown MVP implementation (T216-T224)
-  - ✅ MarkdownRenderer with TDD (23 tests)
-  - ✅ Property-based testing with Hypothesis (4 tests)
-  - ✅ Integration tests for Markdown generation (8 tests)
-  - ✅ CLI `generate` command with tests (11 tests)
-  - ✅ CLI help documentation with usage examples (T223)
-  - ✅ End-to-end integration tests (12 tests, T224)
-- ⏳ Phase 10 Remaining: T225-T230 (benchmarks, validation, real-world testing, CHANGELOG)
-- ⏳ Phase 11: HTML and RST renderers (T231-T255)
-- **Metrics**: 495 tests (+233 since v0.2.0), 89% coverage, 6/15 Phase 10 tasks complete
+**v0.3.0 - Role Documentation Generator** ✅ **COMPLETE**
+- ✅ Phase 9 Foundation (T201-T215): Template engine, loaders, renderers, validators
+- ✅ Phase 10: Markdown MVP (T216-T224) - 23 tests, property-based testing
+- ✅ Phase 11: HTML and RST renderers (T231-T255) - Multi-format support
+- **Released**: December 2024 with 495 tests, 89% coverage
 
-**v0.4.0 - Documentation Parity** (Remaining Role Features)
-- All features from original ansible-doctor for roles
+**v0.4.0-alpha.1 - Configuration File Support** ✅ **COMPLETE**
+- ✅ `.ansibledoctor.yml` config file discovery (current dir → parents)
+- ✅ Config loading with Pydantic validation (clear error messages)
+- ✅ Config merging with priority (CLI > file > defaults)
+- ✅ `config show` and `config validate` commands
+- ✅ Generate command auto-discovers config files
+- **Released**: November 2024 with 633 tests, 80% coverage
+
+**v0.4.0-alpha.2 - Watch Mode** (Feature 003 - US2 - 30% COMPLETE - IN PROGRESS)
+- ✅ Debouncer for rate-limiting file changes (8 tests, 100% coverage)
+- ⏳ FileChangeHandler for watchdog integration
+- ⏳ WatchMonitor for role directory monitoring
+- ⏳ `watch` command with auto-regeneration
+- ⏳ Signal handling for graceful shutdown
+- **Target**: November 2024, estimated 670+ tests
+
+**v0.4.0 - Documentation Parity** (Final Release)
+- Complete config file and watch mode features
+- Integration tests for all user stories
+- Documentation and migration guides
 - Performance optimization (<500ms per role)
 - Cross-platform validation (Windows, macOS, Linux)
-- Template system stabilization
 
 **v0.5.0 - Collection Documentation** (NEW - Not in original)
 - Parse Ansible collections (multiple roles, plugins, modules)
