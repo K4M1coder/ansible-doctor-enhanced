@@ -224,18 +224,30 @@
   - Pass T221 tests (11/11 tests passing) ✅
   - Commit: 972dc64 "feat(cli): implement generate command for documentation generation (T222)"
 
-- [ ] T223 [P] Add CLI help documentation for `generate` command
-  - Detailed docstring with usage examples
-  - Examples: generate with defaults, custom template, output path
-  - Update CLI --help output
-  - Manual verification: `ansible-doctor generate --help` shows examples
+- [x] T223 [P] Add CLI help documentation for `generate` command ✅
+  - Detailed docstring with usage examples ✅
+  - 7 usage examples: basic, file output, HTML/RST, custom template, verbose, complete ✅
+  - Template variables reference, output formats, exit codes documented ✅
+  - CLI --help output enhanced with structured sections ✅
+  - Manual verification: `ansible-doctor generate --help` displays correctly ✅
+  - Commit: baa69ce "docs(cli): enhance generate command help documentation (T223)"
 
-- [ ] T224 [P] Write end-to-end integration test in tests/integration/test_cli_generate_e2e.py
-  - Run `ansible-doctor parse` on minimal_role fixture → JSON
-  - Run `ansible-doctor generate` with JSON input → README.md
-  - Verify README.md contents match expected structure
-  - Test with all three fixtures (minimal, complex, phase8_test_role)
-  - 6 tests: parse → generate workflow for each fixture
+- [x] T224 [P] Write end-to-end integration test in tests/integration/test_cli_generate_e2e.py ✅
+  - Test generate command with minimal_role to stdout ✅
+  - Test generate command saves Markdown to file ✅
+  - Test generate with complex_role includes all sections ✅
+  - Test generate with explicit format option ✅
+  - Test generate with verbose flag shows debug output ✅
+  - Test generate handles nonexistent role (error case) ✅
+  - Test generate with phase8_test_role (tags, TODOs, examples) ✅
+  - Test generate creates nested output directories ✅
+  - Test generated docs contain correct role name ✅
+  - Test generated output is valid Markdown structure ✅
+  - Test generate handles role with metadata ✅
+  - Test complete workflow: generate → verify output structure ✅
+  - 12 tests covering complete E2E workflow ✅
+  - Bug fixes: VariableParser initialization, parse_role_variables(), parse_tasks(), format_priority filter ✅
+  - Commit: abc212f "test(integration): add E2E tests for CLI generate command (T224)"
 
 - [ ] T225 Update README.md with `generate` command examples
   - Add "Generating Documentation" section
