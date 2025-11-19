@@ -1,0 +1,11 @@
+# ansible-doctor configuration file
+# Valid configuration example for testing
+
+output_format: html
+output: docs/role.html
+recursive: false
+exclude_patterns:
+  - "*.pyc"
+  - "__pycache__"
+  - ".git"
+  - "test_*"

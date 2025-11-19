@@ -1,0 +1,3 @@
+# Invalid output_format value
+output_format: invalid_format
+output: docs/role.html

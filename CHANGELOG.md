@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Feature 003 - Phase 1 Setup (T001-T004)**: Infrastructure for configuration file support and watch mode
+  - Created `ansibledoctor/config/` module with ConfigModel, loader, validator stubs
+  - Created `ansibledoctor/watcher/` module with WatchMonitor, Debouncer, FileChangeHandler stubs
+  - Added `watchdog = "^6.0.0"` dependency for file system monitoring
+  - Created test fixtures in `tests/fixtures/config_files/` for config validation testing
+  - All module stubs include TODO markers referencing implementation tasks (T005-T029)
+
 ### Changed
 
 - **Branding**: Updated project name from "ansible-doctor" to "ansible-doctor-enhanced" across all output formats

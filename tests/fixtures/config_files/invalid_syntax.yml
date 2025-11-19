@@ -1,0 +1,4 @@
+# Invalid YAML syntax
+output_format: html
+output: "unclosed string
+recursive: false

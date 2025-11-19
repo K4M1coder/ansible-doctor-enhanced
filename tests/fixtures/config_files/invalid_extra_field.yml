@@ -1,0 +1,4 @@
+# Unknown field (extra forbid)
+output_format: html
+unknown_field: invalid
+recursive: false
