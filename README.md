@@ -330,9 +330,63 @@ ansible-doctor generate /path/to/ansible-role --format html --no-embed-css --out
 # HTML without table of contents
 ansible-doctor generate /path/to/ansible-role --format html --no-generate-toc --output docs/index.html
 
+# Generate reStructuredText documentation (NEW in v0.3.0 Phase 11)
+ansible-doctor generate /path/to/ansible-role --format rst --output docs/role.rst
+
+# RST with Sphinx directives (default: enabled)
+ansible-doctor generate /path/to/ansible-role --format rst --sphinx-compat --output docs/role.rst
+
+# RST without Sphinx directives (plain RST)
+ansible-doctor generate /path/to/ansible-role --format rst --no-sphinx-compat --output docs/role.rst
+
 # Enable verbose logging
 ansible-doctor generate /path/to/ansible-role --verbose --output README.md
 ```
+
+**Sphinx Integration (RST Format):**
+
+```bash
+# 1. Generate RST documentation for your role
+ansible-doctor generate my-ansible-role/ --format rst --output docs/role.rst
+
+# 2. Create a minimal Sphinx conf.py (if not exists)
+cat > docs/conf.py << 'EOF'
+project = 'My Ansible Role'
+copyright = '2024, Your Name'
+author = 'Your Name'
+
+extensions = []
+templates_path = ['_templates']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+html_theme = 'alabaster'
+html_static_path = ['_static']
+EOF
+
+# 3. Create Sphinx index.rst that includes the generated role.rst
+cat > docs/index.rst << 'EOF'
+My Ansible Role Documentation
+==============================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   role
+
+EOF
+
+# 4. Build HTML documentation with Sphinx
+sphinx-build -b html docs docs/_build/html
+
+# 5. View the generated documentation
+# Open docs/_build/html/index.html in your browser
+```
+
+The `--sphinx-compat` flag enables Sphinx-specific directives:
+- `.. warning::` for high/critical priority TODOs
+- `.. note::` for documentation attribution
+- `.. code-block::` with syntax highlighting
 
 **Advanced Usage:**
 
