@@ -30,27 +30,27 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Create module structure and install dependencies
 
-- [ ] T001 Create `ansibledoctor/config/` module directory structure
+- [X] T001 Create `ansibledoctor/config/` module directory structure
   - `ansibledoctor/config/__init__.py`
   - `ansibledoctor/config/models.py`
   - `ansibledoctor/config/loader.py`
   - `ansibledoctor/config/validator.py`
 
-- [ ] T002 Create `ansibledoctor/watcher/` module directory structure
+- [X] T002 Create `ansibledoctor/watcher/` module directory structure
   - `ansibledoctor/watcher/__init__.py`
   - `ansibledoctor/watcher/monitor.py`
   - `ansibledoctor/watcher/debouncer.py`
   - `ansibledoctor/watcher/handler.py`
 
-- [ ] T003 [P] Add `watchdog` dependency to pyproject.toml
+- [X] T003 [P] Add `watchdog` dependency to pyproject.toml
   - Add `watchdog = "^6.0.0"` to [tool.poetry.dependencies]
   - Run `poetry lock` to update lock file
 
-- [ ] T004 [P] Create test fixture directories
+- [X] T004 [P] Create test fixture directories
   - `tests/fixtures/config_files/` for sample .ansibledoctor.yml files
   - Create valid, invalid, and edge-case config samples
 
-**Checkpoint**: Module structure ready, dependencies installed
+**Checkpoint**: Module structure ready, dependencies installed ✅
 
 ---
 
@@ -60,21 +60,21 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: Config models must be complete before implementing US1 or US2
 
-- [ ] T005 Create ConfigModel Pydantic schema in `ansibledoctor/config/models.py`
+- [X] T005 Create ConfigModel Pydantic schema in `ansibledoctor/config/models.py`
   - Fields: output (str | None), output_format (str | None), template (str | None)
   - Fields: template_dir (str | None), recursive (bool), output_dir (str | None)
   - Fields: exclude_patterns (list[str])
   - Validators: output_format must be valid (markdown/html/rst)
   - Defaults matching v0.3.0 CLI defaults
 
-- [ ] T006 [P] Add unit tests for ConfigModel in `tests/unit/test_config_models.py`
+- [X] T006 [P] Add unit tests for ConfigModel in `tests/unit/test_config_models.py`
   - Test valid config with all fields
   - Test valid config with minimal fields (defaults applied)
   - Test invalid output_format (should raise ValidationError)
   - Test exclude_patterns as list and empty list
   - 100% coverage of ConfigModel validators
 
-**Checkpoint**: Config schema complete and validated - US1/US2 can proceed in parallel
+**Checkpoint**: Config schema complete and validated - US1/US2 can proceed in parallel ✅
 
 ---
 
@@ -88,14 +88,14 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] Unit tests for config discovery in `tests/unit/test_config_loader.py`
+- [X] T007 [P] [US1] Unit tests for config discovery in `tests/unit/test_config_loader.py`
   - Test find_config_file() discovers `.ansibledoctor.yml` in current dir
   - Test find_config_file() discovers `.ansibledoctor.yaml` (alternate extension)
   - Test find_config_file() discovers config in parent directory
   - Test find_config_file() returns None when no config exists
   - Test nearest config wins (role dir over parent dir)
 
-- [ ] T008 [P] [US1] Unit tests for config loading in `tests/unit/test_config_loader.py`
+- [X] T008 [P] [US1] Unit tests for config loading in `tests/unit/test_config_loader.py`
   - Test load_config() parses valid YAML successfully
   - Test load_config() raises clear error on YAML syntax error (with line number)
   - Test load_config() raises clear error on Pydantic validation error
@@ -108,38 +108,38 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement find_config_file() in `ansibledoctor/config/loader.py`
+- [X] T010 [US1] Implement find_config_file() in `ansibledoctor/config/loader.py`
   - Search current directory for `.ansibledoctor.yml` or `.ansibledoctor.yaml`
   - If not found, search parent directories up to filesystem root
   - Return Path object or None
 
-- [ ] T011 [US1] Implement load_config() in `ansibledoctor/config/loader.py`
+- [X] T011 [US1] Implement load_config() in `ansibledoctor/config/loader.py`
   - Load YAML file using ruamel.yaml
   - Parse into ConfigModel (Pydantic validation)
   - Catch YAMLError and show file location + line number
   - Catch ValidationError and show field names + expected types
 
-- [ ] T012 [US1] Implement merge_config() in `ansibledoctor/config/loader.py`
+- [X] T012 [US1] Implement merge_config() in `ansibledoctor/config/loader.py`
   - Merge priority: CLI flags > config file > defaults
   - Return final ConfigModel with all None fields filled
 
-- [ ] T013 [US1] Add config loading to `generate` command in `ansibledoctor/cli/__init__.py`
+- [X] T013 [US1] Add config loading to `generate` command in `ansibledoctor/cli/__init__.py`
   - Call find_config_file() from role_path directory
   - If found, load_config() and merge with CLI flags
   - Use merged config for OutputFormat, output path, template options
   - Log config file location when used (INFO level)
 
-- [ ] T014 [US1] Add `config show` command in `ansibledoctor/cli/__init__.py`
+- [X] T014 [US1] Add `config show` command in `ansibledoctor/cli/__init__.py`
   - Display effective configuration (merged defaults + file + CLI)
   - Show config file location if loaded
   - Format as YAML for readability
 
-- [ ] T015 [US1] Add `config validate` command in `ansibledoctor/cli/__init__.py`
+- [X] T015 [US1] Add `config validate` command in `ansibledoctor/cli/__init__.py`
   - Find config file, load and validate
   - Show success message or validation errors
   - Exit code 0 for valid, 1 for invalid
 
-**Checkpoint**: `.ansibledoctor.yml` support complete - users can set persistent doc settings
+**Checkpoint**: `.ansibledoctor.yml` support complete - users can set persistent doc settings ✅ (v0.4.0-alpha.1 released)
 
 ---
 

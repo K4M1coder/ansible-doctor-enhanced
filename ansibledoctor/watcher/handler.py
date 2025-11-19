@@ -5,7 +5,7 @@ T020: FileChangeHandler extending watchdog.events.FileSystemEventHandler
 """
 
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 # TODO: Import watchdog after T003 adds dependency
 # from watchdog.events import FileSystemEventHandler, FileSystemEvent

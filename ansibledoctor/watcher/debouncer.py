@@ -5,7 +5,7 @@ T019: Debouncer class using threading.Timer
 """
 
 import threading
-from typing import Callable, Any
+from typing import Callable
 
 
 class Debouncer:
@@ -16,54 +16,52 @@ class Debouncer:
     
     Attributes:
         callback: Function to call after quiet period
-        delay_seconds: Delay in seconds before executing callback
-        timer: Active timer instance (or None)
+        delay: Delay in seconds before executing callback
+        _timer: Active timer instance (or None)
     
     Example:
         >>> def process_change():
         ...     print("Processing change...")
-        >>> debouncer = Debouncer(process_change, delay_seconds=0.5)
-        >>> debouncer.call()  # Start timer
-        >>> debouncer.call()  # Reset timer (callback not yet called)
-        >>> debouncer.call()  # Reset timer again
+        >>> debouncer = Debouncer(process_change, delay=0.5)
+        >>> debouncer.trigger()  # Start timer
+        >>> debouncer.trigger()  # Reset timer (callback not yet called)
+        >>> debouncer.trigger()  # Reset timer again
         >>> # ... after 0.5 seconds of quiet ...
         >>> # Output: "Processing change..." (called once)
     
-    Feature: US2 - Watch Mode Auto-Regeneration
+    Feature: US2 - Watch Mode Auto-Regeneration (T019)
     """
     
-    def __init__(self, callback: Callable[[], None], delay_seconds: float):
+    def __init__(self, callback: Callable[[], None], delay: float = 0.5):
         """Initialize debouncer.
         
         Args:
             callback: Function to call after quiet period
-            delay_seconds: Delay in seconds before calling callback
+            delay: Delay in seconds before calling callback (default: 0.5)
         """
-        # TODO: Implement in T019
-        raise NotImplementedError("T019: Debouncer.__init__() not implemented")
+        self.callback = callback
+        self.delay = delay
+        self._timer: threading.Timer | None = None
     
-    def call(self) -> None:
+    def trigger(self) -> None:
         """Trigger debounced callback.
         
         If timer is active, cancels it. Starts new timer with specified delay.
         Callback will execute if no additional calls occur within delay period.
         """
-        # TODO: Implement in T019
-        raise NotImplementedError("T019: Debouncer.call() not implemented")
+        # Cancel existing timer if present
+        if self._timer is not None:
+            self._timer.cancel()
+        
+        # Start new timer
+        self._timer = threading.Timer(self.delay, self.callback)
+        self._timer.start()
     
-    def cancel(self) -> None:
+    def clear(self) -> None:
         """Cancel pending callback execution.
         
         Cancels active timer if present. Callback will not execute.
         """
-        # TODO: Implement in T019
-        raise NotImplementedError("T019: Debouncer.cancel() not implemented")
-    
-    def is_pending(self) -> bool:
-        """Check if callback execution is pending.
-        
-        Returns:
-            True if timer is active and callback will execute, False otherwise
-        """
-        # TODO: Implement in T019
-        raise NotImplementedError("T019: Debouncer.is_pending() not implemented")
+        if self._timer is not None:
+            self._timer.cancel()
+            self._timer = None
