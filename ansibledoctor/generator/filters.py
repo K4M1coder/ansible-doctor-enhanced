@@ -62,6 +62,9 @@ def format_priority(priority: str) -> str:
         >>> format_priority("low")
         '🟢 Low'
     """
+    if priority is None:
+        return "⚪ Unknown"
+    
     priority_map = {
         "low": "🟢 Low",
         "medium": "🟡 Medium",

@@ -561,26 +561,19 @@ def _parse_role_for_generation(role_path: Path) -> AnsibleRole:
         ParsingError: If role parsing fails
     """
     yaml_loader = RuamelYAMLLoader()
+    annotation_extractor = AnnotationExtractor()
     
     # Parse metadata
     metadata_parser = MetadataParser(yaml_loader)
     metadata = metadata_parser.parse_metadata(role_path / "meta")
     
     # Parse variables
-    variable_parser = VariableParser(yaml_loader)
-    variables = []
-    
-    for var_dir in ["defaults", "vars"]:
-        var_path = role_path / var_dir
-        if var_path.exists():
-            variables.extend(variable_parser.parse_variables(var_path))
+    variable_parser = VariableParser(yaml_loader, annotation_extractor)
+    variables = variable_parser.parse_role_variables(role_path)
     
     # Parse tags
     task_parser = TaskParser(yaml_loader)
-    tags = []
-    tasks_path = role_path / "tasks"
-    if tasks_path.exists():
-        tags = task_parser.parse_task_tags(tasks_path)
+    tags = task_parser.parse_tasks(role_path)
     
     # Parse TODOs
     todo_parser = TodoParser()
