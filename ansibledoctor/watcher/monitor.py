@@ -5,12 +5,10 @@ T021: WatchMonitor class with watchdog.observers.Observer
 """
 
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
-# TODO: Import watchdog after T003 adds dependency
-# from watchdog.observers import Observer
+from watchdog.observers import Observer
 
-from ansibledoctor.watcher.debouncer import Debouncer
 from ansibledoctor.watcher.handler import FileChangeHandler
 
 
@@ -42,35 +40,47 @@ class WatchMonitor:
     def __init__(
         self,
         role_path: Path,
-        callback: Callable[[Path], None],
-        debounce_ms: int = 500,
+        callback: Callable[[], None],
+        debounce_delay: float = 0.5,
+        exclude_patterns: list[str] | None = None,
     ):
         """Initialize watch monitor.
         
         Args:
             role_path: Path to role directory to watch
             callback: Function to call when files change
-            debounce_ms: Debounce delay in milliseconds (default: 500)
+            debounce_delay: Debounce delay in seconds (default: 0.5)
+            exclude_patterns: File patterns to exclude
         """
-        # TODO: Implement in T021
-        raise NotImplementedError("T021: WatchMonitor.__init__() not implemented")
+        self.role_path = Path(role_path)
+        self.callback = callback
+        self.exclude_patterns = exclude_patterns or []
+        
+        # Create handler and observer
+        self.handler = FileChangeHandler(
+            callback=callback,
+            debounce_delay=debounce_delay,
+            exclude_patterns=self.exclude_patterns
+        )
+        self.observer = Observer()
+        
+        # Schedule observer to watch role directory recursively
+        self.observer.schedule(self.handler, str(self.role_path), recursive=True)
     
     def start(self) -> None:
         """Start watching for file changes.
         
-        Starts the watchdog observer in a background thread. Blocks until
-        stopped or interrupted.
+        Starts the watchdog observer in a background thread.
         """
-        # TODO: Implement in T021
-        raise NotImplementedError("T021: WatchMonitor.start() not implemented")
+        self.observer.start()
     
     def stop(self) -> None:
         """Stop watching for file changes.
         
         Gracefully stops the watchdog observer and cleans up resources.
         """
-        # TODO: Implement in T021
-        raise NotImplementedError("T021: WatchMonitor.stop() not implemented")
+        self.observer.stop()
+        self.observer.join(timeout=2.0)
     
     def is_running(self) -> bool:
         """Check if monitor is currently watching.
@@ -78,5 +88,4 @@ class WatchMonitor:
         Returns:
             True if observer is running, False otherwise
         """
-        # TODO: Implement in T021
-        raise NotImplementedError("T021: WatchMonitor.is_running() not implemented")
+        return self.observer.is_alive()
