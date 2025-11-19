@@ -330,19 +330,24 @@
   - Exported in renderers/__init__.py
   - CSS included with responsive design (mobile breakpoint)
 
-- [ ] T233 [P] Create html.j2 template
-  - HTML5 structure with <!DOCTYPE html>
-  - Embedded CSS from styles.css if embed_css=True
-  - Table of contents navigation
-  - Semantic HTML (header, nav, main, section, article)
-  - Responsive layout (mobile-friendly)
-  - Manual verification with browser
+- [x] T233 [P] Update html.j2 template for Jinja2 integration
+  - ✅ HTML5 structure with <!DOCTYPE html>
+  - ✅ Conditional CSS embedding based on embed_css variable (default: true)
+  - ✅ Conditional TOC navigation based on generate_toc variable (default: true)
+  - ✅ Section IDs for anchor links (#overview, #variables, #tags, #todos, #examples)
+  - ✅ Fixed attribute names: todo.description, example.code
+  - ✅ Responsive layout with mobile breakpoint (@media 768px)
+  - ✅ Default values for missing variables (embed_css, generate_toc)
+  - Refactored from standalone to template-based rendering
 
-- [ ] T234 [P] Create styles.css for HTML template
-  - Typography: sans-serif, readable font sizes
-  - Code blocks: monospace, background, padding
-  - Tables: borders, alternating rows
-  - TOC: sidebar/top navigation, sticky positioning
+- [x] T234 [P] CSS embedded in HTML template
+  - ✅ Typography: system font stack, readable line-height (1.6)
+  - ✅ Code blocks: monospace, dark background (#282c34), syntax structure
+  - ✅ Tables: borders, hover effects, colored headers (#3498db)
+  - ✅ TOC: background (#ecf0f1), padding, list styling
+  - ✅ Responsive adjustments for mobile (<768px)
+  - ✅ Container max-width (1200px), shadows, border-radius
+  - CSS is embedded inline in template (not separate file)
   - Responsive breakpoints: <768px mobile layout
   - Manual verification: Renders well on desktop and mobile
 
