@@ -203,23 +203,26 @@
 
 ### T221-T225: CLI Integration
 
-- [ ] T221 [P] Write unit tests for `generate` command in tests/unit/test_cli_generate.py (TDD)
-  - Test `generate role_path --format markdown`
-  - Test `generate role_path --template custom.j2`
-  - Test `generate role_path --output docs/README.md`
-  - Test error handling (role not found, invalid format)
-  - Test --verbose flag for debug output
-  - Mock MarkdownRenderer to isolate CLI logic
-  - 12 tests covering all CLI flags and error cases
+- [x] T221 [P] Write unit tests for `generate` command in tests/unit/test_cli_generate.py (TDD) ✅
+  - Test `generate role_path --format markdown` ✅
+  - Test `generate role_path --template custom.j2` ✅
+  - Test `generate role_path --output docs/README.md` ✅
+  - Test error handling (role not found, invalid format) ✅
+  - Test --verbose flag for debug output ✅
+  - Mock RolePathValidator, _parse_role_for_generation, MarkdownRenderer to isolate CLI logic ✅
+  - 11 tests covering all CLI flags and error cases ✅
+  - Commit: a2aed17 "test(cli): add unit tests for generate command (T221)"
 
-- [ ] T222 Add `generate` command to ansibledoctor/cli/__init__.py
-  - `@click.command() def generate(role_path, format, template, output, log_level)`
-  - Parse role by reading JSON from `ansible-doctor parse` output or running parser
-  - Instantiate appropriate renderer based on --format
-  - Call renderer.render() with role_data
-  - Write output to --output path or stdout
-  - Structured logging for generate operations
-  - Pass T221 tests (12 tests)
+- [x] T222 Add `generate` command to ansibledoctor/cli/__init__.py ✅
+  - `@click.command() def generate(role_path, format, template, output, verbose, log_level)` ✅
+  - Parse role using _parse_role_for_generation() helper (all parsers) ✅
+  - Instantiate MarkdownRenderer (MVP - only markdown format for Phase 10) ✅
+  - Create TemplateContext from parsed role ✅
+  - Call renderer.render() with context ✅
+  - Write output to --output path or stdout ✅
+  - Structured logging for generate operations ✅
+  - Pass T221 tests (11/11 tests passing) ✅
+  - Commit: 972dc64 "feat(cli): implement generate command for documentation generation (T222)"
 
 - [ ] T223 [P] Add CLI help documentation for `generate` command
   - Detailed docstring with usage examples
