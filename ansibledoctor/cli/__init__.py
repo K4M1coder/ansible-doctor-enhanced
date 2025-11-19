@@ -808,7 +808,7 @@ def _generate_recursive(
             
         except Exception as e:
             logger.error(f"Failed to process {role_path.name}: {e}")
-            click.echo(f"  ✗ Failed: {e}", err=True)
+            click.echo(f"  [FAILED] {e}", err=True)
             failed += 1
             # Continue with next role
     
@@ -929,18 +929,18 @@ def templates_validate(template_path):
         env = Environment()
         env.parse(template_content)
         
-        click.echo(f"✓ Template is valid: {template_path}", err=True)
+        click.echo(f"[VALID] Template is valid: {template_path}", err=True)
         click.echo(f"  Lines: {len(template_content.splitlines())}")
         click.echo(f"  Size: {len(template_content)} bytes")
         sys.exit(0)
         
     except TemplateSyntaxError as e:
-        click.echo(f"✗ Template syntax error in {template_path}:", err=True)
+        click.echo(f"[ERROR] Template syntax error in {template_path}:", err=True)
         click.echo(f"  Line {e.lineno}: {e.message}", err=True)
         sys.exit(1)
         
     except Exception as e:
-        click.echo(f"✗ Error reading template: {e}", err=True)
+        click.echo(f"[ERROR] Error reading template: {e}", err=True)
         sys.exit(1)
 
 
@@ -1054,7 +1054,7 @@ def validate(path: Path):
         config_file_path = find_config_file(path)
         
         if not config_file_path:
-            click.echo("✗ No config file found", err=True)
+            click.echo("[NOT FOUND] No config file found", err=True)
             click.echo(f"  Searched from: {path}", err=True)
             click.echo("  Looking for: .ansibledoctor.yml or .ansibledoctor.yaml", err=True)
             sys.exit(1)
@@ -1062,14 +1062,15 @@ def validate(path: Path):
         # Try to load and validate
         try:
             config = load_config(config_file_path)
-            click.echo(f"✓ Config valid: {config_file_path}")
+            # Use ASCII-safe characters for Windows compatibility
+            click.echo(f"[VALID] Config valid: {config_file_path}")
             click.echo(f"  Format: {config.output_format or 'not specified'}")
             click.echo(f"  Recursive: {config.recursive}")
             click.echo(f"  Exclude patterns: {len(config.exclude_patterns)} patterns")
             sys.exit(0)
             
         except Exception as e:
-            click.echo(f"✗ Config invalid: {config_file_path}", err=True)
+            click.echo(f"[INVALID] Config invalid: {config_file_path}", err=True)
             click.echo(f"  Error: {e}", err=True)
             
             # Try to provide more specific error info
@@ -1188,17 +1189,17 @@ def watch(role_path: str, format: str, output: str | None):
             if output_path:
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 output_path.write_text(content, encoding="utf-8")
-                logger.info(f"[{timestamp}] ✓ Documentation updated: {output_path}")
+                logger.info(f"[{timestamp}] [SUCCESS] Documentation updated: {output_path}")
             else:
                 click.echo("\n" + "="*60)
                 click.echo(content)
                 click.echo("="*60 + "\n")
-                logger.info(f"[{timestamp}] ✓ Documentation generated")
+                logger.info(f"[{timestamp}] [SUCCESS] Documentation generated")
                 
         except Exception as e:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            logger.error(f"[{timestamp}] ✗ Generation failed: {e}")
-            click.echo(f"[{timestamp}] ✗ Error: {e}", err=True)
+            logger.error(f"[{timestamp}] [ERROR] Generation failed: {e}")
+            click.echo(f"[{timestamp}] [ERROR] {e}", err=True)
             # Don't propagate - watch should continue
     
     # Initial generation
