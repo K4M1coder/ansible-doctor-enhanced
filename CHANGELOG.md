@@ -9,7 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- T030-T035: Documentation and polish tasks in progress
+## [0.4.0] - 2025-01-20
+
+### Summary
+
+**Feature 003 Complete**: Achieves 100% role-level parity with original ansible-doctor. This release completes all three user stories for configuration file support, watch mode, and config discovery/validation.
+
+**Key Achievements**:
+- ✅ Config file support with parent directory discovery
+- ✅ Watch mode for auto-regeneration on file changes
+- ✅ Enhanced config validation with detailed error messages
+- ✅ 672 tests passing, 81% coverage (exceeds 80% requirement)
+- ✅ Cross-platform support (Windows, macOS, Linux)
+- ✅ Comprehensive documentation and migration guides
+
+### Added
+
+- **docs/CONFIG_GUIDE.md**: Comprehensive configuration guide
+  - All configuration keys reference with examples
+  - Config priority explanation (CLI > file > defaults)
+  - Config discovery behavior documentation
+  - Migration guide from original ansible-doctor
+  - Troubleshooting and best practices
+  - Advanced usage examples
+
+### Changed
+
+- Version bumped from 0.4.0-alpha.3 to 0.4.0 (stable)
+- README updated with final test metrics and roadmap status
+- Project status indicates Feature 003 complete
+
+### Documentation
+
+- All README sections updated and verified
+- CHANGELOG includes full v0.4.0 release history
+- CONFIG_GUIDE provides comprehensive configuration documentation
+- Migration path from original ansible-doctor clearly documented
 
 ## [0.4.0-alpha.3] - 2025-01-20
 
