@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+## [0.4.0-alpha.1] - 2025-11-19
+
+### Added
+
 - **Feature 003 - Phase 1 Setup (T001-T004)**: Infrastructure for configuration file support and watch mode
   - Created `ansibledoctor/config/` module with ConfigModel, loader, validator stubs
   - Created `ansibledoctor/watcher/` module with WatchMonitor, Debouncer, FileChangeHandler stubs
@@ -27,6 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `merge_config()`: Merge configs with priority: CLI > file > defaults
   - 21 unit tests (TDD RED → GREEN), 92% coverage of loader.py
   - Proper error handling: FileNotFoundError, YAML syntax errors, ValidationError
+
+- **Feature 003 - Phase 3 US1 CLI Integration (T013-T015)**: Configuration file support fully operational
+  - Generate command now discovers and uses `.ansibledoctor.yml` config files automatically
+  - Config priority enforced: CLI arguments > config file > defaults (backward compatible)
+  - New `config show` command displays effective configuration as YAML with file location
+  - New `config validate` command validates config syntax and schema with helpful error messages
+  - Config files support all generate options: output_format, output, template, recursive, exclude_patterns
+  - Exit codes: 0 (valid), 1 (invalid) for automation support
+  - **US1 Complete**: Full configuration file support from discovery through CLI integration
 
 ### Changed
 
