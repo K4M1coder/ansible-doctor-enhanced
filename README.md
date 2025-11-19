@@ -307,34 +307,60 @@ ansible-doctor-enhanced parse --role-path /path/to/roles --recursive
 ansible-doctor-enhanced parse --role-path /path/to/role --log-level DEBUG
 ```
 
-### Generating Documentation (Phase 9 Foundation - NEW in v0.3.0)
+### Generating Documentation (Phase 10 MVP - NEW in v0.3.0)
+
+The `generate` command creates beautiful Markdown documentation from your Ansible roles:
 
 ```bash
-# Generate Markdown documentation (coming in Phase 10)
-ansible-doctor-enhanced generate --input role-data.json --output README.md --format markdown
+# Generate Markdown to stdout (quick preview)
+ansible-doctor generate /path/to/ansible-role
 
-# Generate HTML documentation
-ansible-doctor-enhanced generate --input role-data.json --output index.html --format html
+# Save to file
+ansible-doctor generate /path/to/ansible-role --output README.md
 
-# Generate reStructuredText for Sphinx
-ansible-doctor-enhanced generate --input role-data.json --output role.rst --format rst
+# Generate with explicit format (Markdown only in v0.3.0 MVP)
+ansible-doctor generate /path/to/ansible-role --format markdown --output docs/README.md
 
-# Use custom templates
-ansible-doctor-enhanced generate --input role-data.json --template-dir ./templates --output README.md
-
-# Validate templates before generation
-ansible-doctor-enhanced validate-template --template custom.j2 --required-vars role,version
+# Enable verbose logging
+ansible-doctor generate /path/to/ansible-role --verbose --output README.md
 ```
 
-**Foundation Components Available (v0.3.0):**
+**Advanced Usage:**
 
+```bash
+# Generate for multiple roles with custom output paths
+for role in roles/*/; do
+    ansible-doctor generate "$role" --output "$role/README.md"
+done
+
+# Pipeline integration (stdout to file)
+ansible-doctor generate my-role/ > documentation.md
+
+# Create nested documentation structure
+ansible-doctor generate my-role/ --output docs/generated/README.md
+# Creates docs/generated/ directory automatically
+```
+
+**Generated Documentation Includes:**
+
+- 📋 **Role Overview**: Name, description, metadata
+- 📦 **Requirements**: Platforms, dependencies, minimum Ansible version
+- ⚙️ **Variables**: All variables from defaults/ and vars/ with descriptions, types, defaults
+- 🏷️ **Task Tags**: Unique tags extracted from all tasks with usage counts
+- 📝 **TODOs**: All TODO annotations with priorities and locations
+- 💡 **Examples**: Usage examples from role documentation
+- 📜 **License**: License information from metadata
+
+**Foundation Components Available:**
+
+- ✅ **Markdown Renderer**: Production-ready Markdown generation (MVP)
 - ✅ **Template Engine**: Jinja2-based rendering with custom filters
 - ✅ **Template Loaders**: Filesystem and embedded template support
-- ✅ **Output Formats**: Markdown, HTML, reStructuredText
-- ✅ **Custom Filters**: `rst_escape`, `code_block`, `header_anchor`, `format_date`, `pluralize`, `wordwrap_filter`
+- ✅ **Custom Filters**: `rst_escape`, `code_block`, `header_anchor`, `format_date`, `pluralize`, `wordwrap_filter`, `format_priority`
 - ✅ **Template Validation**: Syntax checking, variable detection, required variable validation
-- ✅ **Default Templates**: Production-ready templates for all 3 formats
-- ✅ **Integration Tests**: End-to-end validation for complete workflows
+- ✅ **Default Templates**: Production-ready Markdown template
+- ✅ **E2E Testing**: 12 integration tests validating complete workflow
+- 🚧 **HTML & RST Renderers**: Coming in Phase 11
 
 ## ⚙️ Configuration
 
@@ -462,10 +488,10 @@ Key principles:
 ## 📊 Project Status
 
 **Current Release**: v0.2.0 (Role Parser MVP) ✅  
-**In Development**: v0.3.0 (Documentation Generator) - Phase 10 at 33%
+**In Development**: v0.3.0 (Documentation Generator) - Phase 10 at 40%
 
 ### Test Metrics
-- **Total Tests**: 483 (262 Feature 001 + 221 Feature 002)
+- **Total Tests**: 495 (262 Feature 001 + 233 Feature 002)
 - **Coverage**: 89% overall (99% generator module)
 - **Status**: All passing ✅
 
@@ -510,16 +536,18 @@ Key principles:
 
 #### 🎯 Roadmap to v1.0.0
 
-**v0.3.0 - Role Documentation Generator** (Feature 002 - 55% COMPLETE - IN PROGRESS)
+**v0.3.0 - Role Documentation Generator** (Feature 002 - 58% COMPLETE - IN PROGRESS)
 - ✅ Phase 9 Foundation (T201-T215): Template engine, loaders, renderers, validators (513 tests, 89% coverage)
-- ✅ Phase 10 (33%): Markdown MVP implementation (T216-T222)
+- ✅ Phase 10 (40%): Markdown MVP implementation (T216-T224)
   - ✅ MarkdownRenderer with TDD (23 tests)
   - ✅ Property-based testing with Hypothesis (4 tests)
   - ✅ Integration tests for Markdown generation (8 tests)
   - ✅ CLI `generate` command with tests (11 tests)
-- ⏳ Phase 10 Remaining: T223-T230 (CLI help, E2E tests, benchmarks, README, CHANGELOG)
+  - ✅ CLI help documentation with usage examples (T223)
+  - ✅ End-to-end integration tests (12 tests, T224)
+- ⏳ Phase 10 Remaining: T225-T230 (benchmarks, validation, real-world testing, CHANGELOG)
 - ⏳ Phase 11: HTML and RST renderers (T231-T255)
-- **Metrics**: 483 tests (+221 since v0.2.0), 89% coverage, 5/15 Phase 10 tasks complete
+- **Metrics**: 495 tests (+233 since v0.2.0), 89% coverage, 6/15 Phase 10 tasks complete
 
 **v0.4.0 - Documentation Parity** (Remaining Role Features)
 - All features from original ansible-doctor for roles
