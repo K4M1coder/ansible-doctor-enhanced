@@ -54,18 +54,21 @@ class TestHtmlEscape:
     def test_escape_quotes(self):
         """Test escaping double quotes."""
         renderer = HtmlRenderer()
-        assert renderer.escape('Say "Hello"') == "Say &quot;Hello&quot;"
+        # markupsafe uses &#34; (numeric) instead of &quot; (named)
+        assert renderer.escape('Say "Hello"') == "Say &#34;Hello&#34;"
 
     def test_escape_apostrophe(self):
         """Test escaping single quotes/apostrophes."""
         renderer = HtmlRenderer()
-        assert renderer.escape("It's working") == "It&#x27;s working"
+        # markupsafe uses &#39; for apostrophes
+        assert renderer.escape("It's working") == "It&#39;s working"
 
     def test_escape_mixed_entities(self):
         """Test escaping multiple HTML entities."""
         renderer = HtmlRenderer()
         text = '<script>alert("XSS & injection")</script>'
-        expected = "&lt;script&gt;alert(&quot;XSS &amp; injection&quot;)&lt;/script&gt;"
+        # markupsafe uses numeric entities for quotes
+        expected = "&lt;script&gt;alert(&#34;XSS &amp; injection&#34;)&lt;/script&gt;"
         assert renderer.escape(text) == expected
 
     def test_escape_empty_string(self):
@@ -316,9 +319,10 @@ class TestHtmlRendererEdgeCases:
         )
         
         result = renderer.render(context)
-        # Special characters should be escaped
+        # Special characters should be escaped in role name
         assert "&lt;role&gt;" in result or "test&lt;role&gt;" in result
-        assert "&amp;" in result
+        # Author field not rendered in basic template, check description
+        assert "&#34;quotes&#34;" in result or "&quot;quotes&quot;" in result
 
     def test_code_block_with_none_returns_empty_pre(self):
         """Test code_block with None returns empty structure."""
