@@ -770,6 +770,130 @@ def _generate_recursive(
         sys.exit(1)
 
 
+@cli.group()
+def templates():
+    """
+    Manage documentation templates.
+    
+    List, show, or validate Jinja2 templates for documentation generation.
+    """
+    pass
+
+
+@templates.command("list")
+def templates_list():
+    """
+    List all available template formats.
+    
+    Shows the built-in template formats (markdown, html, rst) and their
+    characteristics. Use 'templates show <format>' to view template content.
+    
+    \b
+    Example:
+        $ ansible-doctor templates list
+    """
+    click.echo("Available template formats:\n")
+    
+    formats = [
+        ("markdown", "Markdown (.md)", "GitHub Flavored Markdown with fenced code blocks"),
+        ("html", "HTML (.html)", "HTML5 with embedded CSS and responsive design"),
+        ("rst", "reStructuredText (.rst)", "Sphinx-compatible RST documentation"),
+    ]
+    
+    for format_name, extension, description in formats:
+        click.echo(f"  {format_name:12} {extension:20} - {description}")
+    
+    click.echo("\nUse 'ansible-doctor templates show <format>' to view template content.")
+
+
+@templates.command("show")
+@click.argument("format", type=click.Choice(["markdown", "html", "rst"], case_sensitive=False))
+def templates_show(format):
+    """
+    Display the default template for a given format.
+    
+    Shows the built-in Jinja2 template content for the specified format.
+    Useful for understanding template structure or creating custom templates.
+    
+    \b
+    FORMAT: Template format (markdown, html, or rst)
+    
+    \b
+    Examples:
+        $ ansible-doctor templates show markdown
+        $ ansible-doctor templates show html > custom-template.html.j2
+    """
+    from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
+    from ansibledoctor.generator.models import OutputFormat
+    
+    try:
+        loader = EmbeddedTemplateLoader()
+        output_format = OutputFormat.from_string(format.lower())
+        
+        # Read template content
+        template_content = loader._read_template("default", output_format)
+        
+        if template_content is None:
+            click.echo(f"Error: Default template for {format} not found", err=True)
+            sys.exit(1)
+        
+        click.echo(f"# Default {format.upper()} Template\n")
+        click.echo(template_content)
+        
+    except Exception as e:
+        logger.error(f"Failed to load template: {e}")
+        click.echo(f"Error: Failed to load {format} template: {e}", err=True)
+        sys.exit(1)
+
+
+@templates.command("validate")
+@click.argument("template_path", type=click.Path(exists=True, path_type=Path))
+def templates_validate(template_path):
+    """
+    Validate a custom Jinja2 template file.
+    
+    Checks template syntax and ensures it can be parsed by the Jinja2 engine.
+    Does not validate template variable usage (role.name, role.variables, etc.),
+    only Jinja2 syntax correctness.
+    
+    \b
+    TEMPLATE_PATH: Path to the Jinja2 template file to validate
+    
+    \b
+    Examples:
+        $ ansible-doctor templates validate my-template.md.j2
+        $ ansible-doctor templates validate templates/custom-role.html.j2
+    
+    \b
+    Exit Codes:
+        0: Template is valid
+        1: Template has syntax errors
+    """
+    from jinja2 import Environment, TemplateSyntaxError
+    
+    try:
+        # Read template content
+        template_content = template_path.read_text(encoding="utf-8")
+        
+        # Try to parse template with Jinja2
+        env = Environment()
+        env.parse(template_content)
+        
+        click.echo(f"✓ Template is valid: {template_path}", err=True)
+        click.echo(f"  Lines: {len(template_content.splitlines())}")
+        click.echo(f"  Size: {len(template_content)} bytes")
+        sys.exit(0)
+        
+    except TemplateSyntaxError as e:
+        click.echo(f"✗ Template syntax error in {template_path}:", err=True)
+        click.echo(f"  Line {e.lineno}: {e.message}", err=True)
+        sys.exit(1)
+        
+    except Exception as e:
+        click.echo(f"✗ Error reading template: {e}", err=True)
+        sys.exit(1)
+
+
 def main():
     """Entry point for CLI."""
     cli()
