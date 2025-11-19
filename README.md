@@ -307,7 +307,7 @@ ansible-doctor-enhanced parse --role-path /path/to/roles --recursive
 ansible-doctor-enhanced parse --role-path /path/to/role --log-level DEBUG
 ```
 
-### Generating Documentation (Phase 10 MVP - NEW in v0.3.0)
+### Generating Documentation (Phase 10 MVP Complete in v0.3.0)
 
 The `generate` command creates beautiful Markdown documentation from your Ansible roles:
 
@@ -388,10 +388,46 @@ The `--sphinx-compat` flag enables Sphinx-specific directives:
 - `.. note::` for documentation attribution
 - `.. code-block::` with syntax highlighting
 
+**Batch Generation for Multiple Roles (NEW in v0.3.0 T251):**
+
+```bash
+# Generate documentation for all roles in a directory recursively
+ansible-doctor generate /path/to/roles --recursive --output-dir /path/to/docs
+
+# Example: Generate HTML for entire roles/ directory
+ansible-doctor generate ./roles --recursive --format html --output-dir ./docs/html
+
+# With progress indicator for large projects
+ansible-doctor generate /large/project/roles --recursive --output-dir ./docs --verbose
+```
+
+The `--recursive` flag discovers all Ansible roles in subdirectories and generates documentation for each role automatically. Roles are identified by the presence of `meta/main.yml` or `defaults/main.yml`. Failed roles are logged but don't stop the batch process.
+
+**Template Management (NEW in v0.3.0 T252):**
+
+```bash
+# List available template formats
+ansible-doctor templates list
+
+# Show default template for a format
+ansible-doctor templates show markdown
+ansible-doctor templates show html
+ansible-doctor templates show rst
+
+# Validate a custom template
+ansible-doctor templates validate /path/to/custom-template.j2
+
+# Example: Create custom template from default
+ansible-doctor templates show markdown > my-template.j2
+# Edit my-template.j2...
+ansible-doctor templates validate my-template.j2
+ansible-doctor generate /role --template my-template.j2 --output README.md
+```
+
 **Advanced Usage:**
 
 ```bash
-# Generate for multiple roles with custom output paths
+# Generate for multiple roles with custom output paths (traditional approach)
 for role in roles/*/; do
     ansible-doctor generate "$role" --output "$role/README.md"
 done

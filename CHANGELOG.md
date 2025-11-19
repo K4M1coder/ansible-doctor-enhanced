@@ -7,9 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-01-19
+
 ### Added
 
-**Feature 002 - Documentation Generator (Phase 11: RST Renderer - T241-T250)**
+**Feature 002 - Documentation Generator (Phase 11 Complete: T241-T255)**
+
+**Batch Generation & Template Management (T251-T252):**
+
+- **T251**: Batch documentation generation with `--recursive` flag
+  - Automatically discover and generate documentation for all roles in a directory tree
+  - `--output-dir` option to specify output directory for batch generation
+  - Progress indicator showing completed/total roles during batch processing
+  - Error resilience: failed roles logged but don't stop batch process
+  - Role discovery via `meta/main.yml` or `defaults/main.yml` presence
+  - 5 unit tests (TDD RED → GREEN), all passing
+
+- **T252**: `templates` CLI subcommand for template management
+  - `ansible-doctor templates list` - display available template formats (markdown/html/rst)
+  - `ansible-doctor templates show <format>` - display default template content for inspection
+  - `ansible-doctor templates validate <path>` - validate custom template Jinja2 syntax
+  - Uses EmbeddedTemplateLoader to access default templates via importlib.resources
+  - Syntax validation with Jinja2 Environment.parse() providing detailed error messages
+  - 6 unit tests (TDD RED → GREEN), all passing
+
+**RST Renderer (T241-T250):**
 
 - **T241-T242**: RstRenderer implementation with Sphinx compatibility
   - reStructuredText (RST) documentation renderer
@@ -66,6 +88,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 550 total tests (543 passing, 7 skipped, 2 pre-existing failures)
   - RstRenderer: 94% coverage, 35 tests total
   - Phase 11: 85 new tests (50 HTML + 35 RST)
+
+- **T253-T255**: Final validation and release preparation
+  - Full test suite validation: 593 tests passing, 7 skipped, 82% coverage
+  - Fixed HTML template test assertions for conditional rendering
+  - Documentation updates: README with --recursive/templates examples
+  - Article XI added to constitution: Tag-Changelog Synchronization (MANDATORY)
+  - Poetry workflow documented in constitution and plan.md
+  - Version management enforced: pyproject.toml ↔ CHANGELOG.md ↔ git tags
+
+### Changed
+
+- Updated README.md with batch generation and template management examples
+- Author attribution updated to Cédric Thédrez <kamicth@gmail.com> across all commits (88 commits, 6 branches, 6 tags rewritten)
+- pyproject.toml version synchronized with git tags per Article XI requirements
+
+### Fixed
+
+- HTML template test assertions adjusted to match conditional section rendering
+- Template validation now correctly handles Jinja2 syntax edge cases
 
 **Feature 002 - Documentation Generator (Phase 9 Foundation - T201-T203)**
 

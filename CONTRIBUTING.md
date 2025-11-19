@@ -317,6 +317,97 @@ Fixes #123
 3. Address feedback
 4. Approval and merge
 
+## Template Development
+
+### Template Authoring Guide
+
+Templates are Jinja2 files that render role documentation. For comprehensive guidance, see [docs/TEMPLATE_GUIDE.md](docs/TEMPLATE_GUIDE.md).
+
+**Quick Start:**
+
+```bash
+# Show default template
+ansible-doctor templates show markdown > my-template.j2
+
+# Edit my-template.j2 with your customizations
+
+# Validate syntax
+ansible-doctor templates validate my-template.j2
+
+# Use custom template
+ansible-doctor generate /role --template my-template.j2 --output README.md
+```
+
+**Template Context:**
+
+All templates receive a `TemplateContext` with these variables:
+
+- `role`: Role object (name, description, metadata, variables, tags, todos, examples)
+- `generator_version`: ansibledoctor version string
+- `generation_date`: datetime object for timestamp
+- `output_format`: OutputFormat enum (MARKDOWN, HTML, RST)
+
+**Custom Filters:**
+
+Templates have access to format-specific filters:
+
+```jinja2
+{{ role.name | upper }}  {# Built-in Jinja2 filters #}
+{{ role.description | markdown_escape }}  {# Escape Markdown special chars #}
+{{ role.description | rst_escape }}  {# Escape RST special chars #}
+{{ example.code | code_block(example.language) }}  {# Format code blocks #}
+```
+
+**Testing Templates:**
+
+```python
+from ansibledoctor.generator import TemplateValidator, TemplateEngine
+
+engine = TemplateEngine.create()
+validator = TemplateValidator(engine.environment)
+
+# Validate syntax
+result = validator.validate_template(
+    template_source,
+    template_name="custom.j2",
+    required_vars={"role", "generator_version"}
+)
+
+assert result["valid"], result["errors"]
+```
+
+**Template Structure Example:**
+
+```jinja2
+# {{ role.name }}
+
+{% if role.metadata %}
+**Author:** {{ role.metadata.author }}
+**License:** {{ role.metadata.license }}
+{% endif %}
+
+## Variables
+
+{% for var in role.variables %}
+### `{{ var.name }}`
+
+{{ var.description | default('No description provided.') }}
+
+- **Type:** `{{ var.type | default('any') }}`
+- **Default:** `{{ var.value }}`
+{% endfor %}
+```
+
+**Contributing Templates:**
+
+To contribute new template formats:
+
+1. Create template in `ansibledoctor/generator/templates/<format>/role.j2`
+2. Add renderer class in `ansibledoctor/generator/renderers/<format>.py`
+3. Update `OutputFormat` enum with new format
+4. Write tests following existing patterns (see `tests/unit/test_<format>_renderer.py`)
+5. Update docs/TEMPLATE_GUIDE.md with format-specific guidance
+
 ## Project Structure
 
 ```
