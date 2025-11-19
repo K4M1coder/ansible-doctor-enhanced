@@ -2,6 +2,8 @@
 import re
 from typing import Any
 
+from markupsafe import escape
+
 
 def markdown_escape(text: str) -> str:
     """Escape special Markdown characters.
@@ -162,6 +164,28 @@ def list_items(items: list[Any], ordered: bool = False, start: int = 1) -> str:
     return "\n".join(lines)
 
 
+def html_escape(text: str) -> str:
+    """Escape HTML entities to prevent XSS attacks.
+    
+    Uses markupsafe.escape to safely escape HTML special characters:
+    < > & " '
+    
+    Args:
+        text: Text to escape
+        
+    Returns:
+        HTML-escaped text
+        
+    Example:
+        >>> html_escape("<script>alert('XSS')</script>")
+        '&lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;'
+    """
+    if not text:
+        return text
+    
+    return str(escape(text))
+
+
 # Filter registry for Jinja2 environment
 FILTERS = {
     "markdown_escape": markdown_escape,
@@ -169,5 +193,6 @@ FILTERS = {
     "format_priority": format_priority,
     "rst_escape": rst_escape,
     "html_attrs": html_attrs,
+    "html_escape": html_escape,
     "list_items": list_items,
 }

@@ -1,7 +1,7 @@
 """HTML renderer for Ansible role documentation.
 
 This module provides the HtmlRenderer class that renders role documentation
-in HTML format with support for CSS embedding and table of contents generation.
+in HTML format using Jinja2 templates with embedded CSS and responsive design.
 """
 
 from pathlib import Path
@@ -9,31 +9,50 @@ from typing import Any, Dict, Optional
 
 from markupsafe import Markup, escape
 
+from ansibledoctor.generator.engine import TemplateEngine
+from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.protocols import DocumentRenderer
 
 
 class HtmlRenderer(DocumentRenderer):
-    """Renders role documentation in HTML format.
+    """Renders role documentation in HTML format using Jinja2 templates.
     
-    This renderer produces well-structured HTML5 documents with optional
-    embedded CSS styling and table of contents navigation. It properly
-    escapes HTML entities to prevent XSS vulnerabilities.
+    This renderer produces well-structured HTML5 documents with embedded CSS
+    styling and responsive design. It properly escapes HTML entities to prevent
+    XSS vulnerabilities using markupsafe.
     
     Attributes:
         embed_css: Whether to embed CSS in <style> tag (default: True)
         generate_toc: Whether to generate table of contents (default: True)
     """
     
-    def __init__(self, embed_css: bool = True, generate_toc: bool = True):
+    def __init__(self, embed_css: bool = True, generate_toc: bool = True, 
+                 template_path: Optional[str] = None):
         """Initialize HTML renderer.
         
         Args:
             embed_css: Embed CSS in document (default: True)
             generate_toc: Generate table of contents (default: True)
+            template_path: Optional custom template path. If None, uses default.
         """
         self.embed_css = embed_css
         self.generate_toc = generate_toc
+        self._template_path = template_path
+        self._engine: Optional[TemplateEngine] = None
+        self._embedded_loader: Optional[EmbeddedTemplateLoader] = None
+    
+    def _get_engine(self) -> TemplateEngine:
+        """Get or create template engine instance (lazy initialization)."""
+        if not self._engine:
+            self._engine = TemplateEngine.create()
+        return self._engine
+    
+    def _get_embedded_loader(self) -> EmbeddedTemplateLoader:
+        """Get or create embedded template loader (lazy initialization)."""
+        if not self._embedded_loader:
+            self._embedded_loader = EmbeddedTemplateLoader()
+        return self._embedded_loader
     
     @property
     def format(self) -> OutputFormat:
@@ -80,14 +99,14 @@ class HtmlRenderer(DocumentRenderer):
         return f"<pre><code>{escaped_code}</code></pre>"
     
     def render(self, context: TemplateContext, **options: Any) -> str:
-        """Render role documentation as HTML.
+        """Render role documentation to HTML format using Jinja2 template.
         
         Args:
             context: Template context with role data
             **options: Additional rendering options (overrides instance settings)
             
         Returns:
-            Complete HTML document string
+            Rendered HTML documentation string
             
         Raises:
             TemplateNotFoundError: If html template not found
@@ -102,110 +121,25 @@ class HtmlRenderer(DocumentRenderer):
         # Validate options before rendering
         self.validate_options(render_options)
         
-        # Load CSS content if embedding
-        css_content = ""
-        if render_options["embed_css"]:
-            css_content = self._load_css()
+        engine = self._get_engine()
         
-        # Build HTML structure
-        html_parts = [
-            "<!DOCTYPE html>",
-            "<html lang=\"en\">",
-            "<head>",
-            f"  <meta charset=\"UTF-8\">",
-            f"  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
-            f"  <title>{self.escape(context.role.name)} - Ansible Role Documentation</title>",
-        ]
+        # Determine template to use
+        if self._template_path:
+            # Custom template provided
+            template_content = Path(self._template_path).read_text(encoding="utf-8")
+            template = engine.environment.from_string(template_content)
+        else:
+            # Use default embedded template
+            loader = self._get_embedded_loader()
+            template = loader.load_template("role", OutputFormat.HTML)
         
-        # Embed CSS if requested
-        if render_options["embed_css"] and css_content:
-            html_parts.extend([
-                "  <style>",
-                css_content,
-                "  </style>",
-            ])
+        # Add HTML-specific context variables
+        template_vars = context.to_dict()
+        template_vars["embed_css"] = render_options["embed_css"]
+        template_vars["generate_toc"] = render_options["generate_toc"]
         
-        html_parts.append("</head>")
-        html_parts.append("<body>")
-        
-        # Generate TOC if requested
-        if render_options["generate_toc"]:
-            html_parts.extend([
-                "  <nav id=\"toc\">",
-                "    <h2>Table of Contents</h2>",
-                "    <ul>",
-                "      <li><a href=\"#description\">Description</a></li>",
-                "      <li><a href=\"#variables\">Variables</a></li>",
-                "      <li><a href=\"#examples\">Examples</a></li>",
-                "    </ul>",
-                "  </nav>",
-            ])
-        
-        # Main content
-        html_parts.extend([
-            "  <main>",
-            f"    <h1>{self.escape(context.role.name)}</h1>",
-            f"    <section id=\"description\">",
-            f"      <h2>Description</h2>",
-            f"      <p>{self.escape(context.role.metadata.description)}</p>",
-            "    </section>",
-        ])
-        
-        # Variables section
-        if context.role.variables:
-            html_parts.append("    <section id=\"variables\">")
-            html_parts.append("      <h2>Variables</h2>")
-            html_parts.append("      <table>")
-            html_parts.append("        <thead>")
-            html_parts.append("          <tr>")
-            html_parts.append("            <th>Variable</th>")
-            html_parts.append("            <th>Description</th>")
-            html_parts.append("            <th>Default</th>")
-            html_parts.append("          </tr>")
-            html_parts.append("        </thead>")
-            html_parts.append("        <tbody>")
-            
-            for var in context.role.variables:
-                html_parts.append("          <tr>")
-                html_parts.append(f"            <td><code>{self.escape(var.name)}</code></td>")
-                
-                # Description from annotation if available
-                desc = ""
-                if var.annotation and var.annotation.description:
-                    desc = var.annotation.description
-                html_parts.append(f"            <td>{self.escape(desc)}</td>")
-                
-                # Default value
-                default = str(var.default_value) if var.default_value is not None else "—"
-                html_parts.append(f"            <td><code>{self.escape(default)}</code></td>")
-                html_parts.append("          </tr>")
-            
-            html_parts.append("        </tbody>")
-            html_parts.append("      </table>")
-            html_parts.append("    </section>")
-        
-        # Examples section
-        if context.role.examples:
-            html_parts.append("    <section id=\"examples\">")
-            html_parts.append("      <h2>Examples</h2>")
-            
-            for example in context.role.examples:
-                if example.description:
-                    html_parts.append(f"      <h3>{self.escape(example.description)}</h3>")
-                html_parts.append(f"      {self.code_block(example.content, 'yaml')}")
-            
-            html_parts.append("    </section>")
-        
-        html_parts.extend([
-            "  </main>",
-            "  <footer>",
-            f"    <p>Generated by ansible-doctor v{context.generator_version}</p>",
-            "  </footer>",
-            "</body>",
-            "</html>",
-        ])
-        
-        return "\n".join(html_parts)
+        # Render template with context
+        return template.render(**template_vars)
     
     def validate_options(self, options: Dict[str, Any]) -> None:
         """Validate rendering options.
@@ -222,114 +156,3 @@ class HtmlRenderer(DocumentRenderer):
         
         if "generate_toc" in options and not isinstance(options["generate_toc"], bool):
             raise TypeError(f"generate_toc must be bool, got {type(options['generate_toc'])}")
-    
-    def _load_css(self) -> str:
-        """Load CSS content for embedding.
-        
-        Returns:
-            CSS stylesheet content
-        """
-        # Basic embedded CSS for documentation
-        return """
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        line-height: 1.6;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        color: #333;
-    }
-    
-    h1 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 10px;
-    }
-    
-    h2 {
-        color: #34495e;
-        margin-top: 30px;
-    }
-    
-    nav#toc {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 30px;
-    }
-    
-    nav#toc ul {
-        list-style: none;
-        padding-left: 0;
-    }
-    
-    nav#toc li {
-        margin: 5px 0;
-    }
-    
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-    
-    th, td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-    
-    th {
-        background-color: #3498db;
-        color: white;
-        font-weight: 600;
-    }
-    
-    tr:hover {
-        background-color: #f5f5f5;
-    }
-    
-    code {
-        background: #f4f4f4;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-family: "Courier New", Courier, monospace;
-    }
-    
-    pre {
-        background: #2d2d2d;
-        color: #f8f8f2;
-        padding: 15px;
-        border-radius: 5px;
-        overflow-x: auto;
-    }
-    
-    pre code {
-        background: none;
-        padding: 0;
-        color: inherit;
-    }
-    
-    footer {
-        margin-top: 50px;
-        padding-top: 20px;
-        border-top: 1px solid #ddd;
-        text-align: center;
-        color: #666;
-        font-size: 0.9em;
-    }
-    
-    @media (max-width: 768px) {
-        body {
-            padding: 10px;
-        }
-        
-        table {
-            font-size: 0.9em;
-        }
-        
-        th, td {
-            padding: 8px;
-        }
-    }
-        """
