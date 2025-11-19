@@ -1,0 +1,52 @@
+---
+# Additional variables for demo-role (optional)
+# These are less common variables that override defaults when needed
+
+# Advanced database configuration
+# @var db_connection_pool_size: Maximum database connection pool size
+# @var db_connection_pool_size.type: int
+# @var db_connection_pool_size.example: 20
+db_connection_pool_size: 10
+
+# @var db_query_timeout: Database query timeout in seconds
+# @var db_query_timeout.type: int
+# @var db_query_timeout.example: 30
+db_query_timeout: 15
+
+# Performance tuning
+# @var app_cache_enabled: Enable in-memory application cache
+# @var app_cache_enabled.type: bool
+app_cache_enabled: true
+
+# @var app_cache_ttl: Cache time-to-live in seconds
+# @var app_cache_ttl.type: int
+# @var app_cache_ttl.example: 600
+app_cache_ttl: 300
+
+# Security settings
+# @var app_rate_limit: Maximum requests per minute per IP
+# @var app_rate_limit.type: int
+# @var app_rate_limit.example: 100
+app_rate_limit: 60
+
+# @var app_allowed_origins: CORS allowed origins list
+# @var app_allowed_origins.type: list
+# @var app_allowed_origins.example: ["https://example.com", "https://app.example.com"]
+app_allowed_origins:
+  - "*"
+
+# Monitoring and observability
+# @var metrics_enabled: Enable Prometheus metrics endpoint
+# @var metrics_enabled.type: bool
+metrics_enabled: false
+
+# @var metrics_port: Port for metrics endpoint
+# @var metrics_port.type: int
+# @var metrics_port.example: 9090
+metrics_port: 9100
+
+# @var log_format: Log output format (json or text)
+# @var log_format.type: str
+# @var log_format.example: json
+# @var log_format.choices: [json, text]
+log_format: text
