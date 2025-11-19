@@ -259,7 +259,10 @@ class AnnotationExtractor:
         if "\n" in content or ":" in content:
             try:
                 attrs = self._yaml.load(content)
+                # Only accept dict results, reject None or other types
                 if isinstance(attrs, dict):
+                    # Filter out None keys (edge case: content is just ":")
+                    attrs = {k: v for k, v in attrs.items() if k is not None}
                     return attrs
             except Exception:
                 logger.debug("yaml_parse_failed", content_preview=content[:50])
