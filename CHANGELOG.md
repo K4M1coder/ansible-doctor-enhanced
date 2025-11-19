@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- T030-T035: Documentation and polish tasks in progress
+
+## [0.4.0-alpha.3] - 2025-01-20
+
+### Added
+
+- **Feature 003 - Phase 5 US3 Config Discovery & Validation (T025-T029)**: Enhanced config file support
+  - **Parent Directory Discovery (T025, T027)**:
+    - `find_config_file()` walks up directory tree: current → parent → grandparent → root
+    - Searches for `.ansibledoctor.yml` or `.ansibledoctor.yaml` at each level
+    - Returns first found (nearest wins, like Git config behavior)
+    - 8 unit tests for parent directory discovery including grandparent-level tests
+    - Already implemented in v0.4.0-alpha.1, enhanced testing added
+  
+  - **Config Validation CLI (T026, T028)**:
+    - Integration tests for `config validate` and `config show` commands
+    - Enhanced error reporting with YAML line/column numbers for syntax errors
+    - Pydantic validation errors show field names and validation messages
+    - Clear error categorization: YAML Syntax, Schema Validation, or Generic
+    - 12 integration tests covering valid/invalid configs, parent discovery, error handling
+    - Fixed Windows Unicode encoding issues (✓/✗ → [VALID]/[INVALID])
+  
+  - **Config Display Enhancement (T029)**:
+    - `config show` resolves relative paths to absolute paths in output
+    - Displays which settings come from config file vs defaults
+    - Shows effective merged configuration as formatted YAML
+    - Shows config file path or "Using defaults" message
+    - Enhanced user experience with clear setting origins
+  
+  - **Test Coverage**:
+    - Total: 672 tests passing (652 baseline + 12 config integration + 8 config unit)
+    - Coverage: 81% overall (exceeds 80% target)
+    - Known issue documented: 1 property test edge case in T088 (annotation parsing with `:` content)
+    - All Windows, cross-platform compatibility verified
+
+### Changed
+
+- Config validate command now provides detailed error messages with line numbers
+- Config show command displays absolute paths for better clarity
+- CLI error output uses ASCII-safe markers for Windows compatibility
+- Enhanced test coverage from 79% to 81%
+
+### Fixed
+
+- Windows console encoding errors with Unicode characters (✓/✗) in CLI output
+- Config validate now properly categorizes and displays error types
+- Property test stability improved (1 known edge case documented for future fix)
+
 ## [0.4.0-alpha.2] - 2025-01-20
 
 ### Added

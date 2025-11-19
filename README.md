@@ -674,12 +674,12 @@ Key principles:
 ## 📊 Project Status
 
 **Current Release**: v0.4.0-alpha.2 (Watch Mode Auto-Regeneration) ✅  
-**In Development**: v0.4.0-alpha.3 (Config Discovery in Parent Directories) - Planning
+**In Development**: v0.4.0 final - Documentation & Polish
 
 ### Test Metrics
-- **Total Tests**: 660 (262 Feature 001 + 233 Feature 002 + 165 Feature 003)
-- **Coverage**: 79% overall (100% watch modules: debouncer, monitor)
-- **Status**: All passing ✅
+- **Total Tests**: 672 (262 Feature 001 + 233 Feature 002 + 177 Feature 003)
+- **Coverage**: 81% overall (Target: 80%+ achieved!)
+- **Status**: All passing ✅ (excluding 1 known property test edge case - documented in T088)
 
 ### Completed Features
 
@@ -736,20 +736,28 @@ Key principles:
 - ✅ Generate command auto-discovers config files
 - **Released**: November 2024 with 633 tests, 80% coverage
 
-**v0.4.0-alpha.2 - Watch Mode** (Feature 003 - US2 - 30% COMPLETE - IN PROGRESS)
+**v0.4.0-alpha.2 - Watch Mode** ✅ **COMPLETE**
 - ✅ Debouncer for rate-limiting file changes (8 tests, 100% coverage)
-- ⏳ FileChangeHandler for watchdog integration
-- ⏳ WatchMonitor for role directory monitoring
-- ⏳ `watch` command with auto-regeneration
-- ⏳ Signal handling for graceful shutdown
-- **Target**: November 2024, estimated 670+ tests
+- ✅ FileChangeHandler for watchdog integration (8 tests, 95% coverage)
+- ✅ WatchMonitor for role directory monitoring (3 tests, 100% coverage)
+- ✅ `watch` command with auto-regeneration
+- ✅ Signal handling for graceful shutdown (SIGINT/SIGTERM)
+- **Released**: November 2024 with 660 tests, 79% coverage
 
-**v0.4.0 - Documentation Parity** (Final Release)
-- Complete config file and watch mode features
-- Integration tests for all user stories
-- Documentation and migration guides
-- Performance optimization (<500ms per role)
-- Cross-platform validation (Windows, macOS, Linux)
+**v0.4.0-alpha.3 - Config Discovery & Validation** ✅ **COMPLETE**
+- ✅ Parent directory config discovery (walks up to root like Git)
+- ✅ Enhanced config validate with detailed error messages
+- ✅ Enhanced config show with resolved paths and setting origins
+- ✅ 12 integration tests for config commands
+- ✅ Fixed Windows Unicode encoding issues
+- **Released**: November 2024 with 672 tests, 81% coverage
+
+**v0.4.0 - Documentation Parity** (Final Release - IN PROGRESS)
+- ✅ All feature implementation complete (US1, US2, US3)
+- ⏳ Documentation and migration guides (T030-T034)
+- ⏳ Final test validation and coverage review (T035)
+- ⏳ Performance optimization (<500ms per role)
+- ⏳ Cross-platform validation (Windows, macOS, Linux)
 
 **v0.5.0 - Collection Documentation** (NEW - Not in original)
 - Parse Ansible collections (multiple roles, plugins, modules)

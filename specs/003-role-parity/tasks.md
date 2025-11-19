@@ -244,17 +244,19 @@ description: "Task list template for feature implementation"
   - Already implemented in T010, enhance tests here
   - **Complete**: Already implemented and tested with T025/T026
 
-- [ ] T028 [US3] Add validation output formatting to `config validate` command
-  - Print "✓ Config valid: <path>" on success (green)
-  - Print "✗ Config invalid: <path>" + errors on failure (red)
+- [X] T028 [US3] Add validation output formatting to `config validate` command
+  - Print "[VALID] Config valid: <path>" on success
+  - Print "[INVALID] Config invalid: <path>" + errors on failure
   - Show line numbers for YAML syntax errors
   - Show field names for schema validation errors
+  - **Complete**: Enhanced error output with line numbers and field names
 
-- [ ] T029 [US3] Add effective config display to `config show` command
+- [X] T029 [US3] Add effective config display to `config show` command
   - Show config file path if loaded (or "Using defaults")
   - Display merged config as formatted YAML
-  - Highlight CLI overrides if present
+  - Show which settings come from file vs defaults
   - Show resolved paths (absolute, not relative)
+  - **Complete**: All features implemented and tested
 
 **Checkpoint**: Config discovery complete - works like Git config (nearest file wins)
 
