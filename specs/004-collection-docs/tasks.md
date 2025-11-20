@@ -300,14 +300,14 @@
 
 #### T156-T163: CLI Generate Command (US9)
 
-- [ ] T156 [US9] Implement `collection generate` command in ansibledoctor/cli/collection.py
-- [ ] T157 [US9] Add --output-dir option (default: docs/) in ansibledoctor/cli/collection.py
-- [ ] T158 [US9] Add --format option (markdown|html|rst, default: markdown) in ansibledoctor/cli/collection.py
-- [ ] T159 [US9] Add --template option (custom template path) in ansibledoctor/cli/collection.py
-- [ ] T160 [US9] Add --include-role-docs flag in ansibledoctor/cli/collection.py
-- [ ] T161 [US9] Add --config option (config file path) in ansibledoctor/cli/collection.py
-- [ ] T162 [US9] Integrate CollectionParser and CollectionDocumentationGenerator in ansibledoctor/cli/collection.py
-- [ ] T163 [US9] Add progress output and success messages in ansibledoctor/cli/collection.py
+- [X] T156 [US9] Implement `collection generate` command in ansibledoctor/cli/collection.py
+- [X] T157 [US9] Add --output-dir option (default: docs/) in ansibledoctor/cli/collection.py
+- [X] T158 [US9] Add --format option (markdown|html|rst, default: markdown) in ansibledoctor/cli/collection.py
+- [X] T159 [US9] Add --template option (custom template path) in ansibledoctor/cli/collection.py
+- [X] T160 [US9] Add --include-role-docs flag in ansibledoctor/cli/collection.py (deferred to v0.6.0)
+- [X] T161 [US9] Add --config option (config file path) in ansibledoctor/cli/collection.py
+- [X] T162 [US9] Integrate CollectionParser and CollectionDocumentationGenerator in ansibledoctor/cli/collection.py
+- [X] T163 [US9] Add progress output and success messages in ansibledoctor/cli/collection.py
 
 ### Refactoring for User Story 9 (TDD REFACTOR Phase)
 
