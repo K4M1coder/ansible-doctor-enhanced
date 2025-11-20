@@ -24,6 +24,7 @@ from typing import Union
 
 from ansibledoctor.exceptions import ParsingError
 from ansibledoctor.models.collection import AnsibleCollection
+from ansibledoctor.parser.base_validator import BaseValidator
 from ansibledoctor.parser.collection_walker import CollectionStructureWalker
 from ansibledoctor.parser.galaxy_parser import GalaxyMetadataParser
 from ansibledoctor.utils.paths import CollectionPathResolver
@@ -132,13 +133,27 @@ class CollectionParser:
             return collection
             
         except ParsingError:
-            # Re-raise ParsingErrors as-is
+            # Re-raise ParsingErrors as-is (already have context and suggestions)
             raise
         except Exception as e:
-            # Wrap other exceptions in ParsingError with context
-            error_msg = (f"Failed to parse collection at {collection_path}: {e}")
-            logger.error(error_msg, exc_info=True)
-            raise ParsingError(error_msg) from e
+            # Wrap other exceptions with actionable error message
+            logger.error(f"Unexpected error parsing collection: {e}", exc_info=True)
+            raise BaseValidator.create_actionable_error(
+                message=f"Failed to parse collection at {collection_path}: {e}",
+                context={
+                    "collection_path": str(collection_path),
+                    "error_type": type(e).__name__,
+                    "error": str(e)
+                },
+                suggestion="Check collection structure and file permissions",
+                troubleshooting_steps=[
+                    "Verify the collection has a valid galaxy.yml file",
+                    "Ensure you have read permissions for the collection directory",
+                    "Check that roles/ and plugins/ directories are accessible",
+                    "Run 'ansible-galaxy collection list' to see installed collections",
+                    f"Try: cd {collection_path} && ls -la"
+                ]
+            ) from e
 
     def _validate_collection_path(self, collection_path: Path) -> None:
         """Validate that the collection path exists and is a directory.
@@ -149,14 +164,12 @@ class CollectionParser:
         Raises:
             ParsingError: If path doesn't exist or is not a directory
         """
-        if not collection_path.exists():
-            raise ParsingError(
-                f"Collection directory does not exist: {collection_path}\n"
-                f"Please ensure the path is correct and the collection is properly installed."
+        BaseValidator.validate_directory_exists(
+            collection_path,
+            dir_type="collection directory",
+            suggestion=(
+                "Ensure the path points to a valid Ansible collection directory. "
+                "Collections typically contain galaxy.yml, roles/, and/or plugins/ directories. "
+                "If the collection is not installed, run 'ansible-galaxy collection install <fqcn>'."
             )
-        
-        if not collection_path.is_dir():
-            raise ParsingError(
-                f"Path must be a directory, not a file: {collection_path}\n"
-                f"Please provide a path to a collection directory."
-            )
+        )

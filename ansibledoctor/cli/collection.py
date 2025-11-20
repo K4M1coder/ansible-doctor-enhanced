@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 
 @click.group()
-def collection():
+def collection() -> None:
     """
     Manage Ansible collections.
     
@@ -46,7 +46,7 @@ def collection():
     is_flag=True,
     help="Validate collection structure only (no output).",
 )
-def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bool):
+def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bool) -> None:
     """
     Parse an Ansible collection and extract metadata.
     

@@ -173,10 +173,10 @@
 
 ### Refactoring for User Story 8 (TDD REFACTOR Phase)
 
-- [ ] T079 [US8] Refactor: Extract common validation logic to base validator
-- [ ] T080 [US8] Refactor: Improve error messages with actionable suggestions
-- [ ] T081 [US8] Refactor: Add type hints to all public APIs
-- [ ] T082 [US8] Refactor: Optimize path resolution performance
+- [X] T079 [US8] Refactor: Extract common validation logic to base validator
+- [X] T080 [US8] Refactor: Improve error messages with actionable suggestions
+- [X] T081 [US8] Refactor: Add type hints to all public APIs
+- [X] T082 [US8] Refactor: Optimize path resolution performance
 
 ### Integration Tests for User Story 8
 

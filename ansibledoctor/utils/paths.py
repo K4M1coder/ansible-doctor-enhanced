@@ -218,14 +218,24 @@ class CollectionPathResolver:
     - Galaxy-installed collections
     - Git repository collections
     
+    Performance optimization (T082): Caches resolved paths to avoid
+    repeated filesystem operations for the same collection.
+    
     Following Constitution Article X (DDD): Infrastructure layer utility
     for collection path operations.
     """
     
-    @staticmethod
-    def resolve_collection_path(collection_path: str | Path) -> Path:
+    def __init__(self) -> None:
+        """Initialize resolver with empty cache for performance optimization."""
+        self._path_cache: dict[str, Path] = {}
+        self._roles_cache: dict[str, Path | None] = {}
+        self._plugins_cache: dict[str, Path | None] = {}
+    
+    def resolve_collection_path(self, collection_path: str | Path) -> Path:
         """
         Resolve collection path to absolute Path object.
+        
+        Caches resolved paths for performance (T082).
         
         Args:
             collection_path: Path to collection (string or Path)
@@ -241,6 +251,13 @@ class CollectionPathResolver:
             >>> resolver.resolve_collection_path("./my_namespace.my_collection")
             PosixPath('/absolute/path/to/my_namespace.my_collection')
         """
+        cache_key = str(collection_path)
+        
+        # Return cached result if available
+        if cache_key in self._path_cache:
+            logger.debug("collection_path_cache_hit", path=cache_key)
+            return self._path_cache[cache_key]
+        
         path = Path(collection_path).resolve()
         
         if not path.exists():
@@ -257,11 +274,12 @@ class CollectionPathResolver:
                 suggestion="Provide a path to a collection directory, not a file",
             )
         
+        # Cache the resolved path
+        self._path_cache[cache_key] = path
         logger.debug("collection_path_resolved", original=str(collection_path), resolved=str(path))
         return path
     
-    @staticmethod
-    def get_galaxy_yml_path(collection_path: Path) -> Path:
+    def get_galaxy_yml_path(self, collection_path: Path) -> Path:
         """
         Get path to galaxy.yml file in collection.
         
@@ -285,10 +303,11 @@ class CollectionPathResolver:
         
         return galaxy_yml
     
-    @staticmethod
-    def get_roles_directory(collection_path: Path) -> Path | None:
+    def get_roles_directory(self, collection_path: Path) -> Path | None:
         """
         Get roles/ directory path if it exists.
+        
+        Caches results for performance (T082).
         
         Args:
             collection_path: Collection root directory
@@ -296,13 +315,21 @@ class CollectionPathResolver:
         Returns:
             Path to roles/ directory, or None if not found
         """
+        cache_key = str(collection_path)
+        
+        if cache_key in self._roles_cache:
+            return self._roles_cache[cache_key]
+        
         roles_dir = collection_path / "roles"
-        return roles_dir if roles_dir.exists() and roles_dir.is_dir() else None
+        result = roles_dir if roles_dir.exists() and roles_dir.is_dir() else None
+        self._roles_cache[cache_key] = result
+        return result
     
-    @staticmethod
-    def get_plugins_directory(collection_path: Path) -> Path | None:
+    def get_plugins_directory(self, collection_path: Path) -> Path | None:
         """
         Get plugins/ directory path if it exists.
+        
+        Caches results for performance (T082).
         
         Args:
             collection_path: Collection root directory
@@ -310,8 +337,15 @@ class CollectionPathResolver:
         Returns:
             Path to plugins/ directory, or None if not found
         """
+        cache_key = str(collection_path)
+        
+        if cache_key in self._plugins_cache:
+            return self._plugins_cache[cache_key]
+        
         plugins_dir = collection_path / "plugins"
-        return plugins_dir if plugins_dir.exists() and plugins_dir.is_dir() else None
+        result = plugins_dir if plugins_dir.exists() and plugins_dir.is_dir() else None
+        self._plugins_cache[cache_key] = result
+        return result
     
     @staticmethod
     def extract_fqcn_from_path(collection_path: Path) -> tuple[str, str] | None:
