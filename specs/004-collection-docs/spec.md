@@ -49,7 +49,7 @@ As a collection maintainer, I want to parse my collection's `galaxy.yml` so that
 **Independent Test**: Run `ansible-doctor parse-collection my_namespace.my_collection/` → JSON output with collection metadata
 
 **Acceptance Scenarios**:
-1. **Given** a collection with galaxy.yml, **When** parsing, **Then** extract namespace, name, version, description, authors, dependencies, tags
+1. **Given** a collection with galaxy.yml, **When** parsing, **Then** extract required fields (namespace, name, version, authors, dependencies); optional fields (tags, license, repository) deferred to v0.6.0
 2. **Given** collection dependencies in galaxy.yml, **When** parsing, **Then** resolve and list dependent collections with version constraints
 3. **Given** collection with multiple roles, **When** parsing, **Then** discover and list all roles with their paths
 
@@ -57,7 +57,7 @@ As a collection maintainer, I want to parse my collection's `galaxy.yml` so that
 
 ### US9 - Generate Collection Documentation (Priority: P1)
 
-As a collection maintainer, I want to generate comprehensive collection documentation so that users understand the collection's purpose, roles, plugins, and usage.
+As a collection maintainer, I want to generate comprehensive collection documentation (see SC-003 for concrete definition) so that users understand the collection's purpose, roles, plugins, and usage.
 
 **Independent Test**: Run `ansible-doctor generate-collection my_namespace.my_collection/` → README.md with collection overview, role index, plugin list
 
@@ -83,19 +83,19 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 
 ## Success Criteria
 
-**SC-001**: Parse galaxy.yml and extract all collection metadata fields  
+**SC-001**: Parse galaxy.yml and extract all required collection metadata fields (namespace, name, version, authors, dependencies); optional fields deferred to v0.6.0  
 **SC-002**: Discover all roles within collection automatically  
 **SC-003**: Generate collection-level README with role index and plugin list  
 **SC-004**: Document collection dependencies with version constraints  
 **SC-005**: Cross-role dependency analysis detects circular references  
-**SC-006**: Collection documentation generation completes in <5s for typical collection (5 roles, 10 plugins)  
+**SC-006**: Collection documentation generation completes in <5s for typical collection (5 roles, 10 plugins, ~50 files total)  
 **SC-007**: Reuse template system from v0.3.0 (no new template engine)  
-**SC-008**: CLI commands: `parse-collection`, `generate-collection`, `analyze-collection`
+**SC-008**: CLI commands: `collection parse`, `collection generate`, `collection analyze`
 
 ## Technical Constraints
 
-**TC-001**: Must parse Ansible Galaxy collection format (galaxy.yml specification)  
-**TC-002**: Must discover roles, plugins, modules automatically from collection structure  
+**TC-001**: Must parse Ansible Galaxy collection format (galaxy.yml specification, schema version 1.0.0 for Ansible 2.9+)  
+**TC-002**: Must discover roles, plugins, modules automatically from collection structure (no file exclusions; parse all Python files, let validation filter)  
 **TC-003**: Must reuse TemplateEngine and renderers from Feature 002  
 **TC-004**: Must support collections from ansible-galaxy, local filesystem, git repos  
 **TC-005**: Must handle namespace/name format (e.g., community.general)
@@ -106,6 +106,15 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 - Module documentation parsing (Ansible auto-generates this)
 - Playbook execution or testing
 - Collection publishing/uploading to Galaxy
+
+## Clarifications
+
+### Session 2025-11-20
+
+- Q: Which optional galaxy.yml fields (tags, license, repository, etc.) should be documented? → A: Defer optional fields to v0.6.0 (only required fields in v0.5.0)
+- Q: Which galaxy.yml schema version(s) to support? → A: 1.0.0 (Ansible 2.9+ standard), support latest versions in future releases
+- Q: Which files to exclude from plugin discovery? → A: No exclusions (parse all Python files, let validation filter)
+- Q: Role index layout format (table vs list)? → A: Let template decide (configurable via template)
 
 ## Prerequisites Validation
 
