@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Feature 004: Collection Documentation (v0.5.0)** - Foundation, US8 complete, US9 in progress (54%)
-  - **User Story 9: Generate Collection Documentation (T086-T145 partial)**
+- **Feature 004: Collection Documentation (v0.5.0)** - Foundation, US8 complete, US9 in progress (77%)
+  - **User Story 9: Generate Collection Documentation (T086-T155 partial)**
     - `ansibledoctor/models/plugin.py`: Plugin model and PluginCatalog repository (98% coverage)
       - Plugin value object: frozen Pydantic model with name, type, path, short_description
       - PluginCatalog: Repository pattern for grouping/querying plugins by type
       - Methods: group_by_type(), list_all_names(), list_names_by_type(), count()
-    - `ansibledoctor/models/collection_role.py`: CollectionRole extending AnsibleRole (73% coverage)
+    - `ansibledoctor/models/collection_role.py`: CollectionRole extending AnsibleRole (100% coverage)
       - Adds collection_fqcn field for FQCN context
       - full_role_name property returns "namespace.collection.role_name"
       - Inherits all AnsibleRole parsing logic (metadata, variables, tags, etc.)
@@ -31,13 +31,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - Dependencies table with version constraints
       - Examples section with playbook code blocks
       - License footer and generator attribution
-    - Test suite: 48 tests added (41 passing immediately, 7 template tests)
+    - `ansibledoctor/generator/templates/html/collection.j2`: HTML collection template (125 lines)
+      - Complete HTML5 structure with embedded CSS
+      - Responsive design matching role template style
+      - Sections: overview, installation, roles, plugins, dependencies, examples
+    - `ansibledoctor/generator/templates/rst/collection.j2`: RST collection template (148 lines)
+      - Sphinx-compatible reStructuredText format
+      - Proper heading underlines and code blocks
+      - Table of contents with configurable depth
+    - `ansibledoctor/generator/collection_generator.py`: CollectionDocumentationGenerator (94% coverage)
+      - Main documentation generator for Ansible collections
+      - build_context() method: builds template context from collection data
+      - generate() method: renders docs in markdown/html/rst formats
+      - Custom template support via template_path parameter
+      - File writing with output_path parameter
+      - Lazy initialization of TemplateEngine and EmbeddedTemplateLoader
+      - Comprehensive error handling with actionable messages
+    - Test suite: 61 tests passing (14 new generator tests added)
       - 17 Plugin model tests, 8 PluginCatalog tests
-      - 8 Plugin Discovery tests, 8 CollectionRole tests
-      - 7 Collection template rendering tests
+      - 8 Plugin Discovery tests, 8 CollectionRole tests (100% coverage)
+      - 7 Collection template rendering tests (all formats)
+      - 7 CollectionDocumentationGenerator tests (RED-GREEN cycle)
+      - 6 property-based tests with Hypothesis
     - TDD cycle: Strict RED-GREEN-REFACTOR followed for all implementations
-    - 4 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef)
-    - Progress: 47/87 User Story 9 tasks complete (54%)
+      - RED phase (T106-T112): Tests written first, all fail with ModuleNotFoundError
+      - GREEN phase (T146-T155): Implementation makes all tests pass
+      - REFACTOR phase: Template improvements, error handling
+    - 6 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef), Generator Tests (6b5798a), Generator Implementation (bdd6c1b)
+    - Progress: 67/87 User Story 9 tasks complete (77%)
   
 - **Feature 004: Collection Documentation (v0.5.0)** - Foundation and US8 complete
   - `ansibledoctor/models/galaxy.py`: GalaxyMetadata model (schema 1.0.0, required fields only)
