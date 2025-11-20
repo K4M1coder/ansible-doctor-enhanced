@@ -198,11 +198,11 @@
 
 #### T086-T095: Plugin Model Tests
 
-- [ ] T086 [P] [US9] Test: Plugin model with name, type, path, description in tests/unit/models/collection/test_plugin.py
-- [ ] T087 [P] [US9] Test: PluginType enum (module, filter, lookup, test, inventory, callback) in tests/unit/models/collection/test_plugin.py
-- [ ] T088 [P] [US9] Test: Plugin immutability (frozen model) in tests/unit/models/collection/test_plugin.py
-- [ ] T089 [P] [US9] Test: PluginCatalog groups plugins by type in tests/unit/models/collection/test_plugin_catalog.py
-- [ ] T090 [P] [US9] Test: PluginCatalog lists all plugin names in tests/unit/models/collection/test_plugin_catalog.py
+- [X] T086 [P] [US9] Test: Plugin model with name, type, path, description in tests/unit/models/collection/test_plugin.py
+- [X] T087 [P] [US9] Test: PluginType enum (module, filter, lookup, test, inventory, callback) in tests/unit/models/collection/test_plugin.py
+- [X] T088 [P] [US9] Test: Plugin immutability (frozen model) in tests/unit/models/collection/test_plugin.py
+- [X] T089 [P] [US9] Test: PluginCatalog groups plugins by type in tests/unit/models/collection/test_plugin_catalog.py
+- [X] T090 [P] [US9] Test: PluginCatalog lists all plugin names in tests/unit/models/collection/test_plugin_catalog.py
 
 #### T091-T100: Plugin Discovery Tests
 
@@ -242,14 +242,14 @@
 
 #### T113-T120: Plugin Model Implementation
 
-- [ ] T113 [P] [US9] Implement Plugin Pydantic model in ansibledoctor/models/plugin.py
-- [ ] T114 [US9] Implement PluginType enum (module, filter, lookup, test, inventory, callback) in ansibledoctor/models/plugin.py
-- [ ] T115 [US9] Add fields: name, type, path, short_description (optional) in ansibledoctor/models/plugin.py
-- [ ] T116 [US9] Make Plugin immutable (frozen=True) in ansibledoctor/models/plugin.py
-- [ ] T117 [US9] Implement PluginCatalog class in ansibledoctor/models/plugin_catalog.py
-- [ ] T118 [US9] Add group_by_type() method in ansibledoctor/models/plugin_catalog.py
-- [ ] T119 [US9] Add list_all_names() method in ansibledoctor/models/plugin_catalog.py
-- [ ] T120 [US9] Add docstrings and type hints in ansibledoctor/models/plugin.py
+- [X] T113 [P] [US9] Implement Plugin Pydantic model in ansibledoctor/models/plugin.py
+- [X] T114 [US9] Implement PluginType enum (module, filter, lookup, test, inventory, callback) in ansibledoctor/models/plugin.py
+- [X] T115 [US9] Add fields: name, type, path, short_description (optional) in ansibledoctor/models/plugin.py
+- [X] T116 [US9] Make Plugin immutable (frozen=True) in ansibledoctor/models/plugin.py
+- [X] T117 [US9] Implement PluginCatalog class in ansibledoctor/models/plugin_catalog.py
+- [X] T118 [US9] Add group_by_type() method in ansibledoctor/models/plugin_catalog.py
+- [X] T119 [US9] Add list_all_names() method in ansibledoctor/models/plugin_catalog.py
+- [X] T120 [US9] Add docstrings and type hints in ansibledoctor/models/plugin.py
 
 #### T121-T128: Plugin Discovery Implementation
 
