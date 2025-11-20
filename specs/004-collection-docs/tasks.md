@@ -214,10 +214,10 @@
 
 #### T096-T105: CollectionRole Model Tests
 
-- [ ] T096 [P] [US9] Test: CollectionRole extends existing Role model in tests/unit/models/collection/test_collection_role.py
-- [ ] T097 [P] [US9] Test: CollectionRole adds collection_fqcn field in tests/unit/models/collection/test_collection_role.py
-- [ ] T098 [P] [US9] Test: CollectionRole computes full role name (fqcn.role_name) in tests/unit/models/collection/test_collection_role.py
-- [ ] T099 [P] [US9] Test: CollectionRole reuses existing role parsing logic in tests/unit/models/collection/test_collection_role.py
+- [X] T096 [P] [US9] Test: CollectionRole extends existing Role model in tests/unit/models/collection/test_collection_role.py
+- [X] T097 [P] [US9] Test: CollectionRole adds collection_fqcn field in tests/unit/models/collection/test_collection_role.py
+- [X] T098 [P] [US9] Test: CollectionRole computes full role name (fqcn.role_name) in tests/unit/models/collection/test_collection_role.py
+- [X] T099 [P] [US9] Test: CollectionRole reuses existing role parsing logic in tests/unit/models/collection/test_collection_role.py
 
 #### T100-T110: Template Tests
 
@@ -264,13 +264,13 @@
 
 #### T129-T135: CollectionRole Implementation
 
-- [ ] T129 [P] [US9] Create CollectionRole model extending Role in ansibledoctor/models/collection_role.py
-- [ ] T130 [US9] Add collection_fqcn: str field in ansibledoctor/models/collection_role.py
-- [ ] T131 [US9] Add full_role_name property (f"{collection_fqcn}.{role_name}") in ansibledoctor/models/collection_role.py
+- [X] T129 [P] [US9] Create CollectionRole model extending Role in ansibledoctor/models/collection_role.py
+- [X] T130 [US9] Add collection_fqcn: str field in ansibledoctor/models/collection_role.py
+- [X] T131 [US9] Add full_role_name property (f"{collection_fqcn}.{role_name}") in ansibledoctor/models/collection_role.py
 - [ ] T132 [US9] Implement CollectionRoleParser in ansibledoctor/parser/collection_role_parser.py
 - [ ] T133 [US9] Integrate existing RoleParser for parsing role structure in ansibledoctor/parser/collection_role_parser.py
 - [ ] T134 [US9] Add collection context to parsed roles in ansibledoctor/parser/collection_role_parser.py
-- [ ] T135 [US9] Add docstrings and type hints in ansibledoctor/models/collection_role.py
+- [X] T135 [US9] Add docstrings and type hints in ansibledoctor/models/collection_role.py
 
 #### T136-T145: Collection Template Implementation
 
