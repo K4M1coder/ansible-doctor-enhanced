@@ -221,12 +221,12 @@
 
 #### T100-T110: Template Tests
 
-- [ ] T100 [P] [US9] Test: Render collection template with metadata in tests/unit/generator/test_collection_template.py
-- [ ] T101 [P] [US9] Test: Template includes installation instructions in tests/unit/generator/test_collection_template.py
-- [ ] T102 [P] [US9] Test: Template includes role index with descriptions (format configurable: table or list) in tests/unit/generator/test_collection_template.py
-- [ ] T103 [P] [US9] Test: Template includes plugin list grouped by type in tests/unit/generator/test_collection_template.py
-- [ ] T104 [P] [US9] Test: Template includes dependencies section in tests/unit/generator/test_collection_template.py
-- [ ] T105 [P] [US9] Test: Template includes examples/playbooks section in tests/unit/generator/test_collection_template.py
+- [X] T100 [P] [US9] Test: Render collection template with metadata in tests/unit/generator/test_collection_template.py
+- [X] T101 [P] [US9] Test: Template includes installation instructions in tests/unit/generator/test_collection_template.py
+- [X] T102 [P] [US9] Test: Template includes role index with descriptions (format configurable: table or list) in tests/unit/generator/test_collection_template.py
+- [X] T103 [P] [US9] Test: Template includes plugin list grouped by type in tests/unit/generator/test_collection_template.py
+- [X] T104 [P] [US9] Test: Template includes dependencies section in tests/unit/generator/test_collection_template.py
+- [X] T105 [P] [US9] Test: Template includes examples/playbooks section in tests/unit/generator/test_collection_template.py
 
 #### T106-T115: CollectionDocumentationGenerator Tests
 
@@ -274,16 +274,16 @@
 
 #### T136-T145: Collection Template Implementation
 
-- [ ] T136 [US9] Create collection.md.j2 template in ansibledoctor/templates/collection.md.j2
-- [ ] T137 [US9] Add template header: title, description, version in ansibledoctor/templates/collection.md.j2
-- [ ] T138 [US9] Add installation section with ansible-galaxy command in ansibledoctor/templates/collection.md.j2
-- [ ] T139 [US9] Add roles section (format configurable: table or heading-based list) in ansibledoctor/templates/collection.md.j2
-- [ ] T140 [US9] Add plugins section grouped by type in ansibledoctor/templates/collection.md.j2
-- [ ] T141 [US9] Add dependencies section with version constraints in ansibledoctor/templates/collection.md.j2
-- [ ] T142 [US9] Add examples/playbooks section in ansibledoctor/templates/collection.md.j2
-- [ ] T143 [US9] Add footer with generator version in ansibledoctor/templates/collection.md.j2
-- [ ] T144 [US9] Add Jinja2 filters for formatting (markdown_escape, etc.) in ansibledoctor/templates/collection.md.j2
-- [ ] T145 [US9] Validate template syntax with test render in ansibledoctor/templates/collection.md.j2
+- [X] T136 [US9] Create collection.md.j2 template in ansibledoctor/templates/collection.md.j2
+- [X] T137 [US9] Add template header: title, description, version in ansibledoctor/templates/collection.md.j2
+- [X] T138 [US9] Add installation section with ansible-galaxy command in ansibledoctor/templates/collection.md.j2
+- [X] T139 [US9] Add roles section (format configurable: table or heading-based list) in ansibledoctor/templates/collection.md.j2
+- [X] T140 [US9] Add plugins section grouped by type in ansibledoctor/templates/collection.md.j2
+- [X] T141 [US9] Add dependencies section with version constraints in ansibledoctor/templates/collection.md.j2
+- [X] T142 [US9] Add examples/playbooks section in ansibledoctor/templates/collection.md.j2
+- [X] T143 [US9] Add footer with generator version in ansibledoctor/templates/collection.md.j2
+- [X] T144 [US9] Add Jinja2 filters for formatting (markdown_escape, etc.) in ansibledoctor/templates/collection.md.j2
+- [X] T145 [US9] Validate template syntax with test render in ansibledoctor/templates/collection.md.j2
 
 #### T146-T155: CollectionDocumentationGenerator Implementation
 
