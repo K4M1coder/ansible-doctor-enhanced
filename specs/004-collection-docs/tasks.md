@@ -287,16 +287,16 @@
 
 #### T146-T155: CollectionDocumentationGenerator Implementation
 
-- [ ] T146 [P] [US9] Implement CollectionDocumentationGenerator in ansibledoctor/generator/collection_generator.py
-- [ ] T147 [US9] Implement generate() method (main entry point) in ansibledoctor/generator/collection_generator.py
-- [ ] T148 [US9] Build template context from AnsibleCollection model in ansibledoctor/generator/collection_generator.py
-- [ ] T149 [US9] Integrate existing TemplateEngine from Feature 002 in ansibledoctor/generator/collection_generator.py
-- [ ] T150 [US9] Support output formats: markdown, html, rst in ansibledoctor/generator/collection_generator.py
-- [ ] T151 [US9] Support custom template path option in ansibledoctor/generator/collection_generator.py
-- [ ] T152 [US9] Write rendered output to file in ansibledoctor/generator/collection_generator.py
-- [ ] T153 [US9] Add structured logging for generation steps in ansibledoctor/generator/collection_generator.py
-- [ ] T154 [US9] Add error handling with actionable messages in ansibledoctor/generator/collection_generator.py
-- [ ] T155 [US9] Add docstrings and type hints in ansibledoctor/generator/collection_generator.py
+- [X] T146 [P] [US9] Implement CollectionDocumentationGenerator in ansibledoctor/generator/collection_generator.py
+- [X] T147 [US9] Implement generate() method (main entry point) in ansibledoctor/generator/collection_generator.py
+- [X] T148 [US9] Build template context from AnsibleCollection model in ansibledoctor/generator/collection_generator.py
+- [X] T149 [US9] Integrate existing TemplateEngine from Feature 002 in ansibledoctor/generator/collection_generator.py
+- [X] T150 [US9] Support output formats: markdown, html, rst in ansibledoctor/generator/collection_generator.py
+- [X] T151 [US9] Support custom template path option in ansibledoctor/generator/collection_generator.py
+- [X] T152 [US9] Write rendered output to file in ansibledoctor/generator/collection_generator.py
+- [X] T153 [US9] Add structured logging for generation steps in ansibledoctor/generator/collection_generator.py
+- [X] T154 [US9] Add error handling with actionable messages in ansibledoctor/generator/collection_generator.py
+- [X] T155 [US9] Add docstrings and type hints in ansibledoctor/generator/collection_generator.py
 
 #### T156-T163: CLI Generate Command (US9)
 
