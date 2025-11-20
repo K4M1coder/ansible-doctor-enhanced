@@ -9,6 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Feature 004: Collection Documentation (v0.5.0)** - Foundation and US8 partial implementation
+  - `ansibledoctor/models/galaxy.py`: GalaxyMetadata model (schema 1.0.0, required fields only)
+    - Pydantic v2 model with frozen=True (immutable value object)
+    - Validators for namespace (lowercase alphanumeric), version (semantic versioning)
+    - FQCN property returns "namespace.name"
+    - Defers optional galaxy.yml fields to v0.6.0
+  - `ansibledoctor/models/collection.py`: AnsibleCollection aggregate root
+    - Coordinates GalaxyMetadata, roles list, plugins dict
+    - Self-dependency validation (prevents circular references)
+    - Helper methods: list_roles(), list_plugins_by_type()
+  - `ansibledoctor/models/plugin.py`: PluginType enum
+    - Supports: module, filter, lookup, test, inventory, callback
+    - from_directory_name() maps plugins/modules/ → MODULE
+  - `ansibledoctor/parser/galaxy_parser.py`: GalaxyMetadataParser
+    - Parses galaxy.yml following schema 1.0.0
+    - Validates required fields: namespace, name, version, authors, dependencies
+    - Error handling with actionable suggestions
+  - `ansibledoctor/parser/collection_walker.py`: CollectionStructureWalker
+    - Discovers roles in roles/ directory
+    - Discovers plugins in plugins/ subdirectories (no file exclusions)
+    - Delegates to FileSystemWalker for file operations
+  - `ansibledoctor/utils/fs_walker.py`: FileSystemWalker infrastructure
+    - discover_roles(): List role names from roles/ directory
+    - discover_plugins(): Map PluginType to Python file paths
+    - No exclusions policy: parse all .py files, validation filtering at parser layer
+  - `ansibledoctor/utils/paths.py`: CollectionPathResolver extension
+    - resolve_collection_path(): Validate collection directory exists
+    - get_galaxy_yml_path(): Locate galaxy.yml in collection
+    - get_roles_directory(), get_plugins_directory(): Optional directory paths
+    - extract_fqcn_from_path(): Parse namespace.name from directory name
+  - Test suite: 24 tests covering GalaxyMetadata, GalaxyMetadataParser, CollectionStructureWalker, AnsibleCollection
+    - TDD RED-GREEN-REFACTOR cycle followed strictly
+    - Tests written FIRST (all failed), then implementation (all pass)
+  - Test fixtures: 3 collections (minimal_valid, invalid_missing_namespace, malformed_yaml)
+  - Dependencies: Added `packaging>=24.0` for semantic version validation
+
+### Changed
+
+- `pyproject.toml`: Added packaging dependency for version validation
+- Project structure: New directories for collection tests and fixtures
+
 ## [0.4.0] - 2025-01-20
 
 ### Summary
