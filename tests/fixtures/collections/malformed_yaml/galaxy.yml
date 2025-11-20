@@ -1,0 +1,9 @@
+---
+# Malformed YAML for testing error handling
+namespace: test_namespace
+name: test_collection
+version: 1.0.0
+authors:
+  - Test Author
+dependencies: {
+  # Unclosed brace - malformed YAML

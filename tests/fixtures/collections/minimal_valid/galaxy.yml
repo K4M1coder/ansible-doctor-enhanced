@@ -1,0 +1,16 @@
+---
+# Minimal valid galaxy.yml for testing
+# Schema version 1.0.0 (Ansible 2.9+ standard)
+# Only required fields included
+
+namespace: test_namespace
+name: test_collection
+version: 1.0.0
+
+authors:
+  - Test Author <test@example.com>
+
+dependencies: {}
+
+# Optional fields deferred to v0.6.0
+# tags, license, repository, readme, homepage, issues, documentation
