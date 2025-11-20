@@ -1,0 +1,9 @@
+---
+namespace: comprehensive
+name: test
+version: 1.0.0
+authors:
+  - "Test Author"
+dependencies: {}
+description: "Comprehensive test collection with all plugin types"
+repository: "https://github.com/test/comprehensive"

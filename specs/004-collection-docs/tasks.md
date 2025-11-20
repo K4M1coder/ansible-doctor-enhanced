@@ -34,10 +34,10 @@
 
 **Purpose**: Prepare project structure for collection documentation feature
 
-- [ ] T001 Create directory structure: ansibledoctor/models/collection.py, ansibledoctor/parser/collection_parser.py
-- [ ] T002 Create test directories: tests/unit/models/collection/, tests/unit/parser/collection/
-- [ ] T003 [P] Create fixtures directory: tests/fixtures/collections/ with mock collection structure
-- [ ] T004 [P] Update pyproject.toml dependencies (verify `packaging` exists for version parsing)
+- [X] T001 Create directory structure: ansibledoctor/models/collection.py, ansibledoctor/parser/collection_parser.py
+- [X] T002 Create test directories: tests/unit/models/collection/, tests/unit/parser/collection/
+- [X] T003 [P] Create fixtures directory: tests/fixtures/collections/ with mock collection structure
+- [X] T004 [P] Update pyproject.toml dependencies (verify `packaging` exists for version parsing)
 
 ---
 
@@ -47,10 +47,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Create YAMLLoader protocol extension in ansibledoctor/utils/yaml_loader.py (for galaxy.yml)
-- [ ] T006 [P] Create PathResolver utility in ansibledoctor/utils/paths.py (collection path resolution)
-- [ ] T007 [P] Create FileSystemWalker in ansibledoctor/utils/fs_walker.py (discover roles/plugins)
-- [ ] T008 Create base PluginType enum in ansibledoctor/models/plugin.py (module, filter, lookup, etc.)
+- [X] T005 Create YAMLLoader protocol extension in ansibledoctor/utils/yaml_loader.py (for galaxy.yml)
+- [X] T006 [P] Create PathResolver utility in ansibledoctor/utils/paths.py (collection path resolution)
+- [X] T007 [P] Create FileSystemWalker in ansibledoctor/utils/fs_walker.py (discover roles/plugins)
+- [X] T008 Create base PluginType enum in ansibledoctor/models/plugin.py (module, filter, lookup, etc.)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,108 +68,108 @@
 
 #### T009-T020: Galaxy Metadata Model Tests
 
-- [ ] T009 [P] [US8] Test: GalaxyMetadata model with valid data (required fields: namespace, name, version, authors, dependencies) in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T010 [P] [US8] Test: GalaxyMetadata validates namespace format (lowercase alphanumeric) in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T011 [P] [US8] Test: GalaxyMetadata validates semantic version format in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T012 [P] [US8] Test: GalaxyMetadata rejects invalid namespace (uppercase, special chars) in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T013 [P] [US8] Test: GalaxyMetadata.fqcn property returns "namespace.name" in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T014 [P] [US8] Test: GalaxyMetadata immutability (frozen model) in tests/unit/models/collection/test_galaxy_metadata.py
-- [ ] T015 [P] [US8] Test: GalaxyMetadata with minimal required fields only (namespace, name, version) in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T009 [P] [US8] Test: GalaxyMetadata model with valid data (required fields: namespace, name, version, authors, dependencies) in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T010 [P] [US8] Test: GalaxyMetadata validates namespace format (lowercase alphanumeric) in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T011 [P] [US8] Test: GalaxyMetadata validates semantic version format in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T012 [P] [US8] Test: GalaxyMetadata rejects invalid namespace (uppercase, special chars) in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T013 [P] [US8] Test: GalaxyMetadata.fqcn property returns "namespace.name" in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T014 [P] [US8] Test: GalaxyMetadata immutability (frozen model) in tests/unit/models/collection/test_galaxy_metadata.py
+- [X] T015 [P] [US8] Test: GalaxyMetadata with minimal required fields only (namespace, name, version) in tests/unit/models/collection/test_galaxy_metadata.py
 
 #### T016-T025: Galaxy Parser Tests
 
-- [ ] T016 [P] [US8] Test: GalaxyMetadataParser parses valid galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
-- [ ] T017 [P] [US8] Test: GalaxyMetadataParser raises FileNotFoundError for missing galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
-- [ ] T018 [P] [US8] Test: GalaxyMetadataParser raises YAMLError for malformed galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
-- [ ] T019 [P] [US8] Test: GalaxyMetadataParser validates required fields (namespace, name, version) in tests/unit/parser/collection/test_galaxy_parser.py
-- [ ] T020 [P] [US8] Test: GalaxyMetadataParser extracts dependencies with version constraints in tests/unit/parser/collection/test_galaxy_parser.py
+- [X] T016 [P] [US8] Test: GalaxyMetadataParser parses valid galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
+- [X] T017 [P] [US8] Test: GalaxyMetadataParser raises FileNotFoundError for missing galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
+- [X] T018 [P] [US8] Test: GalaxyMetadataParser raises YAMLError for malformed galaxy.yml in tests/unit/parser/collection/test_galaxy_parser.py
+- [X] T019 [P] [US8] Test: GalaxyMetadataParser validates required fields (namespace, name, version) in tests/unit/parser/collection/test_galaxy_parser.py
+- [X] T020 [P] [US8] Test: GalaxyMetadataParser extracts dependencies with version constraints in tests/unit/parser/collection/test_galaxy_parser.py
 
 #### T021-T030: Collection Structure Discovery Tests
 
-- [ ] T021 [P] [US8] Test: Discover roles/ directory and list role names in tests/unit/parser/collection/test_collection_structure.py
-- [ ] T022 [P] [US8] Test: Discover plugins/modules/ directory and list modules in tests/unit/parser/collection/test_collection_structure.py
-- [ ] T023 [P] [US8] Test: Handle missing roles/ directory gracefully in tests/unit/parser/collection/test_collection_structure.py
-- [ ] T024 [P] [US8] Test: Handle missing plugins/ directory gracefully in tests/unit/parser/collection/test_collection_structure.py
-- [ ] T025 [P] [US8] Test: Discover multiple plugin types (modules, filters, lookups) in tests/unit/parser/collection/test_collection_structure.py
+- [X] T021 [P] [US8] Test: Discover roles/ directory and list role names in tests/unit/parser/collection/test_collection_structure.py
+- [X] T022 [P] [US8] Test: Discover plugins/modules/ directory and list modules in tests/unit/parser/collection/test_collection_structure.py
+- [X] T023 [P] [US8] Test: Handle missing roles/ directory gracefully in tests/unit/parser/collection/test_collection_structure.py
+- [X] T024 [P] [US8] Test: Handle missing plugins/ directory gracefully in tests/unit/parser/collection/test_collection_structure.py
+- [X] T025 [P] [US8] Test: Discover multiple plugin types (modules, filters, lookups) in tests/unit/parser/collection/test_collection_structure.py
 
 #### T026-T035: Collection Model Tests
 
-- [ ] T026 [P] [US8] Test: AnsibleCollection model with metadata + roles + plugins in tests/unit/models/collection/test_collection.py
-- [ ] T027 [P] [US8] Test: AnsibleCollection.fqcn delegates to metadata.fqcn in tests/unit/models/collection/test_collection.py
-- [ ] T028 [P] [US8] Test: AnsibleCollection lists role names in tests/unit/models/collection/test_collection.py
-- [ ] T029 [P] [US8] Test: AnsibleCollection lists plugin names by type in tests/unit/models/collection/test_collection.py
-- [ ] T030 [P] [US8] Test: AnsibleCollection validates dependencies (no circular self-reference) in tests/unit/models/collection/test_collection.py
+- [X] T026 [P] [US8] Test: AnsibleCollection model with metadata + roles + plugins in tests/unit/models/collection/test_collection.py
+- [X] T027 [P] [US8] Test: AnsibleCollection.fqcn delegates to metadata.fqcn in tests/unit/models/collection/test_collection.py
+- [X] T028 [P] [US8] Test: AnsibleCollection lists role names in tests/unit/models/collection/test_collection.py
+- [X] T029 [P] [US8] Test: AnsibleCollection lists plugin names by type in tests/unit/models/collection/test_collection.py
+- [X] T030 [P] [US8] Test: AnsibleCollection validates dependencies (no circular self-reference) in tests/unit/models/collection/test_collection.py
 
 #### T031-T035: Property-Based Tests (Hypothesis)
 
-- [ ] T031 [P] [US8] Property test: GalaxyMetadata with random valid namespaces/names in tests/property/test_galaxy_metadata_properties.py
-- [ ] T032 [P] [US8] Property test: GalaxyMetadata rejects invalid versions in tests/property/test_galaxy_metadata_properties.py
-- [ ] T033 [P] [US8] Property test: Random collection structures (0-10 roles, 0-20 plugins) in tests/property/test_collection_structure_properties.py
+- [X] T031 [P] [US8] Property test: GalaxyMetadata with random valid namespaces/names in tests/property/test_galaxy_metadata_properties.py
+- [X] T032 [P] [US8] Property test: GalaxyMetadata rejects invalid versions in tests/property/test_galaxy_metadata_properties.py
+- [X] T033 [P] [US8] Property test: Random collection structures (0-10 roles, 0-20 plugins) in tests/property/test_collection_structure_properties.py
 
 ### Implementation for User Story 8 (TDD GREEN Phase)
 
 #### T034-T040: GalaxyMetadata Model Implementation
 
-- [ ] T034 [P] [US8] Implement GalaxyMetadata Pydantic model (schema 1.0.0, required fields only: namespace, name, version, authors, dependencies) in ansibledoctor/models/galaxy.py
-- [ ] T035 [US8] Add field validators for namespace (pattern r"^[a-z0-9_]+$") in ansibledoctor/models/galaxy.py
-- [ ] T036 [US8] Add field validator for version (packaging.version.Version) in ansibledoctor/models/galaxy.py
-- [ ] T037 [US8] Add fqcn property (returns f"{namespace}.{name}") in ansibledoctor/models/galaxy.py
-- [ ] T038 [US8] Make GalaxyMetadata immutable (frozen=True in Config) in ansibledoctor/models/galaxy.py
-- [ ] T039 [US8] Add docstrings with examples to GalaxyMetadata in ansibledoctor/models/galaxy.py
-- [ ] T040 [US8] Add __str__ and __repr__ methods in ansibledoctor/models/galaxy.py
+- [X] T034 [P] [US8] Implement GalaxyMetadata Pydantic model (schema 1.0.0, required fields only: namespace, name, version, authors, dependencies) in ansibledoctor/models/galaxy.py
+- [X] T035 [US8] Add field validators for namespace (pattern r"^[a-z0-9_]+$") in ansibledoctor/models/galaxy.py
+- [X] T036 [US8] Add field validator for version (packaging.version.Version) in ansibledoctor/models/galaxy.py
+- [X] T037 [US8] Add fqcn property (returns f"{namespace}.{name}") in ansibledoctor/models/galaxy.py
+- [X] T038 [US8] Make GalaxyMetadata immutable (frozen=True in Config) in ansibledoctor/models/galaxy.py
+- [X] T039 [US8] Add docstrings with examples to GalaxyMetadata in ansibledoctor/models/galaxy.py
+- [X] T040 [US8] Add __str__ and __repr__ methods in ansibledoctor/models/galaxy.py
 
 #### T041-T048: GalaxyMetadataParser Implementation
 
-- [ ] T041 [P] [US8] Implement GalaxyMetadataParser class in ansibledoctor/parser/galaxy_parser.py
-- [ ] T042 [US8] Implement parse_galaxy_file() method (read galaxy.yml, validate) in ansibledoctor/parser/galaxy_parser.py
-- [ ] T043 [US8] Add error handling for FileNotFoundError with actionable message in ansibledoctor/parser/galaxy_parser.py
-- [ ] T044 [US8] Add error handling for YAML parsing errors in ansibledoctor/parser/galaxy_parser.py
-- [ ] T045 [US8] Add validation for required fields (namespace, name, version) in ansibledoctor/parser/galaxy_parser.py
-- [ ] T046 [US8] Extract dependencies dict and validate format in ansibledoctor/parser/galaxy_parser.py
-- [ ] T047 [US8] Add structured logging (logger.info for successful parse) in ansibledoctor/parser/galaxy_parser.py
-- [ ] T048 [US8] Add docstrings and type hints to all methods in ansibledoctor/parser/galaxy_parser.py
+- [X] T041 [P] [US8] Implement GalaxyMetadataParser class in ansibledoctor/parser/galaxy_parser.py
+- [X] T042 [US8] Implement parse_galaxy_file() method (read galaxy.yml, validate) in ansibledoctor/parser/galaxy_parser.py
+- [X] T043 [US8] Add error handling for FileNotFoundError with actionable message in ansibledoctor/parser/galaxy_parser.py
+- [X] T044 [US8] Add error handling for YAML parsing errors in ansibledoctor/parser/galaxy_parser.py
+- [X] T045 [US8] Add validation for required fields (namespace, name, version) in ansibledoctor/parser/galaxy_parser.py
+- [X] T046 [US8] Extract dependencies dict and validate format in ansibledoctor/parser/galaxy_parser.py
+- [X] T047 [US8] Add structured logging (logger.info for successful parse) in ansibledoctor/parser/galaxy_parser.py
+- [X] T048 [US8] Add docstrings and type hints to all methods in ansibledoctor/parser/galaxy_parser.py
 
 #### T049-T056: Collection Structure Discovery Implementation
 
-- [ ] T049 [P] [US8] Implement CollectionStructureWalker in ansibledoctor/parser/collection_walker.py
-- [ ] T050 [US8] Implement discover_roles() method (find roles/ subdirs) in ansibledoctor/parser/collection_walker.py
-- [ ] T051 [US8] Implement discover_plugins() method (find plugins/*/*) in ansibledoctor/parser/collection_walker.py
-- [ ] T052 [US8] Add plugin type detection (modules, filters, lookups); no file exclusions - parse all Python files, validation filters invalid plugins in ansibledoctor/parser/collection_walker.py
-- [ ] T053 [US8] Handle missing directories gracefully (return empty list, log warning) in ansibledoctor/parser/collection_walker.py
-- [ ] T054 [US8] Add caching for discovered structures (performance) in ansibledoctor/parser/collection_walker.py
-- [ ] T055 [US8] Add structured logging for discovery operations in ansibledoctor/parser/collection_walker.py
-- [ ] T056 [US8] Add docstrings and type hints in ansibledoctor/parser/collection_walker.py
+- [X] T049 [P] [US8] Implement CollectionStructureWalker in ansibledoctor/parser/collection_walker.py
+- [X] T050 [US8] Implement discover_roles() method (find roles/ subdirs) in ansibledoctor/parser/collection_walker.py
+- [X] T051 [US8] Implement discover_plugins() method (find plugins/*/*) in ansibledoctor/parser/collection_walker.py
+- [X] T052 [US8] Add plugin type detection (modules, filters, lookups); no file exclusions - parse all Python files, validation filters invalid plugins in ansibledoctor/parser/collection_walker.py
+- [X] T053 [US8] Handle missing directories gracefully (return empty list, log warning) in ansibledoctor/parser/collection_walker.py
+- [X] T054 [US8] Add caching for discovered structures (performance) in ansibledoctor/parser/collection_walker.py
+- [X] T055 [US8] Add structured logging for discovery operations in ansibledoctor/parser/collection_walker.py
+- [X] T056 [US8] Add docstrings and type hints in ansibledoctor/parser/collection_walker.py
 
 #### T057-T065: AnsibleCollection Model Implementation
 
-- [ ] T057 [P] [US8] Implement AnsibleCollection Pydantic model in ansibledoctor/models/collection.py
-- [ ] T058 [US8] Add metadata: GalaxyMetadata field in ansibledoctor/models/collection.py
-- [ ] T059 [US8] Add roles: List[str] field (role names) in ansibledoctor/models/collection.py
-- [ ] T060 [US8] Add plugins: Dict[PluginType, List[str]] field in ansibledoctor/models/collection.py
-- [ ] T061 [US8] Add fqcn property (delegates to metadata.fqcn) in ansibledoctor/models/collection.py
-- [ ] T062 [US8] Add validator to prevent self-dependencies in ansibledoctor/models/collection.py
-- [ ] T063 [US8] Add helper methods: list_roles(), list_plugins_by_type() in ansibledoctor/models/collection.py
-- [ ] T064 [US8] Add docstrings with examples in ansibledoctor/models/collection.py
-- [ ] T065 [US8] Add __str__ and __repr__ methods in ansibledoctor/models/collection.py
+- [X] T057 [P] [US8] Implement AnsibleCollection Pydantic model in ansibledoctor/models/collection.py
+- [X] T058 [US8] Add metadata: GalaxyMetadata field in ansibledoctor/models/collection.py
+- [X] T059 [US8] Add roles: List[str] field (role names) in ansibledoctor/models/collection.py
+- [X] T060 [US8] Add plugins: Dict[PluginType, List[str]] field in ansibledoctor/models/collection.py
+- [X] T061 [US8] Add fqcn property (delegates to metadata.fqcn) in ansibledoctor/models/collection.py
+- [X] T062 [US8] Add validator to prevent self-dependencies in ansibledoctor/models/collection.py
+- [X] T063 [US8] Add helper methods: list_roles(), list_plugins_by_type() in ansibledoctor/models/collection.py
+- [X] T064 [US8] Add docstrings with examples in ansibledoctor/models/collection.py
+- [X] T065 [US8] Add __str__ and __repr__ methods in ansibledoctor/models/collection.py
 
 #### T066-T072: CollectionParser (Main Entry Point)
 
-- [ ] T066 [US8] Implement CollectionParser class in ansibledoctor/parser/collection_parser.py
-- [ ] T067 [US8] Implement parse() method (orchestrate galaxy + structure parsing) in ansibledoctor/parser/collection_parser.py
-- [ ] T068 [US8] Add path validation (check collection_path exists) in ansibledoctor/parser/collection_parser.py
-- [ ] T069 [US8] Integrate GalaxyMetadataParser in ansibledoctor/parser/collection_parser.py
-- [ ] T070 [US8] Integrate CollectionStructureWalker in ansibledoctor/parser/collection_parser.py
-- [ ] T071 [US8] Build and return AnsibleCollection model in ansibledoctor/parser/collection_parser.py
-- [ ] T072 [US8] Add structured logging and error handling in ansibledoctor/parser/collection_parser.py
+- [X] T066 [US8] Implement CollectionParser class in ansibledoctor/parser/collection_parser.py
+- [X] T067 [US8] Implement parse() method (orchestrate galaxy + structure parsing) in ansibledoctor/parser/collection_parser.py
+- [X] T068 [US8] Add path validation (check collection_path exists) in ansibledoctor/parser/collection_parser.py
+- [X] T069 [US8] Integrate GalaxyMetadataParser in ansibledoctor/parser/collection_parser.py
+- [X] T070 [US8] Integrate CollectionStructureWalker in ansibledoctor/parser/collection_parser.py
+- [X] T071 [US8] Build and return AnsibleCollection model in ansibledoctor/parser/collection_parser.py
+- [X] T072 [US8] Add structured logging and error handling in ansibledoctor/parser/collection_parser.py
 
 #### T073-T078: CLI Parse Command (US8)
 
-- [ ] T073 [US8] Create collection subcommand group in ansibledoctor/cli/collection.py
-- [ ] T074 [US8] Implement `collection parse` command in ansibledoctor/cli/collection.py
-- [ ] T075 [US8] Add --output option (default stdout) in ansibledoctor/cli/collection.py
-- [ ] T076 [US8] Add --pretty option for JSON formatting in ansibledoctor/cli/collection.py
-- [ ] T077 [US8] Add --validate flag (parse only, no output) in ansibledoctor/cli/collection.py
-- [ ] T078 [US8] Add error handling and exit codes in ansibledoctor/cli/collection.py
+- [X] T073 [US8] Create collection subcommand group in ansibledoctor/cli/collection.py
+- [X] T074 [US8] Implement `collection parse` command in ansibledoctor/cli/collection.py
+- [X] T075 [US8] Add --output option (default stdout) in ansibledoctor/cli/collection.py
+- [X] T076 [US8] Add --pretty option for JSON formatting in ansibledoctor/cli/collection.py
+- [X] T077 [US8] Add --validate flag (parse only, no output) in ansibledoctor/cli/collection.py
+- [X] T078 [US8] Add error handling and exit codes in ansibledoctor/cli/collection.py
 
 ### Refactoring for User Story 8 (TDD REFACTOR Phase)
 
@@ -180,9 +180,9 @@
 
 ### Integration Tests for User Story 8
 
-- [ ] T083 [US8] Integration test: Parse real community.general metadata in tests/integration/test_real_collections.py
-- [ ] T084 [US8] Integration test: Parse mock collection with all fields in tests/integration/test_collection_parsing.py
-- [ ] T085 [US8] Integration test: CLI parse command end-to-end in tests/e2e/test_collection_cli.py
+- [X] T083 [US8] Integration test: Parse real community.general metadata in tests/integration/test_real_collections.py
+- [X] T084 [US8] Integration test: Parse mock collection with all fields in tests/integration/test_collection_parsing.py
+- [X] T085 [US8] Integration test: CLI parse command end-to-end in tests/e2e/test_collection_cli.py
 
 **Checkpoint**: User Story 8 complete - can parse collection metadata and structure independently
 

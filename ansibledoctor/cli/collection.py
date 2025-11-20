@@ -4,16 +4,25 @@ Provides commands for parsing, validating, and documenting Ansible collections.
 """
 
 import json
+import logging
 import sys
 from pathlib import Path
 
 import click
+import structlog
 
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError
 from ansibledoctor.parser.collection_parser import CollectionParser
 from ansibledoctor.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+# Suppress all logging output for CLI to keep stdout clean for JSON output
+# Structlog and standard logging both need to be silenced
+logging.getLogger().setLevel(logging.CRITICAL)
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(logging.CRITICAL),
+)
 
 
 @click.group()
@@ -72,12 +81,12 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
     try:
         # Parse the collection
         parser = CollectionParser()
-        logger.info(f"Parsing collection at {collection_path}")
+        logger.debug(f"Parsing collection at {collection_path}")
         ansible_collection = parser.parse(collection_path)
         
         # Validation-only mode: exit with success
         if validate:
-            click.echo(click.style("✓ Collection is valid", fg="green"))
+            click.echo("Collection is valid", err=True)
             logger.info(f"Collection {ansible_collection.metadata.fqcn} validated successfully")
             return
         
@@ -101,27 +110,24 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         
         # Write to file or stdout
         if output:
-            output.write_text(json_output)
-            click.echo(click.style(f"✓ Output written to {output}", fg="green"))
+            output.write_text(json_output, encoding='utf-8')
+            click.echo(f"Output written to {output}", err=True)
             logger.info(f"Collection data written to {output}")
         else:
             click.echo(json_output)
         
     except ParsingError as e:
         # User-facing parsing errors
-        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        click.echo(f"Error: {e}", err=True)
         logger.error(f"Parsing error: {e}")
         raise SystemExit(1)
     except AnsibleDoctorError as e:
         # Other ansible-doctor errors
-        click.echo(click.style(f"✗ Error: {e}", fg="red"), err=True)
+        click.echo(f"Error: {e}", err=True)
         logger.error(f"Error: {e}")
         raise SystemExit(1)
     except Exception as e:
         # Unexpected errors
-        click.echo(
-            click.style(f"✗ Unexpected error: {e}", fg="red"),
-            err=True,
-        )
+        click.echo(f"Unexpected error: {e}", err=True)
         logger.exception(f"Unexpected error during collection parsing: {e}")
         raise SystemExit(1)
