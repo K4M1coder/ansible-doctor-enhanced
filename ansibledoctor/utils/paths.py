@@ -207,3 +207,132 @@ def get_role_name(role_path: Path) -> str:
         Role name (directory name)
     """
     return role_path.name
+
+
+class CollectionPathResolver:
+    """
+    Path resolver for Ansible collection directory structures.
+    
+    Handles collection path resolution for:
+    - Local filesystem collections
+    - Galaxy-installed collections
+    - Git repository collections
+    
+    Following Constitution Article X (DDD): Infrastructure layer utility
+    for collection path operations.
+    """
+    
+    @staticmethod
+    def resolve_collection_path(collection_path: str | Path) -> Path:
+        """
+        Resolve collection path to absolute Path object.
+        
+        Args:
+            collection_path: Path to collection (string or Path)
+            
+        Returns:
+            Resolved absolute Path
+            
+        Raises:
+            ValidationError: If path doesn't exist
+            
+        Example:
+            >>> resolver = CollectionPathResolver()
+            >>> resolver.resolve_collection_path("./my_namespace.my_collection")
+            PosixPath('/absolute/path/to/my_namespace.my_collection')
+        """
+        path = Path(collection_path).resolve()
+        
+        if not path.exists():
+            raise ValidationError(
+                f"Collection path does not exist: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Check the path and ensure the collection directory exists",
+            )
+        
+        if not path.is_dir():
+            raise ValidationError(
+                f"Collection path is not a directory: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Provide a path to a collection directory, not a file",
+            )
+        
+        logger.debug("collection_path_resolved", original=str(collection_path), resolved=str(path))
+        return path
+    
+    @staticmethod
+    def get_galaxy_yml_path(collection_path: Path) -> Path:
+        """
+        Get path to galaxy.yml file in collection.
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to galaxy.yml
+            
+        Raises:
+            ValidationError: If galaxy.yml doesn't exist
+        """
+        galaxy_yml = collection_path / "galaxy.yml"
+        
+        if not galaxy_yml.exists():
+            raise ValidationError(
+                f"galaxy.yml not found in collection: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Ensure this is a valid Ansible collection with a galaxy.yml file",
+            )
+        
+        return galaxy_yml
+    
+    @staticmethod
+    def get_roles_directory(collection_path: Path) -> Path | None:
+        """
+        Get roles/ directory path if it exists.
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to roles/ directory, or None if not found
+        """
+        roles_dir = collection_path / "roles"
+        return roles_dir if roles_dir.exists() and roles_dir.is_dir() else None
+    
+    @staticmethod
+    def get_plugins_directory(collection_path: Path) -> Path | None:
+        """
+        Get plugins/ directory path if it exists.
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to plugins/ directory, or None if not found
+        """
+        plugins_dir = collection_path / "plugins"
+        return plugins_dir if plugins_dir.exists() and plugins_dir.is_dir() else None
+    
+    @staticmethod
+    def extract_fqcn_from_path(collection_path: Path) -> tuple[str, str] | None:
+        """
+        Extract FQCN (namespace.name) from collection directory name.
+        
+        Args:
+            collection_path: Collection directory path
+            
+        Returns:
+            Tuple of (namespace, name) if path follows convention, else None
+            
+        Example:
+            >>> CollectionPathResolver.extract_fqcn_from_path(Path("community.general"))
+            ('community', 'general')
+        """
+        dirname = collection_path.name
+        
+        if "." in dirname:
+            parts = dirname.split(".", 1)
+            if len(parts) == 2:
+                return (parts[0], parts[1])
+        
+        return None
