@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Feature 004: Collection Documentation (v0.5.0)** - Foundation, US8 complete, US9 in progress (77%)
-  - **User Story 9: Generate Collection Documentation (T086-T155 partial)**
+- **Feature 004: Collection Documentation (v0.5.0)** - Foundation, US8 complete, US9 in progress (86%)
+  - **User Story 9: Generate Collection Documentation (T086-T163 partial)**
     - `ansibledoctor/models/plugin.py`: Plugin model and PluginCatalog repository (98% coverage)
       - Plugin value object: frozen Pydantic model with name, type, path, short_description
       - PluginCatalog: Repository pattern for grouping/querying plugins by type
@@ -57,8 +57,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - RED phase (T106-T112): Tests written first, all fail with ModuleNotFoundError
       - GREEN phase (T146-T155): Implementation makes all tests pass
       - REFACTOR phase: Template improvements, error handling
-    - 6 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef), Generator Tests (6b5798a), Generator Implementation (bdd6c1b)
-    - Progress: 67/87 User Story 9 tasks complete (77%)
+    - `ansibledoctor/cli/collection.py`: collection generate CLI command
+      - Options: --output-dir, --format (markdown/html/rst), --template, --config
+      - Integration: CollectionParser → PluginDiscovery → CollectionDocumentationGenerator
+      - Progress output with checkmarks and plugin counts
+      - Error handling for parsing, generation, and I/O errors
+      - Manual testing: ✓ Markdown, HTML, RST outputs verified
+    - 8 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef), CHANGELOG (c0cacaf), Generator Tests (6b5798a), Generator Implementation (bdd6c1b), CLI (e7eea21)
+    - Progress: 75/87 User Story 9 tasks complete (86%)
   
 - **Feature 004: Collection Documentation (v0.5.0)** - Foundation and US8 complete
   - `ansibledoctor/models/galaxy.py`: GalaxyMetadata model (schema 1.0.0, required fields only)
