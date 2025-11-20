@@ -230,13 +230,13 @@
 
 #### T106-T115: CollectionDocumentationGenerator Tests
 
-- [ ] T106 [P] [US9] Test: Generator accepts AnsibleCollection model in tests/unit/generator/test_collection_generator.py
-- [ ] T107 [P] [US9] Test: Generator builds template context in tests/unit/generator/test_collection_generator.py
-- [ ] T108 [P] [US9] Test: Generator renders Markdown output in tests/unit/generator/test_collection_generator.py
-- [ ] T109 [P] [US9] Test: Generator supports HTML output format in tests/unit/generator/test_collection_generator.py
-- [ ] T110 [P] [US9] Test: Generator supports RST output format in tests/unit/generator/test_collection_generator.py
-- [ ] T111 [P] [US9] Test: Generator writes to output file in tests/unit/generator/test_collection_generator.py
-- [ ] T112 [P] [US9] Test: Generator uses custom template if provided in tests/unit/generator/test_collection_generator.py
+- [X] T106 [P] [US9] Test: Generator accepts AnsibleCollection model in tests/unit/generator/test_collection_generator.py
+- [X] T107 [P] [US9] Test: Generator builds template context in tests/unit/generator/test_collection_generator.py
+- [X] T108 [P] [US9] Test: Generator renders Markdown output in tests/unit/generator/test_collection_generator.py
+- [X] T109 [P] [US9] Test: Generator supports HTML output format in tests/unit/generator/test_collection_generator.py
+- [X] T110 [P] [US9] Test: Generator supports RST output format in tests/unit/generator/test_collection_generator.py
+- [X] T111 [P] [US9] Test: Generator writes to output file in tests/unit/generator/test_collection_generator.py
+- [X] T112 [P] [US9] Test: Generator uses custom template if provided in tests/unit/generator/test_collection_generator.py
 
 ### Implementation for User Story 9 (TDD GREEN Phase)
 
