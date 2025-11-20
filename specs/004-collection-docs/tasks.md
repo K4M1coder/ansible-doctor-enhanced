@@ -206,11 +206,11 @@
 
 #### T091-T100: Plugin Discovery Tests
 
-- [ ] T091 [P] [US9] Test: Discover Python modules in plugins/modules/ in tests/unit/parser/collection/test_plugin_discovery.py
-- [ ] T092 [P] [US9] Test: Extract plugin name from filename in tests/unit/parser/collection/test_plugin_discovery.py
-- [ ] T093 [P] [US9] Test: Detect plugin type from directory path in tests/unit/parser/collection/test_plugin_discovery.py
-- [ ] T094 [P] [US9] Test: Handle empty plugin directories in tests/unit/parser/collection/test_plugin_discovery.py
-- [ ] T095 [P] [US9] Test: Validate and filter invalid plugins (validation filtering instead of file exclusions) in tests/unit/parser/collection/test_plugin_discovery.py
+- [X] T091 [P] [US9] Test: Discover Python modules in plugins/modules/ in tests/unit/parser/collection/test_plugin_discovery.py
+- [X] T092 [P] [US9] Test: Extract plugin name from filename in tests/unit/parser/collection/test_plugin_discovery.py
+- [X] T093 [P] [US9] Test: Detect plugin type from directory path in tests/unit/parser/collection/test_plugin_discovery.py
+- [X] T094 [P] [US9] Test: Handle empty plugin directories in tests/unit/parser/collection/test_plugin_discovery.py
+- [X] T095 [P] [US9] Test: Validate and filter invalid plugins (validation filtering instead of file exclusions) in tests/unit/parser/collection/test_plugin_discovery.py
 
 #### T096-T105: CollectionRole Model Tests
 
@@ -253,14 +253,14 @@
 
 #### T121-T128: Plugin Discovery Implementation
 
-- [ ] T121 [P] [US9] Implement PluginDiscovery class in ansibledoctor/parser/plugin_discovery.py
-- [ ] T122 [US9] Implement discover_plugins() method (scan plugins/ tree) in ansibledoctor/parser/plugin_discovery.py
-- [ ] T123 [US9] Add plugin type detection from path in ansibledoctor/parser/plugin_discovery.py
-- [ ] T124 [US9] Parse all Python files; add validation to filter invalid plugins (no file exclusions per TC-002) in ansibledoctor/parser/plugin_discovery.py
-- [ ] T125 [US9] Extract plugin name from filename in ansibledoctor/parser/plugin_discovery.py
-- [ ] T126 [US9] Build Plugin models for discovered plugins in ansibledoctor/parser/plugin_discovery.py
-- [ ] T127 [US9] Add structured logging in ansibledoctor/parser/plugin_discovery.py
-- [ ] T128 [US9] Add docstrings and type hints in ansibledoctor/parser/plugin_discovery.py
+- [X] T121 [P] [US9] Implement PluginDiscovery class in ansibledoctor/parser/plugin_discovery.py
+- [X] T122 [US9] Implement discover_plugins() method (scan plugins/ tree) in ansibledoctor/parser/plugin_discovery.py
+- [X] T123 [US9] Add plugin type detection from path in ansibledoctor/parser/plugin_discovery.py
+- [X] T124 [US9] Parse all Python files; add validation to filter invalid plugins (no file exclusions per TC-002) in ansibledoctor/parser/plugin_discovery.py
+- [X] T125 [US9] Extract plugin name from filename in ansibledoctor/parser/plugin_discovery.py
+- [X] T126 [US9] Build Plugin models for discovered plugins in ansibledoctor/parser/plugin_discovery.py
+- [X] T127 [US9] Add structured logging in ansibledoctor/parser/plugin_discovery.py
+- [X] T128 [US9] Add docstrings and type hints in ansibledoctor/parser/plugin_discovery.py
 
 #### T129-T135: CollectionRole Implementation
 
