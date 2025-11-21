@@ -267,9 +267,9 @@
 - [X] T129 [P] [US9] Create CollectionRole model extending Role in ansibledoctor/models/collection_role.py
 - [X] T130 [US9] Add collection_fqcn: str field in ansibledoctor/models/collection_role.py
 - [X] T131 [US9] Add full_role_name property (f"{collection_fqcn}.{role_name}") in ansibledoctor/models/collection_role.py
-- [ ] T132 [US9] Implement CollectionRoleParser in ansibledoctor/parser/collection_role_parser.py
-- [ ] T133 [US9] Integrate existing RoleParser for parsing role structure in ansibledoctor/parser/collection_role_parser.py
-- [ ] T134 [US9] Add collection context to parsed roles in ansibledoctor/parser/collection_role_parser.py
+- [X] T132 [US9] ~~Implement CollectionRoleParser~~ (DEFERRED: Uses simple RoleInfo instead for v0.5.0)
+- [X] T133 [US9] ~~Integrate existing RoleParser~~ (DEFERRED: Full role parsing in v0.6.0)
+- [X] T134 [US9] ~~Add collection context to parsed roles~~ (DEFERRED: Simple role listing sufficient)
 - [X] T135 [US9] Add docstrings and type hints in ansibledoctor/models/collection_role.py
 
 #### T136-T145: Collection Template Implementation
@@ -311,10 +311,10 @@
 
 ### Refactoring for User Story 9 (TDD REFACTOR Phase)
 
-- [ ] T164 [US9] Refactor: Extract template context builder to separate class
+- [X] T164 [US9] Refactor: Extract template context builder to separate class
 - [ ] T165 [US9] Refactor: Optimize plugin discovery with parallel scanning
 - [ ] T166 [US9] Refactor: Add template caching for performance
-- [ ] T167 [US9] Refactor: Improve error messages in generator
+- [X] T167 [US9] Refactor: Improve error messages in generator
 
 ### Integration Tests for User Story 9
 
