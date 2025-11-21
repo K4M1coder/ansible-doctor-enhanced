@@ -207,3 +207,166 @@ def get_role_name(role_path: Path) -> str:
         Role name (directory name)
     """
     return role_path.name
+
+
+class CollectionPathResolver:
+    """
+    Path resolver for Ansible collection directory structures.
+    
+    Handles collection path resolution for:
+    - Local filesystem collections
+    - Galaxy-installed collections
+    - Git repository collections
+    
+    Performance optimization (T082): Caches resolved paths to avoid
+    repeated filesystem operations for the same collection.
+    
+    Following Constitution Article X (DDD): Infrastructure layer utility
+    for collection path operations.
+    """
+    
+    def __init__(self) -> None:
+        """Initialize resolver with empty cache for performance optimization."""
+        self._path_cache: dict[str, Path] = {}
+        self._roles_cache: dict[str, Path | None] = {}
+        self._plugins_cache: dict[str, Path | None] = {}
+    
+    def resolve_collection_path(self, collection_path: str | Path) -> Path:
+        """
+        Resolve collection path to absolute Path object.
+        
+        Caches resolved paths for performance (T082).
+        
+        Args:
+            collection_path: Path to collection (string or Path)
+            
+        Returns:
+            Resolved absolute Path
+            
+        Raises:
+            ValidationError: If path doesn't exist
+            
+        Example:
+            >>> resolver = CollectionPathResolver()
+            >>> resolver.resolve_collection_path("./my_namespace.my_collection")
+            PosixPath('/absolute/path/to/my_namespace.my_collection')
+        """
+        cache_key = str(collection_path)
+        
+        # Return cached result if available
+        if cache_key in self._path_cache:
+            logger.debug("collection_path_cache_hit", path=cache_key)
+            return self._path_cache[cache_key]
+        
+        path = Path(collection_path).resolve()
+        
+        if not path.exists():
+            raise ValidationError(
+                f"Collection path does not exist: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Check the path and ensure the collection directory exists",
+            )
+        
+        if not path.is_dir():
+            raise ValidationError(
+                f"Collection path is not a directory: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Provide a path to a collection directory, not a file",
+            )
+        
+        # Cache the resolved path
+        self._path_cache[cache_key] = path
+        logger.debug("collection_path_resolved", original=str(collection_path), resolved=str(path))
+        return path
+    
+    def get_galaxy_yml_path(self, collection_path: Path) -> Path:
+        """
+        Get path to galaxy.yml file in collection.
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to galaxy.yml
+            
+        Raises:
+            ValidationError: If galaxy.yml doesn't exist
+        """
+        galaxy_yml = collection_path / "galaxy.yml"
+        
+        if not galaxy_yml.exists():
+            raise ValidationError(
+                f"galaxy.yml not found in collection: {collection_path}",
+                context={"collection_path": str(collection_path)},
+                suggestion="Ensure this is a valid Ansible collection with a galaxy.yml file",
+            )
+        
+        return galaxy_yml
+    
+    def get_roles_directory(self, collection_path: Path) -> Path | None:
+        """
+        Get roles/ directory path if it exists.
+        
+        Caches results for performance (T082).
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to roles/ directory, or None if not found
+        """
+        cache_key = str(collection_path)
+        
+        if cache_key in self._roles_cache:
+            return self._roles_cache[cache_key]
+        
+        roles_dir = collection_path / "roles"
+        result = roles_dir if roles_dir.exists() and roles_dir.is_dir() else None
+        self._roles_cache[cache_key] = result
+        return result
+    
+    def get_plugins_directory(self, collection_path: Path) -> Path | None:
+        """
+        Get plugins/ directory path if it exists.
+        
+        Caches results for performance (T082).
+        
+        Args:
+            collection_path: Collection root directory
+            
+        Returns:
+            Path to plugins/ directory, or None if not found
+        """
+        cache_key = str(collection_path)
+        
+        if cache_key in self._plugins_cache:
+            return self._plugins_cache[cache_key]
+        
+        plugins_dir = collection_path / "plugins"
+        result = plugins_dir if plugins_dir.exists() and plugins_dir.is_dir() else None
+        self._plugins_cache[cache_key] = result
+        return result
+    
+    @staticmethod
+    def extract_fqcn_from_path(collection_path: Path) -> tuple[str, str] | None:
+        """
+        Extract FQCN (namespace.name) from collection directory name.
+        
+        Args:
+            collection_path: Collection directory path
+            
+        Returns:
+            Tuple of (namespace, name) if path follows convention, else None
+            
+        Example:
+            >>> CollectionPathResolver.extract_fqcn_from_path(Path("community.general"))
+            ('community', 'general')
+        """
+        dirname = collection_path.name
+        
+        if "." in dirname:
+            parts = dirname.split(".", 1)
+            if len(parts) == 2:
+                return (parts[0], parts[1])
+        
+        return None

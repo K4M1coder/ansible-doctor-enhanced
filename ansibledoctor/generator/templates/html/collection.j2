@@ -1,0 +1,120 @@
+{% set collection_fqcn = fqcn if fqcn is defined else metadata.namespace ~ '.' ~ metadata.name %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metadata.namespace }}.{{ metadata.name }} - Ansible Collection Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        h2 { color: #34495e; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.3rem; margin-top: 2rem; margin-bottom: 1rem; }
+        h3 { color: #7f8c8d; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .meta { background: #ecf0f1; padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+        .meta p { margin: 0.25rem 0; }
+        code { background: #f8f9fa; padding: 0.2rem 0.4rem; border-radius: 3px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+        pre { background: #282c34; color: #abb2bf; padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 1rem 0; }
+        pre code { background: none; padding: 0; color: inherit; }
+        ul, ol { margin-left: 2rem; margin-bottom: 1rem; }
+        li { margin: 0.25rem 0; }
+        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ecf0f1; text-align: center; color: #95a5a6; font-size: 0.9em; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ metadata.namespace }}.{{ metadata.name }}</h1>
+        
+        {% if description is defined and description %}
+        <p>{{ description }}</p>
+        {% endif %}
+        
+        <div class="meta">
+            <p><strong>Version:</strong> {{ metadata.version }}</p>
+            {% if generation_date is defined and generation_date %}<p><strong>Generated:</strong> {{ generation_date.strftime('%Y-%m-%d %H:%M') }}</p>{% endif %}
+        </div>
+
+        <h2 id="overview">Overview</h2>
+        <p><strong>Collection:</strong> {{ collection_fqcn }}</p>
+        <p><strong>Version:</strong> {{ metadata.version }}</p>
+        <p><strong>Namespace:</strong> {{ metadata.namespace }}</p>
+        <p><strong>Name:</strong> {{ metadata.name }}</p>
+        
+        {% if metadata.authors %}
+        <p><strong>Authors:</strong></p>
+        <ul>
+        {% for author in metadata.authors %}
+            <li>{{ author }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+
+        <h2 id="installation">Installation</h2>
+        <p>Install this collection using <code>ansible-galaxy</code>:</p>
+        <pre><code>ansible-galaxy collection install {{ collection_fqcn }}</code></pre>
+        
+        <p>Install specific version:</p>
+        <pre><code>ansible-galaxy collection install {{ collection_fqcn }}:{{ metadata.version }}</code></pre>
+        
+        <p>Upgrade to latest version:</p>
+        <pre><code>ansible-galaxy collection install {{ collection_fqcn }} --upgrade</code></pre>
+
+        {% if roles is defined and roles %}
+        <h2 id="roles">Roles</h2>
+        <ul>
+        {% for role in roles %}
+            <li><strong>{{ collection_fqcn }}.{{ role.name }}</strong>{% if role.description %}: {{ role.description }}{% endif %}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if plugins_by_type is defined and plugins_by_type %}
+        <h2 id="plugins">Plugins</h2>
+        {% for plugin_type, plugin_list in plugins_by_type.items() %}
+        <h3>{{ plugin_type.value | capitalize }}s</h3>
+        <ul>
+        {% for plugin in plugin_list %}
+            <li><strong>{{ plugin.name }}</strong>{% if plugin.short_description %}: {{ plugin.short_description }}{% endif %}</li>
+        {% endfor %}
+        </ul>
+        {% endfor %}
+        {% endif %}
+
+        {% if metadata.dependencies %}
+        <h2 id="dependencies">Dependencies</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Collection</th>
+                    <th>Version Constraint</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for dep_name, dep_version in metadata.dependencies.items() %}
+                <tr>
+                    <td><code>{{ dep_name }}</code></td>
+                    <td><code>{{ dep_version }}</code></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if examples is defined and examples %}
+        <h2 id="examples">Examples</h2>
+        {% for example in examples %}
+        <h3>{{ example.title }}</h3>
+        {% if example.description %}<p>{{ example.description }}</p>{% endif %}
+        <pre><code>{{ example.content }}</code></pre>
+        {% endfor %}
+        {% endif %}
+
+        <div class="footer">
+            <p>Generated by <strong>ansible-doctor-enhanced</strong>{% if generator_version is defined and generator_version %} {{ generator_version }}{% endif %}</p>
+        </div>
+    </div>
+</body>
+</html>

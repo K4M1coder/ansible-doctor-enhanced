@@ -1,0 +1,15 @@
+---
+namespace: community
+name: general
+version: 2.5.0
+authors:
+  - "Ansible Community"
+  - "Various Contributors"
+dependencies:
+  ansible.posix: ">=1.0.0"
+  community.crypto: ">=2.0.0"
+description: "A comprehensive collection of general-purpose Ansible modules and plugins"
+repository: "https://github.com/ansible-collections/community.general"
+documentation: "https://docs.ansible.com/ansible/latest/collections/community/general/"
+homepage: "https://github.com/ansible-collections/community.general"
+issues: "https://github.com/ansible-collections/community.general/issues"

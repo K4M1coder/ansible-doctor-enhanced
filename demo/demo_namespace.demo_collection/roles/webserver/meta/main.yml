@@ -1,0 +1,28 @@
+---
+# Role: webserver
+# Description: Nginx reverse proxy and SSL termination
+
+galaxy_info:
+  author: Demo Author
+  description: Nginx web server with reverse proxy for applications
+  company: Demo Namespace
+  
+  license: MIT
+  
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  
+  galaxy_tags:
+    - webserver
+    - nginx
+    - proxy
+    - ssl
+
+# Depends on application role
+dependencies:
+  - role: application

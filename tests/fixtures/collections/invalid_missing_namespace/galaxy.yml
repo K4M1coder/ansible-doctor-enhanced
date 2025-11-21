@@ -1,0 +1,7 @@
+---
+# Invalid galaxy.yml - missing required 'namespace' field
+name: test_collection
+version: 1.0.0
+authors:
+  - Test Author
+dependencies: {}

@@ -30,6 +30,9 @@ from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 from ansibledoctor.utils.logging import get_logger, setup_logging
 from ansibledoctor.utils.paths import RolePathValidator
 
+# Import collection command group
+from ansibledoctor.cli.collection import collection
+
 logger = get_logger(__name__)
 
 
@@ -1272,6 +1275,10 @@ def watch(role_path: str, format: str, output: str | None):
         click.echo("\n\nStopping watch mode...")
         monitor.stop()
         click.echo("Watch stopped.")
+
+
+# Register collection command group
+cli.add_command(collection)
 
 
 def main():
