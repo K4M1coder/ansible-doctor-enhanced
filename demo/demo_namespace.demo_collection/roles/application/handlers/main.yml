@@ -1,0 +1,9 @@
+---
+# Application Role - Handlers
+
+- name: Restart application
+  ansible.builtin.systemd:
+    name: "{{ app_name }}"
+    state: restarted
+  tags:
+    - application

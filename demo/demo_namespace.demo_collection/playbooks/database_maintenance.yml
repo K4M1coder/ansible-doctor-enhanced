@@ -1,0 +1,86 @@
+---
+# Database maintenance playbook
+#
+# Performs routine database maintenance tasks including backup,
+# vacuum, and health checks.
+#
+# Usage:
+#   ansible-playbook -i inventory database_maintenance.yml
+
+- name: Database maintenance tasks
+  hosts: database_servers
+  become: true
+  
+  vars:
+    db_database_name: "webapp_prod"
+    db_backup_dir: "/var/backups/postgresql"
+    db_backup_retention_days: 30
+    
+  tasks:
+    - name: Create backup directory
+      file:
+        path: "{{ db_backup_dir }}"
+        state: directory
+        owner: postgres
+        group: postgres
+        mode: '0700'
+    
+    - name: Perform database backup
+      demo_namespace.demo_collection.database_backup:
+        database: "{{ db_database_name }}"
+        destination: "{{ db_backup_dir }}"
+        format: "custom"
+        compress: true
+      register: backup_result
+      
+    - name: Display backup information
+      debug:
+        msg: |
+          Backup completed: {{ backup_result.backup_file }}
+          Size: {{ backup_result.size | format_bytes }}
+          Duration: {{ backup_result.duration | format_uptime }}
+    
+    - name: Find old backups
+      find:
+        paths: "{{ db_backup_dir }}"
+        patterns: "*.backup"
+        age: "{{ db_backup_retention_days }}d"
+      register: old_backups
+      
+    - name: Remove old backups
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ old_backups.files }}"
+      loop_control:
+        label: "{{ item.path | basename }}"
+      when: old_backups.files | length > 0
+      
+    - name: Display cleanup summary
+      debug:
+        msg: "Removed {{ old_backups.files | length }} old backup(s)"
+    
+    - name: Vacuum database
+      postgresql_query:
+        db: "{{ db_database_name }}"
+        query: "VACUUM ANALYZE;"
+      become_user: postgres
+      
+    - name: Check database statistics
+      postgresql_query:
+        db: "{{ db_database_name }}"
+        query: |
+          SELECT 
+            schemaname,
+            relname,
+            n_live_tup as live_tuples,
+            n_dead_tup as dead_tuples
+          FROM pg_stat_user_tables
+          ORDER BY n_dead_tup DESC
+          LIMIT 10;
+      become_user: postgres
+      register: db_stats
+      
+    - name: Display table statistics
+      debug:
+        msg: "{{ db_stats.query_result }}"

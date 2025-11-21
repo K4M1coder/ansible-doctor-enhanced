@@ -1,0 +1,28 @@
+---
+# Role: application
+# Description: Web application deployment and configuration
+
+galaxy_info:
+  author: Demo Author
+  description: Deploy and configure web applications with Python/Django
+  company: Demo Namespace
+  
+  license: MIT
+  
+  min_ansible_version: "2.9"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  
+  galaxy_tags:
+    - application
+    - web
+    - python
+    - django
+
+# Depends on database role
+dependencies:
+  - role: database

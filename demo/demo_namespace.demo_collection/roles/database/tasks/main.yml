@@ -1,0 +1,55 @@
+---
+# Database Role - Main Tasks
+# @meta description: Install and configure PostgreSQL database server
+
+# @task Install PostgreSQL
+# @task description: Install PostgreSQL packages
+- name: Install PostgreSQL packages
+  ansible.builtin.apt:
+    name:
+      - "postgresql-{{ postgresql_version }}"
+      - "postgresql-contrib-{{ postgresql_version }}"
+      - python3-psycopg2
+    state: present
+    update_cache: true
+  tags:
+    - database
+    - install
+
+# @task Configure PostgreSQL
+# @task description: Configure PostgreSQL server settings
+- name: Configure PostgreSQL
+  ansible.builtin.template:
+    src: postgresql.conf.j2
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    owner: postgres
+    group: postgres
+    mode: '0644'
+  notify: Restart PostgreSQL
+  tags:
+    - database
+    - configure
+
+# @task Ensure PostgreSQL is started
+- name: Ensure PostgreSQL is running
+  ansible.builtin.service:
+    name: "postgresql@{{ postgresql_version }}-main"
+    state: started
+    enabled: true
+  tags:
+    - database
+    - service
+
+# @task Setup backup directory
+# @task description: Create backup directory if backups are enabled
+- name: Setup backup directory
+  ansible.builtin.file:
+    path: "{{ postgresql_backup_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+  when: postgresql_backup_enabled
+  tags:
+    - database
+    - backup
