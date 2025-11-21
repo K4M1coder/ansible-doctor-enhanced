@@ -318,11 +318,11 @@
 
 ### Integration Tests for User Story 9
 
-- [ ] T168 [US9] Integration test: Generate docs for mock collection in tests/integration/test_collection_generation.py
-- [ ] T169 [US9] Integration test: Generate docs for community.general subset in tests/integration/test_real_collections.py
-- [ ] T170 [US9] Integration test: Generate HTML/RST formats in tests/integration/test_collection_generation.py
-- [ ] T171 [US9] Integration test: CLI generate command end-to-end in tests/e2e/test_collection_cli.py
-- [ ] T172 [US9] Integration test: Custom template usage in tests/integration/test_collection_generation.py
+- [X] T168 [US9] Integration test: Generate docs for mock collection in tests/integration/test_collection_generation.py
+- [X] T169 [US9] Integration test: Generate docs for community.general subset in tests/integration/test_real_collections.py
+- [X] T170 [US9] Integration test: Generate HTML/RST formats in tests/integration/test_collection_generation.py
+- [X] T171 [US9] Integration test: CLI generate command end-to-end in tests/e2e/test_collection_cli.py
+- [X] T172 [US9] Integration test: Custom template usage in tests/integration/test_collection_generation.py
 
 **Checkpoint**: User Story 9 complete - can generate collection documentation independently
 
@@ -338,39 +338,39 @@
 
 #### T173-T182: Dependency Graph Tests
 
-- [ ] T173 [P] [US10] Test: Build dependency graph from roles in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T174 [P] [US10] Test: Detect role dependencies from meta/main.yml in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T175 [P] [US10] Test: Detect circular dependencies (A→B→C→A) in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T176 [P] [US10] Test: Handle missing dependencies gracefully in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T177 [P] [US10] Test: Build dependency tree (topological sort) in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T178 [P] [US10] Test: Export graph to Mermaid diagram format in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T179 [P] [US10] Test: Export graph to ASCII tree format in tests/unit/parser/collection/test_dependency_graph.py
-- [ ] T180 [P] [US10] Test: Export graph to JSON format in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T173 [P] [US10] Test: Build dependency graph from roles in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T174 [P] [US10] Test: Detect role dependencies from meta/main.yml in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T175 [P] [US10] Test: Detect circular dependencies (A→B→C→A) in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T176 [P] [US10] Test: Handle missing dependencies gracefully in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T177 [P] [US10] Test: Build dependency tree (topological sort) in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T178 [P] [US10] Test: Export graph to Mermaid diagram format in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T179 [P] [US10] Test: Export graph to ASCII tree format in tests/unit/parser/collection/test_dependency_graph.py
+- [X] T180 [P] [US10] Test: Export graph to JSON format in tests/unit/parser/collection/test_dependency_graph.py
 
 ### Implementation for User Story 10 (TDD GREEN Phase)
 
 #### T181-T190: DependencyGraph Implementation
 
-- [ ] T181 [P] [US10] Implement DependencyGraph class in ansibledoctor/parser/dependency_graph.py
-- [ ] T182 [US10] Implement build_graph() method (parse role dependencies) in ansibledoctor/parser/dependency_graph.py
-- [ ] T183 [US10] Add detect_circular_dependencies() using DFS in ansibledoctor/parser/dependency_graph.py
-- [ ] T184 [US10] Add topological_sort() for dependency order in ansibledoctor/parser/dependency_graph.py
-- [ ] T185 [US10] Implement MermaidExporter in ansibledoctor/parser/dependency_graph.py
-- [ ] T186 [US10] Implement ASCIITreeExporter in ansibledoctor/parser/dependency_graph.py
-- [ ] T187 [US10] Implement JSONExporter in ansibledoctor/parser/dependency_graph.py
-- [ ] T188 [US10] Add structured logging for dependency analysis in ansibledoctor/parser/dependency_graph.py
-- [ ] T189 [US10] Add error handling for invalid dependencies in ansibledoctor/parser/dependency_graph.py
-- [ ] T190 [US10] Add docstrings and type hints in ansibledoctor/parser/dependency_graph.py
+- [X] T181 [P] [US10] Implement DependencyGraph class in ansibledoctor/parser/dependency_graph.py
+- [X] T182 [US10] Implement build_graph() method (parse role dependencies) in ansibledoctor/parser/dependency_graph.py
+- [X] T183 [US10] Add detect_circular_dependencies() using DFS in ansibledoctor/parser/dependency_graph.py
+- [X] T184 [US10] Add topological_sort() for dependency order in ansibledoctor/parser/dependency_graph.py
+- [X] T185 [US10] Implement MermaidExporter in ansibledoctor/parser/dependency_graph.py
+- [X] T186 [US10] Implement ASCIITreeExporter in ansibledoctor/parser/dependency_graph.py
+- [X] T187 [US10] Implement JSONExporter in ansibledoctor/parser/dependency_graph.py
+- [X] T188 [US10] Add structured logging for dependency analysis in ansibledoctor/parser/dependency_graph.py
+- [X] T189 [US10] Add error handling for invalid dependencies in ansibledoctor/parser/dependency_graph.py
+- [X] T190 [US10] Add docstrings and type hints in ansibledoctor/parser/dependency_graph.py
 
 #### T191-T197: CLI Analyze Command (US10)
 
-- [ ] T191 [US10] Implement `collection analyze` command in ansibledoctor/cli/collection.py
-- [ ] T192 [US10] Add --show-dependencies flag in ansibledoctor/cli/collection.py
-- [ ] T193 [US10] Add --check-circular flag (exit code 1 if circular) in ansibledoctor/cli/collection.py
-- [ ] T194 [US10] Add --output-format option (text|json|mermaid) in ansibledoctor/cli/collection.py
-- [ ] T195 [US10] Integrate DependencyGraph parser in ansibledoctor/cli/collection.py
-- [ ] T196 [US10] Display graph in requested format in ansibledoctor/cli/collection.py
-- [ ] T197 [US10] Add colored output for warnings (circular deps) in ansibledoctor/cli/collection.py
+- [X] T191 [US10] Implement `collection analyze` command in ansibledoctor/cli/collection.py
+- [X] T192 [US10] Add --show-dependencies flag in ansibledoctor/cli/collection.py
+- [X] T193 [US10] Add --check-circular flag (exit code 1 if circular) in ansibledoctor/cli/collection.py
+- [X] T194 [US10] Add --output-format option (text|json|mermaid) in ansibledoctor/cli/collection.py
+- [X] T195 [US10] Integrate DependencyGraph parser in ansibledoctor/cli/collection.py
+- [X] T196 [US10] Display graph in requested format in ansibledoctor/cli/collection.py
+- [X] T197 [US10] Add colored output for warnings (circular deps) in ansibledoctor/cli/collection.py
 
 ### Refactoring for User Story 10 (TDD REFACTOR Phase)
 
@@ -380,10 +380,10 @@
 
 ### Integration Tests for User Story 10
 
-- [ ] T201 [US10] Integration test: Analyze mock collection with dependencies in tests/integration/test_dependency_analysis.py
-- [ ] T202 [US10] Integration test: Detect circular dependencies in tests/integration/test_dependency_analysis.py
-- [ ] T203 [US10] Integration test: Export to all formats in tests/integration/test_dependency_analysis.py
-- [ ] T204 [US10] Integration test: CLI analyze command end-to-end in tests/e2e/test_collection_cli.py
+- [X] T201 [US10] Integration test: Analyze mock collection with dependencies in tests/integration/test_dependency_analysis.py
+- [X] T202 [US10] Integration test: Detect circular dependencies in tests/integration/test_dependency_analysis.py
+- [X] T203 [US10] Integration test: Export to all formats in tests/integration/test_dependency_analysis.py
+- [X] T204 [US10] Integration test: CLI analyze command end-to-end in tests/e2e/test_collection_cli.py
 
 **Checkpoint**: User Story 10 complete - can analyze dependencies independently
 
@@ -404,22 +404,22 @@
 
 ### T211-T220: Demo Collection Creation
 
-- [ ] T211 Create demo collection structure: demo_namespace.demo_collection/
-- [ ] T212 [P] Create demo galaxy.yml with comprehensive metadata
-- [ ] T213 [P] Create 3 demo roles with dependencies
-- [ ] T214 [P] Create 5 demo modules in plugins/modules/
-- [ ] T215 [P] Create 3 demo filters in plugins/filters/
-- [ ] T216 [P] Create example playbooks in playbooks/
-- [ ] T217 Generate documentation for demo collection
-- [ ] T218 Validate generated docs (manual review)
+- [X] T211 Create demo collection structure: demo_namespace.demo_collection/
+- [X] T212 [P] Create demo galaxy.yml with comprehensive metadata
+- [X] T213 [P] Create 3 demo roles with dependencies
+- [X] T214 [P] Create 5 demo modules in plugins/modules/
+- [X] T215 [P] Create 3 demo filters in plugins/filters/
+- [X] T216 [P] Create example playbooks in playbooks/
+- [X] T217 Generate documentation for demo collection
+- [X] T218 Validate generated docs (manual review)
 - [ ] T219 Add demo to tests/fixtures/collections/
-- [ ] T220 Create DEMO-COLLECTION-RESULTS.md showcasing output
+- [X] T220 Create DEMO-COLLECTION-RESULTS.md showcasing output
 
 ### T221-T230: Documentation
 
-- [ ] T221 Create COLLECTION_GUIDE.md with usage examples
-- [ ] T222 Add collection examples to README.md
-- [ ] T223 Update CHANGELOG.md with v0.5.0 entries
+- [X] T221 Create COLLECTION_GUIDE.md with usage examples
+- [X] T222 Add collection examples to README.md
+- [X] T223 Update CHANGELOG.md with v0.5.0 entries
 - [ ] T224 Update CONFIG_GUIDE.md with collection config options
 - [ ] T225 Add CLI reference for collection commands to README.md
 - [ ] T226 Create migration guide from single roles to collections
