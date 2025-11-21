@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from ansibledoctor.generator.collection_generator import CollectionDocumentationGenerator
+from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.models.collection import AnsibleCollection
 from ansibledoctor.models.plugin import PluginType
 from ansibledoctor.parser.collection_parser import CollectionParser
@@ -219,3 +221,175 @@ dependencies: {}
         # Should complete in under 5 seconds
         assert elapsed_time < 5.0
         assert collection is not None
+
+
+class TestRealisticCollectionDocumentationGeneration:
+    """Test documentation generation for realistic collections (T169)."""
+    
+    def test_generate_docs_for_realistic_collection(self, realistic_collection_path, tmp_path):
+        """
+        Test generating documentation for realistic collection structure.
+        
+        Verifies:
+        - Documentation is generated successfully
+        - All roles are documented
+        - Dependencies section is included
+        - Output is well-formatted
+        """
+        # Parse the realistic collection
+        parser = CollectionParser()
+        collection = parser.parse(realistic_collection_path)
+        
+        # Generate documentation
+        generator = CollectionDocumentationGenerator(collection=collection)
+        output_file = tmp_path / "community.general.md"
+        
+        generator.generate(
+            output_path=output_file,
+            format=OutputFormat.MARKDOWN.value
+        )
+        
+        # Verify output exists
+        assert output_file.exists()
+        
+        # Verify content
+        content = output_file.read_text(encoding="utf-8")
+        
+        # Check collection identity
+        assert "# community.general" in content
+        assert "**Version:** 2.5.0" in content
+        
+        # Check all roles are listed
+        assert "## Roles" in content
+        assert "webserver" in content
+        assert "database" in content
+        assert "loadbalancer" in content
+        
+        # Check dependencies section
+        assert "## Dependencies" in content
+        assert "ansible.posix" in content
+        assert "community.crypto" in content
+        assert ">=1.0.0" in content
+        assert ">=2.0.0" in content
+        
+        # Check installation instructions
+        assert "## Installation" in content
+        assert "ansible-galaxy collection install community.general" in content
+    
+    def test_generate_html_for_realistic_collection(self, realistic_collection_path, tmp_path):
+        """
+        Test generating HTML documentation for realistic collection.
+        
+        Verifies:
+        - HTML output is generated
+        - Contains valid HTML structure
+        - Includes all key sections
+        """
+        parser = CollectionParser()
+        collection = parser.parse(realistic_collection_path)
+        
+        generator = CollectionDocumentationGenerator(collection=collection)
+        output_file = tmp_path / "community.general.html"
+        
+        generator.generate(
+            output_path=output_file,
+            format=OutputFormat.HTML.value
+        )
+        
+        assert output_file.exists()
+        content = output_file.read_text(encoding="utf-8")
+        
+        # Verify HTML structure
+        assert "<html>" in content or "<!DOCTYPE html>" in content
+        assert "</html>" in content
+        
+        # Check for headers
+        assert "<h1>" in content or "<h2>" in content
+        
+        # Verify collection name is present
+        assert "community.general" in content
+    
+    def test_generate_rst_for_realistic_collection(self, realistic_collection_path, tmp_path):
+        """
+        Test generating RST documentation for realistic collection.
+        
+        Verifies:
+        - RST output is generated
+        - Uses proper RST syntax
+        - Includes all sections
+        """
+        parser = CollectionParser()
+        collection = parser.parse(realistic_collection_path)
+        
+        generator = CollectionDocumentationGenerator(collection=collection)
+        output_file = tmp_path / "community.general.rst"
+        
+        generator.generate(
+            output_path=output_file,
+            format=OutputFormat.RST.value
+        )
+        
+        assert output_file.exists()
+        content = output_file.read_text(encoding="utf-8")
+        
+        # Verify RST structure (uses === and --- for headers)
+        assert "=" * 10 in content or "-" * 10 in content
+        
+        # Check content includes collection name
+        assert "community.general" in content
+        assert "2.5.0" in content
+    
+    def test_documentation_includes_all_metadata(self, realistic_collection_path, tmp_path):
+        """
+        Test that generated documentation includes all metadata fields.
+        
+        Verifies:
+        - Authors are listed
+        - Version is displayed
+        - Namespace and name are correct
+        - Dependencies are documented
+        """
+        parser = CollectionParser()
+        collection = parser.parse(realistic_collection_path)
+        
+        generator = CollectionDocumentationGenerator(collection=collection)
+        output_file = tmp_path / "README.md"
+        
+        output = generator.generate(
+            output_path=output_file,
+            format=OutputFormat.MARKDOWN.value
+        )
+        
+        # Verify all metadata is present
+        assert "Ansible Community" in output
+        assert "Various Contributors" in output
+        assert "2.5.0" in output
+        assert "community" in output
+        assert "general" in output
+        assert "ansible.posix" in output
+        assert "community.crypto" in output
+    
+    def test_documentation_generation_performance(self, realistic_collection_path, tmp_path):
+        """
+        Test documentation generation performance.
+        
+        Verifies generation completes in reasonable time (<3s for typical collection).
+        """
+        import time
+        
+        parser = CollectionParser()
+        collection = parser.parse(realistic_collection_path)
+        
+        generator = CollectionDocumentationGenerator(collection=collection)
+        output_file = tmp_path / "README.md"
+        
+        start_time = time.time()
+        generator.generate(
+            output_path=output_file,
+            format=OutputFormat.MARKDOWN.value
+        )
+        elapsed_time = time.time() - start_time
+        
+        # Should complete quickly
+        assert elapsed_time < 3.0
+        assert output_file.exists()
