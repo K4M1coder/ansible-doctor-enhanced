@@ -7,9 +7,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [0.5.0] - 2025-11-21
 
-- **Feature 004: Collection Documentation (v0.5.0)** - Foundation, US8 complete, US9 in progress (86%)
+### Added - Feature 004: Ansible Collection Documentation Support
+
+**User Story 8: Parse Collection Metadata (T001-T085)** ✅ Complete
+- **NEW**: `collection parse` command - Parse Ansible collection metadata and structure
+- **NEW**: `ansibledoctor/models/galaxy.py` - GalaxyMetadata Pydantic model with validation
+  - Required fields: namespace, name, version, authors, dependencies
+  - Field validators for namespace format (lowercase alphanumeric) and semantic versioning
+  - Immutable frozen model with fqcn property
+- **NEW**: `ansibledoctor/models/collection.py` - AnsibleCollection aggregate root
+  - Composition of metadata, roles, and plugins
+  - Helper methods: list_roles(), list_plugins_by_type()
+  - Self-dependency validation
+- **NEW**: `ansibledoctor/parser/galaxy_parser.py` - GalaxyMetadataParser
+  - Parses galaxy.yml with comprehensive error handling
+  - Validates required fields and formats
+  - Extracts collection dependencies with version constraints
+- **NEW**: `ansibledoctor/parser/collection_walker.py` - CollectionStructureWalker
+  - Discovers roles in roles/ directory
+  - Discovers plugins in plugins/*/ directories
+  - Plugin type detection (modules, filters, lookups, tests, inventory, callbacks)
+  - Graceful handling of missing directories with structured logging
+- **NEW**: `ansibledoctor/parser/collection_parser.py` - CollectionParser orchestrator
+  - Main entry point integrating galaxy parser and structure walker
+  - Path validation and error handling
+  - Returns complete AnsibleCollection model
+
+**User Story 9: Generate Collection Documentation (T086-T172)** ✅ Complete
+- **NEW**: `collection generate` command - Generate comprehensive collection documentation
+- **NEW**: `ansibledoctor/models/plugin.py` - Plugin value object and PluginCatalog
+  - Plugin model: name, type, path, short_description (frozen)
+  - PluginCatalog repository: group_by_type(), list_all_names(), count()
+- **NEW**: `ansibledoctor/models/collection_role.py` - CollectionRole extending AnsibleRole
+  - Adds collection_fqcn field for namespace.collection context
+  - full_role_name property returns "namespace.collection.role_name"
+- **NEW**: `ansibledoctor/parser/plugin_discovery.py` - PluginDiscovery service
+  - Recursive plugin discovery in plugins/ directory
+  - Plugin type detection from directory structure
+  - Validation filtering for invalid plugins
+- **NEW**: `ansibledoctor/generator/collection_generator.py` - CollectionDocumentationGenerator
+  - Template context builder from AnsibleCollection model
+  - Multiple format support (Markdown, HTML, RST)
+  - Custom template support
+  - Comprehensive error handling
+- **NEW**: `ansibledoctor/templates/markdown/collection.j2` - Markdown collection template
+  - Installation instructions with ansible-galaxy commands
+  - Role index (table or list format - configurable)
+  - Plugin listing grouped by type
+  - Dependencies table with version constraints
+  - Examples/playbooks section
+- **NEW**: `ansibledoctor/templates/html/collection.j2` - HTML collection template
+  - Complete HTML5 with embedded responsive CSS
+  - Matching role template design
+- **NEW**: `ansibledoctor/templates/rst/collection.j2` - RST collection template
+  - Sphinx-compatible reStructuredText
+  - Proper heading underlines and code blocks
+
+**User Story 10: Cross-Role Dependency Analysis (T173-T204)** ✅ Complete
+- **NEW**: `collection analyze` command - Visualize and validate role dependencies
+- **NEW**: `ansibledoctor/parser/dependency_graph.py` - DependencyGraph class
+  - build_graph() method: parse role dependencies from meta/main.yml
+  - detect_circular_dependencies() using depth-first search (DFS)
+  - topological_sort() for dependency execution order
+  - MermaidExporter: Export to Mermaid diagram format
+  - ASCIITreeExporter: Export to text-based tree (UTF-8 box-drawing characters)
+  - JSONExporter: Export to structured JSON format
+  - Comprehensive error handling for invalid dependencies
+- **NEW**: CLI flags for `collection analyze`:
+  - `--show-dependencies`: Display dependency graph
+  - `--check-circular`: Validate no circular dependencies (exit 1 if found)
+  - `--output-format`: Export format (text, json, mermaid)
+- **FIX**: Windows UTF-8 encoding for ASCII tree output (binary stream writing)
+
+### Changed
+
+- **BREAKING**: New dependency added: `pyyaml>=6.0.3` for meta/main.yml parsing
+- **ENHANCED**: CLI with new `collection` subcommand group (parse, generate, analyze)
+- **ENHANCED**: Exit codes: 0=success, 1=error (circular deps if --check-circular), 2=invalid args
+
+### Documentation
+
+- **NEW**: `docs/COLLECTION_GUIDE.md` - Comprehensive collection documentation guide (300+ lines)
+  - Overview, installation, quick start
+  - Detailed command reference (parse, generate, analyze)
+  - Advanced usage: CI/CD integration, pre-commit hooks, custom templates
+  - Configuration examples
+  - Troubleshooting guide
+  - Demo collection walkthrough
+- **NEW**: `demo/demo_namespace.demo_collection/` - Demo collection showcasing all features
+  - 3 roles with dependency chain: database → application → webserver
+  - 5 modules: database_backup, app_deploy, ssl_cert_info, nginx_config_test, health_check
+  - 3 filter plugins with 10 filters: formatting, text, validation
+  - 3 example playbooks: deploy_stack, database_maintenance, app_deployment
+  - Comprehensive annotations demonstrating documentation features
+- **UPDATED**: `README.md` - Added Ansible Collection Support section with examples
+- **UPDATED**: All CLI examples now use Poetry (`poetry run ansible-doctor-enhanced ...`)
+
+### Testing
+
+- **NEW**: 45 tests passing for collection documentation features
+  - 30 unit tests (models, parsers, generators)
+  - 9 integration tests (dependency analysis, export formats)
+  - 6 E2E tests (CLI commands)
+- **Coverage**: dependency_graph.py at 95%
+- **Property tests**: Random collection structures with Hypothesis
+
+### Dependencies
+
+- Added: `pyyaml==6.0.3` - YAML parsing for meta/main.yml
+- Added: `jinja2==3.1.0` - Template engine for documentation generation
+
+---
+
+## Previous Releases
+
+### Added - Feature 003: Watch Mode Documentation (v0.4.0)
   - **User Story 9: Generate Collection Documentation (T086-T163 partial)**
     - `ansibledoctor/models/plugin.py`: Plugin model and PluginCatalog repository (98% coverage)
       - Plugin value object: frozen Pydantic model with name, type, path, short_description
