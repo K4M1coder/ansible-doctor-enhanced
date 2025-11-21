@@ -259,3 +259,134 @@ def generate(
         click.echo(f"Unexpected error: {e}", err=True)
         logger.exception(f"Unexpected error during collection documentation generation: {e}")
         raise SystemExit(1)
+
+
+@collection.command()
+@click.argument("collection_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--show-dependencies",
+    "-d",
+    is_flag=True,
+    help="Display the role dependency graph.",
+)
+@click.option(
+    "--check-circular",
+    "-c",
+    is_flag=True,
+    help="Check for circular dependencies and exit with code 1 if found.",
+)
+@click.option(
+    "--output-format",
+    "-f",
+    type=click.Choice(["text", "json", "mermaid"], case_sensitive=False),
+    default="text",
+    help="Output format for dependency graph: text (ASCII tree), json, or mermaid. Default: text",
+)
+def analyze(
+    collection_path: Path,
+    show_dependencies: bool,
+    check_circular: bool,
+    output_format: str,
+) -> None:
+    """
+    Analyze an Ansible collection for role dependencies.
+    
+    Analyzes role dependencies within the collection, detects circular dependencies,
+    and visualizes the dependency graph in various formats.
+    
+    \b
+    Examples:
+        # Check for circular dependencies
+        ansible-doctor-enhanced collection analyze ./my_namespace.my_collection --check-circular
+        
+        # Show dependency graph as ASCII tree
+        ansible-doctor-enhanced collection analyze ./community.general --show-dependencies
+        
+        # Export dependency graph as Mermaid diagram
+        ansible-doctor-enhanced collection analyze ./ansible.posix -d -f mermaid
+        
+        # Export dependency graph as JSON
+        ansible-doctor-enhanced collection analyze ./my_collection --show-dependencies --output-format json
+    
+    Arguments:
+        COLLECTION_PATH: Path to the collection directory containing galaxy.yml
+    """
+    try:
+        from ansibledoctor.parser.dependency_graph import (
+            CircularDependencyError,
+            DependencyGraph,
+        )
+        
+        # Build dependency graph
+        click.echo(f"Analyzing collection at {collection_path}...", err=True)
+        graph = DependencyGraph.from_collection_path(collection_path)
+        
+        # Check for circular dependencies
+        has_circular = graph.has_circular_dependencies()
+        
+        if has_circular:
+            circular_deps = graph.find_circular_dependencies()
+            # Display warning with colored output
+            warning_msg = click.style("⚠ Warning: Circular dependencies detected!", fg="red", bold=True)
+            click.echo(warning_msg, err=True)
+            
+            for cycle in circular_deps:
+                cycle_str = " → ".join(cycle)
+                click.echo(click.style(f"  • {cycle_str}", fg="red"), err=True)
+            
+            # If check-circular flag is set, exit with error code
+            if check_circular:
+                click.echo("\nCircular dependency check failed.", err=True)
+                raise SystemExit(1)
+        else:
+            success_msg = click.style("✓ No circular dependencies found", fg="green")
+            click.echo(success_msg, err=True)
+        
+        # Display dependency graph if requested
+        if show_dependencies:
+            click.echo(f"\nDependency Graph ({output_format.upper()} format):", err=True)
+            click.echo("=" * 60, err=True)
+            
+            if output_format.lower() == "text":
+                # ASCII tree format - use UTF-8 encoding for box-drawing characters
+                output = graph.to_ascii_tree()
+                # Write to stdout with UTF-8 encoding to support box-drawing characters
+                sys.stdout.buffer.write(output.encode('utf-8'))
+                sys.stdout.buffer.write(b'\n')
+                sys.stdout.flush()
+            elif output_format.lower() == "json":
+                # JSON format
+                import json
+                output = graph.to_json()
+                click.echo(json.dumps(output, indent=2))
+            elif output_format.lower() == "mermaid":
+                # Mermaid diagram format
+                output = graph.to_mermaid()
+                click.echo(output)
+        
+        # If circular dependencies exist but we're not in check mode, exit normally
+        if has_circular and not check_circular:
+            click.echo("\n⚠ Collection has circular dependencies but continuing (use --check-circular to fail).", err=True)
+        
+        logger.info(f"Completed dependency analysis for collection at {collection_path}")
+        
+    except CircularDependencyError as e:
+        # Circular dependency error (shouldn't normally reach here due to explicit checks)
+        click.echo(f"Error: {e}", err=True)
+        logger.error(f"Circular dependency error: {e}")
+        raise SystemExit(1)
+    except ParsingError as e:
+        # User-facing parsing errors
+        click.echo(f"Error: {e}", err=True)
+        logger.error(f"Parsing error: {e}")
+        raise SystemExit(1)
+    except AnsibleDoctorError as e:
+        # Other ansible-doctor errors
+        click.echo(f"Error: {e}", err=True)
+        logger.error(f"Error: {e}")
+        raise SystemExit(1)
+    except Exception as e:
+        # Unexpected errors
+        click.echo(f"Unexpected error: {e}", err=True)
+        logger.exception(f"Unexpected error during collection analysis: {e}")
+        raise SystemExit(1)
