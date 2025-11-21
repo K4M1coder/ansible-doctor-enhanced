@@ -71,7 +71,7 @@ Roles
 
 {% for role in roles %}
 {{ collection_fqcn }}.{{ role.name }}
-{{ '-' * (collection_fqcn ~ '.' ~ role.name | length) }}
+{{ '-' * ((collection_fqcn ~ '.' ~ role.name) | length) }}
 
 {% if role.description %}{{ role.description }}{% endif %}
 
@@ -86,7 +86,7 @@ Plugins
 
 {% for plugin_type, plugin_list in plugins_by_type.items() %}
 {{ plugin_type.value | capitalize }}s
-{{ '-' * (plugin_type.value ~ 's' | length) }}
+{{ '-' * ((plugin_type.value ~ 's') | length) }}
 
 {% for plugin in plugin_list %}
 - **{{ plugin.name }}**{% if plugin.short_description %}: {{ plugin.short_description }}{% endif %}
