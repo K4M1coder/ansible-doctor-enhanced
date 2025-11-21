@@ -27,6 +27,7 @@ from ansibledoctor.models.collection import AnsibleCollection
 from ansibledoctor.parser.base_validator import BaseValidator
 from ansibledoctor.parser.collection_walker import CollectionStructureWalker
 from ansibledoctor.parser.galaxy_parser import GalaxyMetadataParser
+from ansibledoctor.parser.plugin_discovery import PluginDiscovery
 from ansibledoctor.utils.paths import CollectionPathResolver
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ class CollectionParser:
         self._galaxy_parser = GalaxyMetadataParser()
         self._structure_walker = CollectionStructureWalker()
         self._path_resolver = CollectionPathResolver()
+        self._plugin_discovery: PluginDiscovery | None = None
         logger.debug("CollectionParser initialized")
 
     def parse(self, collection_path: Union[str, Path]) -> AnsibleCollection:
@@ -105,20 +107,19 @@ class CollectionParser:
             else:
                 logger.debug("No roles directory found")
             
-            # Discover plugins
-            plugins_dir = self._path_resolver.get_plugins_directory(collection_path)
+            # Discover plugins using PluginDiscovery
+            self._plugin_discovery = PluginDiscovery(collection_path)
+            discovered_plugins = self._plugin_discovery.discover_plugins()
+            
+            # Group plugins by type for the collection model
             plugins = {}
-            if plugins_dir and plugins_dir.exists():
-                plugins_paths = self._structure_walker.discover_plugins(plugins_dir)
-                # Convert Path objects to strings (plugin filenames without extension)
-                plugins = {
-                    plugin_type: [path.stem for path in paths]
-                    for plugin_type, paths in plugins_paths.items()
-                }
-                total_plugins = sum(len(plugin_list) for plugin_list in plugins.values())
-                logger.debug(f"Discovered {total_plugins} plugins across {len(plugins)} types")
-            else:
-                logger.debug("No plugins directory found")
+            for plugin in discovered_plugins:
+                if plugin.type not in plugins:
+                    plugins[plugin.type] = []
+                plugins[plugin.type].append(plugin.name)
+            
+            total_plugins = len(discovered_plugins)
+            logger.debug(f"Discovered {total_plugins} plugins across {len(plugins)} types")
             
             # Build AnsibleCollection model
             collection = AnsibleCollection(

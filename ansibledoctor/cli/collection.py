@@ -207,16 +207,11 @@ def generate(
             err=True,
         )
         
-        # Discover plugins
-        plugins_path = collection_path / "plugins"
-        if plugins_path.exists():
-            click.echo("Discovering plugins...", err=True)
-            discovery = PluginDiscovery(plugins_path)
-            plugins = discovery.discover_plugins()
-            click.echo(f"✓ Discovered {len(plugins)} plugins", err=True)
-        else:
-            plugins = []
-            click.echo("⚠ No plugins directory found, skipping plugin discovery", err=True)
+        # Discover plugins using PluginDiscovery
+        click.echo("Discovering plugins...", err=True)
+        discovery = PluginDiscovery(collection_path)
+        plugins = discovery.discover_plugins()
+        click.echo(f"✓ Discovered {len(plugins)} plugins", err=True)
         
         # Generate documentation
         click.echo(f"Generating {format.upper()} documentation...", err=True)
