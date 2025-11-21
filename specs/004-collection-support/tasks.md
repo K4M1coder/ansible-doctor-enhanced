@@ -4,7 +4,7 @@
 **Target Version**: v0.5.0  
 **Created**: 2025-11-20
 
-**Input**: Design documents from `specs/004-collection-docs/`
+**Input**: Design documents from `specs/004-collection-support/`
 - ✅ spec.md (user stories US8-US10)
 - ✅ plan.md (implementation phases, architecture)
 

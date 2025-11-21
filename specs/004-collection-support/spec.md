@@ -1,6 +1,6 @@
 # Feature Specification: Collection Documentation
 
-**Feature Branch**: `004-collection-docs`  
+**Feature Branch**: `004-collection-support`  
 **Created**: 2025-11-17  
 **Milestone**: v0.5.0  
 **Prerequisites**: v0.4.0 (Role Parity) COMPLETE ✅  
@@ -34,7 +34,7 @@ my_namespace.my_collection/
 ├── plugins/
 │   ├── modules/              # Custom modules
 │   ├── inventory/            # Inventory plugins
-│   └── filter/               # Filter plugins
+│   └── filters/              # Filter plugins
 ├── playbooks/                # Example playbooks
 ├── tests/                    # Integration tests
 └── docs/                     # Additional documentation
@@ -46,7 +46,7 @@ my_namespace.my_collection/
 
 As a collection maintainer, I want to parse my collection's `galaxy.yml` so that I can generate documentation that includes collection name, namespace, version, dependencies, and author information.
 
-**Independent Test**: Run `ansible-doctor parse-collection my_namespace.my_collection/` → JSON output with collection metadata
+**Independent Test**: Run `ansible-doctor collection parse my_namespace.my_collection/` → JSON output with collection metadata
 
 **Acceptance Scenarios**:
 1. **Given** a collection with galaxy.yml, **When** parsing, **Then** extract required fields (namespace, name, version, authors, dependencies); optional fields (tags, license, repository) deferred to v0.6.0
@@ -59,12 +59,12 @@ As a collection maintainer, I want to parse my collection's `galaxy.yml` so that
 
 As a collection maintainer, I want to generate comprehensive collection documentation (see SC-003 for concrete definition) so that users understand the collection's purpose, roles, plugins, and usage.
 
-**Independent Test**: Run `ansible-doctor generate-collection my_namespace.my_collection/` → README.md with collection overview, role index, plugin list
+**Independent Test**: Run `ansible-doctor collection generate my_namespace.my_collection/` → README.md with collection overview, role index, plugin list
 
 **Acceptance Scenarios**:
 1. **Given** a parsed collection, **When** generating docs, **Then** create collection README with overview, installation, role index
 2. **Given** collection with plugins, **When** generating docs, **Then** list plugins by type (modules, filters, inventory)
-3. **Given** collection with example playbooks, **When** generating docs, **Then** include playbook examples with descriptions
+3. **Given** collection with example playbooks, **When** generating docs, **Then** include playbook examples with descriptions (Note: playbooks discovered and listed by filename with top-level comment description if present; full task parsing deferred to Feature 005 Project Documentation)
 
 ---
 
@@ -72,7 +72,7 @@ As a collection maintainer, I want to generate comprehensive collection document
 
 As a collection maintainer, I want to visualize role dependencies within my collection so that I can document the relationship between roles and identify circular dependencies.
 
-**Independent Test**: Run `ansible-doctor analyze-collection my_namespace.my_collection/ --show-dependencies` → Dependency graph showing role relationships
+**Independent Test**: Run `ansible-doctor collection analyze my_namespace.my_collection/ --show-dependencies` → Dependency graph showing role relationships
 
 **Acceptance Scenarios**:
 1. **Given** roles with dependencies in meta/main.yml, **When** analyzing, **Then** build dependency graph (role → dependent roles)
@@ -85,10 +85,10 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 
 **SC-001**: Parse galaxy.yml and extract all required collection metadata fields (namespace, name, version, authors, dependencies); optional fields deferred to v0.6.0  
 **SC-002**: Discover all roles within collection automatically  
-**SC-003**: Generate collection-level README with role index and plugin list  
+**SC-003**: Generate collection-level README with explicit sections: Overview (from galaxy.yml), Installation (with version constraints), Roles (index with descriptions), Plugins (by type with signatures), Dependencies (with version constraints), Examples (usage samples), License  
 **SC-004**: Document collection dependencies with version constraints  
 **SC-005**: Cross-role dependency analysis detects circular references  
-**SC-006**: Collection documentation generation completes in <5s for typical collection (5 roles, 10 plugins, ~50 files total)  
+**SC-006**: Collection documentation generation completes in <5s for typical collection (5 roles, 10 plugins, ~50 files total: 5 roles × 5 files each = 25 + 10 plugin .py files + 5 playbooks + 10 docs/meta files)  
 **SC-007**: Reuse template system from v0.3.0 (no new template engine)  
 **SC-008**: CLI commands: `collection parse`, `collection generate`, `collection analyze`
 
