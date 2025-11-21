@@ -8,7 +8,6 @@ constructs domain GalaxyMetadata models.
 """
 
 from pathlib import Path
-from typing import Any, Dict
 
 from pydantic import ValidationError
 
@@ -24,34 +23,34 @@ logger = get_logger(__name__)
 class GalaxyMetadataParser:
     """
     Parser for galaxy.yml files (schema version 1.0.0).
-    
+
     Parses required fields only in v0.5.0:
     - namespace (required)
     - name (required)
     - version (required)
     - authors (required)
     - dependencies (required)
-    
+
     Optional fields deferred to v0.6.0.
     """
-    
+
     def __init__(self) -> None:
         """Initialize parser with YAML loader."""
         self.yaml_loader = RuamelYAMLLoader()
-    
+
     def parse(self, galaxy_file: Path) -> GalaxyMetadata:
         """
         Parse galaxy.yml file and return GalaxyMetadata model.
-        
+
         Args:
             galaxy_file: Path to galaxy.yml file
-            
+
         Returns:
             GalaxyMetadata model with required fields
-            
+
         Raises:
             ParsingError: If file not found, malformed YAML, or missing required fields
-            
+
         Example:
             >>> parser = GalaxyMetadataParser()
             >>> metadata = parser.parse(Path("galaxy.yml"))
@@ -59,7 +58,7 @@ class GalaxyMetadataParser:
             'my_namespace.my_collection'
         """
         logger.debug("parsing_galaxy_yml", file=str(galaxy_file))
-        
+
         # Validate file exists using BaseValidator
         BaseValidator.validate_file_exists(
             galaxy_file,
@@ -69,7 +68,7 @@ class GalaxyMetadataParser:
                 "Try running 'ls -la' to check if the file exists in the collection root."
             )
         )
-        
+
         # Load YAML (catches YAML syntax errors)
         try:
             data = self.yaml_loader.load_file(galaxy_file)
@@ -85,7 +84,7 @@ class GalaxyMetadataParser:
                     "Check examples at https://galaxy.ansible.com/docs/contributing/creating_collections.html"
                 ]
             ) from e
-        
+
         # Validate required fields and construct model
         try:
             # Ensure data is a dict for unpacking
@@ -96,20 +95,20 @@ class GalaxyMetadataParser:
                     suggestion="Ensure galaxy.yml contains key-value pairs, not a list or scalar value"
                 )
             metadata = GalaxyMetadata(**data)
-            
+
             logger.info(
                 "galaxy_yml_parsed",
                 file=str(galaxy_file),
                 fqcn=metadata.fqcn,
                 version=metadata.version,
             )
-            
+
             return metadata
-            
+
         except ValidationError as e:
             # Extract missing/invalid fields from Pydantic error
             error_details = str(e)
-            
+
             raise BaseValidator.create_actionable_error(
                 message=f"Invalid galaxy.yml: {error_details}",
                 context={
