@@ -127,7 +127,7 @@ ansible-doctor-enhanced aims to become a complete Ansible documentation solution
   - Collection-level documentation generation
   - Cross-role dependency analysis
   - **PREREQUISITE**: v0.4.0 role documentation complete
-  - Spec: `specs/004-collection-docs/spec.md` (high-level spec ready, detailed planning pending)
+  - Spec: `specs/004-collection-support/spec.md` (high-level spec ready, detailed planning pending)
 
 - **v0.6.0**: Project Documentation (Feature 005) - PLANNED (NEW - Beyond original)
   - Full Ansible project parsing (roles, collections, playbooks, inventory)

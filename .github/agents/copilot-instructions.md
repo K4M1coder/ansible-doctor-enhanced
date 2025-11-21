@@ -87,7 +87,7 @@ specs/                  # Feature specifications (SDD)
   001-role-parser/      # v0.1.0-v0.2.0 (COMPLETE)
   002-doc-generator/    # v0.3.0 (spec COMPLETE, impl PENDING)
   003-role-parity/      # v0.4.0 (PLANNED)
-  004-collection-docs/  # v0.5.0 (IN PROGRESS)
+  004-collection-support/  # v0.5.0 (IN PROGRESS)
     spec.md             # User stories US8-US10
     plan.md             # Implementation phases
     tasks.md            # 250 detailed tasks
@@ -155,7 +155,7 @@ git commit -m "feat(models): add GalaxyMetadata model (schema 1.0.0)
 - Tests: 9/9 passing (TDD GREEN phase)
 
 Relates-to: #US8
-Part-of: Feature-004-collection-docs"
+Part-of: Feature-004-collection-support"
 
 # Update CHANGELOG.md before commits
 # Version bump in pyproject.toml before release tags

@@ -112,9 +112,9 @@ Ansible Doctor Enhanced sera la solution de documentation complète pour Ansible
 
 ### ⏳ v0.5.0 - Collection Documentation (PLANNED) 🆕
 
-**Branch**: `004-collection-docs` (à créer)  
+**Branch**: `004-collection-support` (à créer)  
 **Prerequisites**: v0.4.0 COMPLETE ✅  
-**Spec**: `specs/004-collection-docs/spec.md`
+**Spec**: `specs/004-collection-support/spec.md`
 
 **Objectif**: **NOUVELLE FONCTIONNALITÉ** (au-delà d'ansible-doctor original) - Documenter les collections Ansible.
 
