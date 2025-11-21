@@ -16,12 +16,81 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Domain-Driven Design (DDD)**: Ubiquitous Language from Ansible domain, Bounded Contexts, rich domain models
 - **Intelligent Role Parsing**: Extract metadata from `meta/main.yml`, variables from `defaults/` and `vars/`, task tags, and inline documentation annotations
 - **Annotation System**: Support for `@var`, `@tag`, `@todo`, `@example`, and `@meta` annotations with multiple formats (single-line, multiline, JSON)
+- **Collection Support (v0.5.0)**: Parse, generate documentation, and analyze dependencies for Ansible Collections
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
 - **Error Handling**: Graceful error recovery with actionable suggestions and detailed context
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates
 - **CLI-First Design**: Scriptable command-line interface with JSON output for pipeline integration
 - **Type-Safe**: Full type hints with mypy strict mode validation
 - **Constitutional Governance**: 10 core principles ensuring quality, maintainability, and SOLID architecture
+
+## 📦 Ansible Collection Support (New in v0.5.0)
+
+Ansible Doctor Enhanced now provides comprehensive support for **Ansible Collections** with three powerful commands:
+
+### Parse Collection Metadata
+
+Extract and validate collection metadata from `galaxy.yml`:
+
+```bash
+# Parse collection metadata
+poetry run ansible-doctor-enhanced collection parse ./my_namespace.my_collection
+
+# Output to JSON file
+poetry run ansible-doctor-enhanced collection parse ./my_namespace.my_collection --output metadata.json --pretty
+```
+
+### Generate Collection Documentation
+
+Create professional README.md for your collection:
+
+```bash
+# Generate Markdown documentation (default)
+poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection
+
+# Generate HTML documentation
+poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection --format html
+
+# Use custom template
+poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection --template custom.md.j2
+```
+
+### Analyze Role Dependencies
+
+Visualize and validate role dependencies within collections:
+
+```bash
+# Show dependency tree (ASCII)
+poetry run ansible-doctor-enhanced collection analyze ./my_namespace.my_collection --show-dependencies
+
+# Check for circular dependencies (CI/CD)
+poetry run ansible-doctor-enhanced collection analyze ./my_namespace.my_collection --check-circular
+
+# Export to Mermaid diagram
+poetry run ansible-doctor-enhanced collection analyze ./my_namespace.my_collection --show-dependencies --output-format mermaid
+```
+
+**Example Output**:
+
+```
+Dependency Graph (TEXT format):
+============================================================
+└── database
+    └── application
+        └── webserver
+```
+
+**Features**:
+- ✅ Parse `galaxy.yml` metadata (namespace, name, version, dependencies)
+- ✅ Discover roles and plugins automatically
+- ✅ Generate comprehensive collection README with installation instructions
+- ✅ Detect circular role dependencies
+- ✅ Export dependency graphs (ASCII tree, JSON, Mermaid)
+- ✅ Multiple output formats (Markdown, HTML, RST)
+
+**Documentation**: See [COLLECTION_GUIDE.md](docs/COLLECTION_GUIDE.md) for comprehensive usage guide with examples.
+
+**Demo**: Try the included demo collection at `demo/demo_namespace.demo_collection/`
 
 ## 🏗️ Architecture
 
