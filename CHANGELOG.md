@@ -64,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NEW**: `ansibledoctor/templates/rst/collection.j2` - RST collection template
   - Sphinx-compatible reStructuredText
   - Proper heading underlines and code blocks
+  - **FIX**: Jinja2 syntax for length calculation with proper parentheses
 
 **User Story 10: Cross-Role Dependency Analysis (T173-T204)** ✅ Complete
 - **NEW**: `collection analyze` command - Visualize and validate role dependencies
@@ -89,30 +90,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- **NEW**: `docs/COLLECTION_GUIDE.md` - Comprehensive collection documentation guide (300+ lines)
+- **NEW**: `docs/COLLECTION_GUIDE.md` - Comprehensive collection documentation guide (701 lines)
   - Overview, installation, quick start
   - Detailed command reference (parse, generate, analyze)
   - Advanced usage: CI/CD integration, pre-commit hooks, custom templates
   - Configuration examples
   - Troubleshooting guide
   - Demo collection walkthrough
+- **NEW**: `demo/DEMO-COLLECTION-RESULTS.md` - Feature showcase with actual output (587 lines)
+  - Parse JSON output example
+  - Generated README excerpt
+  - Dependency graphs (text, JSON, Mermaid formats)
+  - Performance metrics
+  - Comparison table with legacy ansible-doctor
 - **NEW**: `demo/demo_namespace.demo_collection/` - Demo collection showcasing all features
   - 3 roles with dependency chain: database → application → webserver
   - 5 modules: database_backup, app_deploy, ssl_cert_info, nginx_config_test, health_check
   - 3 filter plugins with 10 filters: formatting, text, validation
   - 3 example playbooks: deploy_stack, database_maintenance, app_deployment
   - Comprehensive annotations demonstrating documentation features
-- **UPDATED**: `README.md` - Added Ansible Collection Support section with examples
+- **NEW**: `README-generated.md` - Real-world generated documentation example (461 lines)
+- **UPDATED**: `README.md` - Added Ansible Collection Support section with examples (+69 lines)
 - **UPDATED**: All CLI examples now use Poetry (`poetry run ansible-doctor-enhanced ...`)
 
 ### Testing
 
-- **NEW**: 45 tests passing for collection documentation features
+- **NEW**: 50 tests passing for collection documentation features
   - 30 unit tests (models, parsers, generators)
-  - 9 integration tests (dependency analysis, export formats)
+  - 14 integration tests (dependency analysis, export formats, doc generation)
   - 6 E2E tests (CLI commands)
-- **Coverage**: dependency_graph.py at 95%
+- **Coverage**: dependency_graph.py at 86%, collection_parser.py at 90%
 - **Property tests**: Random collection structures with Hypothesis
+- **NEW**: Comprehensive doc generation tests (T169-T172)
+  - All output formats validated (Markdown, HTML, RST)
+  - Metadata completeness verification
+  - Performance benchmarking (<3s target for generation)
 
 ### Dependencies
 
