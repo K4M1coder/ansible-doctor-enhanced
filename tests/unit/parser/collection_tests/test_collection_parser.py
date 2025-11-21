@@ -60,7 +60,7 @@ class TestCollectionParserPathValidation:
         """Test that parse() raises error for non-existent collection path."""
         parser = CollectionParser()
         
-        with pytest.raises(ParsingError, match="Collection directory does not exist"):
+        with pytest.raises(ParsingError, match="collection directory does not exist"):
             parser.parse(Path("/nonexistent/path"))
 
     def test_raises_error_for_file_instead_of_directory(self, tmp_path):
