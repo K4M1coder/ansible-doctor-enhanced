@@ -134,7 +134,7 @@ ansible-doctor-enhanced aims to become a complete Ansible documentation solution
   - Project-level architecture documentation
   - Playbook documentation with task flows
   - **PREREQUISITE**: v0.5.0 collection documentation complete
-  - Spec: `specs/005-project-docs/spec.md` (high-level spec ready, detailed planning pending)
+  - Spec: `specs/006-project-docs/spec.md` (high-level spec ready, detailed planning pending)
 
 - **v1.0.0**: Production Release
   - Complete Ansible documentation solution (Role → Collection → Project)
