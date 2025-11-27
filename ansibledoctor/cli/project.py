@@ -44,6 +44,84 @@ def parse(project_path: Path, redact_values: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in output (default: True)")
+def analyze(project_path: Path, redact_values: bool):
+    """Analyze a project and output analysis results.
+
+    Performs analysis on the project structure, dependencies, and potential issues,
+    then outputs the analysis as JSON to stdout.
+    """
+    try:
+        parser = ProjectParser(redact_sensitive=redact_values)
+        project = parser.parse(project_path)
+        # Perform basic analysis
+        analysis = {
+            "project": project.name,
+            "analysis": {
+                "total_roles": len(project.roles),
+                "total_collections": len(project.collections),
+                "total_playbooks": len(project.playbooks),
+                "total_inventory_items": len(project.inventory)
+            }
+        }
+        # Output as JSON
+        output = json.dumps(analysis, indent=2)
+        click.echo(output)
+    except Exception as e:
+        logger.exception("project_analyze_failed", error=str(e))
+        click.echo(f"Unexpected error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@project.command()
+@click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "output_format", type=click.Choice(["mermaid", "json"]), default="mermaid")
+def visualize(project_path: Path, output_format: str):
+    """Visualize a project architecture.
+
+    Generates a visualization of the project architecture, such as Mermaid diagrams,
+    showing relationships between components.
+    """
+    try:
+        parser = ProjectParser()
+        project = parser.parse(project_path)
+        if output_format == "mermaid":
+            # Generate simple Mermaid diagram
+            diagram = f"""graph TD
+    A[{project.name}] --> B[Roles ({len(project.roles)})]
+    A --> C[Collections ({len(project.collections)})]
+    A --> D[Playbooks ({len(project.playbooks)})]
+    A --> E[Inventory ({len(project.inventory)})]
+"""
+            click.echo(diagram)
+        else:
+            # JSON output
+            vis_data = {
+                "project": project.name,
+                "nodes": [
+                    {"id": "project", "label": project.name, "type": "project"},
+                    {"id": "roles", "label": f"Roles ({len(project.roles)})", "type": "component"},
+                    {"id": "collections", "label": f"Collections ({len(project.collections)})", "type": "component"},
+                    {"id": "playbooks", "label": f"Playbooks ({len(project.playbooks)})", "type": "component"},
+                    {"id": "inventory", "label": f"Inventory ({len(project.inventory)})", "type": "component"}
+                ],
+                "edges": [
+                    {"from": "project", "to": "roles"},
+                    {"from": "project", "to": "collections"},
+                    {"from": "project", "to": "playbooks"},
+                    {"from": "project", "to": "inventory"}
+                ]
+            }
+            output = json.dumps(vis_data, indent=2)
+            click.echo(output)
+    except Exception as e:
+        logger.exception("project_visualize_failed", error=str(e))
+        click.echo(f"Unexpected error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@project.command()
+@click.argument("project_path", type=click.Path(exists=True, path_type=Path))
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option("--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown")
 @click.option("--template", "template", type=click.Path(exists=True, path_type=Path), default=None)

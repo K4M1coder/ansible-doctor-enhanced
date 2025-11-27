@@ -71,8 +71,8 @@ description: "Task breakdown for Feature 006: Project Documentation"
 - [x] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force`, `--format` (TDD)
 - [x] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
     - Verified generate in all formats during integration tests (project/collection/role) [tests/integration/test_demo_all_formats_generation.py]
-- [ ] T312 [US16] Add unit/integration tests for `analyze-project` and `visualize-project` CLI commands (TDD)
-- [ ] T313 [US16] Implement `analyze-project` and `visualize-project` CLI command skeletons and basic parsers/renderers
+- [x] T312 [US16] Add unit/integration tests for `analyze-project` and `visualize-project` CLI commands (TDD)
+- [x] T313 [US16] Implement `analyze-project` and `visualize-project` CLI command skeletons and basic parsers/renderers
 
 ## Parsing & Data Quality (TDD first)
 

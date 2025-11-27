@@ -136,3 +136,24 @@ def test_cli_generate_uses_project_slug_for_default_path(tmp_path: Path):
     # Also check that the old path doesn't exist
     old_path = proj_dir / "doc" / "README.md"
     assert not old_path.exists()
+
+
+def test_cli_analyze_project_outputs_analysis(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["analyze", str(proj_dir)])
+    assert result.exit_code == 0
+    # Should output analysis JSON
+    import json
+    data = json.loads(result.output)
+    assert "project" in data
+    assert "analysis" in data
+
+
+def test_cli_visualize_project_outputs_diagram(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["visualize", str(proj_dir)])
+    assert result.exit_code == 0
+    # Should output Mermaid diagram
+    assert "graph TD" in result.output or "mermaid" in result.output.lower()
