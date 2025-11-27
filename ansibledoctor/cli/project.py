@@ -25,13 +25,14 @@ def project():
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default="doc")
 @click.option("--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown")
 @click.option("--template", "template", type=click.Path(exists=True, path_type=Path), default=None)
+@click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in generated docs (default: True)")
 def generate(project_path: Path, output_dir: Path, format: str, template: Path | None):
     """Generate documentation for a project.
 
     Writes documentation to the project's `doc` subdirectory by default.
     """
     try:
-        parser = ProjectParser()
+        parser = ProjectParser(redact_sensitive=redact_values)
         project = parser.parse(project_path)
         gen = ProjectDocumentationGenerator(project=project)
         # If output_dir is relative, write it under the project path
