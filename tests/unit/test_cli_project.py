@@ -16,7 +16,7 @@ def test_cli_generate_markdown_default(tmp_path: Path):
 
     result = runner.invoke(project_cli, ["generate", str(proj_dir)])
     assert result.exit_code == 0
-    output_file = proj_dir / "doc" / "README.md"
+    output_file = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
     assert output_file.exists()
     content = output_file.read_text(encoding="utf-8")
     assert "# myproj" in content or "# My Project" in content
@@ -69,7 +69,7 @@ def test_cli_generate_uses_template_path(tmp_path: Path):
     runner = CliRunner()
     result = runner.invoke(project_cli, ["generate", str(proj_dir), "--template", str(tpl)])
     assert result.exit_code == 0
-    out = proj_dir / "doc" / "README.md"
+    out = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
     assert out.exists()
     content = out.read_text(encoding="utf-8")
     assert "CLI TEMPLATE" in content
@@ -122,3 +122,17 @@ def test_cli_parse_project_no_redact_flag(tmp_path: Path):
     # Check that sensitive vars are NOT redacted in effective_vars
     assert "secret123" in str(data)
     assert "abcdef" in str(data)
+
+
+def test_cli_generate_uses_project_slug_for_default_path(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(project_cli, ["generate", str(proj_dir)])
+    assert result.exit_code == 0
+    # Should use docs/ansibleproject_{projectname}/README.md
+    expected_path = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
+    assert expected_path.exists()
+    # Also check that the old path doesn't exist
+    old_path = proj_dir / "doc" / "README.md"
+    assert not old_path.exists()

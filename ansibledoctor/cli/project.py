@@ -44,23 +44,26 @@ def parse(project_path: Path, redact_values: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default="doc")
+@click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option("--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown")
 @click.option("--template", "template", type=click.Path(exists=True, path_type=Path), default=None)
 @click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in generated docs (default: True)")
-def generate(project_path: Path, output_dir: Path, format: str, template: Path | None, redact_values: bool):
+def generate(project_path: Path, output_dir: Path | None, format: str, template: Path | None, redact_values: bool):
     """Generate documentation for a project.
 
-    Writes documentation to the project's `doc` subdirectory by default.
+    Writes documentation to the project's docs subdirectory with project slug by default.
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
         project = parser.parse(project_path)
         gen = ProjectDocumentationGenerator(project=project)
         # If output_dir is relative, write it under the project path
-        out_dir_path = Path(output_dir)
-        if not out_dir_path.is_absolute():
-            out_dir_path = Path(project_path) / out_dir_path
+        if output_dir is not None:
+            out_dir_path = Path(output_dir)
+            if not out_dir_path.is_absolute():
+                out_dir_path = Path(project_path) / out_dir_path
+        else:
+            out_dir_path = None
         out_file = gen.generate(format=format, output_dir=out_dir_path, template_path=str(template) if template else None)
         click.echo(f"Documentation generated: {out_file}", err=True)
     except Exception as e:
