@@ -59,3 +59,18 @@ def test_cli_generate_handles_exception(tmp_path: Path, monkeypatch):
     result = runner.invoke(project_cli, ["generate", str(proj_dir)])
     assert result.exit_code == 1
     assert "Unexpected error: boom" in result.output
+
+
+def test_cli_generate_uses_template_path(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    tpl = tmp_path / "cli_template.j2"
+    tpl.write_text("CLI TEMPLATE: {{ project.name }} - {{ roles|length }} roles")
+
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--template", str(tpl)])
+    assert result.exit_code == 0
+    out = proj_dir / "doc" / "README.md"
+    assert out.exists()
+    content = out.read_text(encoding="utf-8")
+    assert "CLI TEMPLATE" in content
+    assert "roles" in content
