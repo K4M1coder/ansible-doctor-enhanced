@@ -208,6 +208,12 @@ description: "Task breakdown for Feature 001: Ansible Role Parser"
 - [ ] T099 Create Git tag: v0.1.0 (first development release)
 - [ ] T100 Update CHANGELOG.md: move [Unreleased] to [0.1.0] with release date
 
+## Slug & Output Naming Tasks (Role-level)
+
+- [ ] T228 [US1] Create `role_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention (e.g., `namespace.role_name`).
+- [ ] T229 [US1] Update RoleParser to include `role_slug` in generated output metadata: add `slug` property to role JSON output and ensure CLI output uses the slug for link generation.
+- [ ] T230 [US1] Add integration tests for role slug output and verify backward compatibility with `--legacy-output` when using the option.
+
 **Checkpoint**: Feature 001 complete, tested, documented, and ready for use
 
 ---
