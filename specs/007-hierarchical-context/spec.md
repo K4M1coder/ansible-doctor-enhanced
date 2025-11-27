@@ -29,8 +29,16 @@ Hierarchical Context Detection analyzes directory structure to determine relatio
 
 **Detection Strategy**:
 - Search up to 3 directory levels above current component
-- Cache detection results per generation session
+- Cache detection results per generation session (session-scoped in-memory cache)
 - Generate relative links assuming `docs/lang/{code}/` structure from Feature 005
+
+**Symlink handling & security**:
+- By default, the generator does not follow filesystem symlinks for parent detection to avoid traversal outside the repo or across mounted devices, improving security.
+- A `--follow-symlinks` CLI flag is available for advanced users to follow symlinks. When enabled, symlink traversal is limited and validated to remain in the same device/volume.
+
+**Relative Link Generation**:
+- Relative links must be canonicalized using `pathlib.Path` utilities to ensure cross-platform compatibility. All generated links should be normalized (no trailing slashes unless it is a directory) and validated for existence.
+- When a target doc doesn't exist for a language or path, the breadcrumb will render as plain text and the generator logs a warning with `context` where the doc was expected.
 
 **Output Examples**:
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **NEW**: `ansibledoctor/models/project.py` - Pydantic models for Project, Playbook, RoleInfo, CollectionInfo and InventoryItem
 - **NEW**: `ansibledoctor/parser/project_parser.py` - ProjectParser discovers roles and collections and sets project metadata when ansible.cfg is present
+ - **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors monorepo detection (nearest ancestor `ansible.cfg`), respects `ansible.cfg` `[defaults] inventory` path(s), supports inventory file/directory parsing and merging across multiple inventory sources (T204/T314/T315/T316)
 - **NEW**: `ansibledoctor/generator/project_generator.py` - Minimal ProjectDocumentationGenerator supporting Markdown/HTML/RST outputs
 - **NEW**: `ansibledoctor/cli/project.py` - `project` CLI group with `generate` command and relative output path behavior for project docs
 - **NEW**: Demo artifacts in `demo/` moved into `demo/role_demo_namespace.demo_demo_role`, `demo/collection_demo_namespace.demo_collection`, and `demo/project_demo_namespace.demo_project` to be canonical fixtures for integration tests
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Testing
 
 - **TEST**: Unit tests added for `ansibledoctor/utils/slug.py` and `ansibledoctor/generator/project_generator.py` to cover slug generation and project README outputs (Markdown/HTML/RST)
+ - **TEST**: Unit tests added for inventory parsing and project parser behavior: `tests/unit/test_inventory_parser.py`, `tests/unit/test_project_parser.py` (monorepo root detection, ansible.cfg inventory path handling, inventory merging) (T314/T315/T316)
  - **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
  - **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
 
@@ -26,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ENHANCED**: CLI behavior — `--output` and `--output-dir` writing is now relative to the target artifact (role, collection, or project) when the path isn't absolute
 - **CHORE**: Added optional dev dependencies for format validations: `html5lib` and `docutils` (for HTML/RST validation in tests)
+
+### Changed - Project Parser & Inventory
+
+- **ENHANCED**: `ansibledoctor/parser/project_parser.py` now resolves project root using nearest ancestor `ansible.cfg` if present and uses this canonical path for discovery of roles, collections, playbooks, and inventory. This change reduces ambiguity in monorepo layouts where projects may be nested (T315).
+- **ENHANCED**: Inventory discovery now merges groups from multiple sources and supports both INI and YAML inventory formats, including inventory directories and single file paths specified via `ansible.cfg` (T314/T316).
 
 
 ## [0.5.0] - 2025-11-21

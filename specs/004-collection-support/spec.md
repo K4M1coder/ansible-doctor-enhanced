@@ -114,6 +114,18 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 - Q: Which optional galaxy.yml fields (tags, license, repository, etc.) should be documented? → A: Defer optional fields to v0.6.0 (only required fields in v0.5.0)
 - Q: Which galaxy.yml schema version(s) to support? → A: 1.0.0 (Ansible 2.9+ standard), support latest versions in future releases
 - Q: Which files to exclude from plugin discovery? → A: No exclusions (parse all Python files, let validation filter)
+### Additional Clarifications & Plugin Discovery
+
+To ensure consistent behavior and avoid noisy scans, the collection generator will:
+- Exclude `__pycache__` directories and `.pyc` files from plugin scanning.
+- Exclude `tests/` and `docs/` directories from plugin discovery unless explicitly configured.
+- Treat any `.py` file under plugin type directories (e.g., `plugins/modules/`) as a candidate plugin; validation occurs in later stages and non-plugin `.py` will be ignored.
+
+Optional galaxy.yml fields (tags, license, repository) MUST be included in generated docs when present; the spec will document the expected fields and a template for displaying them. For v0.5.0, generator should display the fields if they exist and add a placeholder "Not specified" if missing.
+
+## Plugin filename validation
+
+Implementers MUST validate plugin file naming rules where appropriate (e.g., module files should be valid Python files with top-level module metadata). If invalid or unparseable Python is detected, the generator will warn, not fail, and include a note in the generated docs in the Plugins section.
 - Q: Role index layout format (table vs list)? → A: Let template decide (configurable via template)
 
 ## Output Naming & Slugs

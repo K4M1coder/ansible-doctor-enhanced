@@ -233,6 +233,40 @@ docs/
 **TC-007**: Parallel language generation uses same parsed role data (no re-parsing per language)  
 **TC-008**: Template filter `t()` must be thread-safe for potential future parallelization
 
+## Translation file precedence and merging
+
+To support overrides and project-specific customizations, implementers MUST follow this precedence for translations (lower → higher):
+- Package embedded translations (default, fallback languages embedded within package)
+- Collection-local translation files (e.g., `collection_dir/translations/{lang}.yml`) — overrides embedded
+- Project-local translation files (`{project}/.ansibledoctor/translations/{lang}.yml`) — overrides collection and embedded
+- Role-local translation files (`{role}/translations/{lang}.yml`) — overrides project, collection, and embedded
+
+Translation merging semantics:
+- Perform a deep merge where keys in higher precedence overlays replace or extend nested keys in the lower-level translation map.
+- For conflicting pluralization keys (e.g., `count.one`, `count.other`), higher-precedence definition replaces the entire plural structure for that key.
+
+## Caching and invalid language-handling
+
+Implementations MUST cache loaded translations per language per generation session to avoid duplicate disk reads and parsing. Cache invalidation is session-scoped (cleared at end of generation run).
+
+If an invalid ISO 639-1 language code (e.g., `zz`) is supplied via the CLI or config, the generator MUST: log an error; fallback to default language; and continue (do not fail the entire run).
+
+## Pluralization and variable substitution
+
+Plural selection: use a basic pluralization selection approach if the language supports CLDR rules; otherwise default to 'one/other' with `count` variable two-state selection: `1 -> one`, everything else -> `other`.
+
+Variable substitution: use Python `str.format` or an equivalent safe templating substitution to render placeholders in translations (`{version}`, `{count}`), and ensure values are escaped when rendering in Markdown/HTML outputs.
+
+## Translation validation
+
+Translation files MUST be valid YAML (UTF-8) with keys using dot notation limited to strings or nested mappings. The generator SHOULD validate translation files at load time and emit warnings for invalid structures.
+
+## CLI & config: language behaviour
+
+- If `--language`/`--languages` are provided, the CLI overrides `languages.enabled` in the config for the duration of the run.
+- If `languages.detect_system: true`, the generator shall attempt to detect a supported system locale and include it in enabled languages if a translation is available.
+- If `languages.fallback` is missing, default fallback is `en`.
+
 ## Out of Scope
 
 - Right-to-left (RTL) language support (Arabic, Hebrew) - deferred to v0.7.0
