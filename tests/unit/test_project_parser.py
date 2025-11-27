@@ -1,4 +1,6 @@
 import pytest
+import textwrap
+from pathlib import Path
 from ansibledoctor.parser.project_parser import ProjectParser
 from ansibledoctor.models.project import Project
 
@@ -117,3 +119,146 @@ def test_project_parser_discovers_playbooks(tmp_path):
         pb_info = project.playbooks[0]
         assert "webservers" in pb_info.hosts
         assert "webserver" in pb_info.roles
+
+
+def test_project_parser_playbook_hosts_list_and_role_dict(tmp_path):
+    pdir = tmp_path / "playbooks"
+    pdir.mkdir()
+    pb = pdir / "multi.yml"
+    pb.write_text(textwrap.dedent("""
+- name: Multi Playbook
+  hosts:
+    - webservers
+    - db
+  roles:
+    - role: webserver
+    - name: db
+"""), encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    # Should detect the playbook and both hosts/roles
+    assert any(p.name == "multi" for p in project.playbooks)
+    pinfo = next(p for p in project.playbooks if p.name == "multi")
+    assert "webservers" in pinfo.hosts
+    assert "db" in pinfo.hosts
+    assert "webserver" in pinfo.roles or "webserver" in pinfo.roles
+    assert "db" in pinfo.roles
+
+
+def test_project_parser_discovers_top_level_playbook(tmp_path):
+        # Create playbook at project root
+        pb = tmp_path / "site.yml"
+        pb.write_text(
+            "- name: Root Playbook\n  hosts: webservers\n  roles:\n    - webserver\n",
+            encoding="utf-8",
+        )
+        parser = ProjectParser()
+        project = parser.parse(tmp_path)
+        assert any(p.name == "site" for p in project.playbooks)
+
+
+def test_project_parser_inventory_merges_groups(tmp_path):
+        # Create inventory dir with multiple files that must merge
+        inv_dir = tmp_path / "inventory"
+        inv_dir.mkdir()
+        f1 = inv_dir / "hosts1.ini"
+        f1.write_text("""
+[webservers]
+host1
+""", encoding="utf-8")
+        f2 = inv_dir / "hosts2.yml"
+        f2.write_text("""
+all:
+    children:
+        db:
+            hosts:
+                host1: {}
+""", encoding="utf-8")
+        parser = ProjectParser()
+        project = parser.parse(tmp_path)
+        # host1 should be present with both groups
+        host1 = next((h for h in project.inventory if h.name == "host1"), None)
+        assert host1 is not None
+        assert set(host1.groups) == {"webservers", "db"}
+
+
+def test_project_parser_monorepo_root_detection(tmp_path):
+    # Create repo structure where project lives inside a subdir but ansible.cfg is in ancestor
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
+    sub = repo / "subproject"
+    sub.mkdir()
+    # Call parser on subdirectory; expect it to detect the ancestor ansible.cfg and set project.name to 'repo'
+    parser = ProjectParser()
+    project = parser.parse(str(sub))
+    assert project.name == repo.name
+    assert Path(project.path).resolve() == repo.resolve()
+
+
+def test_project_parser_respects_ansible_cfg_inventory_path(tmp_path):
+    # Create ansible.cfg in repo and custom inventory path under repo
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+inventory = custom_inventory
+""", encoding="utf-8")
+    custom_inv = repo / "custom_inventory"
+    custom_inv.mkdir()
+    (custom_inv / "hosts.ini").write_text("""
+[webservers]
+hostcfg
+""", encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    # Inventory should be parsed from custom_inventory instead of default 'inventory'
+    host_names = {h.name for h in project.inventory}
+    assert "hostcfg" in host_names
+
+
+def test_project_parser_respects_ansible_cfg_inventory_multiple_paths(tmp_path):
+    # Create ansible.cfg in repo and custom inventory path under repo with multiple values
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+inventory = custom_inventory:other_inventory
+""", encoding="utf-8")
+    custom_inv = repo / "custom_inventory"
+    custom_inv.mkdir()
+    (custom_inv / "hosts.ini").write_text("""
+[webservers]
+hosta
+""", encoding="utf-8")
+    other_inv = repo / "other_inventory"
+    other_inv.mkdir()
+    (other_inv / "hosts2.ini").write_text("""
+[db]
+hostb
+""", encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    # Both hosts from custom_inventory and other_inventory should be present
+    names = {h.name for h in project.inventory}
+    assert "hosta" in names
+    assert "hostb" in names
+
+
+def test_project_parser_respects_ansible_cfg_inventory_file_path(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+inventory = custom_inventory/hosts.ini
+""", encoding="utf-8")
+    custom_inv = repo / "custom_inventory"
+    custom_inv.mkdir()
+    (custom_inv / "hosts.ini").write_text("""
+[webservers]
+filehost
+""", encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    names = {h.name for h in project.inventory}
+    assert "filehost" in names

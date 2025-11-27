@@ -139,6 +139,82 @@ As a project maintainer working with international teams, I want to generate pro
 **TC-005**: Must reuse TemplateEngine and renderers from Feature 002  
 **TC-006**: Must support both legacy (requirements.yml) and modern (collections) dependency formats
 
+## Naming & Slug Rules (Project)
+
+To ensure generated outputs are stable across languages and runs, projects must use a deterministic slug and output folder name.
+- Project slug: `ansibleproject_{slugname}` where `slugname` is the project folder name normalized to lower-case ASCII with non-alphanumeric characters replaced with `-`.
+- Output path per language: `docs/lang/{code}/ansibleproject_{slugname}/`.
+- Example: `docs/lang/en/ansibleproject_myproject/README.md`.
+
+Slug rules:
+- Preserve existing dot separators in collection slugs only (collections use `namespace.collection`). For project slugs, enforce alphanumeric and `-` only.
+- Truncate slugs deterministically at 255 characters and append a short checksum suffix if truncated.
+- On collision, append `-1`, `-2`, etc., deterministically and log a warning.
+
+## Inventory parsing and variable precedence
+
+The project parser must support inventory formats (INI and YAML) and parse both `inventory/` subdirectory contents and top-level inventory files specified in `ansible.cfg`.
+
+Inventory precedence and variable precedence follow the Ansible documentation, and our generator records precedence rather than evaluate interpolation:
+- Precedence order (low → high): role defaults → role vars → inventory vars (group_vars/host_vars) → inventory file vars → extra vars / CLI args. Implementers MUST document this order in the generated output.
+
+Supported inventory features:
+- YAML inventory: nested `all:` blocks, `children`, `hosts`, and vars per host.
+- INI inventory: groups with host entries and host variables in-line.
+- Dynamic inventory plugins: out of scope for parsing (document as such and include metadata if available without executing plugin code).
+
+When `ansible.cfg` defines a custom inventory path, the parser should attempt to use that path and include a note in output; otherwise default to `inventory/` folder.
+
+## CLI Flags & Behavior
+
+The `project` generator accepts the following CLI flags (examples):
+- `--output-dir DIR` — change base output directory (defaults to `docs/`).
+- `--languages en,fr` — generate targeted languages (overrides config file `languages.enabled`).
+- `--language fr` — alias for `--languages fr`.
+- `--no-parent` — disable hierarchical context detection (see Feature 007).
+- `--no-breadcrumbs` — omit breadcrumbs from generated docs but still record parent context for sibling discovery.
+- `--no-siblings` — omit sibling listing.
+- `--force` — overwrite existing generated files (by default writes safely and does not overwrite unless `--force` is provided).
+- `--redact-values` — redact variable values that match sensitive patterns.
+
+## Redaction & Sensitive Data
+
+Documentation generation must never output sensitive plaintext variables by default. Implementers must:
+- Provide a default redaction policy that masks values in group_vars/host_vars that match common patterns (e.g., `*password*`, `*secret*`, `*token*`).
+- Provide a configurable redaction list under `.ansibledoctor.yml`:
+
+```yaml
+redaction:
+	enabled: true
+	patterns:
+		- "*password*"
+		- "*secret*"
+		- "*token*"
+	placeholder: "***REDACTED***"
+```
+
+- `--redact-values` CLI flag honors project config and can be forced; sensitive values are replaced with `***REDACTED***` by default.
+
+## Overwrite & Backups
+
+Default behavior for the generator is to avoid overwriting existing files; when collisions occur the generator will:
+- Skip existing files and log a warning for each skipped file unless `--force` is specified.
+- If `--force --backup` is specified, the generator will write the current generated files to a `.bak` folder before overwriting.
+
+## Monorepo & Project Root Detection
+
+By default, the project parser attempts to determine a project root using the following rules, in order:
+1. If `ansible.cfg` exists in current or parent folders (up to 3 levels), treat the folder containing it as project root.
+2. If `playbooks/` exists in current or parent folders, treat the folder containing it as project root.
+3. If neither is found, treat the current folder as project root and emit a warning.
+
+`--project-root PATH` can override the autodetection.
+
+## Performance & Test Criteria
+
+For project-level generation, the target for a typical project (5 playbooks, 10 roles, ~50 hosts) is <10s on modern developer hardware. Performance tests should specify hardware/OS and the project size used as the benchmark.
+
+
 ## Out of Scope
 
 - Playbook execution or testing
@@ -162,6 +238,10 @@ Before starting this feature, MUST verify:
 8. ✅ No critical bugs in collection or i18n documentation
 
 **Gate**: This feature CANNOT start until v0.6.0 (i18n) is tagged and stable.
+
+## Logging and Tracing
+
+The generator must use structured logs and allow optional correlation IDs to help trace generation operations end-to-end. CLI runs should accept a `--correlation-id` flag that if provided will be included in every log line for that run and in artifact metadata files for traceability across large builds.
 
 ## v1.0.0 Readiness
 
