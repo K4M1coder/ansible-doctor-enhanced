@@ -34,8 +34,8 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Phase 4: Playbook & Visualization
 ## CLI Commands & Integration (TDD first)
-- [ ] T308 [US14] Write unit tests for `parse-project` CLI command in `tests/unit/test_cli_project.py` (TDD)
-- [ ] T309 [US15] Implement `parse-project` CLI command skeleton and minimal functionality in `ansibledoctor/cli/project.py` (RED→GREEN)
+- [x] T308 [US14] Write unit tests for `parse-project` CLI command in `tests/unit/test_cli_project.py` (TDD)
+- [x] T309 [US15] Implement `parse-project` CLI command skeleton and minimal functionality in `ansibledoctor/cli/project.py` (RED→GREEN)
 - [x] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force`, `--format` (TDD)
 - [x] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
 
@@ -68,8 +68,6 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## CLI Commands & Integration (TDD first)
 
-- [ ] T308 [US14] Write unit tests for `parse-project` CLI command in `tests/unit/test_cli_project.py` (TDD)
-- [ ] T309 [US15] Implement `parse-project` CLI command skeleton and minimal functionality in `ansibledoctor/cli/project.py` (RED→GREEN)
 - [x] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force`, `--format` (TDD)
 - [x] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
     - Verified generate in all formats during integration tests (project/collection/role) [tests/integration/test_demo_all_formats_generation.py]

@@ -74,3 +74,51 @@ def test_cli_generate_uses_template_path(tmp_path: Path):
     content = out.read_text(encoding="utf-8")
     assert "CLI TEMPLATE" in content
     assert "roles" in content
+
+
+def test_cli_parse_project_outputs_json(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["parse", str(proj_dir)])
+    assert result.exit_code == 0
+    # Should output JSON representation of the project
+    import json
+    data = json.loads(result.output)
+    assert "name" in data
+    assert "roles" in data
+    assert "collections" in data
+    assert "playbooks" in data
+
+
+def test_cli_parse_project_with_redact_flag(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # Add inventory with a host
+    (proj_dir / "inventory").mkdir()
+    (proj_dir / "inventory" / "hosts.ini").write_text("[webservers]\nhost1")
+    # Add some vars to test redaction
+    (proj_dir / "group_vars").mkdir(parents=True)
+    (proj_dir / "group_vars" / "all.yml").write_text("password: secret123\ntoken: abcdef")
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["parse", str(proj_dir), "--redact-values"])
+    assert result.exit_code == 0
+    import json
+    data = json.loads(result.output)
+    # Check that sensitive vars are redacted in effective_vars
+    assert "***REDACTED***" in str(data)
+
+
+def test_cli_parse_project_no_redact_flag(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # Add inventory with a host
+    (proj_dir / "inventory").mkdir()
+    (proj_dir / "inventory" / "hosts.ini").write_text("[webservers]\nhost1")
+    (proj_dir / "group_vars").mkdir(parents=True)
+    (proj_dir / "group_vars" / "all.yml").write_text("password: secret123\ntoken: abcdef")
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["parse", str(proj_dir), "--no-redact-values"])
+    assert result.exit_code == 0
+    import json
+    data = json.loads(result.output)
+    # Check that sensitive vars are NOT redacted in effective_vars
+    assert "secret123" in str(data)
+    assert "abcdef" in str(data)
