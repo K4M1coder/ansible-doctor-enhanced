@@ -5,13 +5,6 @@ from ansibledoctor.utils.slug import (
     project_slug,
     join_hierarchy,
 )
-import re
-from ansibledoctor.utils.slug import (
-    collection_slug,
-    role_slug,
-    project_slug,
-    join_hierarchy,
-)
 
 
 def test_project_slug_basic():
@@ -54,5 +47,3 @@ def test_slug_valid_characters_and_length():
     assert re.match(r"^[a-z0-9-]+$", slug_portion)
     # confirm hyphenated words
     assert "project-name-with" in slug_portion
-    *** End Patch
->>>>>>> 006-project-docs
