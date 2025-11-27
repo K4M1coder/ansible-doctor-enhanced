@@ -1,0 +1,49 @@
+# Tasks: Feature 005 — Internationalization (i18n) Support
+
+- [ ] T005-01 [US11] Create `LanguageConfig` Pydantic model and unit tests in `ansibledoctor/config/language.py` and `tests/unit/test_language_config.py` to validate schema (default, enabled, fallback, detect_system) and ISO 639-1 enforcement.
+
+- [ ] T005-02 [US11] Implement CLI flags `--language` and `--languages`, update CLI help text, and write unit tests in `ansibledoctor/cli/generate.py` and `tests/unit/test_cli_languages.py` ensuring precedence over config file and argument parsing.
+
+- [ ] T005-03 [US12] Create failing unit tests for `TranslationLoader` in `tests/unit/test_translation_loader.py` asserting loading of embedded translations and custom `./.ansibledoctor/translations/{lang}.yml` file override rules, and file discovery paths.
+
+- [ ] T005-04 [US12] Implement `TranslationLoader` in `ansibledoctor/translation/loader.py` to load embedded package translations and project-local overrides; add unit coverage for YAML load correctness and file precedence.
+
+- [ ] T005-05 [US12] Create failing unit tests for `TranslationProvider` in `tests/unit/test_translation_provider.py` covering basic key lookups, nested keys, variable substitution, and plural selection with `one`/`other` keys.
+
+- [ ] T005-06 [US12] Implement `TranslationProvider` in `ansibledoctor/translation/provider.py`, add pluralization selection logic (Babel recommended) or minimal fallback rules; tests should pass after implementation.
+
+- [ ] T005-07 [US12] Create failing unit tests for the Jinja2 `t()` filter in `tests/unit/test_template_filters.py`. Verify translation calls: `t('section.key')`, `t('section.count', count=3)` return appropriate strings and handle missing keys.
+
+- [ ] T005-08 [US12] Implement `t()` filter registration in `ansibledoctor/templates/filters.py` and integrate into TemplateEngine; tests for context-aware language switching must pass (`tests/unit/test_template_filters.py`).
+
+- [ ] T005-09 [US13] Create failing integration tests for `MultiLanguageGenerator` (`tests/integration/test_multilang_generator.py`) asserting that parsing is done once and templates are rendered for multiple languages writing files under `docs/lang/{code}/...`.
+
+- [ ] T005-10 [US13] Implement `MultiLanguageGenerator` in `ansibledoctor/generator/multi_language.py` to reuse parsed role data, set language context per render, and write language-specific outputs.
+
+- [ ] T005-11 [P] [US13] Add E2E tests for generating a sample role and collection in 3 languages (English, French, German) under `tests/e2e/demo_i18n.py` verifying the `docs/lang/en|fr|de/...` file trees and translated content.
+
+- [ ] T005-12 [US12] Implement unit and integration tests for translation fallback behavior (missing keys fallback to configured fallback language) in `tests/integration/test_i18n_fallback.py` and implement logging warning behavior.
+
+- [ ] T005-13 [US12] Implement caching per-generation-session for `TranslationLoader`/`TranslationProvider` with unit tests verifying that repeated lookups are served from cache and the cache is cleared per session (`tests/unit/test_translation_cache.py`).
+
+- [ ] T005-14 [P] Add concurrency/thread-safety tests for `t()` filter and provider in `tests/integration/test_i18n_concurrency.py` to ensure safe behavior under multi-threaded rendering (TC-008).
+
+- [ ] T005-15 [P] Add performance tests and benchmarks in `tests/perf/test_multilang_perf.py` validating SC-006 (multi-language overhead <5s for typical role) and caching impact.
+
+- [ ] T005-16 [US11] Add unit tests for system locale detection (`languages.detect_system`) using `locale` module and CLI flag override semantics in `tests/unit/test_locale_detection.py`.
+
+- [ ] T005-17 [US12] Add unit tests for pluralization behavior in `tests/unit/test_pluralization.py` for English (one/other) and do minimal support for languages without plural rules.
+
+- [ ] T005-18 [US12] Implement test fixtures and sample translation YAMLs under `specs/005-i18n-support/fixtures/` for EN/FR/DE to be used by the tests; add embedded defaults in `ansibledoctor/translations/`.
+
+- [ ] T005-19 [P] Documentation tasks: Update `README.md` QuickStart, `specs/005-i18n-support/spec.md` usage examples, CLI help, and `CHANGELOG.md` in `docs` and `README-generated.md`. (Files: `README.md`, `specs/005-i18n-support/spec.md`, `CHANGELOG.md`)
+
+- [ ] T005-20 [P] Add demo updates: Update `demo/` and `demo-role/` outputs to include language-specific directories and examples. Update templates and sample custom translations in `demo/` files.
+
+- [ ] T005-21 [US13] Add integration test verifying custom translation file in `project/.ansibledoctor/translations/fr.yml` overrides embedded translations and overrides collection-level translations if present.
+
+- [ ] T005-22 [US11] Add tests and logic for invalid language codes handling in `tests/unit/test_language_codes.py` (skip vs error rule) and implement appropriate logging & error handling.
+
+- [ ] T005-23 [US12] Security & validation: Add unit tests for YAML parsing safety and substitution injection patterns (`tests/unit/test_translation_security.py`) and implement safe string formatting (no code execution).
+
+- [ ] T005-24 [P] Release tasks: Update Roadmap/Version: Bump feature milestone references, prepare CHANGELOG entry in `CHANGELOG.md`, and create PR checklist ensuring TDD, tests passing, documentation updated, and SemVer considerations handled (breaking change or not documented).

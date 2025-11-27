@@ -92,7 +92,7 @@ specs/                  # Feature specifications (SDD)
     plan.md             # Implementation phases
     tasks.md            # 250 detailed tasks
     checklists/         # Quality validation
-  005-project-docs/     # v0.6.0 (PLANNED)
+  006-project-docs/     # v0.6.0 (PLANNED)
 
 .specify/               # SpecKit configuration
   memory/
