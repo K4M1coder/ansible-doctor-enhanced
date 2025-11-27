@@ -5,13 +5,32 @@ These functions are intentionally unimplemented (NotImplementedError) until TDD 
 
 from __future__ import annotations
 
+import re
+import unicodedata
+
+
+def _slugify(s: str, allow_underscore: bool = False) -> str:
+    # Normalize unicode characters to ASCII, lowercase
+    s = unicodedata.normalize("NFKD", s)
+    s = s.encode("ascii", "ignore").decode("ascii")
+    s = s.lower().strip()
+    # Preserve underscores optionally
+    if allow_underscore:
+        s = re.sub(r"[^a-z0-9_]+", "-", s)
+    else:
+        s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = re.sub(r"-+", "-", s)
+    return s.strip("-")
+
 
 def collection_slug(namespace: str, name: str) -> str:
     """Return slug for a collection with prefix 'collection_' and dot separator between namespace and name.
 
     Example: collection_my-namespace.my-collection
     """
-    raise NotImplementedError("collection_slug not implemented yet")
+    ns = _slugify(namespace)
+    nm = _slugify(name)
+    return f"collection_{ns}.{nm}"
 
 
 def role_slug(namespace: str, name: str) -> str:
@@ -19,7 +38,9 @@ def role_slug(namespace: str, name: str) -> str:
 
     Example: role_my_namespace.webserver
     """
-    raise NotImplementedError("role_slug not implemented yet")
+    ns = _slugify(namespace, allow_underscore=True)
+    nm = _slugify(name)
+    return f"role_{ns}.{nm}"
 
 
 def project_slug(name: str) -> str:
@@ -27,7 +48,8 @@ def project_slug(name: str) -> str:
 
     Example: ansibleproject_my-project
     """
-    raise NotImplementedError("project_slug not implemented yet")
+    nm = _slugify(name)
+    return f"ansibleproject_{nm}"
 
 
 def join_hierarchy(project: str, collection: str, role: str) -> str:
@@ -35,4 +57,5 @@ def join_hierarchy(project: str, collection: str, role: str) -> str:
 
     Example: ansibleproject_my-project/collections/collection_my-namespace.my-collection/role_my_namespace.webserver
     """
-    raise NotImplementedError("join_hierarchy not implemented yet")
+    # Join the provided slugs into a consistent path
+    return f"{project}/collections/{collection}/{role}"
