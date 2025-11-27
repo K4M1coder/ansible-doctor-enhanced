@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Testing
 
 - **TEST**: Unit tests added for `ansibledoctor/utils/slug.py` and `ansibledoctor/generator/project_generator.py` to cover slug generation and project README outputs (Markdown/HTML/RST)
+ - **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
+ - **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
 
 ### Changed
 
