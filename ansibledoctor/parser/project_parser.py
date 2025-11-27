@@ -47,40 +47,90 @@ class ProjectParser:
 
         project = Project(name=name, path=str(path_obj))
 
-        # Roles discovery: look for 'roles' subdirectory
-        roles_dir = os.path.join(str(path_obj), "roles")
-        if os.path.isdir(roles_dir):
-            for entry in os.listdir(roles_dir):
-                role_path = os.path.join(roles_dir, entry)
-                if os.path.isdir(role_path):
-                    project.roles.append(RoleInfo(name=entry, path=role_path))
+        # Roles discovery: look for 'roles' subdirectory or honor 'roles_path' in ansible.cfg
+        roles_cfg_paths: Optional[list[Path]] = None
+        if cfg_path:
+            try:
+                cfg = cfg if 'cfg' in locals() else ConfigParser()
+                cfg.read(cfg_path)
+                if cfg.has_option("defaults", "roles_path"):
+                    rp_val = cfg.get("defaults", "roles_path").strip()
+                    # Support multiple roles_path entries (colon or comma separated)
+                    rp_items = [i.strip() for i in rp_val.replace(",", ":").split(":") if i.strip()]
+                    rp_paths: list[Path] = []
+                    for it in rp_items:
+                        pth = (cfg_path.parent / it).resolve()
+                        rp_paths.append(pth)
+                    if rp_paths:
+                        roles_cfg_paths = rp_paths
+            except Exception:
+                roles_cfg_paths = None
+
+        if roles_cfg_paths is not None:
+            for rp in roles_cfg_paths:
+                if rp.is_dir():
+                    for entry in os.listdir(str(rp)):
+                        role_path = os.path.join(str(rp), entry)
+                        if os.path.isdir(role_path):
+                            project.roles.append(RoleInfo(name=entry, path=role_path))
+        else:
+            roles_dir = os.path.join(str(path_obj), "roles")
+            if os.path.isdir(roles_dir):
+                for entry in os.listdir(roles_dir):
+                    role_path = os.path.join(roles_dir, entry)
+                    if os.path.isdir(role_path):
+                        project.roles.append(RoleInfo(name=entry, path=role_path))
 
         # Collections discovery: support both 'collections/ansible_collections/<ns>/<coll>'
-        # and 'collections/<ns>/<coll>' layouts
-        collections_dir = os.path.join(str(path_obj), "collections")
-        if os.path.isdir(collections_dir):
-            # Variant A: collections/ansible_collections/<namespace>/<collection>
-            ans_col_dir = os.path.join(collections_dir, "ansible_collections")
-            if os.path.isdir(ans_col_dir):
-                for ns in os.listdir(ans_col_dir):
-                    ns_path = os.path.join(ans_col_dir, ns)
+        # and 'collections/<ns>/<coll>' layouts as well as custom collections_path in ansible.cfg
+        collections_cfg_paths: Optional[list[Path]] = None
+        if cfg_path:
+            try:
+                cfg = cfg if 'cfg' in locals() else ConfigParser()
+                cfg.read(cfg_path)
+                if cfg.has_option("defaults", "collections_path"):
+                    cp_val = cfg.get("defaults", "collections_path").strip()
+                    cp_items = [i.strip() for i in cp_val.replace(",", ":").split(":") if i.strip()]
+                    cp_paths: list[Path] = []
+                    for it in cp_items:
+                        pth = (cfg_path.parent / it).resolve()
+                        cp_paths.append(pth)
+                    if cp_paths:
+                        collections_cfg_paths = cp_paths
+            except Exception:
+                collections_cfg_paths = None
+
+        collections_dir = None
+        if collections_cfg_paths is not None:
+            # collections_cfg_paths replaces default discovery and will be used to find collections
+            collections_dirs_to_scan = [str(p) for p in collections_cfg_paths if p.is_dir()]
+        else:
+            collections_dirs_to_scan = [os.path.join(str(path_obj), "collections")]
+
+        for collections_dir in collections_dirs_to_scan:
+            if os.path.isdir(collections_dir):
+                # Variant A: collections/ansible_collections/<namespace>/<collection>
+                ans_col_dir = os.path.join(collections_dir, "ansible_collections")
+                if os.path.isdir(ans_col_dir):
+                    for ns in os.listdir(ans_col_dir):
+                        ns_path = os.path.join(ans_col_dir, ns)
+                        if os.path.isdir(ns_path):
+                            for coll in os.listdir(ns_path):
+                                coll_path = os.path.join(ns_path, coll)
+                                if os.path.isdir(coll_path):
+                                    project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
+                # Variant B: collections/<namespace>/<collection>
+                # We should parse this even if ansible_collections exists alongside other layout
+                for ns in os.listdir(collections_dir):
+                    if ns == "ansible_collections":
+                        # Skip already processed ansible_collections folder
+                        continue
+                    ns_path = os.path.join(collections_dir, ns)
                     if os.path.isdir(ns_path):
                         for coll in os.listdir(ns_path):
                             coll_path = os.path.join(ns_path, coll)
                             if os.path.isdir(coll_path):
                                 project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
-            # Variant B: collections/<namespace>/<collection>
-            # We should parse this even if ansible_collections exists alongside other layout
-            for ns in os.listdir(collections_dir):
-                if ns == "ansible_collections":
-                    # Skip already processed ansible_collections folder
-                    continue
-                ns_path = os.path.join(collections_dir, ns)
-                if os.path.isdir(ns_path):
-                    for coll in os.listdir(ns_path):
-                        coll_path = os.path.join(ns_path, coll)
-                        if os.path.isdir(coll_path):
-                            project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
 
         # Inventory discovery: support parsing of inventory files under 'inventory' dir
         # Also respect 'inventory' path set in ansible.cfg under [defaults]
