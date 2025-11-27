@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from ansibledoctor.models.project import Project
+from ansibledoctor.models.project import Project, RoleInfo
 
 
 class ProjectParser:
@@ -18,7 +18,14 @@ class ProjectParser:
 
     def parse(self, path: str) -> Project:
         # Minimal implementation: set name from directory name and path
-        name = os.path.basename(os.path.abspath(path))
+        # Project name comes from ansible.cfg if present
+        ansible_cfg = os.path.join(path, "ansible.cfg")
+        name = None
+        if os.path.isfile(ansible_cfg):
+            # If ansible.cfg is present, the parser can extract values (future task),
+            # for now we default to directory name if cfg exists
+            name = os.path.basename(os.path.abspath(path))
+
         project = Project(name=name, path=str(path))
 
         # Roles discovery: look for 'roles' subdirectory
@@ -27,9 +34,7 @@ class ProjectParser:
             for entry in os.listdir(roles_dir):
                 role_path = os.path.join(roles_dir, entry)
                 if os.path.isdir(role_path):
-                    project.roles.append(
-                        project.__class__.parse_obj({'name': entry, 'path': role_path})
-                    )
+                    project.roles.append(RoleInfo(name=entry, path=role_path))
 
         # TODO: add playbook, collection, inventory parsing in later tasks
         return project
