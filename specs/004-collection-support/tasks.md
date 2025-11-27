@@ -179,10 +179,16 @@
 - [X] T082 [US8] Refactor: Optimize path resolution performance
 
 ### Integration Tests for User Story 8
-
 - [X] T083 [US8] Integration test: Parse real community.general metadata in tests/integration/test_real_collections.py
-- [X] T084 [US8] Integration test: Parse mock collection with all fields in tests/integration/test_collection_parsing.py
-- [X] T085 [US8] Integration test: CLI parse command end-to-end in tests/e2e/test_collection_cli.py
+
+## Slug & Output Naming Tasks
+
+These tasks implement the production of slug-based output directories for collections and roles.
+
+- [ ] T224 [US9] Create `collection_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention.
+- [ ] T225 [US9] Update `CollectionDocumentationGenerator` to produce output directories using `collection_slug` and update templates/relative link generation to use slug paths; add integration test verifying `docs/lang/{code}/collection_{namespace}.{collection}/` paths.
+- [ ] T226 [US9] Update CLI help and README examples to display collection slug outputs in examples; add unit tests ensuring examples and help text reference new slug names.
+- [ ] T227 [US9] Add migration flag `--legacy-output` options and create E2E test verifying backward compatibility of old and new outputs when flag is used.
 
 **Checkpoint**: User Story 8 complete - can parse collection metadata and structure independently
 
@@ -413,6 +419,8 @@
 - [X] T217 Generate documentation for demo collection
 - [X] T218 Validate generated docs (manual review)
 - [ ] T219 Add demo to tests/fixtures/collections/
+ - [ ] T261 Update demo outputs in `demo/` to use `collection_{namespace}.{collection}` and `role_{namespace}.{role}` slug naming; update `README-generated.md` demo artifacts and verify inclusion in tests/fixtures/collections/
+ - [ ] T262 Create migration script/documentation to rename existing demo directories and update CI references to new demo paths
 - [X] T220 Create DEMO-COLLECTION-RESULTS.md showcasing output
 
 ### T221-T230: Documentation
