@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Feature 006: Project Documentation Support
+
+- **NEW**: `ansibledoctor/models/project.py` - Pydantic models for Project, Playbook, RoleInfo, CollectionInfo and InventoryItem
+- **NEW**: `ansibledoctor/parser/project_parser.py` - ProjectParser discovers roles and collections and sets project metadata when ansible.cfg is present
+- **NEW**: `ansibledoctor/generator/project_generator.py` - Minimal ProjectDocumentationGenerator supporting Markdown/HTML/RST outputs
+- **NEW**: `ansibledoctor/cli/project.py` - `project` CLI group with `generate` command and relative output path behavior for project docs
+- **NEW**: Demo artifacts in `demo/` moved into `demo/role_demo_namespace.demo_demo_role`, `demo/collection_demo_namespace.demo_collection`, and `demo/project_demo_namespace.demo_project` to be canonical fixtures for integration tests
+- **NEW**: Integration tests: `tests/integration/test_demo_all_formats_generation.py`, `tests/integration/test_demo_collection_generation.py`, `tests/integration/test_demo_project_generation.py`
+
+### Changed
+
+- **ENHANCED**: CLI behavior — `--output` and `--output-dir` writing is now relative to the target artifact (role, collection, or project) when the path isn't absolute
+- **CHORE**: Added optional dev dependencies for format validations: `html5lib` and `docutils` (for HTML/RST validation in tests)
+
+
 ## [0.5.0] - 2025-11-21
 
 ### Added - Feature 004: Ansible Collection Documentation Support
