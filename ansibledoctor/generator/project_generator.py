@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from ansibledoctor.models.project import Project
+from jinja2 import Environment, FileSystemLoader, Template
 from ansibledoctor.generator.models import OutputFormat
 
 
@@ -51,6 +52,26 @@ class ProjectDocumentationGenerator:
 
         output_file = out_dir / f"README.{ext}"
 
+        # If a custom template path is provided, render it using Jinja2
+        # Context provides project, roles, and collections
+        template_rendered = None
+        if template_path:
+            template_path_obj = Path(template_path)
+            # If path is absolute to a file, load it directly; otherwise, resolve relative to cwd
+            if template_path_obj.is_absolute():
+                template_dir = template_path_obj.parent
+                env = Environment(loader=FileSystemLoader(str(template_dir)))
+                tpl = env.get_template(template_path_obj.name)
+            else:
+                env = Environment(loader=FileSystemLoader(str(Path.cwd())))
+                tpl = env.get_template(str(template_path_obj))
+            context = {
+                "project": self.project,
+                "roles": self.project.roles,
+                "collections": self.project.collections,
+            }
+            template_rendered = tpl.render(**context)
+
         # Build content depending on format
         title = self.project.name or Path(self.project.path).name
 
@@ -79,7 +100,10 @@ class ProjectDocumentationGenerator:
                     html_lines.append(f"    <li>{c.name}</li>")
                 html_lines.append("  </ul>")
             html_lines.extend(["</body>", "</html>"])
-            output_file.write_text("\n".join(html_lines), encoding="utf-8")
+            if template_rendered:
+                output_file.write_text(template_rendered, encoding="utf-8")
+            else:
+                output_file.write_text("\n".join(html_lines), encoding="utf-8")
 
         elif format.lower() == OutputFormat.RST.value:
             # Simple RST formatting: Title underline and subheaders
@@ -96,7 +120,10 @@ class ProjectDocumentationGenerator:
                 for c in self.project.collections:
                     rst_lines.append(f"- {c.name}")
                 rst_lines.append("")
-            output_file.write_text("\n".join(rst_lines), encoding="utf-8")
+            if template_rendered:
+                output_file.write_text(template_rendered, encoding="utf-8")
+            else:
+                output_file.write_text("\n".join(rst_lines), encoding="utf-8")
 
         else:
             # Default: markdown
@@ -111,5 +138,8 @@ class ProjectDocumentationGenerator:
                 for c in self.project.collections:
                     content_lines.append(f"- {c.name}")
                 content_lines.append("")
-            output_file.write_text("\n".join(content_lines), encoding="utf-8")
+            if template_rendered:
+                output_file.write_text(template_rendered, encoding="utf-8")
+            else:
+                output_file.write_text("\n".join(content_lines), encoding="utf-8")
         return output_file

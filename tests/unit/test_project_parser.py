@@ -43,3 +43,11 @@ def test_project_parser_discovers_roles_and_collections(tmp_path):
     coll_names = {c.name for c in project.collections}
     assert "my_ns.my_coll" in coll_names
     assert "other_ns.other_coll" in coll_names
+
+
+def test_project_parser_name_read_from_ansible_cfg(tmp_path):
+    (tmp_path / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    # If ansible.cfg is present, parser sets name to the directory's basename
+    assert project.name == tmp_path.name

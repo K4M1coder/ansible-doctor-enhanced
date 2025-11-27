@@ -52,3 +52,15 @@ def test_generate_rst_case_insensitive(tmp_path: Path):
     assert "webserver" in content
     assert "Collections" in content
     assert "my_collection" in content
+
+
+def test_generate_with_custom_template(tmp_path: Path):
+    p = make_project(tmp_path)
+    # create a simple Jinja2 template file
+    tpl = tmp_path / "custom_template.j2"
+    tpl.write_text("Project: {{ project.name }} - roles: {% for r in roles %}{{ r.name }} {% endfor %}")
+    gen = ProjectDocumentationGenerator(p)
+    output = gen.generate(format="markdown", template_path=str(tpl))
+    assert output.exists()
+    content = read_file(output)
+    assert "Project: My Project - roles: webserver" in content
