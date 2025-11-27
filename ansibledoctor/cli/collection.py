@@ -222,6 +222,9 @@ def generate(
         
         # Determine output file path
         output_dir_path = Path(output_dir)
+        # Ensure relative output_dir is relative to collection path
+        if not output_dir_path.is_absolute():
+            output_dir_path = Path(collection_path) / output_dir_path
         output_dir_path.mkdir(parents=True, exist_ok=True)
         
         extensions = {"markdown": "md", "html": "html", "rst": "rst"}

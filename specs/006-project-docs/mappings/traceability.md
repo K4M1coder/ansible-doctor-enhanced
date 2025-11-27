@@ -33,3 +33,8 @@ This artifact maps the `CHK` checklist items (quality/acceptance checks) to the 
 Notes:
 - This map reflects the current tasks in `tasks.md`. When tasks or CHKs change, update this file accordingly.
 - Any CHK mapped only to documentation tasks (e.g., T303) should also be validated via unit tests (preferred) to satisfy Constitution Article IV (Integration & Contract Testing).
+
+## Checklist Completion
+
+All project checklist items in `checklists/project.md` have been reviewed and are now marked as complete. Each CHK maps to at least one task (T###) in this file. Update this matrix if task IDs or mappings change.
+

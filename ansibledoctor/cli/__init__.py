@@ -32,6 +32,7 @@ from ansibledoctor.utils.paths import RolePathValidator
 
 # Import collection command group
 from ansibledoctor.cli.collection import collection
+from ansibledoctor.cli.project import project
 
 logger = get_logger(__name__)
 
@@ -1277,8 +1278,9 @@ def watch(role_path: str, format: str, output: str | None):
         click.echo("Watch stopped.")
 
 
-# Register collection command group
+# Register collection and project command groups
 cli.add_command(collection)
+cli.add_command(project)
 
 
 def main():

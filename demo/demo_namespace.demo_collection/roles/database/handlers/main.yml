@@ -1,9 +1,0 @@
----
-# Database Role - Handlers
-
-- name: Restart PostgreSQL
-  ansible.builtin.service:
-    name: "postgresql@{{ postgresql_version }}-main"
-    state: restarted
-  tags:
-    - database

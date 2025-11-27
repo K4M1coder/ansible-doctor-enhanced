@@ -1,43 +1,58 @@
-import importlib
+import re
+from ansibledoctor.utils.slug import (
+    collection_slug,
+    role_slug,
+    project_slug,
+    join_hierarchy,
+)
+import re
+from ansibledoctor.utils.slug import (
+    collection_slug,
+    role_slug,
+    project_slug,
+    join_hierarchy,
+)
 
 
-def test_collection_slug_format():
-    slug_module = importlib.import_module("ansibledoctor.utils.slug")
-    # Namespace and collection name with spaces and mixed case
-    ns = "My Namespace"
-    name = "My Collection"
-    result = slug_module.collection_slug(ns, name)
-    assert result.startswith("collection_"), "collection_slug must start with 'collection_'"
-    # Expect lowercase and spaces replaced with hyphens, dot separator
-    assert result == "collection_my-namespace.my-collection"
+def test_project_slug_basic():
+    assert project_slug("My Project") == "ansibleproject_my-project"
+    assert project_slug("Café du Monde") == "ansibleproject_cafe-du-monde"
 
 
-def test_role_slug_format():
-    slug_module = importlib.import_module("ansibledoctor.utils.slug")
-    ns = "my_namespace"
-    name = "WebServer"
-    result = slug_module.role_slug(ns, name)
-    assert result.startswith("role_"), "role_slug must start with 'role_'"
-    assert result == "role_my_namespace.webserver"
+def test_collection_slug_basic():
+    assert collection_slug("my-namespace", "my-collection") == "collection_my-namespace.my-collection"
+    # underscores are converted to dashes in namespace for collections
+    assert collection_slug("my_namespace", "my_collection") == "collection_my-namespace.my-collection"
 
 
-def test_project_slug_format():
-    slug_module = importlib.import_module("ansibledoctor.utils.slug")
-    name = "My Project"
-    result = slug_module.project_slug(name)
-    assert result.startswith("ansibleproject_"), "project_slug must start with 'ansibleproject_'"
-    assert result == "ansibleproject_my-project"
+def test_role_slug_allows_underscore():
+    assert role_slug("my_namespace", "web_server") == "role_my_namespace.web-server"
+    # role namespace preserves underscore
+    assert role_slug("My_Namespace", "webserver") == "role_my_namespace.webserver"
 
 
-def test_slug_hierarchy_join():
-    slug_module = importlib.import_module("ansibledoctor.utils.slug")
-    p = slug_module.project_slug("My Project")
-    c = slug_module.collection_slug("My Namespace", "My Collection")
-    r = slug_module.role_slug("my_namespace", "webserver")
-    # Expect the hierarchical path join to include slugs and preserve dots
-    joined = slug_module.join_hierarchy(p, c, r)
-    assert "ansibleproject_my-project" in joined
-    assert "collection_my-namespace.my-collection" in joined
-    assert "role_my_namespace.webserver" in joined
-    # Example path
-    assert joined == "ansibleproject_my-project/collections/collection_my-namespace.my-collection/role_my_namespace.webserver"
+def test_join_hierarchy_simple():
+    proj = "ansibleproject_my-project"
+    coll = "collection_my-namespace.my-collection"
+    role = "role_my_namespace.webserver"
+
+    assert (
+        join_hierarchy(proj, coll, role)
+        == "ansibleproject_my-project/collections/collection_my-namespace.my-collection/role_my_namespace.webserver"
+    )
+
+
+def test_slug_special_characters_and_spaces():
+    assert project_slug("A  B   C") == "ansibleproject_a-b-c"
+    assert project_slug("A---B___C") == "ansibleproject_a-b-c"
+
+
+def test_slug_valid_characters_and_length():
+    # Ensure only allowed characters (a-z, 0-9, dash) are present in the slug portion
+    s = project_slug("Project Name with € symbols © and emojis 🚀")
+    slug_portion = s.replace("ansibleproject_", "")
+    assert re.match(r"^[a-z0-9-]+$", slug_portion)
+    # confirm hyphenated words
+    assert "project-name-with" in slug_portion
+    *** End Patch
+>>>>>>> 006-project-docs

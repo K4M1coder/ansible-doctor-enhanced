@@ -1,0 +1,14 @@
+---
+# Additional variables for demo-role (optional)
+# These are less common variables that override defaults when needed
+
+db_connection_pool_size: 10
+db_query_timeout: 15
+app_cache_enabled: true
+app_cache_ttl: 300
+app_rate_limit: 60
+app_allowed_origins:
+  - "*"
+metrics_enabled: false
+metrics_port: 9100
+log_format: text
