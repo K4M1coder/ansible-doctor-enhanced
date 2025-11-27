@@ -30,7 +30,7 @@ This demonstration showcases the complete feature set of ansible-doctor-enhanced
 ## Demo Role Structure
 
 ```
-demo-role/
+demo/role_demo_namespace.demo_demo_role/
 ├── .ansibledoctor.yml    # Config file for discovery demo
 ├── README.md             # Manual documentation
 ├── GENERATED-DOCS.md     # Auto-generated documentation ⭐
@@ -237,20 +237,38 @@ example: 8080
 
 ### Generate Documentation
 ```bash
-# Markdown (default)
-ansible-doctor-enhanced generate demo-role --format markdown
+ # Role: Markdown (default)
+ ansible-doctor-enhanced generate demo/role_demo_namespace.demo_demo_role --format markdown
 
-# HTML output
-ansible-doctor-enhanced generate demo-role --format html --output docs/index.html
+ # Role: HTML
+ ansible-doctor-enhanced generate demo/role_demo_namespace.demo_demo_role --format html --output doc/README.html
 
-# RST output
-ansible-doctor-enhanced generate demo-role --format rst --output docs/index.rst
+ # Role: RST
+ ansible-doctor-enhanced generate demo/role_demo_namespace.demo_demo_role --format rst --output doc/README.rst
+
+ # Collection: Markdown
+ ansible-doctor-enhanced collection generate demo/collection_demo_namespace.demo_collection --format markdown
+
+ # Collection: HTML
+ ansible-doctor-enhanced collection generate demo/collection_demo_namespace.demo_collection --format html --output docs/README.html
+
+ # Collection: RST
+ ansible-doctor-enhanced collection generate demo/collection_demo_namespace.demo_collection --format rst --output docs/README.rst
+
+ # Project: Markdown
+ ansible-doctor-enhanced project generate demo/project_demo_namespace.demo_project --format markdown
+
+ # Project: HTML
+ ansible-doctor-enhanced project generate demo/project_demo_namespace.demo_project --format html --output doc/README.html
+
+ # Project: RST
+ ansible-doctor-enhanced project generate demo/project_demo_namespace.demo_project --format rst --output doc/README.rst
 ```
 
 ### Config Validation
 ```bash
 # Validate config file
-cd demo-role
+cd demo/role_demo_namespace.demo_demo_role
 ansible-doctor-enhanced config validate
 
 # Show config with resolved paths
@@ -260,10 +278,10 @@ ansible-doctor-enhanced config show
 ### Watch Mode
 ```bash
 # Auto-regenerate on file changes
-ansible-doctor-enhanced watch demo-role --output README.md
+ansible-doctor-enhanced watch demo/role_demo_namespace.demo_demo_role --output README.md
 
 # Watch with custom format
-ansible-doctor-enhanced watch demo-role --format html --output docs/index.html
+ansible-doctor-enhanced watch demo/role_demo_namespace.demo_demo_role --format html --output docs/index.html
 ```
 
 ## Performance Metrics

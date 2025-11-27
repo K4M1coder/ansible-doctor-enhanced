@@ -55,7 +55,8 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Acceptance Tests
 
-- [ ] T306 E2E test: generate multi-language project docs and verify output structure and translated headers
+- [x] T306 E2E test: generate multi-language project docs and verify output structure and translated headers
+    - Extended to verify generation in all formats (markdown, html, rst) for sample demo project artifacts (integration tests) [tests/integration/test_demo_all_formats_generation.py]
 
 - [ ] T307 Performance test: ensure typical project doc generation under 10s
 
@@ -63,8 +64,9 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 - [ ] T308 [US14] Write unit tests for `parse-project` CLI command in `tests/unit/test_cli_project.py` (TDD)
 - [ ] T309 [US15] Implement `parse-project` CLI command skeleton and minimal functionality in `ansibledoctor/cli/project.py` (RED→GREEN)
-- [ ] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force` (TDD)
-- [ ] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
+- [x] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force`, `--format` (TDD)
+- [x] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
+    - Verified generate in all formats during integration tests (project/collection/role) [tests/integration/test_demo_all_formats_generation.py]
 - [ ] T312 [US16] Add unit/integration tests for `analyze-project` and `visualize-project` CLI commands (TDD)
 - [ ] T313 [US16] Implement `analyze-project` and `visualize-project` CLI command skeletons and basic parsers/renderers
 
