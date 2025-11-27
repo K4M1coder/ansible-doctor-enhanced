@@ -44,6 +44,9 @@ class ProjectParser:
             name = cfg_path.parent.name
             # And update the effective project root path to the dir with ansible.cfg
             path_obj = cfg_path.parent
+        else:
+            # If no ansible.cfg, use the directory name
+            name = path_obj.name
 
         project = Project(name=name, path=str(path_obj))
 

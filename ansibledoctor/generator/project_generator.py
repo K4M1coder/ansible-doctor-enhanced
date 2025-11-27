@@ -12,6 +12,7 @@ from typing import Optional
 from ansibledoctor.models.project import Project
 from jinja2 import Environment, FileSystemLoader, Template
 from ansibledoctor.generator.models import OutputFormat
+from ansibledoctor.utils.slug import project_slug
 
 
 class ProjectDocumentationGenerator:
@@ -35,13 +36,17 @@ class ProjectDocumentationGenerator:
 
         Args:
             format: Output format: 'markdown', 'html', 'rst'
-            output_dir: Directory to write docs to. Defaults to './doc'
+            output_dir: Directory to write docs to. Defaults to './docs/ansibleproject_{projectname}'
             template_path: Optional template path (not used in minimal implementation)
 
         Returns:
             Path: The path to the generated file.
         """
-        out_dir = Path(output_dir) if output_dir else Path(self.project.path) / "doc"
+        if output_dir is None:
+            slug = project_slug(self.project.name)
+            out_dir = Path(self.project.path) / "docs" / slug
+        else:
+            out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
 
         ext = {
