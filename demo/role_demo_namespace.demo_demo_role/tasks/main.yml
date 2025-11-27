@@ -1,0 +1,161 @@
+---
+# Main task file for demo-role
+# @todo(high): Add input validation for required variables (app_name, db_password)
+# @todo(medium): Implement rollback mechanism for failed deployments
+# @todo(low): Add support for custom systemd service templates
+
+# @example Running installation tasks only
+# ansible-playbook site.yml --tags "installation"
+# @end
+
+- name: Display deployment information
+  ansible.builtin.debug:
+    msg: "Deploying {{ app_name }} to {{ inventory_hostname }}"
+  tags:
+    - always
+    - info
+
+- name: Create application user
+  ansible.builtin.user:
+    name: "{{ app_name }}"
+    system: true
+    shell: /bin/bash
+    home: "{{ app_install_dir }}"
+    createhome: true
+  tags:
+    - installation
+    - users
+
+- name: Create application directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+    mode: "0755"
+  loop:
+    - "{{ app_install_dir }}"
+    - "{{ app_config_dir }}"
+    - "{{ app_log_dir }}"
+    - "{{ app_install_dir }}/bin"
+    - "{{ app_install_dir }}/lib"
+  tags:
+    - installation
+    - directories
+
+# @todo(critical): Add SSL certificate validation before enabling HTTPS
+- name: Configure web server
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ app_name }}.conf
+    mode: "0644"
+  notify: Reload nginx
+  tags:
+    - configuration
+    - webserver
+
+- name: Enable web server site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/{{ app_name }}.conf
+    dest: /etc/nginx/sites-enabled/{{ app_name }}.conf
+    state: link
+  notify: Reload nginx
+  tags:
+    - configuration
+    - webserver
+
+- name: Install application dependencies
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3
+    - python3-pip
+    - python3-venv
+    - postgresql-client
+  tags:
+    - installation
+    - packages
+
+# @todo(high): Implement database migration mechanism with version tracking
+- name: Create database
+  community.postgresql.postgresql_db:
+    name: "{{ db_name }}"
+    state: present
+  delegate_to: "{{ db_host }}"
+  tags:
+    - database
+    - setup
+
+- name: Create database user
+  community.postgresql.postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    db: "{{ db_name }}"
+    priv: "ALL"
+    state: present
+  delegate_to: "{{ db_host }}"
+  tags:
+    - database
+    - setup
+
+- name: Deploy application configuration
+  ansible.builtin.template:
+    src: app-config.yml.j2
+    dest: "{{ app_config_dir }}/config.yml"
+    owner: "{{ app_name }}"
+    group: "{{ app_name }}"
+    mode: "0600"
+  notify: Restart application
+  tags:
+    - configuration
+    - deployment
+
+- name: Create systemd service
+  ansible.builtin.template:
+    src: app.service.j2
+    dest: /etc/systemd/system/{{ app_name }}.service
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart application
+  tags:
+    - installation
+    - systemd
+
+- name: Enable and start application service
+  ansible.builtin.systemd:
+    name: "{{ app_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  tags:
+    - deployment
+    - services
+
+# @example Checking application status
+# ansible-playbook site.yml --tags "healthcheck"
+# @end
+
+- name: Wait for application to be ready
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host | default('localhost') }}"
+    port: "{{ app_port }}"
+    delay: 5
+    timeout: 60
+  tags:
+    - deployment
+    - healthcheck
+
+- name: Verify application health
+  ansible.builtin.uri:
+    url: "http://localhost:{{ app_port }}/health"
+    method: GET
+    status_code: 200
+  register: health_check
+  retries: 3
+  delay: 5
+  until: health_check.status == 200
+  tags:
+    - deployment
+    - healthcheck

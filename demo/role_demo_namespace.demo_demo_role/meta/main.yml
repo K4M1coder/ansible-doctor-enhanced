@@ -1,0 +1,55 @@
+---
+galaxy_info:
+  author: Ansible Doctor Enhanced Demo
+  description: Demonstration role showcasing all ansible-doctor-enhanced features
+  company: Open Source Community
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+  galaxy_tags:
+    - demo
+    - documentation
+    - example
+
+dependencies:
+  - role: geerlingguy.nginx
+    version: "3.1.0"
+  - role: geerlingguy.postgresql
+    version: "3.4.0"
+
+# Argument specs for role validation (Ansible 2.11+)
+argument_specs:
+  main:
+    short_description: Main entry point for web application deployment
+    description:
+      - Deploys a complete web application stack
+      - Configures nginx as reverse proxy
+      - Sets up PostgreSQL database
+      - Manages application lifecycle
+    options:
+      app_name:
+        description: Name of the web application
+        type: str
+        required: true
+      app_port:
+        description: TCP port for the application server
+        type: int
+        required: false
+        default: 8000
+      app_debug:
+        description: Enable debug mode for development
+        type: bool
+        required: false
+        default: false
