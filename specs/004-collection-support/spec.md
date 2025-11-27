@@ -116,6 +116,29 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 - Q: Which files to exclude from plugin discovery? → A: No exclusions (parse all Python files, let validation filter)
 - Q: Role index layout format (table vs list)? → A: Let template decide (configurable via template)
 
+## Output Naming & Slugs
+
+To provide consistent, machine-friendly output paths and prevent collisions, generators MUST create output directories using a stable slug naming convention. This convention is used by collection, role, and project generators, and must be consistent across all languages and features:
+
+- Collection slug: `collection_{namespace}.{collection}` where `namespace` and `collection` are taken from `galaxy.yml` `namespace`/`name` fields. Example: `collection_my_namespace.my_collection`.
+- Role slug (when part of a collection): `role_{namespace}.{rolename}` where `namespace` is the collection namespace and `rolename` is the role directory name. Example: `role_my_namespace.webserver`.
+- Role slug (standalone): `role_{rolename}` when no collection namespace is available; this case requires careful collision handling.
+
+Slug generation rules:
+- All slug components MUST be ASCII lowercase. Any non-ASCII or whitespace characters MUST be normalized and replaced with `-` or removed, following URL-safe slugification.
+- Dots (`.`) are preserved as namespace separators within the slug (e.g., `namespace.collection`).
+- Slug length should be capped at 255 characters; generator implementers SHOULD truncate with a deterministic hash suffix when exceeded.
+- Slug conflicts within the same output directory MUST be resolved deterministically (append `-1`, `-2`, etc.) and logged.
+
+Output Path Example (per-language):
+```
+docs/lang/{code}/collection_my_namespace.my_collection/role_my_namespace.webserver/README.md
+docs/lang/{code}/collection_my_namespace.my_collection/README.md
+```
+
+Backwards Compatibility & Migration:
+- If the project historically used a different layout, generators MUST support a compatibility mode (e.g., `--legacy-output`) to write to both old and new paths or provide a migration tool. This compatibility behavior MUST be documented and signed-off as a potential breaking change in PRs and the CHANGELOG.
+
 ## Prerequisites Validation
 
 Before starting this feature, MUST verify:

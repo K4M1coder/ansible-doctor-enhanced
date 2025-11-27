@@ -1,0 +1,25 @@
+---
+# Application Configuration Variables
+# These variables control the core application behavior and deployment
+
+app_name: "demo-app"
+app_port: 8000
+app_debug: false
+app_workers: 2
+
+db_host: "localhost"
+db_port: 5432
+db_name: "{{ app_name }}_db"
+db_user: "{{ app_name }}_user"
+db_password: "changeme"
+
+web_ssl_enabled: false
+web_ssl_cert: ""
+web_ssl_key: ""
+web_domain: "localhost"
+
+app_install_dir: "/opt/{{ app_name }}"
+app_config_dir: "/etc/{{ app_name }}"
+app_log_dir: "/var/log/{{ app_name }}"
+
+old_app_path: "/usr/local/{{ app_name }}"
