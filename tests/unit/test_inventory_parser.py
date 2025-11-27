@@ -71,3 +71,121 @@ def test_parse_inventory_dir_merges_groups_across_files(tmp_path):
     # also ensure host2 and host3 present
     assert any(i.name == "host2" for i in parsed)
     assert any(i.name == "host3" for i in parsed)
+
+
+def test_group_and_host_vars_parsing_and_precedence(tmp_path):
+    # Prepare project structure
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
+    # Inventory and host grouping
+    inv = repo / "inventory"
+    inv.mkdir()
+    (inv / "hosts.ini").write_text("""
+  [web]
+  host1
+  """, encoding="utf-8")
+    # group_vars -> all and web
+    gdir = repo / "group_vars"
+    gdir.mkdir()
+    (gdir / "all.yml").write_text("""
+  global_setting: global
+  db_password: group_secret
+  """, encoding="utf-8")
+    (gdir / "web.yml").write_text("""
+  db_password: web_secret
+  role_only: webrole
+  """, encoding="utf-8")
+    # host_vars
+    hdir = repo / "host_vars"
+    hdir.mkdir()
+    (hdir / "host1.yml").write_text("""
+  db_password: host_secret
+  api_token: host_token
+  """, encoding="utf-8")
+
+    # role defaults (simulate by creating a role with defaults/main.yml)
+    roles = repo / "roles"
+    roles.mkdir()
+    r1 = roles / "webserver"
+    (r1 / "defaults").mkdir(parents=True)
+    (r1 / "defaults" / "main.yml").write_text("""
+  db_password: role_secret
+  role_default: default
+  """, encoding="utf-8")
+
+    # Parse project using ProjectParser.parse and verify effective vars
+    from ansibledoctor.parser.project_parser import ProjectParser
+    parser = ProjectParser(redact_sensitive=False)
+    project = parser.parse(str(repo))
+
+    # Ensure group_vars and host_vars were loaded
+    assert "all" in project.group_vars
+    assert "web" in project.group_vars
+    assert "host1" in project.host_vars
+
+    # Compute effective variables for host1 (presence and precedence)
+    eff = project.effective_vars.get("host1")
+    assert eff is not None
+    # Precedence: host_vars > group_vars(web) > group_vars(all) > role defaults
+    assert eff["db_password"] == "host_secret"
+    assert eff["api_token"] == "host_token"
+    assert eff["role_default"] == "default"
+
+
+def test_project_parser_redacts_sensitive_by_default(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
+    inv = repo / "inventory"
+    inv.mkdir()
+    (inv / "hosts.ini").write_text("""
+  [web]
+  host1
+  """, encoding="utf-8")
+    gdir = repo / "group_vars"
+    gdir.mkdir()
+    (gdir / "all.yml").write_text("""
+  db_password: group_secret
+  """, encoding="utf-8")
+    hdir = repo / "host_vars"
+    hdir.mkdir()
+    (hdir / "host1.yml").write_text("""
+  db_password: host_secret
+  """, encoding="utf-8")
+    from ansibledoctor.parser.project_parser import ProjectParser
+    parser = ProjectParser()  # redact_sensitive default True
+    project = parser.parse(str(repo))
+    eff = project.effective_vars.get("host1")
+    assert eff is not None
+    assert eff["db_password"] == "***REDACTED***"
+
+
+def test_project_parser_respects_redaction_config(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
+    (repo / ".ansibledoctor.yml").write_text("""
+redaction:
+  enabled: true
+  patterns:
+    - "secret"
+  placeholder: "<MASKED>"
+""", encoding="utf-8")
+    inv = repo / "inventory"
+    inv.mkdir()
+    (inv / "hosts.ini").write_text("""
+[web]
+host1
+""", encoding="utf-8")
+    gdir = repo / "group_vars"
+    gdir.mkdir()
+    (gdir / "all.yml").write_text("""
+db_secret: sensitive
+""", encoding="utf-8")
+    from ansibledoctor.parser.project_parser import ProjectParser
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    eff = project.effective_vars.get("host1")
+    assert eff is not None
+    assert eff["db_secret"] == "<MASKED>"

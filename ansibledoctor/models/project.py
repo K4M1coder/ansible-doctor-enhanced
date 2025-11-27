@@ -7,7 +7,7 @@ will be expanded as project parsing features grow.
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Any
 from pydantic import BaseModel, Field
 
 
@@ -41,3 +41,8 @@ class Project(BaseModel):
     roles: List[RoleInfo] = Field(default_factory=list)
     collections: List[CollectionInfo] = Field(default_factory=list)
     inventory: List[InventoryItem] = Field(default_factory=list)
+    # Inventory variables mapping (group_vars and host_vars)
+    group_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    host_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    # computed effective variables per host (applies precedence)
+    effective_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)

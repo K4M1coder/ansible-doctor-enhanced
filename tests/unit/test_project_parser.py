@@ -262,3 +262,145 @@ filehost
     project = parser.parse(str(repo))
     names = {h.name for h in project.inventory}
     assert "filehost" in names
+
+
+def test_project_parser_prefers_nearest_ansible_cfg(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+inventory = ancestor_inventory
+roles_path = ancestor_roles
+""", encoding="utf-8")
+    # ancestor inventory and roles
+    ancestor_inv = repo / "ancestor_inventory"
+    ancestor_inv.mkdir()
+    (ancestor_inv / "hosts.ini").write_text("""
+[web]
+ancestor_host
+""", encoding="utf-8")
+    ancestor_roles = repo / "ancestor_roles"
+    ancestor_roles.mkdir()
+    (ancestor_roles / "role_a").mkdir()
+
+    # child ansible.cfg configuration
+    sub = repo / "sub"
+    sub.mkdir()
+    (sub / "ansible.cfg").write_text("""
+[defaults]
+inventory = child_inventory
+roles_path = child_roles
+""", encoding="utf-8")
+    child_inv = sub / "child_inventory"
+    child_inv.mkdir()
+    (child_inv / "hosts.ini").write_text("""
+[web]
+child_host
+""", encoding="utf-8")
+    child_roles = sub / "child_roles"
+    child_roles.mkdir()
+    (child_roles / "role_b").mkdir()
+
+    # Call parser from a sub-path under `sub`
+    nested = sub / "nested"
+    nested.mkdir()
+    parser = ProjectParser(redact_sensitive=False)
+    project = parser.parse(str(nested))
+    # Should prefer child ansible.cfg for project root detection
+    assert project.name == sub.name
+    # roles should include child role and not ancestor role if nearest chosen
+    role_names = {r.name for r in project.roles}
+    assert "role_b" in role_names
+    assert "role_a" not in role_names
+    # inventory should include child_host, not ancestor_host
+    host_names = {h.name for h in project.inventory}
+    assert "child_host" in host_names
+    assert "ancestor_host" not in host_names
+
+
+def test_project_parser_respects_ansible_cfg_roles_path_single(tmp_path):
+    # Create repo and custom roles_path specified in ansible.cfg
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+roles_path = custom_roles
+""", encoding="utf-8")
+    custom_roles = repo / "custom_roles"
+    custom_roles.mkdir()
+    (custom_roles / "webserver").mkdir()
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    role_names = {r.name for r in project.roles}
+    assert "webserver" in role_names
+
+
+def test_project_parser_respects_ansible_cfg_roles_path_multiple(tmp_path):
+    # Create repo and custom roles_path with multiple values
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+roles_path = custom_roles:other_roles
+""", encoding="utf-8")
+    custom_roles = repo / "custom_roles"
+    custom_roles.mkdir()
+    (custom_roles / "webserver").mkdir()
+    other_roles = repo / "other_roles"
+    other_roles.mkdir()
+    (other_roles / "db").mkdir()
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    role_names = {r.name for r in project.roles}
+    assert "webserver" in role_names
+    assert "db" in role_names
+
+
+def test_project_parser_respects_ansible_cfg_roles_path_absolute(tmp_path):
+    # Create repo and a roles path outside repo with absolute path
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    abs_roles = tmp_path / "abs_roles"
+    abs_roles.mkdir()
+    (abs_roles / "standalone").mkdir()
+    (repo / "ansible.cfg").write_text(f"""
+[defaults]
+roles_path = {abs_roles}
+""", encoding="utf-8")
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    role_names = {r.name for r in project.roles}
+    assert "standalone" in role_names
+
+
+def test_project_parser_respects_ansible_cfg_collections_path_single(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+collections_path = custom_collections
+""", encoding="utf-8")
+    custom_col = repo / "custom_collections" / "my_ns" / "my_coll"
+    custom_col.mkdir(parents=True)
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    coll_names = {c.name for c in project.collections}
+    assert "my_ns.my_coll" in coll_names
+
+
+def test_project_parser_respects_ansible_cfg_collections_path_multiple(tmp_path):
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "ansible.cfg").write_text("""
+[defaults]
+collections_path = custom_collections:other_collections
+""", encoding="utf-8")
+    custom_col = repo / "custom_collections" / "ns1" / "coll1"
+    custom_col.mkdir(parents=True)
+    other_col = repo / "other_collections" / "ns2" / "coll2"
+    other_col.mkdir(parents=True)
+    parser = ProjectParser()
+    project = parser.parse(str(repo))
+    coll_names = {c.name for c in project.collections}
+    assert "ns1.coll1" in coll_names
+    assert "ns2.coll2" in coll_names

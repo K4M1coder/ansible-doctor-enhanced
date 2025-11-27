@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NEW**: `ansibledoctor/models/project.py` - Pydantic models for Project, Playbook, RoleInfo, CollectionInfo and InventoryItem
 - **NEW**: `ansibledoctor/parser/project_parser.py` - ProjectParser discovers roles and collections and sets project metadata when ansible.cfg is present
  - **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors monorepo detection (nearest ancestor `ansible.cfg`), respects `ansible.cfg` `[defaults] inventory` path(s), supports inventory file/directory parsing and merging across multiple inventory sources (T204/T314/T315/T316)
+ - **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors `ansible.cfg` `[defaults] roles_path` and `collections_path` settings, resolving both relative and absolute paths, and supports multiple path entries (colon/comma separated) for robust discovery (T204)
 - **NEW**: `ansibledoctor/generator/project_generator.py` - Minimal ProjectDocumentationGenerator supporting Markdown/HTML/RST outputs
 - **NEW**: `ansibledoctor/cli/project.py` - `project` CLI group with `generate` command and relative output path behavior for project docs
 - **NEW**: Demo artifacts in `demo/` moved into `demo/role_demo_namespace.demo_demo_role`, `demo/collection_demo_namespace.demo_collection`, and `demo/project_demo_namespace.demo_project` to be canonical fixtures for integration tests
