@@ -8,30 +8,36 @@ description: "Task breakdown for Feature 006: Project Documentation"
 **Prerequisites**: v0.6.0 (i18n) ✅, v0.5.0 (collection) ✅
 
 ## Phase 1: Setup
-- [ ] T201 Create project parser skeleton `ansibledoctor/parser/project_parser.py` and tests
-- [ ] T202 Add pydantic models `ansibledoctor/models/project.py` (Project, Playbook, Inventory, HostGroup)
+## Phase 1: Setup
+- [x] T201 Create project parser skeleton `ansibledoctor/parser/project_parser.py` and tests
+- [x] T202 Add pydantic models `ansibledoctor/models/project.py` (Project, Playbook, Inventory, HostGroup)
 
 ## Phase 2: Parsing & Analysis
-- [ ] T203 [US14] Write tests for project parsing in `tests/unit/test_project_parser.py` (TDD)
+## Phase 2: Parsing & Analysis
+- [x] T203 [US14] Write tests for project parsing in `tests/unit/test_project_parser.py` (TDD)
 - [ ] T204 [US14] Implement project parser to parse ansible.cfg, inventory, playbooks, roles, collections
-- [ ] T205 [US14] Add discovery for local roles and collections inside a project
+- [x] T205 [US14] Add discovery for local roles and collections inside a project
 
 ## Phase 3: Documentation Generation
-- [ ] T206 [US15] Implement `ProjectDocumentationGenerator` using TemplateEngine
-- [ ] T207 [US15] Write unit tests for generated project README and per-component docs
+## Phase 3: Documentation Generation
+- [x] T206 [US15] Implement `ProjectDocumentationGenerator` using TemplateEngine
+- [x] T207 [US15] Write unit tests for generated project README and per-component docs
 - [ ] T208 [US15] Add architecture summary generation (Mermaid diagram) and integration tests
 
-## Template & i18n Integration
-
+## Slug & Output Naming Tasks (Project-level)
+- [x] T301 [US14] Create `project_slug(name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests at `tests/unit/test_slug.py` ensuring ASCII-safe lowercase, hyphenation, dot-preserving behaviour
+- [x] T302 [US14] Update `ProjectDocumentationGenerator` to use `ansibleproject_{projectname}` slug and update CLI output paths to `docs/lang/{code}/ansibleproject_{projectname}/`; add integration tests to verify paths
 - [ ] T319 [US15] Add tests to ensure project-level templates reuse role/collection templates where appropriate (TDD)
 
-- [ ] T320 [US18] Add translation keys and tests for project-level templates ensuring fallback behavior (TDD)
+## Phase 7: Release Prep
+- [x] T305 Finalize changelog & README updates
 
 ## Phase 4: Playbook & Visualization
-
-- [ ] T209 [US16] Implement static playbook analysis to generate task flow diagrams
-
-- [ ] T210 [US17] Implement visualization renderer and tests
+## CLI Commands & Integration (TDD first)
+- [ ] T308 [US14] Write unit tests for `parse-project` CLI command in `tests/unit/test_cli_project.py` (TDD)
+- [ ] T309 [US15] Implement `parse-project` CLI command skeleton and minimal functionality in `ansibledoctor/cli/project.py` (RED→GREEN)
+- [x] T310 [US15] Write unit tests for `generate-project` CLI command, including options: `--languages`, `--output`, `--legacy-output`, `--force`, `--format` (TDD)
+- [x] T311 [US15] Implement `generate-project` CLI command skeleton and integrate ProjectDocumentationGenerator (RED→GREEN)
 
 ## Phase 5: i18n Integration & Multi-Language
 
@@ -86,3 +92,21 @@ description: "Task breakdown for Feature 006: Project Documentation"
 - [ ] T321 Create traceability matrix that maps `checklists/project.md` CHK items to these tasks (T201-T320) and mark any coverage gaps; create `mappings/traceability.md` artifact (current file)
 
 - [ ] T322 [ADMIN] Resolve or document feature numbering mismatch (constitution vs repo) and add guidance for maintainers; do not change code or branch names without consensus
+
+## MVP Status & Backlog
+
+MVP (Minimum Viable Product) for Feature 006 was completed locally and merged to `dev` on 2025-11-27.
+
+Completed MVP work includes: T201, T202, T203, T205, T206, T207, T301, T302, T305, T310, T311 (verify in commit history & changelog).
+
+High-priority backlog (candidate for next sprint or immediate assignment):
+- [ ] T204 — Full project parser (ansible.cfg, inventory, playbook parsing) — HIGH
+- [ ] T208 — Architecture summary (Mermaid diagram generation) — HIGH
+- [ ] T209 — Playbook static analysis (task flow diagrams) — HIGH
+- [ ] T210 — Visualization renderer & tests — HIGH
+- [ ] T312/T313 — Implement analyze/visualize CLI and tests — HIGH
+- [ ] T314/T315/T316 — Inventory parsing & monorepo/root detection & variable precedence — HIGH
+- [ ] T317/T318 — Redaction tests and CLI config — HIGH
+- [ ] T319/T320 — Template reuse & i18n integration for project-level templates — HIGH
+
+Notes: these backlog items should be scheduled according to team capacity; update `tasks.md` and mark them as [x] when complete.
