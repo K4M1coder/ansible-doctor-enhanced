@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **TEST**: Unit tests added for `ansibledoctor/utils/slug.py` and `ansibledoctor/generator/project_generator.py` to cover slug generation and project README outputs (Markdown/HTML/RST)
  - **TEST**: Unit tests added for inventory parsing and project parser behavior: `tests/unit/test_inventory_parser.py`, `tests/unit/test_project_parser.py` (monorepo root detection, ansible.cfg inventory path handling, inventory merging) (T314/T315/T316)
+ - **TEST**: Unit tests added for `group_vars` and `host_vars` parsing and variable precedence (`tests/unit/test_inventory_parser.py`) and redaction config (`tests/unit/test_inventory_parser.py`) (T316/T317/T318)
+### Changed - Project Parser & Inventory (additional)
+
+- **ENHANCED**: `ansibledoctor/parser/project_parser.py` now loads `group_vars/` and `host_vars/`, computes merged effective variables per host (role defaults -> group_vars -> host_vars precedence), and exposes `project.group_vars`, `project.host_vars`, and `project.effective_vars` (T316).
+- **ENHANCED**: `ansibledoctor/cli/project.py` added `--redact-values/--no-redact-values` flag; `ProjectParser` supports redaction and reads `.ansibledoctor.yml` redaction config to override patterns and placeholder (T317/T318).
  - **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
  - **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
 
