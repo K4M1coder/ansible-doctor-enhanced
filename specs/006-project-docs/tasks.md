@@ -78,14 +78,14 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Parsing & Data Quality (TDD first)
 
-- [ ] T314 [US14] Add tests & parsing logic for supported inventory formats (INI, YAML, host_vars/group_vars lookup) — `ansibledoctor/parser/inventory_parser.py` (TDD)
-- [ ] T315 [US14] Add integration tests for monorepo / multi-ansible.cfg detection and project root discovery (TDD)
-- [ ] T316 [US14] Implement variable precedence capture & documentation tests (ansible.cfg, group_vars, host_vars, role defaults) — include sample fixtures
+ - [x] T314 [US14] Add tests & parsing logic for supported inventory formats (INI, YAML, host_vars/group_vars lookup) — `ansibledoctor/parser/inventory_parser.py` (TDD)
+ - [x] T315 [US14] Add integration tests for monorepo / multi-ansible.cfg detection and project root discovery (TDD)
+ - [x] T316 [US14] Implement variable precedence capture & documentation tests (ansible.cfg, group_vars, host_vars, role defaults) — include sample fixtures
 
 ## Security & Redaction
 
-- [ ] T317 [US18] Add tests for redaction defaults (passwords, tokens, secrets) and a CLI flag `--redact-sensitive` (TDD)
-- [ ] T318 [US18] Implement redaction configuration options (config defaults, mapping patterns, redaction replacements)
+ - [x] T317 [US18] Add tests for redaction defaults (passwords, tokens, secrets) and a CLI flag `--redact-sensitive` (TDD)
+ - [x] T318 [US18] Implement redaction configuration options (config defaults, mapping patterns, redaction replacements)
 
 ## Task Mapping to Checklists & Acceptance
 
