@@ -51,3 +51,69 @@ def test_project_parser_name_read_from_ansible_cfg(tmp_path):
     project = parser.parse(tmp_path)
     # If ansible.cfg is present, parser sets name to the directory's basename
     assert project.name == tmp_path.name
+
+
+def test_project_parser_parses_ini_inventory(tmp_path):
+        inv_dir = tmp_path / "inventory"
+        inv_dir.mkdir()
+        inv_file = inv_dir / "hosts.ini"
+        inv_file.write_text("""
+[webservers]
+host1 ansible_host=1.2.3.4
+host2
+
+[db]
+db1
+""", encoding="utf-8")
+
+        parser = ProjectParser()
+        project = parser.parse(tmp_path)
+        host_names = {h.name for h in project.inventory}
+        assert "host1" in host_names
+        assert "host2" in host_names
+        assert "db1" in host_names
+
+
+def test_project_parser_parses_yaml_inventory(tmp_path):
+        inv_dir = tmp_path / "inventory"
+        inv_dir.mkdir()
+        inv_file = inv_dir / "hosts.yml"
+        inv_file.write_text(
+                """
+all:
+    children:
+        webservers:
+            hosts:
+                hosta:
+                    ansible_host: 1.2.3.4
+                hostb: {}
+""",
+                encoding="utf-8",
+        )
+        parser = ProjectParser()
+        project = parser.parse(tmp_path)
+        host_names = {h.name for h in project.inventory}
+        assert "hosta" in host_names
+        assert "hostb" in host_names
+
+
+def test_project_parser_discovers_playbooks(tmp_path):
+        # Create a simple playbooks folder with one playbook
+        pdir = tmp_path / "playbooks"
+        pdir.mkdir()
+        pb = pdir / "site.yml"
+        pb.write_text(
+            """
+    - name: Site Playbook
+      hosts: webservers
+      roles:
+        - webserver
+    """,
+            encoding="utf-8",
+        )
+        parser = ProjectParser()
+        project = parser.parse(tmp_path)
+        assert len(project.playbooks) == 1
+        pb_info = project.playbooks[0]
+        assert "webservers" in pb_info.hosts
+        assert "webserver" in pb_info.roles

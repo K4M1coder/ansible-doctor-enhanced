@@ -7,9 +7,12 @@ unit tests and will be expanded by feature tasks as parsing complexity grows.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Optional
 
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
+from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo, Playbook
+from ansibledoctor.parser.inventory_parser import parse_inventory_dir
+from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 
 
 class ProjectParser:
@@ -69,5 +72,84 @@ class ProjectParser:
                         if os.path.isdir(coll_path):
                             project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
 
-        # TODO: add playbook, collection, inventory parsing in later tasks
+        # Inventory discovery: support parsing of inventory files under 'inventory' dir
+        inventory_dir = os.path.join(path, "inventory")
+        if os.path.isdir(inventory_dir):
+            for item in parse_inventory_dir(Path(inventory_dir)):
+                project.inventory.append(item)
+
+        # Playbook discovery: look for 'playbooks' directory or any top-level .yml files
+        playbooks_dir = os.path.join(path, "playbooks")
+        yaml_loader = RuamelYAMLLoader()
+        if os.path.isdir(playbooks_dir):
+            for fname in os.listdir(playbooks_dir):
+                if fname.endswith(".yml") or fname.endswith(".yaml"):
+                    pb_path = os.path.join(playbooks_dir, fname)
+                    try:
+                        data = yaml_loader.load_file(Path(pb_path))
+                        # Playbook is typically a list of plays, but sometimes a dict (single-play)
+                        if (isinstance(data, list) and data) or (
+                            isinstance(data, dict) and ("hosts" in data or "roles" in data)
+                        ):
+                            # Build a Playbook model with aggregated hosts and roles
+                            hosts = set()
+                            roles = set()
+                            plays_list = data if isinstance(data, list) else [data]
+                            for play in plays_list:
+                                if isinstance(play, dict):
+                                    hs = play.get("hosts")
+                                    if hs:
+                                        if isinstance(hs, list):
+                                            hosts.update(hs)
+                                        else:
+                                            hosts.add(str(hs))
+                                    rls = play.get("roles") or []
+                                    for r in rls:
+                                        if isinstance(r, dict):
+                                            # role may be dict: {role: name}
+                                            name = r.get("role") or r.get("name")
+                                            if name:
+                                                roles.add(name)
+                                        else:
+                                            roles.add(str(r))
+                            pb = Playbook(name=os.path.splitext(fname)[0], path=pb_path, hosts=list(hosts), roles=list(roles))
+                            project.playbooks.append(pb)
+                    except Exception:
+                        # Ignore playbook parse errors for now; logging may be added later
+                        continue
+        else:
+            # Also search top-level yml files as potential playbooks
+            for f in os.listdir(path):
+                if f.endswith(".yml") or f.endswith(".yaml"):
+                    pb_path = os.path.join(path, f)
+                    try:
+                        data = yaml_loader.load_file(Path(pb_path))
+                        if (isinstance(data, list) and data) or (
+                            isinstance(data, dict) and ("hosts" in data or "roles" in data)
+                        ):
+                            hosts = set()
+                            roles = set()
+                            plays_list = data if isinstance(data, list) else [data]
+                            for play in plays_list:
+                                if isinstance(play, dict):
+                                    hs = play.get("hosts")
+                                    if hs:
+                                        if isinstance(hs, list):
+                                            hosts.update(hs)
+                                        else:
+                                            hosts.add(str(hs))
+                                    rls = play.get("roles") or []
+                                    for r in rls:
+                                        if isinstance(r, dict):
+                                            name = r.get("role") or r.get("name")
+                                            if name:
+                                                roles.add(name)
+                                        else:
+                                            roles.add(str(r))
+                            pb = Playbook(name=os.path.splitext(f)[0], path=pb_path, hosts=list(hosts), roles=list(roles))
+                            project.playbooks.append(pb)
+                    except Exception:
+                        continue
+
+        # TODO: additional parsing for playbooks, inventory, and more advanced features
         return project
