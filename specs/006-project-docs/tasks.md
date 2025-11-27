@@ -15,7 +15,7 @@ description: "Task breakdown for Feature 006: Project Documentation"
 ## Phase 2: Parsing & Analysis
 ## Phase 2: Parsing & Analysis
 - [x] T203 [US14] Write tests for project parsing in `tests/unit/test_project_parser.py` (TDD)
-- [ ] T204 [US14] Implement project parser to parse ansible.cfg, inventory, playbooks, roles, collections
+ - [x] T204 [US14] Implement project parser to parse ansible.cfg, inventory, playbooks, roles, collections
 - [x] T205 [US14] Add discovery for local roles and collections inside a project
 
 ## Phase 3: Documentation Generation
