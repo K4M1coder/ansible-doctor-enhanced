@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NEW**: Demo artifacts in `demo/` moved into `demo/role_demo_namespace.demo_demo_role`, `demo/collection_demo_namespace.demo_collection`, and `demo/project_demo_namespace.demo_project` to be canonical fixtures for integration tests
 - **NEW**: Integration tests: `tests/integration/test_demo_all_formats_generation.py`, `tests/integration/test_demo_collection_generation.py`, `tests/integration/test_demo_project_generation.py`
 
+### Testing
+
+- **TEST**: Unit tests added for `ansibledoctor/utils/slug.py` and `ansibledoctor/generator/project_generator.py` to cover slug generation and project README outputs (Markdown/HTML/RST)
+
 ### Changed
 
 - **ENHANCED**: CLI behavior — `--output` and `--output-dir` writing is now relative to the target artifact (role, collection, or project) when the path isn't absolute
