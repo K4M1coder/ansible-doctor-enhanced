@@ -64,3 +64,17 @@ def test_generate_with_custom_template(tmp_path: Path):
     assert output.exists()
     content = read_file(output)
     assert "Project: My Project - roles: webserver" in content
+
+
+def test_generate_markdown_includes_mermaid_diagram(tmp_path: Path):
+    p = make_project(tmp_path)
+    gen = ProjectDocumentationGenerator(p)
+    output = gen.generate(format="markdown")
+    assert output.exists()
+    content = read_file(output)
+    assert "## Architecture" in content
+    assert "```mermaid" in content
+    assert "graph TD" in content
+    assert "[My Project]" in content
+    assert "[Roles (1)]" in content
+    assert "[Collections (1)]" in content
