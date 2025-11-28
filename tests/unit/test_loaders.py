@@ -234,3 +234,21 @@ class TestEmbeddedTemplateLoader:
         
         # Should return empty list, not crash
         assert isinstance(templates, list)
+
+    def test_load_embedded_project_template(self):
+        """Test loading embedded project template."""
+        loader = EmbeddedTemplateLoader()
+        
+        template = loader.load_template("project", OutputFormat.MARKDOWN)
+        
+        assert isinstance(template, Template)
+        # Render with minimal context
+        context = {
+            "project": type('MockProject', (), {"name": "Test Project", "roles": [], "collections": [], "playbooks": [], "inventory": []})(),
+            "roles": [],
+            "collections": [],
+            "title": "Test Project"
+        }
+        result = template.render(**context)
+        assert "# Test Project" in result
+        assert "## Architecture" in result
