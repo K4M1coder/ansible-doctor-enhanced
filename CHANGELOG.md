@@ -389,6 +389,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0-alpha.1] - 2025-01-19
 
 ### Added
+## Links
+
+The release history in this file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) conventions and adheres to [Semantic Versioning (SemVer)](https://semver.org/spec/v2.0.0.html).
+
+[Unreleased]: https://github.com/K4M1coder/ansible-doctor-enhanced/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/K4M1coder/ansible-doctor-enhanced/releases/tag/v0.5.0
+[0.4.0]: https://github.com/K4M1coder/ansible-doctor-enhanced/releases/tag/v0.4.0
+[0.4.0-alpha.3]: https://github.com/K4M1coder/ansible-doctor-enhanced/releases/tag/v0.4.0-alpha.3
+[0.4.0-alpha.2]: https://github.com/K4M1coder/ansible-doctor-enhanced/releases/tag/v0.4.0-alpha.2
+[0.4.0-alpha.1]: https://github.com/K4M1coder/ansible-doctor-enhanced/releases/tag/v0.4.0-alpha.1
 
 - **Feature 003 - Phase 1 Setup (T001-T004)**: Infrastructure for configuration file support and watch mode
   - Created `ansibledoctor/config/` module with ConfigModel, loader, validator stubs
