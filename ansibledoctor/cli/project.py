@@ -9,6 +9,7 @@ import click
 import json
 
 from ansibledoctor.parser.project_parser import ProjectParser
+from ansibledoctor.parser.playbook_analyzer import PlaybookAnalyzer
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
 from ansibledoctor.utils.logging import get_logger
 
@@ -44,8 +45,10 @@ def parse(project_path: Path, redact_values: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--playbook", "playbook", type=str, default=None, help="Analyze specific playbook (filename) for task flow")
+@click.option("--format", "output_format", type=click.Choice(["mermaid", "json"]), default="mermaid")
 @click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in output (default: True)")
-def analyze(project_path: Path, redact_values: bool):
+def analyze(project_path: Path, playbook: str | None, output_format: str, redact_values: bool):
     """Analyze a project and output analysis results.
 
     Performs analysis on the project structure, dependencies, and potential issues,
@@ -54,6 +57,16 @@ def analyze(project_path: Path, redact_values: bool):
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
         project = parser.parse(project_path)
+        # If playbook requested, run playbook analyzer
+        if playbook:
+            analyzer = PlaybookAnalyzer(project)
+            res = analyzer.analyze_playbook(playbook)
+            if output_format == "mermaid":
+                click.echo(res["mermaid"])
+            else:
+                click.echo(json.dumps(res, indent=2))
+            return
+
         # Perform basic analysis
         analysis = {
             "project": project.name,
@@ -125,8 +138,10 @@ def visualize(project_path: Path, output_format: str):
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option("--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown")
 @click.option("--template", "template", type=click.Path(exists=True, path_type=Path), default=None)
+@click.option("--language", "language", type=str, default="en", help="Language code for translations; defaults to 'en'")
+@click.option("--legacy-output/--no-legacy-output", "legacy_output", default=False, help="Use legacy output path (docs/README.md instead of docs/ansibleproject_{slug}/)")
 @click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in generated docs (default: True)")
-def generate(project_path: Path, output_dir: Path | None, format: str, template: Path | None, redact_values: bool):
+def generate(project_path: Path, output_dir: Path | None, format: str, template: Path | None, legacy_output: bool, redact_values: bool, language: str):
     """Generate documentation for a project.
 
     Writes documentation to the project's docs subdirectory with project slug by default.
@@ -134,7 +149,12 @@ def generate(project_path: Path, output_dir: Path | None, format: str, template:
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
         project = parser.parse(project_path)
-        gen = ProjectDocumentationGenerator(project=project)
+        # Create translation provider if language specified
+        from ansibledoctor.translation.loader import TranslationLoader
+
+        loader = TranslationLoader()
+        provider = loader.load(language, Path(project_path)) if language else None
+        gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)
         # If output_dir is relative, write it under the project path
         if output_dir is not None:
             out_dir_path = Path(output_dir)
@@ -142,7 +162,7 @@ def generate(project_path: Path, output_dir: Path | None, format: str, template:
                 out_dir_path = Path(project_path) / out_dir_path
         else:
             out_dir_path = None
-        out_file = gen.generate(format=format, output_dir=out_dir_path, template_path=str(template) if template else None)
+        out_file = gen.generate(format=format, output_dir=out_dir_path, template_path=str(template) if template else None, legacy_output=legacy_output)
         click.echo(f"Documentation generated: {out_file}", err=True)
     except Exception as e:
         logger.exception("project_generate_failed", error=str(e))
