@@ -1,0 +1,23 @@
+# {{ t('project.title') }}: {{ project.name or title }}
+
+## {{ t('architecture.header') }}
+
+```mermaid
+graph TD
+    A[{{ project.name or title }}] --> B[Roles ({{ roles | length }})]
+    A --> C[Collections ({{ collections | length }})]
+    A --> D[Playbooks ({{ project.playbooks | length }})]
+    A --> E[Inventory ({{ project.inventory | length }})]
+```
+
+## {{ t('roles.header') }}
+
+{% for role in roles %}
+- {{ role.name }}
+{% endfor %}
+
+## {{ t('collections.header') }}
+
+{% for collection in collections %}
+- {{ collection.name }}
+{% endfor %}
