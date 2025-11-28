@@ -10,7 +10,8 @@ def test_project_parser_empty_dir(tmp_path):
     project = parser.parse(tmp_path)
 
     assert isinstance(project, Project)
-    assert project.name == '' or project.name is None
+    # Name should default to directory basename if no ansible.cfg present
+    assert project.name == tmp_path.name
     assert project.roles == []
     assert project.collections == []
     assert project.playbooks == []
