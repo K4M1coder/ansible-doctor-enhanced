@@ -22,12 +22,12 @@ description: "Task breakdown for Feature 006: Project Documentation"
 ## Phase 3: Documentation Generation
 - [x] T206 [US15] Implement `ProjectDocumentationGenerator` using TemplateEngine
 - [x] T207 [US15] Write unit tests for generated project README and per-component docs
-- [ ] T208 [US15] Add architecture summary generation (Mermaid diagram) and integration tests
+- [x] T208 [US15] Add architecture summary generation (Mermaid diagram) and integration tests
 
 ## Slug & Output Naming Tasks (Project-level)
 - [x] T301 [US14] Create `project_slug(name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests at `tests/unit/test_slug.py` ensuring ASCII-safe lowercase, hyphenation, dot-preserving behaviour
 - [x] T302 [US14] Update `ProjectDocumentationGenerator` to use `ansibleproject_{projectname}` slug and update CLI output paths to `docs/lang/{code}/ansibleproject_{projectname}/`; add integration tests to verify paths
-- [ ] T319 [US15] Add tests to ensure project-level templates reuse role/collection templates where appropriate (TDD)
+- [x] T319 [US15] Add tests to ensure project-level templates reuse role/collection templates where appropriate (TDD)
 
 ## Phase 7: Release Prep
 - [x] T305 Finalize changelog & README updates
@@ -41,9 +41,9 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Phase 5: i18n Integration & Multi-Language
 
-- [ ] T211 [US18] Add sample translation keys for Project docs (project.title, playbook.summary)
+ - [x] T211 [US18] Add sample translation keys for Project docs (project.title, playbook.summary)
 
-- [ ] T212 [US18] Add tests to verify translation fallback behaviour and per-language output generation
+ - [x] T212 [US18] Add tests to verify translation fallback behaviour and per-language output generation
 
 ## Slug & Output Naming Tasks (Project-level)
 - [ ] T301 [US14] Create `project_slug(name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests at `tests/unit/test_slug.py` ensuring ASCII-safe lowercase, hyphenation, dot-preserving behaviour
@@ -51,9 +51,9 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Phase 6: Polish & Docs
 
-- [ ] T303 Update CLI usage and README examples for `generate-project` commands
+- [x] T303 Update CLI usage and README examples for `generate-project` commands
 
-- [ ] T304 Add migration docs and `--legacy-output` verification tests
+- [x] T304 Add migration docs and `--legacy-output` verification tests
 
 ## Phase 7: Release Prep
 
@@ -98,10 +98,10 @@ MVP (Minimum Viable Product) for Feature 006 was completed locally and merged to
 Completed MVP work includes: T201, T202, T203, T205, T206, T207, T301, T302, T305, T310, T311 (verify in commit history & changelog).
 
 High-priority backlog (candidate for next sprint or immediate assignment):
-- [ ] T204 — Full project parser (ansible.cfg, inventory, playbook parsing) — HIGH
-- [ ] T208 — Architecture summary (Mermaid diagram generation) — HIGH
-- [ ] T209 — Playbook static analysis (task flow diagrams) — HIGH
-- [ ] T210 — Visualization renderer & tests — HIGH
+ - [x] T204 — Full project parser (ansible.cfg, inventory, playbook parsing) — HIGH
+ - [x] T208 — Architecture summary (Mermaid diagram generation) — HIGH
+ - [x] T209 — Playbook static analysis (task flow diagrams) — HIGH
+ - [x] T210 — Visualization renderer & tests — HIGH
 - [ ] T312/T313 — Implement analyze/visualize CLI and tests — HIGH
 - [ ] T314/T315/T316 — Inventory parsing & monorepo/root detection & variable precedence — HIGH
 - [ ] T317/T318 — Redaction tests and CLI config — HIGH
