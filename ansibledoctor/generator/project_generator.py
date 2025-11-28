@@ -9,9 +9,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from ansibledoctor.models.project import Project
-from jinja2 import Environment, FileSystemLoader, Template
+from ansibledoctor.generator.engine import TemplateEngine
+from ansibledoctor.translation.loader import TranslationLoader
+from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat
+from ansibledoctor.models.project import Project
 from ansibledoctor.utils.slug import project_slug
 
 
@@ -23,14 +25,44 @@ class ProjectDocumentationGenerator:
     collections.
     """
 
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, translation_provider=None):
         self.project = project
+        self.translation_provider = translation_provider
+
+    def _get_engine(self) -> TemplateEngine:
+        """Get template engine instance."""
+        # Use a provided translation provider when present, otherwise try to load
+        # a default provider for 'en' from the project root.
+        if self.translation_provider is not None:
+            provider = self.translation_provider
+        else:
+            try:
+                loader = TranslationLoader()
+                provider = loader.load("en", Path(self.project.path))
+            except Exception:
+                provider = None
+        return TemplateEngine.create(translation_provider=provider)
+
+    def _get_embedded_loader(self) -> EmbeddedTemplateLoader:
+        """Get embedded template loader."""
+        return EmbeddedTemplateLoader()
+
+    def build_context(self) -> dict:
+        """Build template context for project."""
+        title = self.project.name or Path(self.project.path).name
+        return {
+            "project": self.project,
+            "roles": self.project.roles,
+            "collections": self.project.collections,
+            "title": title,
+        }
 
     def generate(
         self,
         format: str = OutputFormat.MARKDOWN.value,
         output_dir: Optional[Path] = None,
         template_path: Optional[str] = None,
+        legacy_output: bool = False,
     ) -> Path:
         """Generate documentation for a project.
 
@@ -43,8 +75,11 @@ class ProjectDocumentationGenerator:
             Path: The path to the generated file.
         """
         if output_dir is None:
-            slug = project_slug(self.project.name)
-            out_dir = Path(self.project.path) / "docs" / slug
+            if legacy_output:
+                out_dir = Path(self.project.path) / "docs"
+            else:
+                slug = project_slug(self.project.name)
+                out_dir = Path(self.project.path) / "docs" / slug
         else:
             out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -57,94 +92,46 @@ class ProjectDocumentationGenerator:
 
         output_file = out_dir / f"README.{ext}"
 
-        # If a custom template path is provided, render it using Jinja2
-        # Context provides project, roles, and collections
-        template_rendered = None
+        # Build template context
+        context = self.build_context()
+
+        # Get template engine
+        engine = self._get_engine()
+
+        # Determine template to use
         if template_path:
+            # Custom template provided
             template_path_obj = Path(template_path)
-            # If path is absolute to a file, load it directly; otherwise, resolve relative to cwd
-            if template_path_obj.is_absolute():
-                template_dir = template_path_obj.parent
-                env = Environment(loader=FileSystemLoader(str(template_dir)))
-                tpl = env.get_template(template_path_obj.name)
-            else:
-                env = Environment(loader=FileSystemLoader(str(Path.cwd())))
-                tpl = env.get_template(str(template_path_obj))
-            context = {
-                "project": self.project,
-                "roles": self.project.roles,
-                "collections": self.project.collections,
-            }
-            template_rendered = tpl.render(**context)
-
-        # Build content depending on format
-        title = self.project.name or Path(self.project.path).name
-
-        if format.lower() == OutputFormat.HTML.value:
-            # Basic HTML wrapper
-            html_lines = [
-                "<!DOCTYPE html>",
-                "<html>",
-                "<head>",
-                f"  <meta charset=\"utf-8\" />",
-                f"  <title>{title}</title>",
-                "</head>",
-                "<body>",
-                f"  <h1>{title}</h1>",
-            ]
-            if self.project.roles:
-                html_lines.append("  <h2>Roles</h2>")
-                html_lines.append("  <ul>")
-                for r in self.project.roles:
-                    html_lines.append(f"    <li>{r.name}</li>")
-                html_lines.append("  </ul>")
-            if self.project.collections:
-                html_lines.append("  <h2>Collections</h2>")
-                html_lines.append("  <ul>")
-                for c in self.project.collections:
-                    html_lines.append(f"    <li>{c.name}</li>")
-                html_lines.append("  </ul>")
-            html_lines.extend(["</body>", "</html>"])
-            if template_rendered:
-                output_file.write_text(template_rendered, encoding="utf-8")
-            else:
-                output_file.write_text("\n".join(html_lines), encoding="utf-8")
-
-        elif format.lower() == OutputFormat.RST.value:
-            # Simple RST formatting: Title underline and subheaders
-            rst_lines = [title, "=" * len(title), ""]
-            if self.project.roles:
-                rst_lines.append("Roles")
-                rst_lines.append("-" * 5)
-                for r in self.project.roles:
-                    rst_lines.append(f"- {r.name}")
-                rst_lines.append("")
-            if self.project.collections:
-                rst_lines.append("Collections")
-                rst_lines.append("-" * 11)
-                for c in self.project.collections:
-                    rst_lines.append(f"- {c.name}")
-                rst_lines.append("")
-            if template_rendered:
-                output_file.write_text(template_rendered, encoding="utf-8")
-            else:
-                output_file.write_text("\n".join(rst_lines), encoding="utf-8")
-
+            if not template_path_obj.exists():
+                raise FileNotFoundError(f"Custom template not found: {template_path}")
+            try:
+                template_content = template_path_obj.read_text(encoding="utf-8")
+                template = engine.environment.from_string(template_content)
+            except Exception as e:
+                raise ValueError(f"Failed to load custom template: {template_path}\nError: {str(e)}")
         else:
-            # Default: markdown
-            content_lines = [f"# {title}", ""]
-            if self.project.roles:
-                content_lines.append("## Roles")
-                for r in self.project.roles:
-                    content_lines.append(f"- {r.name}")
-                content_lines.append("")
-            if self.project.collections:
-                content_lines.append("## Collections")
-                for c in self.project.collections:
-                    content_lines.append(f"- {c.name}")
-                content_lines.append("")
-            if template_rendered:
-                output_file.write_text(template_rendered, encoding="utf-8")
-            else:
-                output_file.write_text("\n".join(content_lines), encoding="utf-8")
+            # Use default embedded template
+            loader = self._get_embedded_loader()
+            try:
+                output_format = OutputFormat[format.upper()]
+            except KeyError:
+                supported_formats = ", ".join([f.name.lower() for f in OutputFormat])
+                raise ValueError(f"Unsupported output format: '{format}'\nSupported formats: {supported_formats}")
+            try:
+                template = loader.load_template("project", output_format)
+            except Exception as e:
+                raise ValueError(f"Failed to load embedded project template for format '{format}'\nError: {str(e)}")
+
+        # Render template with context
+        try:
+            output = template.render(**context)
+        except Exception as e:
+            raise ValueError(f"Failed to render project documentation template\nError: {str(e)}")
+
+        # Write to file
+        try:
+            output_file.write_text(output, encoding="utf-8")
+        except Exception as e:
+            raise IOError(f"Failed to write documentation to file: {output_file}\nError: {str(e)}")
+
         return output_file
