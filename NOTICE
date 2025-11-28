@@ -1,0 +1,41 @@
+# Notice
+
+**Project:** Ansible-Doctor-Enhanced  
+**Author / Maintainer:** Cédric Thédrez — © 2025  
+
+**License:** Apache License 2.0 + Commons Clause + Additional Restrictions (see LICENSE.md)  
+
+**Description:**  
+Ansible-Doctor-Enhanced is a comprehensive tool for enhancing and analyzing Ansible playbooks, roles, collections, and projects to improve best practices, documentation, and automation workflows. It aims to achieve feature parity with the original ansible-doctor for roles, while adding new capabilities for collections and projects. Inspired by ansible-doc (by Red Hat) and ansible-doctor (by thegeeklab). The project follows strict development principles including Test-Driven Development (TDD), Semantic Versioning (SemVer), and Library-First Architecture.  
+
+---
+
+## Credits & Contributions
+
+- Original work by Cédric Thédrez  
+- Inspired by ansible-doc (Red Hat) and ansible-doctor (thegeeklab)  
+- Speckit used to pilot generative AI for development assistance  
+- Claude Sonnet 3.5 in Copilot for VSCode to assist with spec generation  
+- Claude Sonnet 3.5 and Grok Code Fast in Copilot for VSCode for code assistance, testing, debugging, and code review  
+
+---
+
+## Third-Party Components
+
+If the project uses external dependencies or third-party libraries/assets, list them here, together with their license:
+
+| Component       | Version | License          | Notes / URL                     |
+|-----------------|---------|------------------|---------------------------------|
+| ExampleLib      | 1.2.3   | Apache-2.0       | <https://github.com/example/...> |
+| AnotherLibrary  | 0.5     | MIT              | https://...                     |
+
+(*Add as many rows as needed*)
+
+---
+
+## Contact
+
+For any questions about licensing, commercial use authorization, or contributions:  
+**Email / Contact:** <your-email@domain>  
+**Website / Homepage (optional):** "none"  
+**Github:** <https://github.com/K4M1coder>  
