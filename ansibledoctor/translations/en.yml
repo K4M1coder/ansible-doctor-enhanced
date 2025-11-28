@@ -1,0 +1,5 @@
+project.title: "Project"
+playbook.summary: "Playbook summary"
+roles.header: "Roles"
+collections.header: "Collections"
+architecture.header: "Architecture"
