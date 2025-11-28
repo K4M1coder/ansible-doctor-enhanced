@@ -138,6 +138,38 @@ def test_cli_generate_uses_project_slug_for_default_path(tmp_path: Path):
     assert not old_path.exists()
 
 
+def test_cli_generate_legacy_output_uses_simple_path(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--legacy-output"])
+    assert result.exit_code == 0
+    # Should use docs/README.md (legacy path)
+    expected_path = proj_dir / "docs" / "README.md"
+    assert expected_path.exists()
+    # Check that the new slug path doesn't exist
+    slug_path = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
+    assert not slug_path.exists()
+
+
+def test_cli_generate_language_option_respects_translations(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # Create translation file in project
+    trans_dir = proj_dir / ".ansibledoctor" / "translations"
+    trans_dir.mkdir(parents=True, exist_ok=True)
+    fr_file = trans_dir / "fr.yml"
+    fr_file.write_text("project.title: 'Mon Projet'\nroles.header: 'Rôles'\ncollections.header: 'Collections'\narchitecture.header: 'Architecture'", encoding="utf-8")
+
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--language", "fr"]) 
+    assert result.exit_code == 0
+    out = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
+    assert out.exists()
+    content = out.read_text(encoding="utf-8")
+    assert "# Mon Projet" in content
+    assert "## Rôles" in content
+
+
 def test_cli_analyze_project_outputs_analysis(tmp_path: Path):
     proj_dir = make_project(tmp_path)
     runner = CliRunner()
@@ -157,3 +189,28 @@ def test_cli_visualize_project_outputs_diagram(tmp_path: Path):
     assert result.exit_code == 0
     # Should output Mermaid diagram
     assert "graph TD" in result.output or "mermaid" in result.output.lower()
+
+
+def test_cli_analyze_playbook_generates_task_flow_mermaid(tmp_path: Path):
+        proj_dir = make_project(tmp_path)
+        # Create playbook
+        playbooks_dir = proj_dir / "playbooks"
+        playbooks_dir.mkdir()
+        pb = playbooks_dir / "site.yml"
+        pb.write_text("- name: Site\n  hosts: web\n  tasks:\n    - name: task a\n      debug: msg=hello\n", encoding="utf-8")
+        runner = CliRunner()
+        result = runner.invoke(project_cli, ["analyze", str(proj_dir), "--playbook", "site.yml"])
+        assert result.exit_code == 0
+        assert "graph TD" in result.output
+
+
+def test_cli_analyze_playbook_generates_task_flow_json(tmp_path: Path):
+        proj_dir = make_project(tmp_path)
+        playbooks_dir = proj_dir / "playbooks"
+        playbooks_dir.mkdir()
+        pb = playbooks_dir / "site.yml"
+        pb.write_text("- name: Site\n  hosts: web\n  tasks:\n    - name: task a\n      debug: msg=hello\n", encoding="utf-8")
+        runner = CliRunner()
+        result = runner.invoke(project_cli, ["analyze", str(proj_dir), "--playbook", "site.yml", "--format", "json"])
+        assert result.exit_code == 0
+        assert "playbook" in result.output and "nodes" in result.output
