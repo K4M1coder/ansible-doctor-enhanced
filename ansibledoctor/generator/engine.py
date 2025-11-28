@@ -35,6 +35,7 @@ class TemplateEngine:
         template_dir: str | Path | None = None,
         autoescape: bool = False,
         strict_undefined: bool = True,
+        translation_provider: object | None = None,
         **jinja_options: Any,
     ) -> "TemplateEngine":
         """Create template engine with default configuration.
@@ -77,6 +78,14 @@ class TemplateEngine:
         
         # Register custom filters
         environment.filters.update(FILTERS)
+        # Register translation function if provided
+        if translation_provider is not None:
+            try:
+                # Provide 't' function in template context
+                environment.globals["t"] = getattr(translation_provider, "t")
+            except Exception:
+                # Ignore silently if provider not as expected
+                pass
         
         return cls(environment)
 
