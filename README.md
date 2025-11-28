@@ -1,6 +1,6 @@
 # Ansible Doctor Enhanced
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -17,6 +17,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Intelligent Role Parsing**: Extract metadata from `meta/main.yml`, variables from `defaults/` and `vars/`, task tags, and inline documentation annotations
 - **Annotation System**: Support for `@var`, `@tag`, `@todo`, `@example`, and `@meta` annotations with multiple formats (single-line, multiline, JSON)
 - **Collection Support (v0.5.0)**: Parse, generate documentation, and analyze dependencies for Ansible Collections
+- **Project Documentation (v0.6.0)**: Generate comprehensive project-level documentation with architecture diagrams, role/collection inventories, and multi-language support
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
 - **Error Handling**: Graceful error recovery with actionable suggestions and detailed context
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates
@@ -91,6 +92,58 @@ Dependency Graph (TEXT format):
 **Documentation**: See [COLLECTION_GUIDE.md](docs/COLLECTION_GUIDE.md) for comprehensive usage guide with examples.
 
 **Demo**: Try the included demo collection at `demo/demo_namespace.demo_collection/`
+
+## 📊 Project Documentation Support (New in v0.6.0)
+
+Ansible Doctor Enhanced now provides comprehensive **Project-level Documentation** generation with architecture visualization and multi-language support:
+
+### Generate Project Documentation
+
+Create professional project README with architecture diagrams and component inventories:
+
+```bash
+# Generate Markdown documentation (default)
+poetry run ansible-doctor-enhanced project generate ./
+
+# Generate HTML documentation
+poetry run ansible-doctor-enhanced project generate ./ --format html
+
+# Generate multi-language documentation
+poetry run ansible-doctor-enhanced project generate ./ --languages en,fr,de
+
+# Use legacy output path (for migration from older versions)
+poetry run ansible-doctor-enhanced project generate ./ --legacy-output
+
+# Use custom template
+poetry run ansible-doctor-enhanced project generate ./ --template custom.md.j2
+
+# Specify output directory
+poetry run ansible-doctor-enhanced project generate ./ --output docs/
+```
+
+### Parse Project Structure
+
+Extract and analyze project metadata, roles, collections, playbooks, and inventory:
+
+```bash
+# Parse project structure
+poetry run ansible-doctor-enhanced project parse ./
+
+# Output to JSON file
+poetry run ansible-doctor-enhanced project parse ./ --output project.json --pretty
+```
+
+**Features**:
+- ✅ Parse `ansible.cfg`, inventory files, playbooks, roles, and collections
+- ✅ Generate project README with Mermaid architecture diagrams
+- ✅ Multi-language documentation support with i18n
+- ✅ Automatic slug-based output paths (`docs/ansibleproject_{projectname}/`)
+- ✅ Multiple output formats (Markdown, HTML, RST)
+- ✅ Custom template support
+
+**Documentation**: See [PROJECT_COMPLETION.md](PROJECT_COMPLETION.md) for comprehensive usage guide.
+
+**Demo**: Try the included demo project at `demo-role/` or `test-role/`
 
 ## 🏗️ Architecture
 
@@ -345,6 +398,14 @@ print(f"Variables used: {vars_used}")  # {'role'}
 validator.validate_required_variables(
     template_source,
     required_vars={"role"},
+    ## 📌 Changelog & Versioning
+
+    This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) conventions and adheres to [Semantic Versioning (SemVer)](https://semver.org/spec/v2.0.0.html). See the `CHANGELOG.md` file for the latest and historical release notes.
+
+    ## 📜 License
+
+    This repository is distributed under the Apache License 2.0 with additional Commons Clause restrictions. See `LICENSE` for full terms and conditions.
+
     template_name="custom.j2"
 )
 
@@ -360,44 +421,39 @@ print(f"Warnings: {result['warnings']}")
 print(f"Variables: {result['undeclared_variables']}")
 ```
 
-### CLI Interface (Coming in Phase 6)
+### CLI Interface
+
+Ansible Doctor Enhanced provides a comprehensive CLI for parsing, generating, and analyzing Ansible content:
 
 ```bash
-# Basic parsing
-ansible-doctor-enhanced parse --role-path /path/to/role
+# Role parsing and generation
+ansible-doctor-enhanced role parse /path/to/role
+ansible-doctor-enhanced role generate /path/to/role --format markdown
 
-# With custom output file
-ansible-doctor-enhanced parse --role-path /path/to/role --output custom.json
+# Collection parsing, generation, and analysis
+ansible-doctor-enhanced collection parse ./my_namespace.my_collection
+ansible-doctor-enhanced collection generate ./my_namespace.my_collection --format html
+ansible-doctor-enhanced collection analyze ./my_namespace.my_collection --show-dependencies
 
-# Recursive mode for multiple roles
-ansible-doctor-enhanced parse --role-path /path/to/roles --recursive
-
-# Adjust log verbosity
-ansible-doctor-enhanced parse --role-path /path/to/role --log-level DEBUG
+# Project parsing and generation (NEW in v0.6.0)
+ansible-doctor-enhanced project parse ./
+ansible-doctor-enhanced project generate ./ --languages en,fr,de
 ```
 
-### Generating Documentation (Phase 10 MVP Complete in v0.3.0)
+**Full Command Reference**:
+- `role parse`: Parse role metadata, variables, and annotations
+- `role generate`: Generate role documentation in multiple formats
+- `collection parse`: Parse collection metadata and structure
+- `collection generate`: Generate collection documentation
+- `collection analyze`: Analyze collection dependencies and structure
+- `project parse`: Parse project structure (ansible.cfg, inventory, playbooks)
+- `project generate`: Generate project-level documentation with architecture diagrams
 
-The `generate` command creates beautiful Markdown documentation from your Ansible roles:
-
-```bash
-# Generate Markdown to stdout (quick preview)
-ansible-doctor generate /path/to/ansible-role
-
-# Save to file
-ansible-doctor generate /path/to/ansible-role --output README.md
-
-# Generate with explicit format
-ansible-doctor generate /path/to/ansible-role --format markdown --output docs/README.md
-
-# Generate HTML documentation (NEW in v0.3.0 Phase 11)
-ansible-doctor generate /path/to/ansible-role --format html --output docs/index.html
-
-# HTML with external CSS (instead of embedded)
-ansible-doctor generate /path/to/ansible-role --format html --no-embed-css --output docs/index.html
-
-# HTML without table of contents
-ansible-doctor generate /path/to/ansible-role --format html --no-generate-toc --output docs/index.html
+**Global Options**:
+- `--output FILE`: Write output to file instead of stdout
+- `--format FORMAT`: Output format (markdown, html, rst, json)
+- `--log-level LEVEL`: Set logging verbosity (DEBUG, INFO, WARNING, ERROR)
+- `--pretty`: Pretty-print JSON output
 
 # Generate reStructuredText documentation (NEW in v0.3.0 Phase 11)
 ansible-doctor generate /path/to/ansible-role --format rst --output docs/role.rst
