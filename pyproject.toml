@@ -44,13 +44,16 @@ ansible-core = ">=2.14,<2.18"
 html5lib = "^1.1"
 docutils = "^0.20"
 pre-commit = "^3.4.0"
+ghapi = "^1.0.8"
+tomli = "^2.0"
 
 [tool.poetry.scripts]
 ansible-doctor-enhanced = "ansibledoctor.cli:main"
 ansibledoctor = "ansibledoctor.cli:main"
 
-[tool.poetry.dev-dependencies]
-tomli = "^2.0"
+## Note: the old `[tool.poetry.dev-dependencies]` is deprecated; dev dependencies are
+## declared in the `[tool.poetry.group.dev.dependencies]` section above. The tomli
+## package was moved into the new dev group and thus the deprecated section is removed.
 
 [tool.black]
 line-length = 100
