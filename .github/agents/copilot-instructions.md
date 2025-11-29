@@ -11,6 +11,8 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 # Install dependencies
 pipx install poetry
 pipx install uvx
+poetry install  # Install / update project dependencies
+npm install -g speckit
 ```
 
 ### Key Commands order (run from copilot cli or switch to agents)
@@ -29,15 +31,21 @@ specify
 ```
 
 ### Workflow Pattern
-1. Write `specs/{feature-id}/spec.md` (user stories, success criteria)
-2. Run `/speckit.plan` → generates `plan.md` (architecture, phases)
-3. Run `/speckit.break` → generates `tasks.md` (250+ detailed tasks)
-4. Run `/speckit.checklist` → generates quality validation checklist
-5. Run `/speckit.analyze` → validate Constitution compliance
-6. Run `/speckit.implement` → TDD implementation (RED-GREEN-REFACTOR)
+1. Run `/constitution` → generates `.specify/memory/constitution.md` (governing principles)
+2. Run `/speckit.specify` → generates `specs/{feature-id}/spec.md` (user stories, success criteria)
+3. Run `/speckit.clarify` → refines spec with Q&A (if needed)
+4. Run `/speckit.plan` → generates `plan.md` (architecture, phases)
+5. Run `/speckit.tasks` → generates `tasks.md` (250+ detailed tasks)
+6. Run `/speckit.checklist` → generates quality validation checklist
+7. Run `/speckit.analyze` → validates cross-artifacts consistency and constitution compliance
+8. Run `/speckit.tasktoissues` → OPTIONAL (only if explicitely required) creates GitHub issues for each task in the repository
+9. Run `/speckit.implement` → TDD implementation (RED-GREEN-REFACTOR)
 
 ## Active Technologies
-- **Python 3.11+**: Primary language (type hints, frozen dataclasses)
+- **PowerShell**: Primary scripting language for workflows and automation
+- **Python 3.11+**: Primary language (app, type hints, frozen dataclasses)
+- **Git**: Version control (Hybrid GitFlow workflow)
+- **Node.js**: For SpecKit
 - **Poetry**: Dependency management and packaging
 - **UVX**: Fast Python package installer (alternative to pip)
 - **pipx**: Install Python CLI tools in isolated environments
@@ -54,7 +62,7 @@ specify
 - **Mermaid**: Diagram generation in documentation
 - **html5lib**: HTML parsing and validation in tests
 - **structlog**: Structured logging with context support
-- **Filesystem only** (config files, role files, generated docs)
+- **Filesystem only** (config files, ansible files, generated docs)
 
 ## Project Structure
 
@@ -74,13 +82,12 @@ ansibledoctor/          # Source code (library-first architecture)
     fs_walker.py        # File system operations
     paths.py            # Path resolution
 
-tests/                  # Test suite (>80% coverage release target, 30% minimum acceptable coverage)
+tests/                  # Test suite (>80% coverage target)
   unit/                 # Unit tests (TDD RED-GREEN-REFACTOR)
     models/collection/  # Model tests (NEW in 004)
     parser/collection/  # Parser tests (NEW in 004)
   integration/          # Integration tests
   property/             # Property-based tests (Hypothesis)
-  performance/          # Performance benchmarks
   e2e/                  # End-to-end CLI tests
   fixtures/collections/ # Test collections (NEW in 004)
 
@@ -154,9 +161,9 @@ Command	Description	Usage
 
 ### Git Workflow (Hybrid GitFlow)
 
-- **Hybrid GitFlow**: 
+- **Hybrid GitFlow**:
   - `main`: Production releases (tags: v0.1.0, v0.1.100 v0.11.0 v1.0.0 etc.)
-  - `dev`: Integration branch for features (tags: v0.1.0-dev, etc.)
+  - `dev`: Integration branch for features (tags: v0.1.0-dev, v0.1.0-rcX etc.)
   - `{feature-id}-{name}`: coding Feature branches (e.g., 004-collection-support)
   - `specs/{feature-id}-{name}`: Specification branches (merged after planning)
 - **Atomic Commits**: One logical change per commit
@@ -219,7 +226,7 @@ Part-of: Feature-004-collection-support"
 
 ### Testing
 - Minimum 80% coverage (target: 90% for core)
-- TDD: Tests written BEFORE implementation
+- TDD: Tests written BEFORE implementation (RED-GREEN-REFACTOR)
 - Unit tests: Isolated logic (no external dependencies)
 - Integration tests: File I/O, YAML parsing, template rendering
 - Property-based tests: Hypothesis for edge cases

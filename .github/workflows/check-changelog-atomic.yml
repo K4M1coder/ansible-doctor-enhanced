@@ -1,0 +1,28 @@
+name: Check Changelog/Version Atomicity
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-changelog-atomic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip tomli
+
+      - name: Run atomic changelog validator
+        run: |
+          python scripts/validate_atomic_changelog.py --base origin/main --head HEAD
