@@ -18,3 +18,11 @@ description: "Task breakdown for Feature 007: Project Navigation & Breadcrumbs"
 
 ## Phase 4: Polish
 - [ ] T407 Update README and CHANGELOG with navigation usage examples
+
+---
+
+## Side work: 2025-11-30 (Integration & merge)
+
+- [x] 2025-11-30: Merged `005-i18n-support` into `007-project-navigation` to integrate i18n features with navigation templates and rewrote a subset of templates to support `t()` usage (done)
+- [x] 2025-11-30: Added helper scripts & `ansibledoctor` CLI alias; ensured `python -m ansibledoctor` runs CLI from source (done)
+

@@ -384,6 +384,17 @@ These tasks implement the production of slug-based output directories for collec
 - [ ] T199 [US10] Refactor: Extract exporters to strategy pattern
 - [ ] T200 [US10] Refactor: Add graph caching for repeated analyses
 
+---
+
+## Side work: 2025-11-30 (Project/CI)
+
+Small infra and CI tasks added across the project that affect Collection docs generation and release validation:
+
+- [x] 2025-11-30: Add Windows CI workflow `.github/workflows/ci-windows.yml` to validate generator and collection docs generation on Windows runners (done)
+- [x] 2025-11-30: Add `pre-commit` validation job `.github/workflows/pre-commit.yml` to run hooks (done)
+- [x] 2025-11-30: Migrate dev dependencies to `tool.poetry.group.dev.dependencies` and update any docs referencing old syntax (done)
+
+
 ### Integration Tests for User Story 10
 
 - [X] T201 [US10] Integration test: Analyze mock collection with dependencies in tests/integration/test_dependency_analysis.py

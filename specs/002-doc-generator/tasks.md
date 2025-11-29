@@ -398,6 +398,18 @@
   - ✅ Added `--no-embed-css` example for external CSS
   - ✅ Added `--no-generate-toc` example for TOC control
   - ✅ Added HTML Renderer features section (responsive, XSS, semantic markup)
+
+---
+
+## Side work: 2025-11-30 (Generator & CLI / i18n integration)
+
+The following cross-feature changes that impact the generator and CLI were done and validated on 2025-11-30:
+
+- [x] 2025-11-30: Register Jinja2 `t()` translation filter at TemplateEngine initialization and ensure templates can call `{{ 'section.key' | t }}` (done)
+- [x] 2025-11-30: Integration of `MultiLanguageGenerator` (feature 005) so the generator emits per-locale files under `docs/lang/{code}` when the `--languages` flag is used (done)
+- [x] 2025-11-30: Add `ansibledoctor/cli/__main__.py` and helper scripts in `scripts/` to ease running the generator from source and to install the console script (done)
+- [x] 2025-11-30: Updated templates to support i18n placeholders and `t()` function usage in Markdown/HTML templates (done)
+
   - ✅ Updated foundation components list (html_escape filter)
   - ✅ Updated E2E testing metrics (20 integration tests: 12 MD + 8 HTML)
   - ✅ Added property testing section (Hypothesis-based XSS prevention)

@@ -70,4 +70,13 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 - Verify that built-in variants (minimal/detailed/modern) and CSS injection cases appear in `tests/integration/` and demo outputs
 - Ensure CLI behavior matches the contract and tests for precedence (YAML < env < CLI)
 
+---
+
+## Side work: 2025-11-30 (Template & i18n integration)
+
+- [x] 2025-11-30: Registered Jinja2 `t()` translation filter and updated template examples to demonstrate use of translation keys inside templates (done)
+- [x] 2025-11-30: Ensured theme and variant templates support `t()` translation usage and per-locale generation via `MultiLanguageGenerator` (done)
+- [x] 2025-11-30: Verified template validation and pre-commit linting get detected by CI (pre-commit hooks run) (done)
+
+
 ***

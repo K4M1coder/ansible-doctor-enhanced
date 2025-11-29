@@ -320,6 +320,13 @@ description: "Task list template for feature implementation"
 
 ---
 
+## Side work: 2025-11-30 (Dev tools & infra)
+
+- [x] 2025-11-30: Added `scripts/run_cli_main.py` and `scripts/run_tests.*` to simplify running CLI and tests from source (done)
+- [x] 2025-11-30: Added pre-commit config `.pre-commit-config.yaml` and CI pre-commit job to validate formatting and changelog on PRs (done)
+- [x] 2025-11-30: Migrated dev dependencies to `tool.poetry.group.dev.dependencies`, regenerated `poetry.lock` and verified `poetry install --with dev` works (done)
+
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

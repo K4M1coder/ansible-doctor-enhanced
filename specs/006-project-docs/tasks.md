@@ -59,6 +59,15 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 - [ ] T305 Finalize changelog & README updates
 
+---
+
+## Side work: 2025-11-30 (Docs/Packaging & CI)
+
+- [x] 2025-11-30: Updated `README.md` and `CONTRIBUTING.md` to recommend `poetry install --with dev` and to document run-from-source helper scripts (done)
+- [x] 2025-11-30: Ensured CLI `ansible-doctor-enhanced` alias and `ansibledoctor` convenience alias are present in `pyproject.toml` scripts (done)
+- [x] 2025-11-30: Verified `poetry lock` and `poetry install --with dev` complete via local checks and updated relevant docs (done)
+
+
 ## Acceptance Tests
 
 - [x] T306 E2E test: generate multi-language project docs and verify output structure and translated headers
