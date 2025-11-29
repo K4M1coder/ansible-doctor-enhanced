@@ -116,6 +116,46 @@ pre-commit install
 # Optionally, run the hooks against all files now
 pre-commit run --all-files
 ```
+
+### Running tests and the CLI locally (developer convenience)
+
+You can run the CLI and tests directly from sources without creating a package or using Poetry's console scripts.
+
+Option A: `python -m` (cross-platform):
+
+```powershell
+# Show CLI help
+python -m ansibledoctor -- --help
+
+# Generate docs via module
+python -m ansibledoctor -- generate demo/role_demo_namespace.demo_demo_role --format markdown --output demo/role_demo_namespace.demo_demo_role/README.md
+
+# Run unit tests
+python -m pytest tests/unit -q
+```
+
+Option B: Install editable into venv (creates `ansible-doctor-enhanced` script):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1   # Windows
+python -m pip install -e .
+ansible-doctor-enhanced --help
+```
+
+Option C: Use the helper scripts in `scripts/` to run in your environment:
+
+PowerShell:
+```powershell
+.\scripts\run_cli.ps1 -- --help
+.\scripts\run_tests.ps1 unit
+```
+
+Unix:
+```bash
+./scripts/run_cli.sh -- --help
+./scripts/run_tests.sh unit
+```
 ```
 
 ## Constitution & Standards
