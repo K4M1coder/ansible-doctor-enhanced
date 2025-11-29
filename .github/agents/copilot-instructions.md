@@ -10,7 +10,7 @@ Auto-generated from all feature plans. Last updated: 2025-11-20
 ```powershell
 # Install dependencies
 pipx install poetry
-pipx install uv
+pipx install uvx
 ```
 
 ### Key Commands (run from workspace root)
@@ -39,13 +39,13 @@ pipx install uv
 2. Run `/speckit.plan` → generates `plan.md` (architecture, phases)
 3. Run `/speckit.break` → generates `tasks.md` (250+ detailed tasks)
 4. Run `/speckit.checklist` → generates quality validation checklist
-5. Run `/speckit.implement` → TDD implementation (RED-GREEN-REFACTOR)
-6. Run `/speckit.analyze` → validate Constitution compliance
+5. Run `/speckit.analyze` → validate Constitution compliance
+6. Run `/speckit.implement` → TDD implementation (RED-GREEN-REFACTOR)
 
 ## Active Technologies
 - **Python 3.11+**: Primary language (type hints, frozen dataclasses)
 - **Poetry**: Dependency management and packaging
-- **UV**: Fast Python package installer (alternative to pip)
+- **UVX**: Fast Python package installer (alternative to pip)
 - **pipx**: Install Python CLI tools in isolated environments
 - **Ansible**: Target documentation platform (roles, collections, projects)
 - **Pydantic v2**: Data validation and modeling
@@ -74,12 +74,13 @@ ansibledoctor/          # Source code (library-first architecture)
     fs_walker.py        # File system operations
     paths.py            # Path resolution
 
-tests/                  # Test suite (>80% coverage target)
+tests/                  # Test suite (>80% coverage release target, 30% minimum acceptable coverage)
   unit/                 # Unit tests (TDD RED-GREEN-REFACTOR)
     models/collection/  # Model tests (NEW in 004)
     parser/collection/  # Parser tests (NEW in 004)
   integration/          # Integration tests
   property/             # Property-based tests (Hypothesis)
+  performance/          # Performance benchmarks
   e2e/                  # End-to-end CLI tests
   fixtures/collections/ # Test collections (NEW in 004)
 
