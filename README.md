@@ -253,6 +253,27 @@ python -m ansibledoctor -- --help
 pip install ansible-doctor-enhanced
 ```
 
+### Publish to PyPI (outline)
+
+When you are ready to publish, we recommend creating a new release and uploading to the Python Package Index. A simple release flow (with Poetry) is:
+
+```bash
+# Build distribution files
+poetry build
+
+# Publish to PyPI (use Poetry's publish or twine)
+# poetry publish --username <user> --password <pass>  # or configure Poetry auth
+# or using twine:
+python -m pip install build twine
+python -m build
+python -m twine upload dist/*
+```
+
+Notes:
+- Make sure `tool.poetry.name` in `pyproject.toml` is set to the package name you want on PyPI (e.g., `ansible-doctor-enhanced`).
+- Configure release version in `pyproject.toml` and update `CHANGELOG.md` before publishing.
+- Use `test.pypi.org` to test the upload before publishing to production PyPI.
+
 ## 🏃 Quick Start
 
 Parse an Ansible role and generate documentation:
