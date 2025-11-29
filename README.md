@@ -227,6 +227,24 @@ poetry install
 
 # Activate virtual environment
 poetry shell
+
+Alternatively, if you prefer to run directly from the source without relying on Poetry,
+install the package into a local editable venv (makes the console script available):
+
+```powershell
+# Windows PowerShell (from repo root)
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -e .
+# Now the command `ansible-doctor-enhanced` is available
+ansible-doctor-enhanced --help
+```
+
+Or invoke the module directly:
+
+```powershell
+python -m ansibledoctor -- --help
+```
 ```
 
 ### From PyPI (Coming Soon)
