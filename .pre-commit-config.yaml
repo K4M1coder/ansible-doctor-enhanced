@@ -1,0 +1,11 @@
+repos:
+  - repo: local
+    hooks:
+      - id: validate-atomic-changelog
+        name: Validate atomic changelog and README
+        entry: bash -lc "python scripts/validate_atomic_changelog.py --base origin/main --head HEAD"
+        language: system
+        files: ^(pyproject.toml|CHANGELOG\.md|README.*)$
+        types: [text, toml]
+        always_run: false
+        pass_filenames: false
