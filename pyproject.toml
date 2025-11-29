@@ -47,6 +47,7 @@ pre-commit = "^3.4.0"
 
 [tool.poetry.scripts]
 ansible-doctor-enhanced = "ansibledoctor.cli:main"
+ansibledoctor = "ansibledoctor.cli:main"
 
 [tool.poetry.dev-dependencies]
 tomli = "^2.0"
