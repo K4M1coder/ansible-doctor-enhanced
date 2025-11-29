@@ -26,6 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed - Project Parser & Inventory (additional)
 
 - **ENHANCED**: `ansibledoctor/parser/project_parser.py` now loads `group_vars/` and `host_vars/`, computes merged effective variables per host (role defaults -> group_vars -> host_vars precedence), and exposes `project.group_vars`, `project.host_vars`, and `project.effective_vars` (T316).
+## [0.5.1] - 2025-11-29
+
+### Added - Feature 005: Internationalization (i18n) Support
+
+- **NEW**: `ansibledoctor/translation/loader.py` - TranslationLoader supporting package, project, collection and role-level overrides for translations (en/fr/de fixtures added).
+- **NEW**: `ansibledoctor/translation/provider.py` - TranslationProvider with `t()` support for Jinja templates (pluralization support using Babel, fallback for missing keys to `en`).
+- **NEW**: `ansibledoctor/generator/multi_language.py` - Multi-language generator orchestration for per-lang outputs under `docs/lang/{code}/`.
+- **ENHANCED**: Template engine registration of `t()` filter and global to support `{{ t('key') }}` and filter usage in templates.
+- **TEST**: New tests: `tests/unit/test_translation_provider.py`, `tests/unit/test_translation_loader.py`, `tests/integration/test_multilang_e2e.py`, `tests/integration/test_i18n_fallback.py`.
+
 - **ENHANCED**: `ansibledoctor/cli/project.py` added `--redact-values/--no-redact-values` flag; `ProjectParser` supports redaction and reads `.ansibledoctor.yml` redaction config to override patterns and placeholder (T317/T318).
  - **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
  - **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
