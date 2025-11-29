@@ -13,22 +13,16 @@ pipx install poetry
 pipx install uvx
 ```
 
-### Key Commands (run from workspace root)
+### Key Commands order (run from copilot cli or switch to agents)
 ```powershell
-# Plan a feature from spec
-/speckit.plan
-
-# Analyze project consistency
-/speckit.analyze
-
-# Create task breakdown
-/speckit.break
-
-# Create quality checklist
-/speckit.checklist
-
-# Implement tasks (TDD)
-/speckit.implement
+specify 
+/constitution	# Create project governing principles and development guidelines	Run first to establish project standards
+/specify      #	Define what you want to build (requirements and user stories)	Focus on the what and why, not tech stack
+/clarify	    # Clarify underspecified areas through structured questioning	Must run before /plan unless explicitly skipped
+/plan	        # Create technical implementation plans with chosen tech stack	Specify architecture, frameworks, and technical decisions
+/tasks	      # Generate actionable task lists for implementation	Breaks down plan into executable steps
+/analyze	    # Cross-artifact consistency & coverage analysis	Run after /tasks, before /implement
+/implement	  # Execute all tasks to build the feature according to plan	Generates working code from specifications
 
 # Update agent context
 .\.specify\scripts\powershell\update-agent-context.ps1
@@ -47,14 +41,20 @@ pipx install uvx
 - **Poetry**: Dependency management and packaging
 - **UVX**: Fast Python package installer (alternative to pip)
 - **pipx**: Install Python CLI tools in isolated environments
-- **Ansible**: Target documentation platform (roles, collections, projects)
+- **Ansible**: Target documentation platform (roles, collections, projects, playbooks, modules, plugins, inventories)
 - **Pydantic v2**: Data validation and modeling
 - **Jinja2**: Template engine for documentation generation
 - **ruamel.yaml**: YAML parsing with comment preservation
 - **pytest**: Testing framework (pytest-cov, pytest-mock, Hypothesis)
 - **ruff**: Fast Python linter (replaces flake8, pylint)
 - **mypy**: Static type checker (--strict mode)
-- Filesystem only (config files, role files, generated docs) (003-role-parity)
+- **JSON Schema**: Configuration schema validation
+- **SpecKit**: Specification-driven development workflow tool
+- **markdownlint**: Markdown style linter for docs
+- **Mermaid**: Diagram generation in documentation
+- **html5lib**: HTML parsing and validation in tests
+- **structlog**: Structured logging with context support
+- **Filesystem only** (config files, role files, generated docs)
 
 ## Project Structure
 
@@ -84,21 +84,37 @@ tests/                  # Test suite (>80% coverage release target, 30% minimum 
   e2e/                  # End-to-end CLI tests
   fixtures/collections/ # Test collections (NEW in 004)
 
-specs/                  # Feature specifications (SDD)
-  001-role-parser/      # v0.1.0-v0.2.0 (COMPLETE)
-  002-doc-generator/    # v0.3.0 (spec COMPLETE, impl PENDING)
-  003-role-parity/      # v0.4.0 (PLANNED)
-  004-collection-support/  # v0.5.0 (IN PROGRESS)
-    spec.md             # User stories US8-US10
-    plan.md             # Implementation phases
-    tasks.md            # 250 detailed tasks
-    checklists/         # Quality validation
-  006-project-docs/     # v0.6.0 (PLANNED)
+demo/                   # Demo project for users
+  demo-role/            # Sample role
+    docs/               # Generated docs
+  demo-collection/      # Sample collection
+    docs/               # Generated docs
+  demo-project/         # Sample project
+    docs/               # Generated docs
 
-.specify/               # SpecKit configuration
+specs/                  # Feature specifications (build with speckit)
+  001-role-parser/      # v0.1.0-v0.2.0
+  002-doc-generator/    # v0.3.0
+  003-role-parity/      # v0.4.0
+  004-collection-support/  # v0.5.0
+    plan.md             # Implementation phases
+    spec.md             # User stories
+    tasks.md            # detailed tasks
+    checklists/         # Quality validation
+  006-project-docs/     # v0.6.0
+  007-hierarchical-context
+  007-project-navigation
+  008-template-customization
+
+.specify/               # SpecKit configuration (build with speckit)
   memory/
     constitution.md     # Project principles (12 articles)
   scripts/powershell/   # Workflow automation
+
+.github/                # GitHub configuration
+  agents/               # GitHub Agents instructions
+    copilot-instructions.md  # GitHub Copilot instructions
+    speckit.*.agent.md  # SpecKit Agents instructions
 ```
 
 ## Commands
@@ -125,21 +141,29 @@ poetry run isort ansibledoctor/
 ```
 
 ### SpecKit Workflows
-```powershell
-# Create plan from spec
-/speckit.plan
-
-# Break plan into tasks
-/speckit.break
-
-# Implement with TDD
-/speckit.implement
-
-# Analyze consistency
-/speckit.analyze
+```
+Command	Description	Usage
+/constitution	Create project governing principles and development guidelines	Run first to establish project standards (spec branch)
+/specify	Define what you want to build (requirements and user stories)	Focus on the what and why, not tech stack (spec branch)
+/clarify	Clarify underspecified areas through structured questioning	Must run before /plan unless explicitly skipped (spec branch)
+/plan	Create technical implementation plans with chosen tech stack	Specify architecture, frameworks, and technical decisions (spec branch)
+/tasks	Generate actionable task lists for implementation	Breaks down plan into executable steps (spec branch)
+/analyze	Cross-artifact consistency & coverage analysis	Run after /tasks, before /implement (spec branch)
+/implement	Execute all tasks to build the feature according to plan	Generates working code from specifications (code branches)
 ```
 
 ### Git Workflow (Hybrid GitFlow)
+
+- **Hybrid GitFlow**: 
+  - `main`: Production releases (tags: v0.1.0, v0.1.100 v0.11.0 v1.0.0 etc.)
+  - `dev`: Integration branch for features (tags: v0.1.0-dev, etc.)
+  - `{feature-id}-{name}`: coding Feature branches (e.g., 004-collection-support)
+  - `specs/{feature-id}-{name}`: Specification branches (merged after planning)
+- **Atomic Commits**: One logical change per commit
+  - Commit message format: `<type>(<scope>): <subject>` 
+  - Types: feat, fix, docs, test, refactor, chore
+  - Include "Relates-to: #US8" and "Part-of: Feature-004" in body
+
 ```powershell
 # Feature branches from dev
 git checkout dev
@@ -181,21 +205,9 @@ Part-of: Feature-004-collection-support"
 - **SMART Goals**: Specific, Measurable, Achievable, Relevant, Time-bound
 - **Keep a Changelog**: CHANGELOG.md follows 1.1.0 format (Added/Changed/Fixed/etc.)
 - **Semantic Versioning**: MAJOR.MINOR.PATCH (2.0.0 format)
-  - v0.5.0 = Feature 004 (Collection Documentation)
   - Breaking changes = MAJOR bump
   - New features = MINOR bump
   - Bug fixes = PATCH bump
-
-### Git Strategy
-- **Hybrid GitFlow**: 
-  - `main`: Production releases (tags: 0.1.0, 0.2.0, etc.)
-  - `dev`: Integration branch for features
-  - `{feature-id}-{name}`: Feature branches (e.g., 004-collection-support)
-  - `specs/{feature-id}`: Specification branches (merged after planning)
-- **Atomic Commits**: One logical change per commit
-  - Commit message format: `<type>(<scope>): <subject>` 
-  - Types: feat, fix, docs, test, refactor, chore
-  - Include "Relates-to: #US8" and "Part-of: Feature-004" in body
 
 ### Python Style
 - Python 3.11+ with type hints (mypy --strict)
@@ -214,43 +226,7 @@ Part-of: Feature-004-collection-support"
 - Test naming: `test_{what_is_tested}_{expected_behavior}`
 
 ## Recent Changes
-- 003-role-parity: Added Python 3.11+
-
-### Feature 004: Collection Documentation (v0.5.0) - IN PROGRESS (2025-11-20)
-
-**Objective**: Document Ansible collections (namespace.name bundles of roles/plugins/modules)
-
-**User Stories**:
-- US8 (P1 MVP): Parse Collection Metadata - Extract galaxy.yml (schema 1.0.0, required fields only)
-- US9 (P1): Generate Collection Documentation - README with overview, role index, plugin list
-
-**Clarifications Applied** (Session 2025-11-20):
-1. galaxy.yml: Only required fields (namespace, name, version, authors, dependencies); optional deferred to v0.6.0
-2. Schema version: 1.0.0 (Ansible 2.9+ standard)
-3. Plugin discovery: No file exclusions (validation filtering at parser layer)
-4. Role index format: Template-configurable (not hardcoded)
-
-**Implementation Progress** (24/250 tasks, 40% of US8):
-
-✅ **Phase 1: Setup (T001-T004)** - COMPLETE
-
-✅ **Phase 2: Foundation (T005-T008)** - COMPLETE (BLOCKING prerequisites)
-
-✅ **Phase 3: US8 Tests - RED Phase (T009-T030)** - COMPLETE
-
-✅ **Phase 4: US8 Implementation - GREEN Phase (T034-T065 partial)** - COMPLETE
-
-**Test Results**: 24/24 passing (100%)
-
-**Files Created** (19 files):
-
-**Next Steps** (Remaining 61 tasks for US8):
-
-**Deferred to v0.6.0**:
+- read the changelog
 
 ---
 
-**Previous Features**:
-
-<!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
