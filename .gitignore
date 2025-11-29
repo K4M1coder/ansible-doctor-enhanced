@@ -135,7 +135,8 @@ Thumbs.db
 
 # Local temporary and helper files
 .tmp/
-scripts/
+# keep scripts in the repo - some are useful tooling and CI helpers
+# scripts/
 *.tmp_cli_debug*
 diff_*.txt
 fsck_out.txt
