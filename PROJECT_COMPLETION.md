@@ -203,7 +203,7 @@ click = "^8.1.0"
 structlog = "^24.0.0"
 pathspec = "^0.12.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
 pytest-mock = "^3.12.0"

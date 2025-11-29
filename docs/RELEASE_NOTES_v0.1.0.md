@@ -207,7 +207,8 @@ This release follows our 10-article [Constitution](​.specify/memory/constituti
 ```bash
 git clone https://github.com/yourusername/ansible-doctor-enhanced.git
 cd ansible-doctor-enhanced
-pip install -r requirements.txt
+# Recommended: use Poetry for development
+poetry install --with dev
 
 # Run CLI
 python -m ansibledoctor --version

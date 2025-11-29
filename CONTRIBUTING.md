@@ -33,11 +33,13 @@ git clone https://github.com/yourusername/ansible-doctor-enhanced.git
 cd ansible-doctor-enhanced
 
 # Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Or use Poetry (recommended)
+# Recommended: Poetry
 poetry install --with dev
+
+# Alternative: Using virtualenv + pip (if you prefer not to use Poetry)
+python -m venv .venv
+.venv\Scripts\Activate.ps1   # Windows
+python -m pip install -e .
 
 # Verify installation
 python -m ansibledoctor --version
@@ -109,11 +111,13 @@ pytest tests/ -v
 We provide a `.pre-commit-config.yaml` that includes a hook to validate atomic changelog + README updates when bumping the package version. To enable the hooks locally, run:
 
 ```bash
-# Install the pre-commit framework (if not already installed)
+# If you're using Poetry:
+poetry run pre-commit install
+poetry run pre-commit run --all-files
+
+# If you're not using Poetry, install pre-commit globally
 pip install pre-commit
-# Install the hooks defined in the repo
 pre-commit install
-# Optionally, run the hooks against all files now
 pre-commit run --all-files
 ```
 
