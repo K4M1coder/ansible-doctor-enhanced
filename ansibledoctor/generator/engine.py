@@ -83,6 +83,8 @@ class TemplateEngine:
             try:
                 # Provide 't' function in template context
                 environment.globals["t"] = getattr(translation_provider, "t")
+                # Also provide 't' as a filter to be used in templates like: {{ 'key' | t }}
+                environment.filters["t"] = getattr(translation_provider, "t")
             except Exception:
                 # Ignore silently if provider not as expected
                 pass

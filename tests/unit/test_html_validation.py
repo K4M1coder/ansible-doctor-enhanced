@@ -119,10 +119,14 @@ class TestHtmlValidation:
         
         # Parse with html5lib
         document = html5lib.parse(result)
-        
-        # Get the root element (html)
-        # html5lib adds a namespace, so we need to handle that
-        root = document.getroot()
+
+        # Get the root element (html) - html5lib.parse may return either an
+        # ElementTree-like object or an Element depending on the html5lib
+        # version, so handle both cases for robustness.
+        if hasattr(document, "getroot"):
+            root = document.getroot()
+        else:
+            root = document
         
         # Verify basic structure exists
         # The document should have been parsed successfully

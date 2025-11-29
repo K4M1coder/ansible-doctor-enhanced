@@ -66,5 +66,5 @@ architecture.header: "Architecture"
     output = gen.generate(format="markdown")
     assert output.exists()
     content = read_file(output)
-    # roles.header should fallback to English 'Roles' provided by package translations
-    assert "## Roles" in content
+    # roles.header should fallback to package 'fr' translations where present
+    assert "## Rôles" in content

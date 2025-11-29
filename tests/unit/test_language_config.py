@@ -1,4 +1,32 @@
 from ansibledoctor.config.language import LanguageConfig
+from pydantic import ValidationError
+
+
+def test_language_config_defaults():
+    cfg = LanguageConfig()
+    assert cfg.default == "en"
+    assert cfg.fallback == "en"
+    assert cfg.detect_system is False
+
+
+def test_language_config_enabled_list_valid():
+    cfg = LanguageConfig(enabled=["en", "fr"])
+    assert cfg.enabled == ["en", "fr"]
+
+
+def test_language_config_invalid_codes_error():
+    try:
+        LanguageConfig(default="eng")
+        assert False, "Should raise ValidationError for invalid default"
+    except ValidationError:
+        pass
+
+    try:
+        LanguageConfig(enabled=["en", "invalid"])
+        assert False, "Should raise ValidationError for invalid enabled list"
+    except ValidationError:
+        pass
+from ansibledoctor.config.language import LanguageConfig
 import pytest
 
 

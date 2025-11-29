@@ -5,8 +5,8 @@
   <title>{{ project.name or title }}</title>
 </head>
 <body>
-  <h1>{{ t('project.title') }}: {{ project.name or title }}</h1>
-  <h2>{{ t('architecture.header') }}</h2>
+  <h1>{{ t('project.title') if t is defined else project.name or title }}</h1>
+  <h2>{{ t('architecture.header') if t is defined else 'Architecture' }}</h2>
   <pre><code class="language-mermaid">
 graph TD
     A[{{ project.name or title }}] --> B[Roles ({{ roles | length }})]
@@ -15,7 +15,7 @@ graph TD
     A --> E[Inventory ({{ project.inventory | length }})]
   </code></pre>
   {% if roles %}
-  <h2>{{ t('roles.header') }}</h2>
+  <h2>{{ t('roles.header') if t is defined else 'Roles' }}</h2>
   <ul>
     {% for role in roles %}
     <li>{{ role.name }}</li>
@@ -23,7 +23,7 @@ graph TD
   </ul>
   {% endif %}
   {% if collections %}
-  <h2>{{ t('collections.header') }}</h2>
+  <h2>{{ t('collections.header') if t is defined else 'Collections' }}</h2>
   <ul>
     {% for collection in collections %}
     <li>{{ collection.name }}</li>
