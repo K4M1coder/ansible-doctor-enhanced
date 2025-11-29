@@ -1,7 +1,7 @@
 # demo_namespace.demo_collection
 
 
-**Version:** 0.1.0 | **Generated:** 2025-11-27 03:29
+**Version:** 0.1.0 | **Generated:** 2025-11-29 04:07
 ---
 
 ## Table of Contents

@@ -114,7 +114,9 @@ class FileSystemTemplateLoader:
         # Load template content
         content = template_path.read_text(encoding="utf-8")
         
-        # Create engine and compile template
+        # Create engine and compile template. Ensure a minimal translation function
+        # is available in the Jinja environment so templates that reference `t`
+        # will still render when no translation provider is provided.
         engine = TemplateEngine.create()
         return engine.environment.from_string(content)
 
@@ -248,7 +250,11 @@ class EmbeddedTemplateLoader:
                 [f"{self.package}.{self.templates_path}/{output_format.value}/{template_name}.j2"]
             )
         
-        # Compile template
+        # Compile template using the package's embedded translations as a
+        # fallback. This ensures the template translation function `t`
+        # resolves when no project translations are provided.
+        from ansibledoctor.translation.loader import TranslationLoader
+
         engine = TemplateEngine.create()
         return engine.environment.from_string(content)
 

@@ -12,6 +12,7 @@ from ansibledoctor.parser.project_parser import ProjectParser
 from ansibledoctor.parser.playbook_analyzer import PlaybookAnalyzer
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
 from ansibledoctor.utils.logging import get_logger
+from ansibledoctor.utils.slug import project_slug
 
 logger = get_logger(__name__)
 
@@ -138,10 +139,11 @@ def visualize(project_path: Path, output_format: str):
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option("--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown")
 @click.option("--template", "template", type=click.Path(exists=True, path_type=Path), default=None)
-@click.option("--language", "language", type=str, default="en", help="Language code for translations; defaults to 'en'")
+@click.option("--language", "language", type=str, default=None, help="Language code for translations; specify to enable translations (default: unset)")
+@click.option("--languages", "languages", type=str, default=None, help="Comma-separated list of language codes to generate for; overrides config and --language")
 @click.option("--legacy-output/--no-legacy-output", "legacy_output", default=False, help="Use legacy output path (docs/README.md instead of docs/ansibleproject_{slug}/)")
 @click.option("--redact-values/--no-redact-values", "redact_values", default=True, help="Redact sensitive variable values in generated docs (default: True)")
-def generate(project_path: Path, output_dir: Path | None, format: str, template: Path | None, legacy_output: bool, redact_values: bool, language: str):
+def generate(project_path: Path, output_dir: Path | None, format: str, template: Path | None, legacy_output: bool, redact_values: bool, language: str | None, languages: str | None):
     """Generate documentation for a project.
 
     Writes documentation to the project's docs subdirectory with project slug by default.
@@ -153,7 +155,35 @@ def generate(project_path: Path, output_dir: Path | None, format: str, template:
         from ansibledoctor.translation.loader import TranslationLoader
 
         loader = TranslationLoader()
-        provider = loader.load(language, Path(project_path)) if language else None
+        # If output_dir is relative, write it under the project path; compute once
+        if output_dir is not None:
+            out_dir_path = Path(output_dir)
+            if not out_dir_path.is_absolute():
+                out_dir_path = Path(project_path) / out_dir_path
+        else:
+            out_dir_path = None
+        # Normalize languages: --languages takes precedence over --language
+        langs_list = None
+        if languages:
+            langs_list = [l.strip() for l in languages.split(',') if l.strip()]
+        elif language:
+            langs_list = [language]
+
+        # If multiple languages specified, generate per language under docs/lang/{code}/
+        if langs_list and len(langs_list) > 1:
+            # Use MultiLanguageGenerator to render multiple languages using a
+            # single parsed Project instance. This keeps parsing costs down.
+            from ansibledoctor.generator.multi_language import MultiLanguageGenerator
+
+            mgen = MultiLanguageGenerator(loader=loader)
+            mgen.generate(project, langs_list, output_dir=out_dir_path, format=format, template_path=str(template) if template else None, legacy_output=legacy_output)
+            click.echo(f"Documentation generated for languages: {', '.join(langs_list)}", err=True)
+            return
+
+        # Single language case
+        provider = None
+        if langs_list:
+            provider = loader.load(langs_list[0], Path(project_path))
         gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)
         # If output_dir is relative, write it under the project path
         if output_dir is not None:

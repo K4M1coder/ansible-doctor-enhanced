@@ -12,6 +12,7 @@ from typing import Optional
 from ansibledoctor.generator.engine import TemplateEngine
 from ansibledoctor.translation.loader import TranslationLoader
 from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
+from ansibledoctor.generator.errors import TemplateNotFoundError
 from ansibledoctor.generator.models import OutputFormat
 from ansibledoctor.models.project import Project
 from ansibledoctor.utils.slug import project_slug
@@ -31,16 +32,13 @@ class ProjectDocumentationGenerator:
 
     def _get_engine(self) -> TemplateEngine:
         """Get template engine instance."""
-        # Use a provided translation provider when present, otherwise try to load
-        # a default provider for 'en' from the project root.
-        if self.translation_provider is not None:
-            provider = self.translation_provider
-        else:
-            try:
-                loader = TranslationLoader()
-                provider = loader.load("en", Path(self.project.path))
-            except Exception:
-                provider = None
+        # Use a provided translation provider when present. Previously the
+        # engine defaulted to loading package 'en' translations even when
+        # the CLI didn't explicitly request translations; this caused the
+        # project title to be replaced by 'Project' by default (unexpected
+        # for users) so translations are now only enabled when a provider is
+        # explicitly provided (e.g. --language passed to CLI).
+        provider = self.translation_provider
         return TemplateEngine.create(translation_provider=provider)
 
     def _get_embedded_loader(self) -> EmbeddedTemplateLoader:
@@ -118,7 +116,16 @@ class ProjectDocumentationGenerator:
                 supported_formats = ", ".join([f.name.lower() for f in OutputFormat])
                 raise ValueError(f"Unsupported output format: '{format}'\nSupported formats: {supported_formats}")
             try:
-                template = loader.load_template("project", output_format)
+                # Load the template content using the loader, but compile it with
+                # the engine instance created above so the translation provider
+                # (and the 't' global) is available in the template namespace.
+                content = loader._read_template("project", output_format)
+                if content is None:
+                    raise TemplateNotFoundError(
+                        "project",
+                        [f"{loader.package}.{loader.templates_path}/{output_format.value}/project.j2"],
+                    )
+                template = engine.environment.from_string(content)
             except Exception as e:
                 raise ValueError(f"Failed to load embedded project template for format '{format}'\nError: {str(e)}")
 

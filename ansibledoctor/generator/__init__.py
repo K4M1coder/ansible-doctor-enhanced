@@ -17,6 +17,7 @@ from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.protocols import DocumentRenderer, TemplateLoader
 from ansibledoctor.generator.renderers import MarkdownRenderer
 from ansibledoctor.generator.validator import TemplateValidator
+from ansibledoctor.generator.multi_language import MultiLanguageGenerator
 
 __all__ = [
     "OutputFormat",
@@ -35,4 +36,5 @@ __all__ = [
     "TemplateNotFoundError",
     "TemplateValidationError",
     "RenderError",
+    "MultiLanguageGenerator",
 ]

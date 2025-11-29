@@ -1,3 +1,10 @@
+"""Playbook analyzer utilities
+
+This module exposes the PlaybookAnalyzer class which parses Ansible
+playbooks and constructs simple flow representations used in documentation
+generation (Mermaid diagrams, node/edge lists).
+"""
+
 from pathlib import Path
 from typing import List, Dict
 
