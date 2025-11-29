@@ -103,6 +103,19 @@ ruff check .
 
 # Run all tests
 pytest tests/ -v
+
+### Install pre-commit hooks (recommended)
+
+We provide a `.pre-commit-config.yaml` that includes a hook to validate atomic changelog + README updates when bumping the package version. To enable the hooks locally, run:
+
+```bash
+# Install the pre-commit framework (if not already installed)
+pip install pre-commit
+# Install the hooks defined in the repo
+pre-commit install
+# Optionally, run the hooks against all files now
+pre-commit run --all-files
+```
 ```
 
 ## Constitution & Standards
