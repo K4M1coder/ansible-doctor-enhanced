@@ -748,6 +748,11 @@ See [Constitution](​.specify/memory/constitution.md) for development principle
 ## 🛠️ Development
 
 ### Setup Development Environment
+### Running Tests
+
+```bash
+pytest
+```
 
 ```bash
 # Clone repository
@@ -769,6 +774,46 @@ poetry run ruff check .
 # Format code
 poetry run black ansibledoctor/ tests/
 poetry run isort ansibledoctor/ tests/
+
+### Run CLI & Tests from sources (quick guide)
+
+You can run the CLI directly from the sources without publishing the package to PyPI or packaging it first.
+
+Option A: `python -m` (recommended cross-platform):
+
+```powershell
+# Show CLI help
+python -m ansibledoctor -- --help
+
+# Generate docs via module
+python -m ansibledoctor -- generate demo/role_demo_namespace.demo_demo_role --format markdown --output demo/role_demo_namespace.demo_demo_role/README.md
+
+# Run unit tests
+python -m pytest tests/unit -q
+```
+
+Option B: Install editable into venv (creates `ansible-doctor-enhanced` script):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1   # Windows
+# or: source .venv/bin/activate  # Unix
+python -m pip install -e .
+ansible-doctor-enhanced --help
+```
+
+Option C: Use the helper scripts in `scripts/` to run in your environment:
+
+PowerShell
+```powershell
+.\scripts\run_cli.ps1 -- --help
+.\scripts\run_tests.ps1 unit
+```
+Unix
+```bash
+./scripts/run_cli.sh -- --help
+./scripts/run_tests.sh unit
+```
 ```
 
 ### Running Tests
