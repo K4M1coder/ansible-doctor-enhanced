@@ -8,11 +8,12 @@ fails during TDD.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, mkdtemp
 
 
 def run_cmd(cmd: list[str]) -> int:
@@ -43,16 +44,28 @@ def main() -> int:
 
     # Determine output directories. By default generate into a temp dir
     # so we don't modify tracked files and avoid pre-commit 'modified files' failures.
-    temp_dir = None
+    temp_dir_obj = None
+    keep_temp = os.environ.get("ANSIBLE_DOCTOR_DEMO_KEEP_TEMP", "0") == "1"
     if not stage_docs:
-        temp_dir = TemporaryDirectory(prefix="ansibledoctor-demo-")
-        base_out = Path(temp_dir.name)
-        demo_role_docs = base_out / demo_role.name / "docs"
-        demo_collection_docs = base_out / demo_collection.name / "docs"
+        # If user requests to keep the demo temp dir for debugging, use mkdtemp
+        # which will create a directory that is not cleaned up automatically on process exit.
+        if keep_temp:
+            base_out = Path(mkdtemp(prefix="ansibledoctor-demo-"))
+        else:
+            temp_dir_obj = TemporaryDirectory(prefix="ansibledoctor-demo-")
+            base_out = Path(temp_dir_obj.name)
+        # Print base output dir for debugging and test discovery
+        print(f"Demo temp base path: {base_out}")
+        # Also emit a machine-friendly env var-like line so tests can reliably parse it
+        print(f"DEMO_TEMP_BASE={base_out}")
+        # Normalize output to follow project docs structure: docs/collections/<collection_name> and docs/roles/<role_name>
+        demo_role_docs = base_out / "docs" / "roles" / demo_role.name
+        demo_collection_docs = base_out / "docs" / "collections" / demo_collection.name
         project_docs = base_out / "docs"
     else:
         demo_role_docs = demo_role / "docs"
-        demo_collection_docs = demo_collection / "docs"
+        demo_collection_docs = project_root / "docs" / "collections" / demo_collection.name
+        project_docs = project_root / "docs"
         project_docs = project_root / "docs"
 
     demo_role_docs.mkdir(parents=True, exist_ok=True)
@@ -226,9 +239,49 @@ def main() -> int:
         # Best effort: ignore staging errors
         pass
 
-    if temp_dir:
-        # Close the temporary directory if we used one; files will be gone after this process.
-        temp_dir.cleanup()
+    # Clean up the TemporaryDirectory object only when it was used and not requested to keep.
+    if temp_dir_obj:
+        # Allow tests and debugging to keep the temp directory using ANSIBLE_DOCTOR_DEMO_KEEP_TEMP
+        # If a TemporaryDirectory object was used and the user did not request keeping it,
+        # then run cleanup to remove the directory, otherwise leave it on disk for debugging.
+        if not keep_temp:
+            temp_dir_obj.cleanup()
+        else:
+            print(f"Preserving demo temp dir for debugging: {base_out}")
+            # Print discovered generated docs for integration tests to discover exact paths
+            # Look for markdown-based collection README(s)
+            generated_files: list[str] = []
+            for p in sorted(base_out.rglob("**/*")):
+                if p.is_file() and p.suffix.lower() in {".md", ".html", ".rst"}:
+                    # Heuristic: only report files under docs/collections, docs/roles, or project docs
+                    try:
+                        parts = p.parts
+                        if "docs" in parts:
+                            idx = parts.index("docs")
+                            # Only report files under docs/collections, docs/roles or docs project root
+                            if len(parts) > idx + 1 and parts[idx + 1] in {"collections", "roles"}:
+                                print(f"Documentation generated: {p}")
+                                generated_files.append(str(p))
+                            elif len(parts) == idx + 1 or parts[idx + 1] not in {
+                                "collections",
+                                "roles",
+                            }:
+                                # Project-level docs
+                                print(f"Documentation generated: {p}")
+                                generated_files.append(str(p))
+                    except Exception:
+                        # Skip odd paths
+                        continue
+            # Print a machine parseable JSON summary in a single line for tests to inspect
+            try:
+                summary = {"base": str(base_out), "files": generated_files}
+                # Use compact separators so the output fits a single line
+                print(
+                    "DEMO_OUTPUT_JSON="
+                    + json.dumps(summary, ensure_ascii=False, separators=(",", ":"))
+                )
+            except Exception:
+                pass
     return 0
 
 

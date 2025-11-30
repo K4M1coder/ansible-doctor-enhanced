@@ -1,0 +1,3 @@
+- name: Install deps
+  debug:
+    msg: "Installing application dependencies"
