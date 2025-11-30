@@ -74,9 +74,14 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Side work: 2025-11-30 (Template & i18n integration)
 
-- [x] 2025-11-30: Registered Jinja2 `t()` translation filter and updated template examples to demonstrate use of translation keys inside templates (done)
-- [x] 2025-11-30: Ensured theme and variant templates support `t()` translation usage and per-locale generation via `MultiLanguageGenerator` (done)
-- [x] 2025-11-30: Verified template validation and pre-commit linting get detected by CI (pre-commit hooks run) (done)
+- [x] T361 [P] Registered Jinja2 `t()` translation filter and updated template examples to demonstrate use of translation keys inside templates
+- [x] T362 [P] Ensured theme and variant templates support `t()` translation usage and per-locale generation via `MultiLanguageGenerator`
+- [x] T363 [P] Verified template validation and pre-commit linting get detected by CI (pre-commit hooks run)
+
+
+---
+
+<!-- Side work entries moved to the end of the file and renumbered as T361-T363. -->
 
 
 ***

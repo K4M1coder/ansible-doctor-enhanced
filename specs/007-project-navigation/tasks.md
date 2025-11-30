@@ -23,6 +23,11 @@ description: "Task breakdown for Feature 007: Project Navigation & Breadcrumbs"
 
 ## Side work: 2025-11-30 (Integration & merge)
 
-- [x] 2025-11-30: Merged `005-i18n-support` into `007-project-navigation` to integrate i18n features with navigation templates and rewrote a subset of templates to support `t()` usage (done)
-- [x] 2025-11-30: Added helper scripts & `ansibledoctor` CLI alias; ensured `python -m ansibledoctor` runs CLI from source (done)
+- [x] T408 [P] Merged `005-i18n-support` into `007-project-navigation` to integrate i18n features with navigation templates and rewrote a subset of templates to support `t()` usage
+- [x] T409 [P] Added helper scripts & `ansibledoctor` CLI alias; ensured `python -m ansibledoctor` runs CLI from source
+
+
+---
+
+<!-- Side work entries moved to the end of file and renumbered as T408 and T409. -->
 

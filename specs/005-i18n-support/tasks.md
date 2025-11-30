@@ -50,14 +50,15 @@
 
 ---
 
+<!-- Side work items moved to a final 'tasks' block and renumbered to continue the T005-XX sequence (T005-25+). -->
+---
+
 ## Side work: 2025-11-30 (Implementation housekeeping & repo operations)
 
-The following integration and housekeeping tasks were completed related to the i18n feature and overall repository readiness on 2025-11-30:
-
-- [x] 2025-11-30: Rebased `005-i18n-support` on `dev` and resolved conflicts; pushed updated branch (done)
-- [x] 2025-11-30: Merged `005-i18n-support` into `007-project-navigation` to test integration with navigation features and resolved conflicts (done)
-- [x] 2025-11-30: Added `scripts/run_cli_main.py`, `scripts/run_cli.*`, `scripts/run_tests.*` and `ansibledoctor/cli/__main__.py` to improve run-from-source experience and ensure `ansible-doctor-enhanced` script runs via console script (done)
-- [x] 2025-11-30: Removed generated artifacts `README-generated.md` and `test-output.json` from repository (done)
-- [x] 2025-11-30: Added `pr_body.md` and `scripts/create_pr.py` to assist in PR creation and standardized PR description for Feature 005 (done)
-- [x] 2025-11-30: Updated `README.md` and `CONTRIBUTING.md` to recommend `poetry install --with dev` and documented pre-commit & run-from-source steps (done)
-- [x] 2025-11-30: Confirmed targeted i18n tests (`test_pluralization.py`, `test_i18n_fallback.py`) passed locally; recorded as completed side work (done)
+- [x] T005-25 [P] Rebased `005-i18n-support` on `dev` and resolved conflicts; pushed updated branch
+- [x] T005-26 [P] Merged `005-i18n-support` into `007-project-navigation` to test integration with navigation features and resolved conflicts
+- [x] T005-27 [P] Added `scripts/run_cli_main.py`, `scripts/run_cli.*`, `scripts/run_tests.*` and `ansibledoctor/cli/__main__.py` to improve run-from-source experience and ensure `ansible-doctor-enhanced` script runs via console script
+- [x] T005-28 [P] Removed generated artifacts `README-generated.md` and `test-output.json` from repository
+- [x] T005-29 [P] Added `pr_body.md` and `scripts/create_pr.py` to assist in PR creation and standardized PR description for Feature 005
+- [x] T005-30 [P] Updated `README.md` and `CONTRIBUTING.md` to recommend `poetry install --with dev` and documented pre-commit & run-from-source steps
+- [x] T005-31 [P] Confirmed targeted i18n tests (`test_pluralization.py`, `test_i18n_fallback.py`) passed locally; recorded as completed side work

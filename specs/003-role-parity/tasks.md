@@ -320,11 +320,7 @@ description: "Task list template for feature implementation"
 
 ---
 
-## Side work: 2025-11-30 (Dev tools & infra)
-
-- [x] 2025-11-30: Added `scripts/run_cli_main.py` and `scripts/run_tests.*` to simplify running CLI and tests from source (done)
-- [x] 2025-11-30: Added pre-commit config `.pre-commit-config.yaml` and CI pre-commit job to validate formatting and changelog on PRs (done)
-- [x] 2025-11-30: Migrated dev dependencies to `tool.poetry.group.dev.dependencies`, regenerated `poetry.lock` and verified `poetry install --with dev` works (done)
+<!-- Side work entries have been moved to the end of the file and renumbered as T038-T040. -->
 
 
 ## Dependencies & Execution Order
@@ -406,3 +402,12 @@ description: "Task list template for feature implementation"
 - **[US#] labels**: Trace tasks to user stories
 - **Checkpoints**: Validate each story independently before proceeding
 - **Commit frequency**: After each task or logical group (T010-T012, then commit)
+
+---
+
+## Side work: 2025-11-30 (Dev tools & infra)
+
+- [x] T038 [P] Added `scripts/run_cli_main.py` and `scripts/run_tests.*` to simplify running CLI and tests from source
+- [x] T039 [P] Added `pre-commit` config `.pre-commit-config.yaml` and CI pre-commit job to validate formatting and changelog on PRs
+- [x] T040 [P] Migrated dev dependencies to `tool.poetry.group.dev.dependencies`, regenerated `poetry.lock` and verified `poetry install --with dev` works
+

@@ -386,13 +386,7 @@ These tasks implement the production of slug-based output directories for collec
 
 ---
 
-## Side work: 2025-11-30 (Project/CI)
-
-Small infra and CI tasks added across the project that affect Collection docs generation and release validation:
-
-- [x] 2025-11-30: Add Windows CI workflow `.github/workflows/ci-windows.yml` to validate generator and collection docs generation on Windows runners (done)
-- [x] 2025-11-30: Add `pre-commit` validation job `.github/workflows/pre-commit.yml` to run hooks (done)
-- [x] 2025-11-30: Migrate dev dependencies to `tool.poetry.group.dev.dependencies` and update any docs referencing old syntax (done)
+<!-- Side work entries moved to bottom of file and renumbered to follow this project's task sequence (T263-T265). -->
 
 
 ### Integration Tests for User Story 10
@@ -625,3 +619,12 @@ Every task follows RED-GREEN-REFACTOR:
 **Next Action**: Begin T001 - Create directory structure
 
 *Tasks created following Constitution Article III (TDD), Article VI (SemVer), Article X (DDD), and SpecKit task generation workflow*
+
+---
+
+## Side work: 2025-11-30 (Project/CI)
+
+- [x] T263 [P] Add Windows CI workflow `.github/workflows/ci-windows.yml` to validate generator and collection docs generation on Windows runners
+- [x] T264 [P] Add `pre-commit` validation job `.github/workflows/pre-commit.yml` to run hooks on PRs and pushes
+- [x] T265 [P] Migrate dev dependencies to `tool.poetry.group.dev.dependencies` and update docs referencing old syntax
+

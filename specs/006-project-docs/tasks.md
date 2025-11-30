@@ -61,11 +61,7 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ---
 
-## Side work: 2025-11-30 (Docs/Packaging & CI)
-
-- [x] 2025-11-30: Updated `README.md` and `CONTRIBUTING.md` to recommend `poetry install --with dev` and to document run-from-source helper scripts (done)
-- [x] 2025-11-30: Ensured CLI `ansible-doctor-enhanced` alias and `ansibledoctor` convenience alias are present in `pyproject.toml` scripts (done)
-- [x] 2025-11-30: Verified `poetry lock` and `poetry install --with dev` complete via local checks and updated relevant docs (done)
+<!-- Side work items were moved to the end of the file and renumbered T320-T322. -->
 
 
 ## Acceptance Tests
@@ -117,3 +113,12 @@ High-priority backlog (candidate for next sprint or immediate assignment):
 - [ ] T319/T320 — Template reuse & i18n integration for project-level templates — HIGH
 
 Notes: these backlog items should be scheduled according to team capacity; update `tasks.md` and mark them as [x] when complete.
+
+---
+
+## Side work: 2025-11-30 (Docs/Packaging & CI)
+
+- [x] T320 [P] Updated `README.md` and `CONTRIBUTING.md` to recommend `poetry install --with dev` and document run-from-source helper scripts
+- [x] T321 [P] Ensured CLI `ansible-doctor-enhanced` alias and `ansibledoctor` convenience alias are present in `pyproject.toml` scripts
+- [x] T322 [P] Verified `poetry lock` and `poetry install --with dev` complete via local checks and updated relevant docs
+

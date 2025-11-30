@@ -401,19 +401,7 @@
 
 ---
 
-## Side work: 2025-11-30 (Generator & CLI / i18n integration)
-
-The following cross-feature changes that impact the generator and CLI were done and validated on 2025-11-30:
-
-- [x] 2025-11-30: Register Jinja2 `t()` translation filter at TemplateEngine initialization and ensure templates can call `{{ 'section.key' | t }}` (done)
-- [x] 2025-11-30: Integration of `MultiLanguageGenerator` (feature 005) so the generator emits per-locale files under `docs/lang/{code}` when the `--languages` flag is used (done)
-- [x] 2025-11-30: Add `ansibledoctor/cli/__main__.py` and helper scripts in `scripts/` to ease running the generator from source and to install the console script (done)
-- [x] 2025-11-30: Updated templates to support i18n placeholders and `t()` function usage in Markdown/HTML templates (done)
-
-  - ✅ Updated foundation components list (html_escape filter)
-  - ✅ Updated E2E testing metrics (20 integration tests: 12 MD + 8 HTML)
-  - ✅ Added property testing section (Hypothesis-based XSS prevention)
-  - commit 7cf4e64
+<!-- Side work entries were moved to the end of this file and renumbered as tasks T256-T259. -->
 
 - [x] T240 Run tests and verify HTML coverage
   - ✅ Total tests: 544/546 passing (99.6%)
@@ -558,7 +546,7 @@ The following cross-feature changes that impact the generator and CLI were done 
 
 ## Summary
 
-**Total Tasks**: 55 (T201-T255)  
+**Total Tasks**: 59 (T201-T259)  
 **Test Count Progression**:
 - Baseline: 262 tests (Feature 001 complete)
 - Phase 9 (Foundation): +88 tests = 350 total
@@ -584,3 +572,13 @@ The following cross-feature changes that impact the generator and CLI were done 
 - ✅ Complete documentation and examples
 
 **Ready for**: Phase 12 (Feature 003 - Performance Optimization) or production use at v0.3.0
+
+---
+
+## Side work: 2025-11-30 (Generator & CLI / i18n integration)
+
+- [x] T256 [P] Register Jinja2 `t()` translation filter at TemplateEngine initialization and ensure templates can call `{{ 'section.key' | t }}`
+- [x] T257 [P] Integrate `MultiLanguageGenerator` so the generator emits per-locale files under `docs/lang/{code}` when the `--languages` flag is used
+- [x] T258 [P] Add `ansibledoctor/cli/__main__.py` and helper scripts in `scripts/` to ease running the generator from source and to install the console script
+- [x] T259 [P] Update templates to support i18n placeholders and `t()` function usage in Markdown/HTML templates
+

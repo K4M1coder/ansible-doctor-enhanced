@@ -34,14 +34,7 @@ description: "Task breakdown for Feature 001: Ansible Role Parser"
 
 ---
 
-## Side work: 2025-11-30 (Infra / Tools)
-
-The team performed cross-cutting infrastructure and tooling updates that improve developer experience and CI validation. These are recorded as done items below.
-
-- [x] 2025-11-30: Add `.pre-commit-config.yaml` and `scripts/validate_atomic_changelog.py` hook; ensure pre-commit integration instructions are in `CONTRIBUTING.md` (done)
-- [x] 2025-11-30: Migrate dev dependencies out of deprecated `tool.poetry.dev-dependencies` section by moving `tomli` into `tool.poetry.group.dev.dependencies` and update `pyproject.toml` (done)
-- [x] 2025-11-30: Add `ghapi` as a dev-dependency and `scripts/create_pr.py` helper to create GitHub PRs programmatically for CI and developer convenience (done)
-- [x] 2025-11-30: Add `scripts/run_cli_main.py`, `scripts/run_cli.*` and `scripts/run_tests.*` to simplify running CLI and tests from source (done)
+<!-- Side work entries were moved to the end of this file and renumbered to maintain numeric continuity. See the bottom of this file for the task IDs T101-T104. -->
 
 
 **Checkpoint**: Foundation ready - project structure initialized, dependencies configured
@@ -342,3 +335,13 @@ Finally all team:
 
 **MVP Tasks** (Setup + Foundation + US1 + US2 + CLI): 58 tasks
 **Full Feature**: 100 tasks
+
+---
+
+## Side work: 2025-11-30 (Infra / Tools)
+
+- [x] T101 [P] Add `.pre-commit-config.yaml` and `scripts/validate_atomic_changelog.py` hook; ensure pre-commit integration instructions are in `CONTRIBUTING.md`
+- [x] T102 [P] Migrate dev dependencies out of deprecated `tool.poetry.dev-dependencies` section by moving `tomli` into `tool.poetry.group.dev.dependencies` and update `pyproject.toml`
+- [x] T103 [P] Add `ghapi` as a dev-dependency and `scripts/create_pr.py` helper to create GitHub PRs programmatically for CI and developer convenience
+- [x] T104 [P] Add `scripts/run_cli_main.py`, `scripts/run_cli.*` and `scripts/run_tests.*` to simplify running CLI and tests from source
+
