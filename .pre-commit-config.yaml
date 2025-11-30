@@ -160,3 +160,12 @@ repos:
         ]
         pass_filenames: false
         stages: [commit, push]
+
+      - id: sync-version
+        name: Sync version from pyproject to CHANGELOG and READMEs
+        entry: python scripts/sync_version.py --stage 1
+        language: python
+        additional_dependencies: ["tomli"]
+        files: ^(pyproject\.toml|CHANGELOG\.md|README.*)$
+        pass_filenames: false
+        stages: [commit]
