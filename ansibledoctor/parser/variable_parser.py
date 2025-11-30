@@ -8,11 +8,10 @@ This module implements US2: "Parse role variables" from specification 001.
 """
 
 from pathlib import Path
-from typing import Any
 
 from ansibledoctor.exceptions import ParsingError
 from ansibledoctor.models.annotation import AnnotationType
-from ansibledoctor.models.variable import Variable, VariableType
+from ansibledoctor.models.variable import Variable
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.protocols import YAMLLoader
 from ansibledoctor.utils.logging import get_logger
@@ -23,14 +22,14 @@ logger = get_logger(__name__)
 class VariableParser:
     """
     Parser for Ansible role variables with annotation support.
-    
+
     Responsibilities (DDD Domain Service):
     - Parse defaults/main.yml and vars/main.yml
     - Extract variable definitions with values
     - Infer variable types automatically
     - Merge variables with @var annotations
     - Transform raw YAML into Variable value objects
-    
+
     Following DDD principles:
     - Uses YAMLLoader protocol (Dependency Inversion)
     - Uses AnnotationExtractor for annotation parsing
@@ -45,7 +44,7 @@ class VariableParser:
     ):
         """
         Initialize variable parser.
-        
+
         Args:
             yaml_loader: YAMLLoader implementation for reading YAML files
             annotation_extractor: AnnotationExtractor for parsing @var annotations
@@ -57,10 +56,10 @@ class VariableParser:
     def parse_role_variables(self, role_path: Path) -> list[Variable]:
         """
         Parse all variables from a role (defaults + vars).
-        
+
         Args:
             role_path: Path to role directory
-            
+
         Returns:
             list[Variable]: All parsed variables from defaults and vars
         """
@@ -95,17 +94,17 @@ class VariableParser:
     def parse_variables_file(self, file_path: Path) -> list[Variable]:
         """
         Parse variables from a defaults or vars file.
-        
+
         Process:
         1. Load YAML content
         2. Extract variable definitions (key-value pairs)
         3. Extract @var annotations from comments
         4. Merge annotations with variables
         5. Infer types for each variable
-        
+
         Args:
             file_path: Path to defaults/main.yml or vars/main.yml
-            
+
         Returns:
             list[Variable]: Parsed variables with annotations
         """
@@ -121,13 +120,13 @@ class VariableParser:
         try:
             # Load YAML data
             data = self._yaml_loader.load_file(file_path)
-            
+
             # Load raw content for annotation extraction
             yaml_content = file_path.read_text(encoding="utf-8")
             annotations = self._annotation_extractor.extract_annotations(
                 yaml_content, str(file_path)
             )
-            
+
         except ParsingError:
             logger.error("variables_file_parse_failed", file_path=str(file_path))
             return []
@@ -148,9 +147,7 @@ class VariableParser:
 
         # Create annotation lookup by variable name
         var_annotations = {
-            ann.key: ann
-            for ann in annotations
-            if ann.type == AnnotationType.VAR and ann.key
+            ann.key: ann for ann in annotations if ann.type == AnnotationType.VAR and ann.key
         }
 
         # Process each variable
@@ -166,14 +163,14 @@ class VariableParser:
 
             if annotation:
                 attrs = annotation.parsed_attributes
-                
+
                 # Extract description (from attributes or raw content)
                 if "description" in attrs:
                     description = attrs["description"]
                 elif annotation.content and not annotation.content.startswith("{"):
                     # Plain text description (not JSON)
                     description = annotation.content
-                
+
                 # Extract other attributes
                 required = attrs.get("required")
                 example = attrs.get("example")

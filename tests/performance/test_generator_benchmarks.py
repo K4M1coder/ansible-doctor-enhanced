@@ -11,11 +11,9 @@ Uses pytest-benchmark for accurate timing measurements.
 
 import time
 from datetime import datetime
-from pathlib import Path
 
 import pytest
 
-from ansibledoctor.generator import TemplateEngine
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable
@@ -157,9 +155,7 @@ def test_small_role_rendering_performance(small_role, markdown_renderer):
     avg_time_ms = ((end - start) / 10) * 1000
 
     # Target: <50ms
-    assert (
-        avg_time_ms < 50
-    ), f"Small role rendering took {avg_time_ms:.2f}ms (target: <50ms)"
+    assert avg_time_ms < 50, f"Small role rendering took {avg_time_ms:.2f}ms (target: <50ms)"
 
     print(f"✅ Small role (10 vars): {avg_time_ms:.2f}ms")
 
@@ -185,9 +181,7 @@ def test_medium_role_rendering_performance(medium_role, markdown_renderer):
     avg_time_ms = ((end - start) / 10) * 1000
 
     # Target: <100ms
-    assert (
-        avg_time_ms < 100
-    ), f"Medium role rendering took {avg_time_ms:.2f}ms (target: <100ms)"
+    assert avg_time_ms < 100, f"Medium role rendering took {avg_time_ms:.2f}ms (target: <100ms)"
 
     print(f"✅ Medium role (50 vars): {avg_time_ms:.2f}ms")
 
@@ -213,8 +207,6 @@ def test_large_role_rendering_performance(large_role, markdown_renderer):
     avg_time_ms = ((end - start) / 10) * 1000
 
     # Target: <200ms (relaxed for large roles)
-    assert (
-        avg_time_ms < 200
-    ), f"Large role rendering took {avg_time_ms:.2f}ms (target: <200ms)"
+    assert avg_time_ms < 200, f"Large role rendering took {avg_time_ms:.2f}ms (target: <200ms)"
 
     print(f"✅ Large role (100 vars): {avg_time_ms:.2f}ms")

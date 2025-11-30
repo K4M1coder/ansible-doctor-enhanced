@@ -8,9 +8,10 @@ ISO 639-1 lower-case two-letter convention.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
-from typing import List
 import re
+from typing import List
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class LanguageConfig(BaseModel):
@@ -33,6 +34,8 @@ class LanguageConfig(BaseModel):
             if not re.match(r"^[a-z]{2}$", code):
                 raise ValueError(f"Invalid language code in enabled: {code}")
         return v
+
+
 """(Pydantic v2) Language configuration models and validation.
 
 This module defines the `LanguageConfig` Pydantic model used to configure

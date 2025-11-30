@@ -11,7 +11,7 @@ import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 
 class TestMarkdownGenerationIntegration:
@@ -163,8 +163,9 @@ class TestMarkdownGenerationIntegration:
         # Check each variable appears (with or without escaping)
         for var in complex_role.variables:
             var_name_variants = [var.name, var.name.replace("_", "\\_")]
-            assert any(variant in result for variant in var_name_variants), \
-                f"Variable {var.name} not found in output"
+            assert any(
+                variant in result for variant in var_name_variants
+            ), f"Variable {var.name} not found in output"
 
         # Check variable metadata
         assert "HTTP port" in result

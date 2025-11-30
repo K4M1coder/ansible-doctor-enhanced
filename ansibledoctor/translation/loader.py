@@ -40,7 +40,11 @@ class TranslationLoader:
         """
         # Validate the provided language code: ISO 639-1 two-letter code expected.
         if not isinstance(lang, str) or len(lang.strip()) != 2 or not lang.strip().isalpha():
-            logger.warning("invalid_language_code", lang=lang, message="Invalid language code; falling back to 'en'")
+            logger.warning(
+                "invalid_language_code",
+                lang=lang,
+                message="Invalid language code; falling back to 'en'",
+            )
             lang = "en"
         cache_key = (lang, str(project_root) if project_root is not None else None)
         if cache_key in self._cache:
@@ -63,9 +67,17 @@ class TranslationLoader:
         # If no translations found for requested lang, fallback to 'en'
         fallback_lang = "en"
         if not translations and fallback_lang != lang:
-            logger.warning("unsupported_language_code", lang=lang, message=f"No translations found for '{lang}', falling back to '{fallback_lang}'")
+            logger.warning(
+                "unsupported_language_code",
+                lang=lang,
+                message=f"No translations found for '{lang}', falling back to '{fallback_lang}'",
+            )
             lang = fallback_lang
-            translations.update(self.load_from_path(Path(__file__).resolve().parents[1] / "translations" / f"{lang}.yml"))
+            translations.update(
+                self.load_from_path(
+                    Path(__file__).resolve().parents[1] / "translations" / f"{lang}.yml"
+                )
+            )
             # When falling back to `lang` (e.g., en), ensure we also apply any
             # project-level overrides for the fallback language so project
             # translations override package defaults as expected.
@@ -85,10 +97,14 @@ class TranslationLoader:
             fb_trans: Dict[str, str] = {}
             # Load package fallback first then project fallback so project-level
             # values override package values for the fallback language.
-            pkg_fb_path = Path(__file__).resolve().parents[1] / "translations" / f"{fallback_lang}.yml"
+            pkg_fb_path = (
+                Path(__file__).resolve().parents[1] / "translations" / f"{fallback_lang}.yml"
+            )
             fb_trans.update(self.load_from_path(pkg_fb_path))
             if project_root:
-                pr_fb = Path(project_root) / ".ansibledoctor" / "translations" / f"{fallback_lang}.yml"
+                pr_fb = (
+                    Path(project_root) / ".ansibledoctor" / "translations" / f"{fallback_lang}.yml"
+                )
                 fb_trans.update(self.load_from_path(pr_fb))
             # Merge fallback keys for any missing entries
             for k, v in fb_trans.items():

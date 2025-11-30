@@ -7,12 +7,16 @@ unit tests and will be expanded by feature tasks as parsing complexity grows.
 from __future__ import annotations
 
 import os
+from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional
 
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo, Playbook
-from ansibledoctor.parser.inventory_parser import parse_inventory_dir, parse_ini_inventory, parse_yaml_inventory
-from configparser import ConfigParser
+from ansibledoctor.models.project import CollectionInfo, Playbook, Project, RoleInfo
+from ansibledoctor.parser.inventory_parser import (
+    parse_ini_inventory,
+    parse_inventory_dir,
+    parse_yaml_inventory,
+)
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 
 
@@ -54,7 +58,7 @@ class ProjectParser:
         roles_cfg_paths: Optional[list[Path]] = None
         if cfg_path:
             try:
-                cfg = cfg if 'cfg' in locals() else ConfigParser()
+                cfg = ConfigParser()
                 cfg.read(cfg_path)
                 if cfg.has_option("defaults", "roles_path"):
                     rp_val = cfg.get("defaults", "roles_path").strip()
@@ -89,7 +93,7 @@ class ProjectParser:
         collections_cfg_paths: Optional[list[Path]] = None
         if cfg_path:
             try:
-                cfg = cfg if 'cfg' in locals() else ConfigParser()
+                cfg = ConfigParser()
                 cfg.read(cfg_path)
                 if cfg.has_option("defaults", "collections_path"):
                     cp_val = cfg.get("defaults", "collections_path").strip()
@@ -121,7 +125,9 @@ class ProjectParser:
                             for coll in os.listdir(ns_path):
                                 coll_path = os.path.join(ns_path, coll)
                                 if os.path.isdir(coll_path):
-                                    project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
+                                    project.collections.append(
+                                        CollectionInfo(name=f"{ns}.{coll}", path=coll_path)
+                                    )
                 # Variant B: collections/<namespace>/<collection>
                 # We should parse this even if ansible_collections exists alongside other layout
                 for ns in os.listdir(collections_dir):
@@ -133,7 +139,9 @@ class ProjectParser:
                         for coll in os.listdir(ns_path):
                             coll_path = os.path.join(ns_path, coll)
                             if os.path.isdir(coll_path):
-                                project.collections.append(CollectionInfo(name=f"{ns}.{coll}", path=coll_path))
+                                project.collections.append(
+                                    CollectionInfo(name=f"{ns}.{coll}", path=coll_path)
+                                )
 
         # Inventory discovery: support parsing of inventory files under 'inventory' dir
         # Also respect 'inventory' path set in ansible.cfg under [defaults]
@@ -145,7 +153,9 @@ class ProjectParser:
                 if cfg.has_option("defaults", "inventory"):
                     inv_val = cfg.get("defaults", "inventory").strip()
                     # Support multiple inventory sources in ansible.cfg (colon or comma separated)
-                    inv_items = [i.strip() for i in inv_val.replace(",", ":").split(":") if i.strip()]
+                    inv_items = [
+                        i.strip() for i in inv_val.replace(",", ":").split(":") if i.strip()
+                    ]
                     inv_paths: list[Path] = []
                     for it in inv_items:
                         pth = (cfg_path.parent / it).resolve()
@@ -226,7 +236,12 @@ class ProjectParser:
                                                 roles.add(name)
                                         else:
                                             roles.add(str(r))
-                            pb = Playbook(name=os.path.splitext(fname)[0], path=pb_path, hosts=list(hosts), roles=list(roles))
+                            pb = Playbook(
+                                name=os.path.splitext(fname)[0],
+                                path=pb_path,
+                                hosts=list(hosts),
+                                roles=list(roles),
+                            )
                             project.playbooks.append(pb)
                     except Exception:
                         # Ignore playbook parse errors for now; logging may be added later
@@ -260,7 +275,12 @@ class ProjectParser:
                                                 roles.add(name)
                                         else:
                                             roles.add(str(r))
-                            pb = Playbook(name=os.path.splitext(f)[0], path=pb_path, hosts=list(hosts), roles=list(roles))
+                            pb = Playbook(
+                                name=os.path.splitext(f)[0],
+                                path=pb_path,
+                                hosts=list(hosts),
+                                roles=list(roles),
+                            )
                             project.playbooks.append(pb)
                     except Exception:
                         continue
@@ -327,6 +347,7 @@ class ProjectParser:
                             redact_placeholder = r.get("placeholder")
             except Exception:
                 pass
+
         def _merge_dicts(base: dict, overrides: dict) -> dict:
             result = dict(base)
             for k, v in overrides.items():
@@ -338,7 +359,12 @@ class ProjectParser:
 
         def _redact_keys(d: dict) -> dict:
             # default sensitive patterns
-            patterns = redact_patterns if redact_patterns is not None else ["password", "secret", "token", "key", "credential", "pwd", "pass"]
+            patterns = (
+                redact_patterns
+                if redact_patterns is not None
+                else ["password", "secret", "token", "key", "credential", "pwd", "pass"]
+            )
+
             def redact_value(val, parent_key=None):
                 if isinstance(val, dict):
                     return {k: redact_value(v, k) for k, v in val.items()}
@@ -349,6 +375,7 @@ class ProjectParser:
                         if any(patt in parent_key.lower() for patt in patterns):
                             return redact_placeholder
                     return val
+
             return redact_value(d)
 
         for host_item in project.inventory:

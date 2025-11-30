@@ -28,11 +28,16 @@ class TestTranslationProvider:
         assert provider.t("greet", name="Bob") == "Hello Bob"
 
     def test_t_plural_one(self):
-        provider = TranslationProvider({"items.one": "1 item", "items.other": "{count} items"}, lang="en")
+        provider = TranslationProvider(
+            {"items.one": "1 item", "items.other": "{count} items"}, lang="en"
+        )
         assert provider.t("items", count=1) == "1 item"
         assert provider.t("items", count=3) == "3 items"
 
     def test_t_plural_missing_form(self):
         provider = TranslationProvider({"items.other": "{count} items"}, lang="en")
         # when 'one' missing, fallback to other
-        assert provider.t("items", count=1) == "1 items" or provider.t("items", count=1) == "{count} items"
+        assert (
+            provider.t("items", count=1) == "1 items"
+            or provider.t("items", count=1) == "{count} items"
+        )

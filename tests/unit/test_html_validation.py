@@ -11,20 +11,19 @@ import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
-
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 # Try to import html5lib - skip tests if not available
 try:
     import html5lib
+
     HAS_HTML5LIB = True
 except ImportError:
     HAS_HTML5LIB = False
 
 
 pytestmark = pytest.mark.skipif(
-    not HAS_HTML5LIB,
-    reason="html5lib not installed - optional dependency for HTML validation"
+    not HAS_HTML5LIB, reason="html5lib not installed - optional dependency for HTML validation"
 )
 
 
@@ -79,7 +78,7 @@ class TestHtmlValidation:
 
     def test_html_parses_without_errors(self, complex_role):
         """Test that rendered HTML parses without syntax errors.
-        
+
         Uses html5lib parser in strict mode to catch any HTML5 violations.
         """
         renderer = HtmlRenderer(embed_css=True, generate_toc=True)
@@ -89,22 +88,22 @@ class TestHtmlValidation:
             generation_date=datetime(2024, 1, 1),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Parse HTML with html5lib - will raise if invalid
         parser = html5lib.HTMLParser(strict=True)
         document = parser.parse(result)
-        
+
         # Should successfully create a document tree
         assert document is not None
-        
+
         # Should have root element
         assert document.tag is not None
 
     def test_html_has_proper_semantic_structure(self, complex_role):
         """Test that rendered HTML has proper semantic structure.
-        
+
         Verifies proper nesting: html > head/body, proper meta tags, etc.
         """
         renderer = HtmlRenderer(embed_css=True, generate_toc=True)
@@ -114,9 +113,9 @@ class TestHtmlValidation:
             generation_date=datetime(2024, 1, 1),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Parse with html5lib
         document = html5lib.parse(result)
 
@@ -127,11 +126,11 @@ class TestHtmlValidation:
             root = document.getroot()
         else:
             root = document
-        
+
         # Verify basic structure exists
         # The document should have been parsed successfully
         assert root is not None
-        
+
         # Check that document has expected structure
         # html5lib creates proper tree even if input has minor issues,
         # so we verify it didn't need major corrections
@@ -143,7 +142,7 @@ class TestHtmlValidation:
 
     def test_html_special_characters_are_escaped(self, complex_role):
         """Test that special characters in content are properly escaped.
-        
+
         Verifies XSS prevention - user content with <, >, & should be escaped.
         """
         # Create role with potentially dangerous content
@@ -168,7 +167,7 @@ class TestHtmlValidation:
             todos=[],
             examples=[],
         )
-        
+
         renderer = HtmlRenderer(embed_css=True, generate_toc=True)
         context = TemplateContext(
             role=dangerous_role,
@@ -176,16 +175,18 @@ class TestHtmlValidation:
             generation_date=datetime(2024, 1, 1),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Parse HTML - should succeed even with special characters
         document = html5lib.parse(result)
         assert document is not None
-        
+
         # Verify dangerous content is escaped in output
         assert "&lt;script&gt;" in result or "&#60;script&#62;" in result
-        assert "<script>alert" not in result or result.count("<script>") == 0  # No unescaped scripts
-        
+        assert (
+            "<script>alert" not in result or result.count("<script>") == 0
+        )  # No unescaped scripts
+
         # Ampersands should be escaped
         assert "&amp;" in result or "&#38;" in result

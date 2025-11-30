@@ -8,7 +8,6 @@ Following Constitution Article III (TDD) and Article IV (Integration Testing).
 Task T224 from specs/002-doc-generator/tasks.md
 """
 
-import json
 from pathlib import Path
 
 import pytest
@@ -63,9 +62,7 @@ class TestCliGenerateE2E:
         """Test generate command saves Markdown to file."""
         output_file = tmp_path / "README.md"
 
-        result = runner.invoke(
-            cli, ["generate", str(minimal_role), "--output", str(output_file)]
-        )
+        result = runner.invoke(cli, ["generate", str(minimal_role), "--output", str(output_file)])
 
         assert result.exit_code == 0
         assert output_file.exists()
@@ -87,9 +84,7 @@ class TestCliGenerateE2E:
 
     def test_generate_with_format_option(self, runner, minimal_role):
         """Test generate command with explicit format option."""
-        result = runner.invoke(
-            cli, ["generate", str(minimal_role), "--format", "markdown"]
-        )
+        result = runner.invoke(cli, ["generate", str(minimal_role), "--format", "markdown"])
 
         assert result.exit_code == 0
         assert result.output.strip()  # Has output
@@ -126,9 +121,7 @@ class TestCliGenerateE2E:
         """Test generate creates nested output directories."""
         output_file = tmp_path / "docs" / "generated" / "README.md"
 
-        result = runner.invoke(
-            cli, ["generate", str(minimal_role), "--output", str(output_file)]
-        )
+        result = runner.invoke(cli, ["generate", str(minimal_role), "--output", str(output_file)])
 
         assert result.exit_code == 0
         assert output_file.exists()
@@ -143,15 +136,17 @@ class TestCliGenerateE2E:
 
         # Role name should appear in output
         role_name = minimal_role.name
-        assert role_name in output or role_name.replace("-", "_") in output or role_name.replace("_", "-") in output
+        assert (
+            role_name in output
+            or role_name.replace("-", "_") in output
+            or role_name.replace("_", "-") in output
+        )
 
     def test_generate_output_is_valid_markdown(self, runner, minimal_role, tmp_path):
         """Test generated output is valid Markdown structure."""
         output_file = tmp_path / "test.md"
 
-        result = runner.invoke(
-            cli, ["generate", str(minimal_role), "--output", str(output_file)]
-        )
+        result = runner.invoke(cli, ["generate", str(minimal_role), "--output", str(output_file)])
 
         assert result.exit_code == 0
 
@@ -202,4 +197,6 @@ class TestCliGenerateE2E:
         assert "#" in content, "Missing Markdown headings"
 
         # Verify it's readable text (no binary garbage)
-        assert content.isprintable() or any(c in content for c in ["\n", "\t", " "]), "Content not readable text"
+        assert content.isprintable() or any(
+            c in content for c in ["\n", "\t", " "]
+        ), "Content not readable text"

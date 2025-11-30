@@ -12,23 +12,19 @@ import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.rst import RstRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
-
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 # Try to import docutils - skip tests if not available
 try:
     from docutils.core import publish_parts
-    from docutils.parsers.rst import Parser
-    from docutils.utils import new_document
-    from docutils.frontend import OptionParser
+
     HAS_DOCUTILS = True
 except ImportError:
     HAS_DOCUTILS = False
 
 
 pytestmark = pytest.mark.skipif(
-    not HAS_DOCUTILS,
-    reason="docutils not installed - optional dependency for RST validation"
+    not HAS_DOCUTILS, reason="docutils not installed - optional dependency for RST validation"
 )
 
 
@@ -83,7 +79,7 @@ class TestRstValidation:
 
     def test_rst_parses_without_errors(self, complex_role):
         """Test that rendered RST parses without syntax errors.
-        
+
         Uses docutils parser to catch any RST violations.
         """
         renderer = RstRenderer(sphinx_compat=True)
@@ -93,31 +89,31 @@ class TestRstValidation:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Parse with docutils - should not raise exceptions
         try:
             parts = publish_parts(
                 source=result,
                 writer_name="html",
                 settings_overrides={
-                    'report_level': 2,  # Report warnings and above
-                    'halt_level': 4,    # Don't halt on warnings
-                    'warning_stream': False,  # Suppress warning output
-                }
+                    "report_level": 2,  # Report warnings and above
+                    "halt_level": 4,  # Don't halt on warnings
+                    "warning_stream": False,  # Suppress warning output
+                },
             )
-            
+
             # If parsing succeeds, we have valid RST
-            assert parts['html_body'] is not None
-            assert len(parts['html_body']) > 0
-            
+            assert parts["html_body"] is not None
+            assert len(parts["html_body"]) > 0
+
         except Exception as e:
             pytest.fail(f"RST parsing failed: {e}")
 
     def test_rst_has_proper_structure(self, complex_role):
         """Test that RST has proper document structure.
-        
+
         Verifies sections, field lists, and directives are correctly formatted.
         """
         renderer = RstRenderer(sphinx_compat=True)
@@ -127,30 +123,28 @@ class TestRstValidation:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Parse to HTML to verify structure
         parts = publish_parts(
-            source=result,
-            writer_name="html",
-            settings_overrides={'report_level': 5}
+            source=result, writer_name="html", settings_overrides={"report_level": 5}
         )
-        
-        html = parts['html_body']
-        
+
+        html = parts["html_body"]
+
         # Should have title
         assert "<h1" in html or "<h2" in html
-        
+
         # Should have field lists (converted to definition lists in HTML)
         assert "Generated" in html or "Version" in html
-        
+
         # Should have paragraphs or sections
         assert "<p>" in html or "<div" in html
 
     def test_sphinx_directives_valid(self, complex_role):
         """Test that Sphinx directives are properly formatted.
-        
+
         Verifies .. warning::, .. note::, .. code-block:: directives.
         Note: docutils won't process Sphinx-specific directives,
         but should not error on them.
@@ -162,14 +156,14 @@ class TestRstValidation:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify Sphinx directives are present
         assert ".. warning::" in result  # High priority TODO
-        assert ".. note::" in result     # Footer note
+        assert ".. note::" in result  # Footer note
         assert ".. code-block::" in result  # Example code
-        
+
         # Parse - docutils will treat unknown directives as system messages
         # but should not crash
         try:
@@ -177,13 +171,13 @@ class TestRstValidation:
                 source=result,
                 writer_name="html",
                 settings_overrides={
-                    'report_level': 5,  # Suppress all messages
-                    'halt_level': 5,    # Don't halt
-                }
+                    "report_level": 5,  # Suppress all messages
+                    "halt_level": 5,  # Don't halt
+                },
             )
-            
+
             # Parsing should succeed even with Sphinx directives
-            assert parts['html_body'] is not None
-            
+            assert parts["html_body"] is not None
+
         except Exception as e:
             pytest.fail(f"RST with Sphinx directives failed to parse: {e}")

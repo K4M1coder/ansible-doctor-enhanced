@@ -1,4 +1,3 @@
-
 """Multi-language generator utilities.
 
 This module contains the MultiLanguageGenerator class which is responsible
@@ -13,8 +12,8 @@ from pathlib import Path
 from typing import Iterable
 
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
-from ansibledoctor.translation.loader import TranslationLoader
 from ansibledoctor.models.project import Project
+from ansibledoctor.translation.loader import TranslationLoader
 from ansibledoctor.utils.slug import project_slug
 
 
@@ -41,10 +40,21 @@ class MultiLanguageGenerator:
             provider = self.loader.load(lang, Path(project.path))
             gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)
             if output_dir is not None:
-                target = Path(output_dir) / "lang" / lang / project_slug(project.name) if not legacy_output else Path(output_dir) / "lang" / lang
+                target = (
+                    Path(output_dir) / "lang" / lang / project_slug(project.name)
+                    if not legacy_output
+                    else Path(output_dir) / "lang" / lang
+                )
             else:
                 if not legacy_output:
-                    target = Path(project.path) / "docs" / "lang" / lang / project_slug(project.name)
+                    target = (
+                        Path(project.path) / "docs" / "lang" / lang / project_slug(project.name)
+                    )
                 else:
                     target = Path(project.path) / "docs" / "lang" / lang
-            gen.generate(format=format, output_dir=target, template_path=template_path, legacy_output=legacy_output)
+            gen.generate(
+                format=format,
+                output_dir=target,
+                template_path=template_path,
+                legacy_output=legacy_output,
+            )

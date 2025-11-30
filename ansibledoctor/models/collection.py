@@ -47,16 +47,13 @@ class AnsibleCollection(BaseModel):
     """
 
     metadata: GalaxyMetadata = Field(
-        ...,
-        description="Galaxy metadata (namespace, name, version, authors, dependencies)"
+        ..., description="Galaxy metadata (namespace, name, version, authors, dependencies)"
     )
     roles: List[str] = Field(
-        default_factory=list,
-        description="List of role names within collection"
+        default_factory=list, description="List of role names within collection"
     )
     plugins: Dict[PluginType, List[str]] = Field(
-        default_factory=dict,
-        description="Dictionary mapping plugin types to plugin file paths"
+        default_factory=dict, description="Dictionary mapping plugin types to plugin file paths"
     )
 
     @field_validator("metadata")

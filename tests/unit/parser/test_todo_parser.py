@@ -5,12 +5,8 @@ Tests the TodoParser which extracts @todo annotations from role files.
 Following TDD Red-Green-Refactor cycle for Phase 8 US4 (TODO extraction).
 """
 
-from pathlib import Path
-from unittest.mock import Mock
-
 import pytest
 
-from ansibledoctor.models.todo import TodoItem
 from ansibledoctor.parser.todo_parser import TodoParser
 
 
@@ -31,11 +27,13 @@ class TestSimpleTodoExtraction:
         """Should extract basic @todo comment."""
         file_path = tmp_path / "tasks" / "main.yml"
         file_path.parent.mkdir(parents=True)
-        file_path.write_text("""
+        file_path.write_text(
+            """
 # @todo: Implement error handling
 - name: Deploy application
   command: /usr/bin/deploy
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)
@@ -112,16 +110,18 @@ class TestMultipleTodos:
     def test_extract_multiple_todos_from_same_file(self, tmp_path):
         """Should extract all @todo annotations in a file."""
         file_path = tmp_path / "test.yml"
-        file_path.write_text("""
+        file_path.write_text(
+            """
 # @todo: First task
 var1: value1
 
-# @todo: Second task  
+# @todo: Second task
 var2: value2
 
 # @todo: Third task
 var3: value3
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)
@@ -135,11 +135,13 @@ var3: value3
     def test_track_line_numbers_for_each_todo(self, tmp_path):
         """Should track correct line number for each todo."""
         file_path = tmp_path / "test.yml"
-        file_path.write_text("""# @todo: First todo
+        file_path.write_text(
+            """# @todo: First todo
 # Regular comment
 # @todo: Second todo
 # Another comment
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)
@@ -155,12 +157,14 @@ class TestMultilineTodos:
     def test_extract_multiline_todo_annotation(self, tmp_path):
         """Should handle @todo that spans multiple comment lines."""
         file_path = tmp_path / "test.yml"
-        file_path.write_text("""
+        file_path.write_text(
+            """
 # @todo: This is a long todo that needs
 #        multiple lines to describe properly
 #        and continues here
 var: value
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)
@@ -172,12 +176,14 @@ var: value
     def test_multiline_todo_ends_at_non_comment(self, tmp_path):
         """Should stop multiline todo at first non-comment line."""
         file_path = tmp_path / "test.yml"
-        file_path.write_text("""
+        file_path.write_text(
+            """
 # @todo: Multiline todo
 #        continues here
 var: value
 # This is not part of the todo
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)
@@ -227,17 +233,17 @@ class TestRoleWideScanning:
     def test_scan_role_all_directories(self, tmp_path):
         """Should scan all standard role directories."""
         role_path = tmp_path / "my_role"
-        
+
         # Create todos in different directories
         (role_path / "tasks").mkdir(parents=True)
         (role_path / "tasks" / "main.yml").write_text("# @todo: In tasks\n")
-        
+
         (role_path / "defaults").mkdir(parents=True)
         (role_path / "defaults" / "main.yml").write_text("# @todo: In defaults\n")
-        
+
         (role_path / "vars").mkdir(parents=True)
         (role_path / "vars" / "main.yml").write_text("# @todo: In vars\n")
-        
+
         (role_path / "handlers").mkdir(parents=True)
         (role_path / "handlers" / "main.yml").write_text("# @todo: In handlers\n")
 
@@ -249,10 +255,10 @@ class TestRoleWideScanning:
     def test_ignore_non_source_directories(self, tmp_path):
         """Should skip .git, .hypothesis, __pycache__ directories."""
         role_path = tmp_path / "role"
-        
+
         (role_path / ".git").mkdir(parents=True)
         (role_path / ".git" / "config").write_text("# @todo: Should be ignored\n")
-        
+
         (role_path / "tasks").mkdir(parents=True)
         (role_path / "tasks" / "main.yml").write_text("# @todo: Should be found\n")
 
@@ -269,11 +275,13 @@ class TestNoTodosCase:
     def test_file_without_todos(self, tmp_path):
         """Should return empty list when no todos found."""
         file_path = tmp_path / "test.yml"
-        file_path.write_text("""
+        file_path.write_text(
+            """
 var: value
 # Regular comment
 another_var: another_value
-""")
+"""
+        )
 
         parser = TodoParser()
         todos = parser.parse_file(file_path)

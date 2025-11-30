@@ -3,6 +3,7 @@
 These tests exercise the TranslationProvider.t() plural selection for
 English, French and German locales using provided translation keys.
 """
+
 from __future__ import annotations
 
 from ansibledoctor.translation.provider import TranslationProvider

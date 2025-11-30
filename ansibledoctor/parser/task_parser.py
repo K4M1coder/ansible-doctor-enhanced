@@ -96,7 +96,7 @@ class TaskParser:
                     continue
 
                 # Process each tag
-                task_name = task.get("name", f"task_{task_index}")
+                _task_name = task.get("name", f"task_{task_index}")
                 file_location = f"tasks/main.yml:{task_index + 1}"
 
                 for tag_name in task_tags:

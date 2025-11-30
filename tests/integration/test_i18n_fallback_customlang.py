@@ -4,11 +4,12 @@ If a requested language has only some keys defined, missing keys should be
 filled from the configured fallback language (EN) while existing keys are used
 from the requested language.
 """
+
 from pathlib import Path
 
 from ansibledoctor.generator.multi_language import MultiLanguageGenerator
+from ansibledoctor.models.project import CollectionInfo, Project, RoleInfo
 from ansibledoctor.translation.loader import TranslationLoader
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
 
 
 def make_project_with_custom_lang(tmp_path: Path, name: str = "myproj") -> Project:
@@ -18,19 +19,21 @@ def make_project_with_custom_lang(tmp_path: Path, name: str = "myproj") -> Proje
     roles_dir = proj_dir / "roles" / "webserver"
     roles_dir.mkdir(parents=True)
     (roles_dir / "tasks").mkdir()
-    (roles_dir / "tasks" / "main.yml").write_text("- name: noop\n  debug: msg=\"noop\"\n")
+    (roles_dir / "tasks" / "main.yml").write_text('- name: noop\n  debug: msg="noop"\n')
 
     translations_dir = proj_dir / ".ansibledoctor" / "translations"
     translations_dir.mkdir(parents=True)
     # Only put 'roles.header' for custom language 'xx'
-    (translations_dir / "xx.yml").write_text("roles.header: \"Rôles-XX\"\n", encoding="utf-8")
+    (translations_dir / "xx.yml").write_text('roles.header: "Rôles-XX"\n', encoding="utf-8")
     # Include an english title in project translation
     (translations_dir / "en.yml").write_text(
-        "project.title: \"My Project\"\nroles.header: \"Roles\"\n", encoding="utf-8"
+        'project.title: "My Project"\nroles.header: "Roles"\n', encoding="utf-8"
     )
 
     roles = [RoleInfo(name="webserver", path=str(roles_dir))]
-    collections = [CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))]
+    collections = [
+        CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))
+    ]
     return Project(name="My Project", path=str(proj_dir), roles=roles, collections=collections)
 
 

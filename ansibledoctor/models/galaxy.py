@@ -46,29 +46,20 @@ class GalaxyMetadata(BaseModel):
     namespace: str = Field(
         ...,
         description="Collection namespace (lowercase alphanumeric with underscores)",
-        pattern=r"^[a-z0-9_]+$"
+        pattern=r"^[a-z0-9_]+$",
     )
     name: str = Field(
         ...,
         description="Collection name (lowercase alphanumeric with underscores)",
-        pattern=r"^[a-z0-9_]+$"
+        pattern=r"^[a-z0-9_]+$",
     )
-    version: str = Field(
-        ...,
-        description="Semantic version (e.g., 1.0.0)"
-    )
-    authors: List[str] = Field(
-        default_factory=list,
-        description="List of author names/emails"
-    )
+    version: str = Field(..., description="Semantic version (e.g., 1.0.0)")
+    authors: List[str] = Field(default_factory=list, description="List of author names/emails")
     dependencies: Dict[str, str] = Field(
-        default_factory=dict,
-        description="Collection dependencies with version constraints"
+        default_factory=dict, description="Collection dependencies with version constraints"
     )
 
-    model_config = {
-        "frozen": True  # Immutable value object
-    }
+    model_config = {"frozen": True}  # Immutable value object
 
     @field_validator("version")
     @classmethod

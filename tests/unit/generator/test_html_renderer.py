@@ -5,15 +5,12 @@ T231: HtmlRenderer unit tests covering all methods and edge cases.
 """
 
 from datetime import datetime
-from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable
-from ansibledoctor.models.variable import VariableType
+from ansibledoctor.models import AnsibleRole, RoleMetadata
 
 
 class TestHtmlRendererBasics:
@@ -90,7 +87,7 @@ class TestHtmlCodeBlock:
         renderer = HtmlRenderer()
         code = "def hello():\n    print('Hello')"
         result = renderer.code_block(code, "python")
-        
+
         assert "<pre>" in result
         assert "<code" in result
         assert 'class="language-python"' in result
@@ -101,7 +98,7 @@ class TestHtmlCodeBlock:
         renderer = HtmlRenderer()
         code = "some code"
         result = renderer.code_block(code)
-        
+
         assert "<pre>" in result
         assert "<code>" in result
         assert "some code" in result
@@ -111,7 +108,7 @@ class TestHtmlCodeBlock:
         renderer = HtmlRenderer()
         code = "<div>HTML content</div>"
         result = renderer.code_block(code, "html")
-        
+
         assert "&lt;div&gt;" in result
         assert "&lt;/div&gt;" in result
 
@@ -120,7 +117,7 @@ class TestHtmlCodeBlock:
         renderer = HtmlRenderer()
         code = "line1\n  line2\n    line3"
         result = renderer.code_block(code)
-        
+
         assert "line1" in result
         assert "line2" in result
         assert "line3" in result
@@ -134,7 +131,7 @@ class TestHtmlRenderWithOptions:
         """Create minimal role for testing."""
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
+
         metadata = RoleMetadata(
             role_name="test_role",
             author="Test Author",
@@ -142,7 +139,7 @@ class TestHtmlRenderWithOptions:
             license="MIT",
             min_ansible_version="2.9",
         )
-        
+
         return AnsibleRole(
             name="test_role",
             path=role_path,
@@ -162,7 +159,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         assert isinstance(result, str)
         assert len(result) > 0
@@ -176,7 +173,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         assert "<!DOCTYPE html>" in result or "<!doctype html>" in result.lower()
 
@@ -189,7 +186,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         assert "<html" in result.lower()
         assert "<head" in result.lower()
@@ -205,7 +202,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         assert "<style" in result.lower()
         assert "</style>" in result.lower()
@@ -219,7 +216,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         assert "<style" not in result.lower() or "/* External CSS */" in result
 
@@ -232,7 +229,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         # Check for navigation or TOC structure
         assert "<nav" in result.lower() or 'id="toc"' in result.lower()
@@ -246,7 +243,7 @@ class TestHtmlRenderWithOptions:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         # Verify minimal TOC presence
         result_lower = result.lower()
@@ -291,7 +288,7 @@ class TestHtmlRendererEdgeCases:
         """Test rendering role with special characters in name."""
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
+
         metadata = RoleMetadata(
             role_name="test<role>",
             author="Test & Author",
@@ -299,7 +296,7 @@ class TestHtmlRendererEdgeCases:
             license="MIT",
             min_ansible_version="2.9",
         )
-        
+
         role = AnsibleRole(
             name="test<role>",
             path=role_path,
@@ -309,7 +306,7 @@ class TestHtmlRendererEdgeCases:
             todos=[],
             examples=[],
         )
-        
+
         renderer = HtmlRenderer()
         context = TemplateContext(
             role=role,
@@ -317,7 +314,7 @@ class TestHtmlRendererEdgeCases:
             generation_date=datetime.now(),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
         # Special characters should be escaped in role name
         assert "&lt;role&gt;" in result or "test&lt;role&gt;" in result
@@ -328,6 +325,6 @@ class TestHtmlRendererEdgeCases:
         """Test code_block with None returns empty structure."""
         renderer = HtmlRenderer()
         result = renderer.code_block(None)
-        
+
         assert "<pre>" in result
         assert "<code>" in result

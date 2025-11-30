@@ -11,7 +11,7 @@ import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.rst import RstRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 
 class TestRstGenerationIntegration:
@@ -103,19 +103,19 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify title with underline
         assert "complex-web-role" in result
         assert "================" in result  # Title underline
-        
+
         # Verify field lists
         assert ":Generated:" in result
         assert ":Version:" in result
         assert "2024-01-15 10:30" in result
         assert "0.3.0" in result
-        
+
         # Verify main sections
         assert "Overview" in result
         assert "Variables" in result
@@ -132,9 +132,9 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify TOC directive
         assert ".. contents::" in result
         assert ":depth:" in result
@@ -149,12 +149,12 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify code-block directive
         assert ".. code-block:: yaml" in result
-        
+
         # Verify code content is present and indented
         assert "- hosts: webservers" in result
         assert "  roles:" in result
@@ -169,13 +169,13 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify Sphinx directives are present
         assert ".. warning::" in result  # High priority TODO
         assert "Add SSL certificate renewal automation" in result
-        
+
         # Verify directive fields
         assert ":Priority: HIGH" in result
         assert ":Location:" in result
@@ -190,12 +190,12 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context, sphinx_compat=False)
-        
+
         # Verify simple list format (no warning directive)
         assert ".. warning::" not in result
-        
+
         # Verify simple list with priority badges
         assert "Add SSL certificate renewal automation" in result
         assert "tasks/ssl.yml:42" in result
@@ -209,13 +209,13 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # High priority TODO should use warning directive
         assert ".. warning:: Add SSL certificate renewal automation" in result
         assert ":Priority: HIGH" in result
-        
+
         # Medium/low priority TODOs should use simple list
         lines = result.split("\n")
         backup_line = [line for line in lines if "Implement backup rotation policy" in line]
@@ -232,13 +232,13 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify variable names are present
         assert "web_port" in result
         assert "web_ssl_enabled" in result
-        
+
         # Verify RST structure doesn't break with special chars in content
         assert "complex-web-role" in result
         assert "================" in result
@@ -252,25 +252,25 @@ class TestRstGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.RST,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify all sections present
         assert "Overview" in result
         assert "Variables" in result
         assert "web_port" in result
         assert "web_ssl_enabled" in result
-        
+
         assert "Tags" in result
         assert "web" in result
         assert "security" in result
-        
+
         assert "TODOs" in result
         assert "Add SSL certificate renewal automation" in result
-        
+
         assert "Examples" in result
         assert ".. code-block::" in result
-        
+
         # Verify footer note
         assert ".. note::" in result
         assert "ansible-doctor-enhanced" in result

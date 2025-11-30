@@ -4,11 +4,13 @@
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+![Ansible Doctor](docs\Ansible-Doctor-Enhanced.bmp)
+
 > A modernized fork of ansible-doctor with enhanced logging, error handling, documentation generation, and reporting capabilities built on KISS, SMART, and SOLID principles.
 
 ## 🎯 Project Description
 
-Ansible Doctor Enhanced is a comprehensive tool for automatically generating documentation from Ansible roles. It parses role structures, extracts metadata, variables, task tags, and inline annotations to produce high-quality, structured documentation in multiple formats. Built with specification-driven development using GitHub spec-kit methodology.
+Ansible Doctor Enhanced is a comprehensive tool for automatically generating documentation from any Ansible project collection role plugins modules and inventory. It parses role structures, extracts metadata, variables, task tags, and inline annotations to produce high-quality, structured documentation in multiple formats. Built with specification-driven development using GitHub spec-kit methodology.
 
 ## ✨ Key Features
 

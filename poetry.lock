@@ -436,6 +436,24 @@ files = [
 ]
 
 [[package]]
+name = "fastcore"
+version = "1.8.16"
+description = "Python supercharged for fastai development"
+optional = false
+python-versions = ">=3.10"
+groups = ["dev"]
+files = [
+    {file = "fastcore-1.8.16-py3-none-any.whl", hash = "sha256:ce49c2580cfcf416a7ee166f9d84f61a828beb6be1315635c6035ec3f626ed4b"},
+    {file = "fastcore-1.8.16.tar.gz", hash = "sha256:0d8d5c11d88b36fbc4728a341ffcedcfc62220fbe5b14b442bccb512043d84c9"},
+]
+
+[package.dependencies]
+packaging = "*"
+
+[package.extras]
+dev = ["llms-txt", "matplotlib", "nbclassic", "nbdev (>=0.2.39)", "numpy", "pandas", "pillow", "plum-dispatch", "pysymbol_llm", "toolslm", "torch"]
+
+[[package]]
 name = "filelock"
 version = "3.20.0"
 description = "A platform independent file lock."
@@ -446,6 +464,25 @@ files = [
     {file = "filelock-3.20.0-py3-none-any.whl", hash = "sha256:339b4732ffda5cd79b13f4e2711a31b0365ce445d95d243bb996273d072546a2"},
     {file = "filelock-3.20.0.tar.gz", hash = "sha256:711e943b4ec6be42e1d4e6690b48dc175c822967466bb31c0c293f34334c13f4"},
 ]
+
+[[package]]
+name = "ghapi"
+version = "1.0.8"
+description = "A python client for the GitHub API"
+optional = false
+python-versions = ">=3.7"
+groups = ["dev"]
+files = [
+    {file = "ghapi-1.0.8-py3-none-any.whl", hash = "sha256:3e4023f475ec966995dd3feeacd3f42f9e296dd23148e6f28d15e80487300e66"},
+    {file = "ghapi-1.0.8.tar.gz", hash = "sha256:9ab02dcd06b3c622ea2d9b21a2efee316076a744ce7847251a2fe9f542f381df"},
+]
+
+[package.dependencies]
+fastcore = ">=1.7.2"
+packaging = "*"
+
+[package.extras]
+dev = ["jsonref", "llms-txt", "matplotlib", "nbclassic", "nbdev", "pysymbol_llm"]
 
 [[package]]
 name = "html5lib"
@@ -1483,4 +1520,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "562399b64a7992d15cfa8d3a6eaaf5dee62fe0fd976d96314dac4be3a0db0199"
+content-hash = "53b3ed191c6cd94de135771a040c10e81a25955af5ae8d05e0872c4012b9bbe4"

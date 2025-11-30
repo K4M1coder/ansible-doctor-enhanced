@@ -1,8 +1,8 @@
-import pytest
 import textwrap
 from pathlib import Path
-from ansibledoctor.parser.project_parser import ProjectParser
+
 from ansibledoctor.models.project import Project
+from ansibledoctor.parser.project_parser import ProjectParser
 
 
 def test_project_parser_empty_dir(tmp_path):
@@ -57,32 +57,35 @@ def test_project_parser_name_read_from_ansible_cfg(tmp_path):
 
 
 def test_project_parser_parses_ini_inventory(tmp_path):
-        inv_dir = tmp_path / "inventory"
-        inv_dir.mkdir()
-        inv_file = inv_dir / "hosts.ini"
-        inv_file.write_text("""
+    inv_dir = tmp_path / "inventory"
+    inv_dir.mkdir()
+    inv_file = inv_dir / "hosts.ini"
+    inv_file.write_text(
+        """
 [webservers]
 host1 ansible_host=1.2.3.4
 host2
 
 [db]
 db1
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
 
-        parser = ProjectParser()
-        project = parser.parse(tmp_path)
-        host_names = {h.name for h in project.inventory}
-        assert "host1" in host_names
-        assert "host2" in host_names
-        assert "db1" in host_names
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    host_names = {h.name for h in project.inventory}
+    assert "host1" in host_names
+    assert "host2" in host_names
+    assert "db1" in host_names
 
 
 def test_project_parser_parses_yaml_inventory(tmp_path):
-        inv_dir = tmp_path / "inventory"
-        inv_dir.mkdir()
-        inv_file = inv_dir / "hosts.yml"
-        inv_file.write_text(
-                """
+    inv_dir = tmp_path / "inventory"
+    inv_dir.mkdir()
+    inv_file = inv_dir / "hosts.yml"
+    inv_file.write_text(
+        """
 all:
     children:
         webservers:
@@ -91,42 +94,44 @@ all:
                     ansible_host: 1.2.3.4
                 hostb: {}
 """,
-                encoding="utf-8",
-        )
-        parser = ProjectParser()
-        project = parser.parse(tmp_path)
-        host_names = {h.name for h in project.inventory}
-        assert "hosta" in host_names
-        assert "hostb" in host_names
+        encoding="utf-8",
+    )
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    host_names = {h.name for h in project.inventory}
+    assert "hosta" in host_names
+    assert "hostb" in host_names
 
 
 def test_project_parser_discovers_playbooks(tmp_path):
-        # Create a simple playbooks folder with one playbook
-        pdir = tmp_path / "playbooks"
-        pdir.mkdir()
-        pb = pdir / "site.yml"
-        pb.write_text(
-            """
+    # Create a simple playbooks folder with one playbook
+    pdir = tmp_path / "playbooks"
+    pdir.mkdir()
+    pb = pdir / "site.yml"
+    pb.write_text(
+        """
     - name: Site Playbook
       hosts: webservers
       roles:
         - webserver
     """,
-            encoding="utf-8",
-        )
-        parser = ProjectParser()
-        project = parser.parse(tmp_path)
-        assert len(project.playbooks) == 1
-        pb_info = project.playbooks[0]
-        assert "webservers" in pb_info.hosts
-        assert "webserver" in pb_info.roles
+        encoding="utf-8",
+    )
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    assert len(project.playbooks) == 1
+    pb_info = project.playbooks[0]
+    assert "webservers" in pb_info.hosts
+    assert "webserver" in pb_info.roles
 
 
 def test_project_parser_playbook_hosts_list_and_role_dict(tmp_path):
     pdir = tmp_path / "playbooks"
     pdir.mkdir()
     pb = pdir / "multi.yml"
-    pb.write_text(textwrap.dedent("""
+    pb.write_text(
+        textwrap.dedent(
+            """
 - name: Multi Playbook
   hosts:
     - webservers
@@ -134,7 +139,10 @@ def test_project_parser_playbook_hosts_list_and_role_dict(tmp_path):
   roles:
     - role: webserver
     - name: db
-"""), encoding="utf-8")
+"""
+        ),
+        encoding="utf-8",
+    )
     parser = ProjectParser()
     project = parser.parse(tmp_path)
     # Should detect the playbook and both hosts/roles
@@ -147,40 +155,46 @@ def test_project_parser_playbook_hosts_list_and_role_dict(tmp_path):
 
 
 def test_project_parser_discovers_top_level_playbook(tmp_path):
-        # Create playbook at project root
-        pb = tmp_path / "site.yml"
-        pb.write_text(
-            "- name: Root Playbook\n  hosts: webservers\n  roles:\n    - webserver\n",
-            encoding="utf-8",
-        )
-        parser = ProjectParser()
-        project = parser.parse(tmp_path)
-        assert any(p.name == "site" for p in project.playbooks)
+    # Create playbook at project root
+    pb = tmp_path / "site.yml"
+    pb.write_text(
+        "- name: Root Playbook\n  hosts: webservers\n  roles:\n    - webserver\n",
+        encoding="utf-8",
+    )
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    assert any(p.name == "site" for p in project.playbooks)
 
 
 def test_project_parser_inventory_merges_groups(tmp_path):
-        # Create inventory dir with multiple files that must merge
-        inv_dir = tmp_path / "inventory"
-        inv_dir.mkdir()
-        f1 = inv_dir / "hosts1.ini"
-        f1.write_text("""
+    # Create inventory dir with multiple files that must merge
+    inv_dir = tmp_path / "inventory"
+    inv_dir.mkdir()
+    f1 = inv_dir / "hosts1.ini"
+    f1.write_text(
+        """
 [webservers]
 host1
-""", encoding="utf-8")
-        f2 = inv_dir / "hosts2.yml"
-        f2.write_text("""
+""",
+        encoding="utf-8",
+    )
+    f2 = inv_dir / "hosts2.yml"
+    f2.write_text(
+        """
 all:
     children:
         db:
             hosts:
                 host1: {}
-""", encoding="utf-8")
-        parser = ProjectParser()
-        project = parser.parse(tmp_path)
-        # host1 should be present with both groups
-        host1 = next((h for h in project.inventory if h.name == "host1"), None)
-        assert host1 is not None
-        assert set(host1.groups) == {"webservers", "db"}
+""",
+        encoding="utf-8",
+    )
+    parser = ProjectParser()
+    project = parser.parse(tmp_path)
+    # host1 should be present with both groups
+    host1 = next((h for h in project.inventory if h.name == "host1"), None)
+    assert host1 is not None
+    assert set(host1.groups) == {"webservers", "db"}
 
 
 def test_project_parser_monorepo_root_detection(tmp_path):
@@ -201,16 +215,22 @@ def test_project_parser_respects_ansible_cfg_inventory_path(tmp_path):
     # Create ansible.cfg in repo and custom inventory path under repo
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 inventory = custom_inventory
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_inv = repo / "custom_inventory"
     custom_inv.mkdir()
-    (custom_inv / "hosts.ini").write_text("""
+    (custom_inv / "hosts.ini").write_text(
+        """
 [webservers]
 hostcfg
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     parser = ProjectParser()
     project = parser.parse(str(repo))
     # Inventory should be parsed from custom_inventory instead of default 'inventory'
@@ -222,22 +242,31 @@ def test_project_parser_respects_ansible_cfg_inventory_multiple_paths(tmp_path):
     # Create ansible.cfg in repo and custom inventory path under repo with multiple values
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 inventory = custom_inventory:other_inventory
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_inv = repo / "custom_inventory"
     custom_inv.mkdir()
-    (custom_inv / "hosts.ini").write_text("""
+    (custom_inv / "hosts.ini").write_text(
+        """
 [webservers]
 hosta
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     other_inv = repo / "other_inventory"
     other_inv.mkdir()
-    (other_inv / "hosts2.ini").write_text("""
+    (other_inv / "hosts2.ini").write_text(
+        """
 [db]
 hostb
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     parser = ProjectParser()
     project = parser.parse(str(repo))
     # Both hosts from custom_inventory and other_inventory should be present
@@ -249,16 +278,22 @@ hostb
 def test_project_parser_respects_ansible_cfg_inventory_file_path(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 inventory = custom_inventory/hosts.ini
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_inv = repo / "custom_inventory"
     custom_inv.mkdir()
-    (custom_inv / "hosts.ini").write_text("""
+    (custom_inv / "hosts.ini").write_text(
+        """
 [webservers]
 filehost
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     parser = ProjectParser()
     project = parser.parse(str(repo))
     names = {h.name for h in project.inventory}
@@ -268,18 +303,24 @@ filehost
 def test_project_parser_prefers_nearest_ansible_cfg(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 inventory = ancestor_inventory
 roles_path = ancestor_roles
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     # ancestor inventory and roles
     ancestor_inv = repo / "ancestor_inventory"
     ancestor_inv.mkdir()
-    (ancestor_inv / "hosts.ini").write_text("""
+    (ancestor_inv / "hosts.ini").write_text(
+        """
 [web]
 ancestor_host
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     ancestor_roles = repo / "ancestor_roles"
     ancestor_roles.mkdir()
     (ancestor_roles / "role_a").mkdir()
@@ -287,17 +328,23 @@ ancestor_host
     # child ansible.cfg configuration
     sub = repo / "sub"
     sub.mkdir()
-    (sub / "ansible.cfg").write_text("""
+    (sub / "ansible.cfg").write_text(
+        """
 [defaults]
 inventory = child_inventory
 roles_path = child_roles
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     child_inv = sub / "child_inventory"
     child_inv.mkdir()
-    (child_inv / "hosts.ini").write_text("""
+    (child_inv / "hosts.ini").write_text(
+        """
 [web]
 child_host
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     child_roles = sub / "child_roles"
     child_roles.mkdir()
     (child_roles / "role_b").mkdir()
@@ -323,10 +370,13 @@ def test_project_parser_respects_ansible_cfg_roles_path_single(tmp_path):
     # Create repo and custom roles_path specified in ansible.cfg
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 roles_path = custom_roles
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_roles = repo / "custom_roles"
     custom_roles.mkdir()
     (custom_roles / "webserver").mkdir()
@@ -340,10 +390,13 @@ def test_project_parser_respects_ansible_cfg_roles_path_multiple(tmp_path):
     # Create repo and custom roles_path with multiple values
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 roles_path = custom_roles:other_roles
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_roles = repo / "custom_roles"
     custom_roles.mkdir()
     (custom_roles / "webserver").mkdir()
@@ -364,10 +417,13 @@ def test_project_parser_respects_ansible_cfg_roles_path_absolute(tmp_path):
     abs_roles = tmp_path / "abs_roles"
     abs_roles.mkdir()
     (abs_roles / "standalone").mkdir()
-    (repo / "ansible.cfg").write_text(f"""
+    (repo / "ansible.cfg").write_text(
+        f"""
 [defaults]
 roles_path = {abs_roles}
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     parser = ProjectParser()
     project = parser.parse(str(repo))
     role_names = {r.name for r in project.roles}
@@ -377,10 +433,13 @@ roles_path = {abs_roles}
 def test_project_parser_respects_ansible_cfg_collections_path_single(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 collections_path = custom_collections
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_col = repo / "custom_collections" / "my_ns" / "my_coll"
     custom_col.mkdir(parents=True)
     parser = ProjectParser()
@@ -392,10 +451,13 @@ collections_path = custom_collections
 def test_project_parser_respects_ansible_cfg_collections_path_multiple(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / "ansible.cfg").write_text("""
+    (repo / "ansible.cfg").write_text(
+        """
 [defaults]
 collections_path = custom_collections:other_collections
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     custom_col = repo / "custom_collections" / "ns1" / "coll1"
     custom_col.mkdir(parents=True)
     other_col = repo / "other_collections" / "ns2" / "coll2"

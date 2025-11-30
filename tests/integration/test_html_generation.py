@@ -11,7 +11,7 @@ import pytest
 
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 
 class TestHtmlGenerationIntegration:
@@ -112,21 +112,21 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify HTML structure
         assert "<!DOCTYPE html>" in result
-        assert "<html lang=\"en\">" in result
+        assert '<html lang="en">' in result
         assert "<head>" in result
         assert "<body>" in result
         assert "</html>" in result
-        
+
         # Verify CSS is embedded
         assert "<style>" in result
         assert "</style>" in result
         assert "font-family:" in result  # CSS content present
-        
+
         # Verify meta tags
         assert '<meta charset="UTF-8">' in result
         assert '<meta name="viewport"' in result
@@ -141,9 +141,9 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify TOC structure
         assert '<nav id="toc">' in result
         assert "Table of Contents" in result
@@ -162,9 +162,9 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify TOC is not present
         assert '<nav id="toc">' not in result
         assert "Table of Contents" not in result
@@ -178,12 +178,12 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify CSS is NOT embedded
         assert "<style>" not in result
-        
+
         # Verify external stylesheet link
         assert '<link rel="stylesheet" href="styles.css">' in result
 
@@ -196,16 +196,16 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify section IDs for navigation
         assert '<h2 id="overview">Overview</h2>' in result
         assert '<h2 id="variables">Variables</h2>' in result
         assert '<h2 id="tags">Tags</h2>' in result
         assert '<h2 id="todos">TODOs</h2>' in result
         assert '<h2 id="examples">Examples</h2>' in result
-        
+
         # Verify role metadata
         assert "complex-web-role" in result
         assert "DevOps Team" in result
@@ -236,7 +236,7 @@ class TestHtmlGenerationIntegration:
             todos=[],
             examples=[],
         )
-        
+
         renderer = HtmlRenderer(embed_css=True, generate_toc=True)
         context = TemplateContext(
             role=role_with_special_chars,
@@ -244,9 +244,9 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify special characters are escaped
         assert "&lt;script&gt;" in result
         assert "<script>" not in result.replace("<script", "SAFE")  # Not raw script tags
@@ -262,15 +262,15 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify all variables are present
         assert "web_port" in result
         assert "web_ssl_enabled" in result
         assert "web_document_root" in result
         assert "web_workers" in result
-        
+
         # Verify variable descriptions
         assert "HTTP port for web server" in result
         assert "Enable SSL/TLS encryption" in result
@@ -284,14 +284,14 @@ class TestHtmlGenerationIntegration:
             generation_date=datetime(2024, 1, 15, 10, 30),
             output_format=OutputFormat.HTML,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Verify code blocks structure
         assert "<pre><code" in result
         assert "</code></pre>" in result
         assert 'class="language-yaml"' in result
-        
+
         # Verify example content is present
         assert "hosts: webservers" in result
         assert "complex-web-role" in result

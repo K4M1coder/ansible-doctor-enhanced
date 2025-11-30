@@ -1,5 +1,7 @@
 from pathlib import Path
+
 from click.testing import CliRunner
+
 from ansibledoctor.cli.project import project as project_cli
 
 
@@ -16,10 +18,13 @@ def test_cli_generate_with_language_flag(tmp_path: Path):
     trans_dir = proj_dir / ".ansibledoctor" / "translations"
     trans_dir.mkdir(parents=True, exist_ok=True)
     fr_file = trans_dir / "fr.yml"
-    fr_file.write_text("project.title: 'Mon Projet'\nroles.header: 'Rôles'\ncollections.header: 'Collections'\narchitecture.header: 'Architecture'", encoding="utf-8")
+    fr_file.write_text(
+        "project.title: 'Mon Projet'\nroles.header: 'Rôles'\ncollections.header: 'Collections'\narchitecture.header: 'Architecture'",
+        encoding="utf-8",
+    )
 
     runner = CliRunner()
-    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--language", "fr"]) 
+    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--language", "fr"])
     assert result.exit_code == 0
     out = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
     assert out.exists()

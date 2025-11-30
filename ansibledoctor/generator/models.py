@@ -1,4 +1,5 @@
 """Data models for documentation generator."""
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -10,10 +11,10 @@ from ansibledoctor.models.role import AnsibleRole
 @dataclass
 class RenderResult:
     """Result of a documentation rendering operation.
-    
+
     Contains the rendered content along with metadata about the
     rendering process (format, timestamp, source file, etc.).
-    
+
     Attributes:
         content: Rendered documentation as string
         output_format: Format of rendered content (MARKDOWN, HTML, RST)
@@ -21,7 +22,7 @@ class RenderResult:
         rendered_at: Timestamp when rendering completed
         template_name: Name of template used for rendering
         metadata: Additional metadata as key-value pairs
-    
+
     Example:
         >>> result = RenderResult(
         ...     content="# My Role\\n\\nDocumentation...",
@@ -43,7 +44,7 @@ class RenderResult:
     @property
     def file_extension(self) -> str:
         """Get file extension for this output format.
-        
+
         Returns:
             File extension with leading dot (e.g., '.md')
         """
@@ -52,7 +53,7 @@ class RenderResult:
     @property
     def size_bytes(self) -> int:
         """Get size of rendered content in bytes.
-        
+
         Returns:
             Size in bytes (UTF-8 encoding)
         """
@@ -61,7 +62,7 @@ class RenderResult:
     @property
     def line_count(self) -> int:
         """Get number of lines in rendered content.
-        
+
         Returns:
             Number of lines
         """
@@ -69,10 +70,10 @@ class RenderResult:
 
     def save_to_file(self, output_path: str) -> None:
         """Save rendered content to file.
-        
+
         Args:
             output_path: Path where content should be saved
-            
+
         Raises:
             IOError: If file cannot be written
         """
@@ -83,17 +84,17 @@ class RenderResult:
 @dataclass
 class TemplateContext:
     """Context data passed to templates for rendering.
-    
+
     Contains all information needed to render role documentation,
     including role data, configuration, and computed properties.
-    
+
     Attributes:
         role: Parsed Ansible role data
         output_format: Target output format
         generation_date: Date of documentation generation
         generator_version: Version of ansible-doctor-enhanced
         custom_data: Additional custom data for templates
-    
+
     Example:
         >>> from ansibledoctor import __version__
         >>> context = TemplateContext(
@@ -116,7 +117,7 @@ class TemplateContext:
     @property
     def role_name(self) -> str:
         """Get role name from role.
-        
+
         Returns:
             Role name or 'Unnamed Role' if not set
         """
@@ -125,7 +126,7 @@ class TemplateContext:
     @property
     def role_description(self) -> str:
         """Get role description from metadata.
-        
+
         Returns:
             Role description or empty string if not set
         """
@@ -134,7 +135,7 @@ class TemplateContext:
     @property
     def has_variables(self) -> bool:
         """Check if role has any variables.
-        
+
         Returns:
             True if role has variables
         """
@@ -143,7 +144,7 @@ class TemplateContext:
     @property
     def variable_count(self) -> int:
         """Get number of variables in role.
-        
+
         Returns:
             Number of variables
         """
@@ -152,7 +153,7 @@ class TemplateContext:
     @property
     def has_tags(self) -> bool:
         """Check if role has any tags.
-        
+
         Returns:
             True if role has tags
         """
@@ -161,7 +162,7 @@ class TemplateContext:
     @property
     def tag_count(self) -> int:
         """Get number of unique tags in role.
-        
+
         Returns:
             Number of tags
         """
@@ -170,7 +171,7 @@ class TemplateContext:
     @property
     def has_todos(self) -> bool:
         """Check if role has any TODO items.
-        
+
         Returns:
             True if role has TODOs
         """
@@ -179,7 +180,7 @@ class TemplateContext:
     @property
     def todo_count(self) -> int:
         """Get number of TODO items in role.
-        
+
         Returns:
             Number of TODOs
         """
@@ -188,7 +189,7 @@ class TemplateContext:
     @property
     def has_examples(self) -> bool:
         """Check if role has any example code blocks.
-        
+
         Returns:
             True if role has examples
         """
@@ -197,7 +198,7 @@ class TemplateContext:
     @property
     def example_count(self) -> int:
         """Get number of example code blocks in role.
-        
+
         Returns:
             Number of examples
         """
@@ -206,7 +207,7 @@ class TemplateContext:
     @property
     def format_name(self) -> str:
         """Get human-readable format name.
-        
+
         Returns:
             Format name (e.g., 'Markdown', 'HTML', 'RST')
         """
@@ -219,7 +220,7 @@ class TemplateContext:
 
     def to_dict(self) -> dict[str, Any]:
         """Convert context to dictionary for template rendering.
-        
+
         Returns:
             Dictionary with all context data and computed properties
         """

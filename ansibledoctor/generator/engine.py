@@ -1,4 +1,5 @@
 """Jinja2 template engine configuration and builder."""
+
 from pathlib import Path
 from typing import Any
 
@@ -9,12 +10,12 @@ from ansibledoctor.generator.filters import FILTERS
 
 class TemplateEngine:
     """Jinja2 template engine with custom filters and configuration.
-    
+
     Provides a pre-configured Jinja2 environment with:
     - Custom filters for Markdown, RST, HTML rendering
     - Strict undefined variable handling (fails on missing vars)
     - Optimized for documentation generation
-    
+
     Example:
         >>> engine = TemplateEngine.create(template_dir="templates")
         >>> template = engine.get_template("role.md.j2")
@@ -23,7 +24,7 @@ class TemplateEngine:
 
     def __init__(self, environment: Environment):
         """Initialize template engine with Jinja2 environment.
-        
+
         Args:
             environment: Configured Jinja2 Environment
         """
@@ -39,16 +40,16 @@ class TemplateEngine:
         **jinja_options: Any,
     ) -> "TemplateEngine":
         """Create template engine with default configuration.
-        
+
         Args:
             template_dir: Directory containing templates (optional)
             autoescape: Enable auto-escaping for HTML safety
             strict_undefined: Raise error on undefined variables
             **jinja_options: Additional Jinja2 Environment options
-            
+
         Returns:
             Configured TemplateEngine instance
-            
+
         Example:
             >>> engine = TemplateEngine.create(template_dir="templates")
             >>> engine = TemplateEngine.create(autoescape=True)  # For HTML
@@ -70,36 +71,36 @@ class TemplateEngine:
             "lstrip_blocks": True,
             **jinja_options,
         }
-        
+
         # Remove None values
         env_options = {k: v for k, v in env_options.items() if v is not None}
-        
+
         environment = Environment(**env_options)
-        
+
         # Register custom filters
         environment.filters.update(FILTERS)
         # Register translation function if provided
         if translation_provider is not None:
             try:
                 # Provide 't' function in template context
-                environment.globals["t"] = getattr(translation_provider, "t")
+                environment.globals["t"] = translation_provider.t
                 # Also provide 't' as a filter to be used in templates like: {{ 'key' | t }}
-                environment.filters["t"] = getattr(translation_provider, "t")
+                environment.filters["t"] = translation_provider.t
             except Exception:
                 # Ignore silently if provider not as expected
                 pass
-        
+
         return cls(environment)
 
     def get_template(self, template_name: str):
         """Load template by name.
-        
+
         Args:
             template_name: Name of template file (e.g., "role.md.j2")
-            
+
         Returns:
             Jinja2 Template object
-            
+
         Raises:
             TemplateNotFound: If template doesn't exist
         """
@@ -107,16 +108,16 @@ class TemplateEngine:
 
     def render_string(self, template_str: str, **context: Any) -> str:
         """Render template from string.
-        
+
         Useful for inline templates or testing.
-        
+
         Args:
             template_str: Template content as string
             **context: Variables to pass to template
-            
+
         Returns:
             Rendered template output
-            
+
         Example:
             >>> engine = TemplateEngine.create()
             >>> result = engine.render_string("Hello {{ name }}", name="World")
@@ -129,7 +130,7 @@ class TemplateEngine:
     @property
     def environment(self) -> Environment:
         """Access underlying Jinja2 environment.
-        
+
         Returns:
             Jinja2 Environment instance
         """
@@ -138,7 +139,7 @@ class TemplateEngine:
     @property
     def filters(self) -> dict[str, Any]:
         """Get registered filters.
-        
+
         Returns:
             Dictionary of filter name -> filter function
         """

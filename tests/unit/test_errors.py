@@ -1,5 +1,7 @@
 """Tests for generator exceptions."""
+
 import pytest
+
 from ansibledoctor.generator.errors import (
     GeneratorError,
     RenderError,
@@ -50,8 +52,7 @@ class TestGeneratorExceptions:
     def test_template_validation_error(self):
         """Test TemplateValidationError with details."""
         error = TemplateValidationError(
-            "role.md.j2",
-            "Syntax error at line 42: unexpected end of statement"
+            "role.md.j2", "Syntax error at line 42: unexpected end of statement"
         )
         assert isinstance(error, TemplateError)
         assert error.template_name == "role.md.j2"
@@ -87,7 +88,7 @@ class TestGeneratorExceptions:
             TemplateValidationError("test.j2", "error"),
             RenderError("test"),
         ]
-        
+
         for exc in exceptions:
             with pytest.raises(GeneratorError):
                 raise exc
@@ -99,7 +100,7 @@ class TestGeneratorExceptions:
             TemplateNotFoundError("test.j2"),
             TemplateValidationError("test.j2", "error"),
         ]
-        
+
         for exc in exceptions:
             with pytest.raises(TemplateError):
                 raise exc

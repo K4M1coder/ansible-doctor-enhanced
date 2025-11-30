@@ -7,13 +7,13 @@ Following Constitution Article III (TDD): Property-based testing complements
 example-based tests by exploring a wider input space.
 """
 
-from hypothesis import given, strategies as st
-from packaging.version import InvalidVersion, Version
-from pydantic import ValidationError
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+from packaging.version import Version
+from pydantic import ValidationError
 
 from ansibledoctor.models.galaxy import GalaxyMetadata
-
 
 # Valid namespace/name strategy: lowercase alphanumeric with underscores
 valid_namespace_strategy = st.from_regex(r"^[a-z0-9_]{1,20}$", fullmatch=True)
@@ -41,7 +41,7 @@ invalid_version_strategy = st.one_of(
 
 class TestGalaxyMetadataProperties:
     """Property-based tests for GalaxyMetadata model."""
-    
+
     @given(
         namespace=valid_namespace_strategy,
         name=valid_namespace_strategy,
@@ -57,7 +57,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: Valid namespace, name, and version always create GalaxyMetadata.
-        
+
         Given any valid namespace, name (matching pattern), and semantic version,
         GalaxyMetadata should successfully construct without raising errors.
         """
@@ -68,18 +68,18 @@ class TestGalaxyMetadataProperties:
             authors=authors,
             dependencies={},
         )
-        
+
         # Invariants
         assert metadata.namespace == namespace
         assert metadata.name == name
         assert metadata.version == version
         assert metadata.authors == authors
         assert metadata.fqcn == f"{namespace}.{name}"
-        
+
         # Verify version is valid semantic version
         parsed_version = Version(version)
         assert isinstance(parsed_version, Version)
-    
+
     @given(
         namespace=valid_namespace_strategy,
         name=valid_namespace_strategy,
@@ -91,7 +91,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: FQCN always follows "namespace.name" format.
-        
+
         Given any valid namespace and name, the fqcn property should
         always be "{namespace}.{name}".
         """
@@ -102,13 +102,13 @@ class TestGalaxyMetadataProperties:
             authors=[],
             dependencies={},
         )
-        
+
         assert metadata.fqcn == f"{namespace}.{name}"
         assert "." in metadata.fqcn
         assert metadata.fqcn.count(".") == 1
         assert metadata.fqcn.startswith(namespace)
         assert metadata.fqcn.endswith(name)
-    
+
     @given(
         namespace=st.one_of(
             st.from_regex(r"^[A-Z][a-z0-9_]*$", fullmatch=True),  # Starts uppercase
@@ -124,7 +124,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: Invalid namespaces (uppercase, special chars) always rejected.
-        
+
         Given any namespace that doesn't match the pattern ^[a-z0-9_]+$,
         GalaxyMetadata construction should fail with ValidationError.
         """
@@ -136,11 +136,11 @@ class TestGalaxyMetadataProperties:
                 authors=[],
                 dependencies={},
             )
-        
+
         # Verify error is about namespace validation
         errors = exc_info.value.errors()
         assert any("namespace" in str(e).lower() for e in errors)
-    
+
     @given(
         name=st.one_of(
             st.from_regex(r"^[A-Z][a-z0-9_]*$", fullmatch=True),  # Starts uppercase
@@ -156,7 +156,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: Invalid names (uppercase, special chars) always rejected.
-        
+
         Given any name that doesn't match the pattern ^[a-z0-9_]+$,
         GalaxyMetadata construction should fail with ValidationError.
         """
@@ -168,11 +168,11 @@ class TestGalaxyMetadataProperties:
                 authors=[],
                 dependencies={},
             )
-        
+
         # Verify error is about name validation
         errors = exc_info.value.errors()
         assert any("name" in str(e).lower() for e in errors)
-    
+
     @given(version=invalid_version_strategy)
     def test_invalid_version_always_raises_validation_error(
         self,
@@ -180,7 +180,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: Invalid semantic versions always rejected.
-        
+
         Given any version string that is not a valid semantic version,
         GalaxyMetadata construction should fail with ValidationError.
         """
@@ -192,11 +192,11 @@ class TestGalaxyMetadataProperties:
                 authors=[],
                 dependencies={},
             )
-        
+
         # Verify error is about version validation
         errors = exc_info.value.errors()
         assert any("version" in str(e).lower() for e in errors)
-    
+
     @given(
         namespace=valid_namespace_strategy,
         name=valid_namespace_strategy,
@@ -210,7 +210,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: GalaxyMetadata is immutable (frozen).
-        
+
         Given any valid GalaxyMetadata, attempting to modify fields
         should raise ValidationError (frozen model).
         """
@@ -221,19 +221,19 @@ class TestGalaxyMetadataProperties:
             authors=[],
             dependencies={},
         )
-        
+
         # Attempt to modify namespace
         with pytest.raises(ValidationError):
             metadata.namespace = "different_namespace"  # type: ignore
-        
+
         # Attempt to modify name
         with pytest.raises(ValidationError):
             metadata.name = "different_name"  # type: ignore
-        
+
         # Attempt to modify version
         with pytest.raises(ValidationError):
             metadata.version = "2.0.0"  # type: ignore
-    
+
     @given(
         namespace=valid_namespace_strategy,
         name=valid_namespace_strategy,
@@ -254,7 +254,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: Dependencies are always stored as provided.
-        
+
         Given any valid dependencies dictionary, GalaxyMetadata should
         store them exactly as provided without modification.
         """
@@ -265,14 +265,14 @@ class TestGalaxyMetadataProperties:
             authors=[],
             dependencies=deps,
         )
-        
+
         assert metadata.dependencies == deps
         assert len(metadata.dependencies) == len(deps)
-        
+
         # Verify each dependency is preserved
         for dep_fqcn, version_constraint in deps.items():
             assert metadata.dependencies[dep_fqcn] == version_constraint
-    
+
     @given(
         namespace=valid_namespace_strategy,
         name=valid_namespace_strategy,
@@ -286,7 +286,7 @@ class TestGalaxyMetadataProperties:
     ) -> None:
         """
         Property: __str__ and __repr__ always include FQCN and version.
-        
+
         Given any valid GalaxyMetadata, the string representations should
         always contain the FQCN and version for identifiability.
         """
@@ -297,16 +297,16 @@ class TestGalaxyMetadataProperties:
             authors=[],
             dependencies={},
         )
-        
+
         str_repr = str(metadata)
         repr_repr = repr(metadata)
-        
+
         # Verify FQCN appears in both
         assert namespace in str_repr
         assert name in str_repr
         assert namespace in repr_repr
         assert name in repr_repr
-        
+
         # Verify version appears in both
         assert version in str_repr
         assert version in repr_repr

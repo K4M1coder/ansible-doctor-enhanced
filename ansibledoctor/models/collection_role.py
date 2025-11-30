@@ -8,8 +8,6 @@ the Collection aggregate, extending the Role aggregate root with collection
 context.
 """
 
-from pathlib import Path
-
 from pydantic import Field
 
 from ansibledoctor.models.role import AnsibleRole
@@ -18,20 +16,20 @@ from ansibledoctor.models.role import AnsibleRole
 class CollectionRole(AnsibleRole):
     """
     Role within an Ansible collection.
-    
+
     Extends AnsibleRole with collection-specific attributes. A collection
     role is identical to a standalone role but belongs to a collection and
     has a fully-qualified collection name (FQCN).
-    
+
     The full role name format is: namespace.collection.role_name
     This format is used in playbooks to reference collection roles:
         roles:
           - namespace.collection.role_name
-    
+
     Attributes:
         collection_fqcn: Fully-qualified collection name (namespace.name)
         full_role_name: Computed property returning "fqcn.role_name"
-    
+
     Example:
         >>> role = CollectionRole(
         ...     path=Path("/collections/community/general/roles/docker"),
@@ -41,25 +39,25 @@ class CollectionRole(AnsibleRole):
         >>> print(role.full_role_name)
         community.general.docker
     """
-    
+
     # Collection-specific field
     collection_fqcn: str = Field(
         ...,
         description="Fully-qualified collection name (namespace.collection_name)",
         examples=["community.general", "ansible.posix", "namespace.collection"],
     )
-    
+
     @property
     def full_role_name(self) -> str:
         """
         Compute full role name in collection FQCN format.
-        
+
         Returns the role's fully-qualified name used in playbooks and
         dependencies: "namespace.collection.role_name"
-        
+
         Returns:
             Full role name string (e.g., "community.general.docker")
-        
+
         Example:
             >>> role = CollectionRole(
             ...     path=Path("/collections/ansible/posix/roles/firewall"),
@@ -70,14 +68,14 @@ class CollectionRole(AnsibleRole):
             'ansible.posix.firewall'
         """
         return f"{self.collection_fqcn}.{self.name}"
-    
+
     def __str__(self) -> str:
         """
         Human-readable CollectionRole representation.
-        
+
         Returns:
             String showing full role name and statistics
-        
+
         Example:
             >>> role = CollectionRole(...)
             >>> print(role)

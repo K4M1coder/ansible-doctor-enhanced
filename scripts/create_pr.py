@@ -7,9 +7,10 @@ Usage: set GITHUB_TOKEN in environment (Temp, or via 'setx' on Windows), then ru
 This script uses `ghapi` to create a pull request and returns the PR URL.
 """
 from __future__ import annotations
+
 import argparse
 import os
-import sys
+
 from ghapi.all import GhApi
 
 

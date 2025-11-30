@@ -23,11 +23,11 @@ from ansibledoctor.models.variable import Variable
 class AnsibleRole(BaseModel):
     """
     Aggregate Root: Complete Ansible role with all components.
-    
+
     This is the root entity in the Parsing Context bounded context.
     All role components (metadata, variables, tasks, annotations) are accessed
     through this aggregate to maintain consistency.
-    
+
     Invariants enforced:
     - Variable names are unique within the role
     - Path must be a valid directory
@@ -37,32 +37,30 @@ class AnsibleRole(BaseModel):
     # Identity
     path: Path = Field(..., description="Absolute path to role directory")
     name: str = Field(..., description="Role name (directory name)")
-    
+
     # Components (Value Objects and Entities)
     metadata: RoleMetadata = Field(
         default_factory=RoleMetadata, description="Galaxy metadata from meta/main.yml"
     )
-    
+
     variables: list[Variable] = Field(
         default_factory=list, description="Variables from defaults/ and vars/"
     )
-    
-    tags: list[Tag] = Field(
-        default_factory=list, description="Task tags discovered in tasks/"
-    )
-    
+
+    tags: list[Tag] = Field(default_factory=list, description="Task tags discovered in tasks/")
+
     annotations: list[Annotation] = Field(
         default_factory=list, description="All annotations found in role files"
     )
-    
+
     todos: list[TodoItem] = Field(
         default_factory=list, description="TODO items from @todo annotations"
     )
-    
+
     examples: list[Example] = Field(
         default_factory=list, description="Code examples from @example annotations"
     )
-    
+
     # Parsing metadata
     parse_errors: list[str] = Field(
         default_factory=list, description="Non-fatal errors encountered during parsing"
@@ -127,7 +125,7 @@ class AnsibleRole(BaseModel):
     def get_statistics(self) -> dict[str, int]:
         """
         Get role statistics summary.
-        
+
         Returns:
             Dictionary with counts of variables, tags, todos, examples, etc.
         """

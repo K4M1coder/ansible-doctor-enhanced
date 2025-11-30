@@ -3,11 +3,12 @@
 Verifies that when a translation key is missing in a requested language,
 the content falls back to a configured fallback language (e.g., English).
 """
+
 from pathlib import Path
 
 from ansibledoctor.generator.multi_language import MultiLanguageGenerator
+from ansibledoctor.models.project import CollectionInfo, Project, RoleInfo
 from ansibledoctor.translation.loader import TranslationLoader
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
 
 
 def make_project_with_en_only(tmp_path: Path, name: str = "myproj") -> Project:
@@ -17,22 +18,22 @@ def make_project_with_en_only(tmp_path: Path, name: str = "myproj") -> Project:
     roles_dir = proj_dir / "roles" / "webserver"
     roles_dir.mkdir(parents=True)
     (roles_dir / "tasks").mkdir()
-    (roles_dir / "tasks" / "main.yml").write_text("- name: noop\n  debug: msg=\"noop\"\n")
+    (roles_dir / "tasks" / "main.yml").write_text('- name: noop\n  debug: msg="noop"\n')
 
     # Write English translation and a French translation that is intentionally
     # missing `project.title` to test fallback behavior for missing keys.
     translations_dir = proj_dir / ".ansibledoctor" / "translations"
     translations_dir.mkdir(parents=True)
     (translations_dir / "en.yml").write_text(
-        "project.title: \"My Project\"\nroles.header: \"Roles\"\n", encoding="utf-8"
+        'project.title: "My Project"\nroles.header: "Roles"\n', encoding="utf-8"
     )
     # FR translation intentionally missing project.title
-    (translations_dir / "fr.yml").write_text(
-        "roles.header: \"Rôles\"\n", encoding="utf-8"
-    )
+    (translations_dir / "fr.yml").write_text('roles.header: "Rôles"\n', encoding="utf-8")
 
     roles = [RoleInfo(name="webserver", path=str(roles_dir))]
-    collections = [CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))]
+    collections = [
+        CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))
+    ]
     return Project(name="My Project", path=str(proj_dir), roles=roles, collections=collections)
 
 

@@ -1,9 +1,8 @@
-import io
 from pathlib import Path
 
-FILE = Path('specs/006-project-docs/checklists/project.md')
+FILE = Path("specs/006-project-docs/checklists/project.md")
 
-content = '''### PROJECT-CHECKLIST-FINAL
+content = """### PROJECT-CHECKLIST-FINAL
 
 # Checklist: Project Documentation Requirements Quality
 
@@ -42,10 +41,12 @@ This checklist verifies that `spec.md` and `tasks.md` contain explicit requireme
 ---
 
 Checklist completed and validated against `spec.md` and `tasks.md`.
-'''
+"""
+
 
 def write_clean():
-    FILE.write_text(content, encoding='utf-8')
+    FILE.write_text(content, encoding="utf-8")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     write_clean()

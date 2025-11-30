@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 class VariableType(str, Enum):
     """
     Enumeration of variable types inferred from YAML values.
-    
+
     Follows Ansible/YAML type system.
     """
 
@@ -31,7 +31,7 @@ class VariableType(str, Enum):
 class Variable(BaseModel):
     """
     Value Object: Ansible role variable definition.
-    
+
     Immutable representation of a variable from defaults/main.yml or vars/main.yml.
     Part of the AnsibleRole aggregate.
     """
@@ -39,11 +39,9 @@ class Variable(BaseModel):
     name: str = Field(..., description="Variable name")
     value: Any = Field(..., description="Variable value (can be any YAML type)")
     type: VariableType = Field(..., description="Inferred variable type")
-    
-    source: str = Field(
-        ..., description="Source file (defaults or vars)"
-    )
-    
+
+    source: str = Field(..., description="Source file (defaults or vars)")
+
     # Annotation attributes (from @var annotations)
     description: Optional[str] = Field(None, description="Variable description from @var")
     example: Optional[Any] = Field(None, description="Usage example from annotation")
@@ -54,7 +52,7 @@ class Variable(BaseModel):
     default: Optional[str] = Field(
         None, description="Default value description (may differ from actual value)"
     )
-    
+
     # Context for debugging
     file_path: Optional[str] = Field(None, description="Full file path for context")
     line_number: Optional[int] = Field(None, description="Line number in file")
@@ -77,13 +75,13 @@ class Variable(BaseModel):
     def infer_type(value: Any) -> VariableType:
         """
         Infer variable type from Python/YAML value.
-        
+
         Args:
             value: Variable value from YAML
-            
+
         Returns:
             VariableType enum value
-            
+
         Examples:
             >>> Variable.infer_type("hello")
             VariableType.STRING

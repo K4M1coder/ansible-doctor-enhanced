@@ -1,15 +1,18 @@
 """Integration tests for documentation generator."""
-import pytest
-from pathlib import Path
+
 from datetime import datetime
+from pathlib import Path
+
+import pytest
+from jinja2 import TemplateNotFound
 
 from ansibledoctor.generator import (
-    TemplateEngine,
     FileSystemTemplateLoader,
-    TemplateContext,
     OutputFormat,
+    TemplateContext,
+    TemplateEngine,
 )
-from ansibledoctor.models import AnsibleRole, RoleMetadata, Variable, Tag, TodoItem, Example
+from ansibledoctor.models import AnsibleRole, Example, RoleMetadata, Tag, TodoItem, Variable
 
 
 @pytest.fixture
@@ -17,7 +20,7 @@ def complete_role(tmp_path):
     """Create a complete role with all features."""
     role_path = tmp_path / "complete-role"
     role_path.mkdir()
-    
+
     # Create role with full metadata
     role = AnsibleRole(name="complete-role", path=role_path)
     role.metadata = RoleMetadata(
@@ -28,7 +31,7 @@ def complete_role(tmp_path):
         platforms=[{"name": "Ubuntu", "versions": ["20.04", "22.04"]}],
         dependencies=[{"name": "geerlingguy.docker", "version": ">=6.0.0"}],
     )
-    
+
     # Add variables
     role.variables = [
         Variable(
@@ -56,14 +59,14 @@ def complete_role(tmp_path):
             required=False,
         ),
     ]
-    
+
     # Add tags
     role.tags = [
         Tag(name="install", description="Installation tasks", usage_count=5),
         Tag(name="config", description="Configuration tasks", usage_count=3),
         Tag(name="service", description="Service management", usage_count=2),
     ]
-    
+
     # Add TODOs
     role.todos = [
         TodoItem(
@@ -85,7 +88,7 @@ def complete_role(tmp_path):
             priority="low",
         ),
     ]
-    
+
     # Add examples
     role.examples = [
         Example(
@@ -111,7 +114,7 @@ def complete_role(tmp_path):
             language="yaml",
         ),
     ]
-    
+
     return role
 
 
@@ -135,10 +138,10 @@ class TestEndToEndGeneration:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         # Render
         content = template.render(**context.to_dict())
-        
+
         # Validate result
         assert content
         assert "# complete-role" in content
@@ -146,19 +149,19 @@ class TestEndToEndGeneration:
         assert "## Tags" in content
         assert "## TODOs" in content
         assert "## Examples" in content
-        
+
         # Check variables rendered
         assert "app_port" in content
         assert "8080" in content
         assert "Application HTTP port" in content
-        
+
         # Check tags rendered
         assert "install" in content
         assert "5" in content  # usage count
-        
+
         # Check TODOs rendered
         assert "custom SSL certificates" in content
-        
+
         # Check examples rendered
         assert "Basic Usage" in content
         assert "- hosts: webservers" in content
@@ -173,15 +176,15 @@ class TestEndToEndGeneration:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.HTML,
         )
-        
+
         content = template.render(**context.to_dict())
-        
+
         assert content
         assert "<!DOCTYPE html>" in content
         assert "<html" in content
         assert "</html>" in content
         assert "<h1>complete-role" in content or ">complete-role<" in content
-        
+
         # Check generation metadata
         assert "0.3.0" in content
 
@@ -195,14 +198,14 @@ class TestEndToEndGeneration:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.RST,
         )
-        
+
         content = template.render(**context.to_dict())
-        
+
         assert content
         assert "complete-role" in content
         assert "Variables" in content
         assert "========" in content  # RST heading underlines
-        
+
         # Check generation metadata
         assert "0.3.0" in content
 
@@ -214,16 +217,16 @@ class TestTemplateEngineIntegration:
         """Test loading and rendering Markdown template."""
         engine = TemplateEngine.create(template_dir=str(templates_dir))
         template = engine.get_template("markdown/role.j2")
-        
+
         context = TemplateContext(
             role=complete_role,
             generator_version="0.3.0",
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         content = template.render(**context.to_dict())
-        
+
         assert content
         assert "complete-role" in content
         assert "Variables" in content
@@ -231,7 +234,7 @@ class TestTemplateEngineIntegration:
     def test_custom_filters_available(self, templates_dir):
         """Test that custom filters are available in engine."""
         engine = TemplateEngine.create(template_dir=str(templates_dir))
-        
+
         # Check filters registered
         assert "markdown_escape" in engine.environment.filters
         assert "rst_escape" in engine.environment.filters
@@ -243,15 +246,15 @@ class TestTemplateEngineIntegration:
     def test_loader_discovery(self, templates_dir):
         """Test that loader can discover templates."""
         loader = FileSystemTemplateLoader(templates_dir)
-        
+
         # Discover Markdown templates
         md_templates = loader.discover_templates(OutputFormat.MARKDOWN)
         assert "role" in md_templates
-        
+
         # Discover HTML templates
         html_templates = loader.discover_templates(OutputFormat.HTML)
         assert "role" in html_templates
-        
+
         # Discover RST templates
         rst_templates = loader.discover_templates(OutputFormat.RST)
         assert "role" in rst_templates
@@ -263,28 +266,28 @@ class TestAllFormatsConsistency:
     def test_all_formats_render_same_role(self, complete_role, templates_dir):
         """Test that all formats can render the same role."""
         engine = TemplateEngine.create(template_dir=str(templates_dir))
-        
+
         # Render in all formats
         md_template = engine.get_template("markdown/role.j2")
         html_template = engine.get_template("html/role.j2")
         rst_template = engine.get_template("rst/role.j2")
-        
+
         context_data = TemplateContext(
             role=complete_role,
             generator_version="0.3.0",
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         ).to_dict()
-        
+
         md_content = md_template.render(**context_data)
         html_content = html_template.render(**context_data)
         rst_content = rst_template.render(**context_data)
-        
+
         # All should have content
         assert md_content
         assert html_content
         assert rst_content
-        
+
         # All should contain role name
         assert "complete-role" in md_content
         assert "complete-role" in html_content
@@ -294,27 +297,27 @@ class TestAllFormatsConsistency:
         """Test that all formats handle minimal role."""
         role_path = tmp_path / "minimal-role"
         role_path.mkdir()
-        
+
         role = AnsibleRole(name="minimal-role", path=role_path)
         role.metadata = RoleMetadata(description="Minimal role")
-        
+
         engine = TemplateEngine.create(template_dir=str(templates_dir))
         md_template = engine.get_template("markdown/role.j2")
         html_template = engine.get_template("html/role.j2")
         rst_template = engine.get_template("rst/role.j2")
-        
+
         context_data = TemplateContext(
             role=role,
             generator_version="0.3.0",
             generation_date=datetime.now(),
             output_format=OutputFormat.MARKDOWN,
         ).to_dict()
-        
+
         # All formats should handle empty collections
         md_content = md_template.render(**context_data)
         html_content = html_template.render(**context_data)
         rst_content = rst_template.render(**context_data)
-        
+
         assert md_content
         assert html_content
         assert rst_content
@@ -326,17 +329,17 @@ class TestErrorHandling:
     def test_missing_template_handled(self, templates_dir):
         """Test handling of missing template."""
         engine = TemplateEngine.create(template_dir=str(templates_dir))
-        
-        with pytest.raises(Exception):  # Could be TemplateNotFoundError or Jinja2 error
+
+        with pytest.raises(TemplateNotFound):  # TemplateNotFound from Jinja2
             engine.get_template("nonexistent/template.j2")
 
     def test_template_validation(self, templates_dir):
         """Test template validation."""
         from ansibledoctor.generator.validator import TemplateValidator
-        
+
         engine = TemplateEngine.create(template_dir=str(templates_dir))
         validator = TemplateValidator(engine.environment)
-        
+
         # Test valid template
         template_path = templates_dir / "markdown" / "role.j2"
         validator.validate_file(template_path)  # Should not raise
@@ -349,7 +352,7 @@ class TestMetadataGeneration:
         """Test that generation metadata appears in output."""
         engine = TemplateEngine.create(template_dir=str(templates_dir))
         template = engine.get_template("markdown/role.j2")
-        
+
         gen_date = datetime(2024, 1, 1, 12, 0, 0)
         context = TemplateContext(
             role=complete_role,
@@ -357,9 +360,9 @@ class TestMetadataGeneration:
             generation_date=gen_date,
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         content = template.render(**context.to_dict())
-        
+
         # Check that generation metadata appears in content
         assert "0.3.0" in content
         assert "2024-01-01" in content

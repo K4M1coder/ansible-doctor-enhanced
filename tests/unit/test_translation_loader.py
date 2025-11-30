@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from ansibledoctor.translation.loader import TranslationLoader
 
 

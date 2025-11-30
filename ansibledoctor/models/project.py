@@ -2,12 +2,13 @@
 
 This module contains Pydantic models for Project, Playbook, RoleInfo,
 CollectionInfo and InventoryItem. These models are intentionally minimal and
-will be expanded as project parsing features grow.  
+will be expanded as project parsing features grow.
 """
 
 from __future__ import annotations
 
-from typing import List, Optional, Any
+from typing import Any, List, Optional
+
 from pydantic import BaseModel, Field
 
 

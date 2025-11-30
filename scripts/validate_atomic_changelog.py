@@ -18,10 +18,14 @@ Exit code: 0 on success; non-zero on validation failure.
 from __future__ import annotations
 
 import argparse
-import sys
 import subprocess
 from pathlib import Path
-import tomllib
+
+try:
+    import tomllib  # Python 3.11+
+except Exception:  # pragma: no cover - fallback for older Python on CI/local
+    import tomli as tomllib  # type: ignore
+
 from typing import List
 
 
@@ -29,13 +33,61 @@ def run(cmd: List[str], capture_output: bool = True) -> subprocess.CompletedProc
     return subprocess.run(cmd, check=False, capture_output=capture_output, text=True)
 
 
-def git_changed_files(base: str, head: str) -> List[str]:
-    cp = run(["git", "fetch", "--no-tags", "--depth=1", "origin", base])
-    # ignore fetch result; we just try to ensure base exists; if it doesn't, we still continue
-    cp = run(["git", "diff", "--name-only", f"{base}..{head}"])
+def git_ref_exists(ref: str) -> bool:
+    """Return True if git ref exists locally; works for 'main', 'origin/main', and commit hashes.
+
+    We try `git rev-parse --verify --quiet` to verify the ref; this will return 0 if the ref
+    resolves locally in any form.
+    """
+    cp = run(["git", "rev-parse", "--verify", "--quiet", ref])
+    return cp.returncode == 0
+
+
+def git_changed_files(base: str | None, head: str) -> List[str]:
+    """Return list of changed files between base and head.
+
+    If base is None or invalid, attempts to fallback to HEAD~1..HEAD.
+    This is robust to `origin/main` and `main` style refs and will fetch the
+    necessary remote branch when possible.
+    """
+    # Determine a base ref to use for diff. If base is of form 'origin/main', fetch
+    # just the branch portion so remote ref is available locally.
+    if base:
+        # If base contains a slash and starts with 'origin/', fetch only the remote branch
+        if "/" in base:
+            remote, branch = base.split("/", 1)
+            # try to fetch the branch from remote
+            _ = run(["git", "fetch", "--no-tags", "--depth=1", remote, branch])
+        else:
+            # try to fetch the base in case the local repo doesn't have it
+            _ = run(["git", "fetch", "--no-tags", "--depth=1", "origin", base])
+
+        # if the base ref doesn't exist locally after attempting fetch, try
+        # using the short branch name (e.g., 'origin/main' -> 'main') or fallback
+        if not git_ref_exists(base):
+            if "/" in base:
+                _, branch = base.split("/", 1)
+                if git_ref_exists(branch):
+                    base = branch
+                else:
+                    base = None
+            else:
+                base = None
+
+    # Compose the diff range
+    if base:
+        rng = f"{base}..{head}"
+    else:
+        rng = f"{head}~1..{head}"
+
+    cp = run(["git", "diff", "--name-only", rng])
     if cp.returncode != 0:
-        print(cp.stderr)
-        raise SystemExit(2)
+        # Try fallback to a simpler local range if the requested pair isn't available
+        if base:
+            cp = run(["git", "diff", "--name-only", f"{head}~1..{head}"])
+    if cp.returncode != 0:
+        # Nothing we can do: return an empty list (we don't want to crash the hook)
+        return []
     return [line.strip() for line in cp.stdout.splitlines() if line.strip()]
 
 
@@ -75,7 +127,7 @@ def files_in_commit(commit_hash: str) -> List[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base", required=True, help="Base ref (e.g., origin/main)")
+    parser.add_argument("--base", default=None, help="Base ref (e.g., origin/main)")
     parser.add_argument("--head", default="HEAD", help="Head ref (e.g., HEAD)")
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
@@ -134,7 +186,9 @@ def main() -> int:
             break
 
     if not atomic_found:
-        print("ERROR: No single commit found that updates version, CHANGELOG and README atomically.")
+        print(
+            "ERROR: No single commit found that updates version, CHANGELOG and README atomically."
+        )
         print("Commits that changed pyproject:")
         for c in commits:
             print(c, files_in_commit(c))

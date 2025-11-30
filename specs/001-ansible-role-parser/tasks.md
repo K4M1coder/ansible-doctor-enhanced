@@ -331,7 +331,7 @@ Finally all team:
 - **Phase 6 (CLI)**: 11 tasks
 - **Phase 7 (Polish)**: 18 tasks
 
-**Total**: 100 tasks
+**Total**: 104 tasks
 
 **MVP Tasks** (Setup + Foundation + US1 + US2 + CLI): 58 tasks
 **Full Feature**: 100 tasks

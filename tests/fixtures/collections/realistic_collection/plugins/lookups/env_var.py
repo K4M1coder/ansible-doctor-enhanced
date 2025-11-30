@@ -5,11 +5,12 @@
 Ansible lookup plugin for environment variables.
 """
 
-from ansible.errors import AnsibleError
-from ansible.plugins.lookup import LookupBase
 import os
 
-DOCUMENTATION = '''
+from ansible.errors import AnsibleError
+from ansible.plugins.lookup import LookupBase
+
+DOCUMENTATION = """
 ---
 lookup: env_var
 short_description: Look up environment variables
@@ -17,11 +18,12 @@ description:
   - Retrieve environment variable values
 author:
   - "Community Contributors"
-'''
+"""
+
 
 class LookupModule(LookupBase):
     """Environment variable lookup plugin."""
-    
+
     def run(self, terms, variables=None, **kwargs):
         ret = []
         for term in terms:

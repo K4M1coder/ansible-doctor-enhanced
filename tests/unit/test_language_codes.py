@@ -1,6 +1,6 @@
 from pathlib import Path
+
 from ansibledoctor.translation.loader import TranslationLoader
-import pytest
 
 
 def test_invalid_language_code_fallback_and_log(caplog, tmp_path: Path):

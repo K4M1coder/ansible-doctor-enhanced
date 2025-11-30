@@ -9,7 +9,9 @@ def test_loader_merges_project_fallback_over_package(tmp_path: Path):
     translations_dir = proj_dir / ".ansibledoctor" / "translations"
     translations_dir.mkdir(parents=True)
     (translations_dir / "xx.yml").write_text("roles.header: 'Rôles-XX'\n", encoding="utf-8")
-    (translations_dir / "en.yml").write_text("project.title: 'My Project'\nroles.header: 'Roles'\n", encoding="utf-8")
+    (translations_dir / "en.yml").write_text(
+        "project.title: 'My Project'\nroles.header: 'Roles'\n", encoding="utf-8"
+    )
 
     loader = TranslationLoader()
     provider = loader.load("xx", proj_dir)

@@ -1,11 +1,14 @@
-from ansibledoctor.config.language import LanguageConfig
+import pytest
 from pydantic import ValidationError
+
+from ansibledoctor.config.language import LanguageConfig
 
 
 def test_language_config_defaults():
     cfg = LanguageConfig()
     assert cfg.default == "en"
     assert cfg.fallback == "en"
+    assert cfg.enabled == ["en"]
     assert cfg.detect_system is False
 
 
@@ -15,27 +18,11 @@ def test_language_config_enabled_list_valid():
 
 
 def test_language_config_invalid_codes_error():
-    try:
+    with pytest.raises(ValidationError):
         LanguageConfig(default="eng")
-        assert False, "Should raise ValidationError for invalid default"
-    except ValidationError:
-        pass
 
-    try:
-        LanguageConfig(enabled=["en", "invalid"])
-        assert False, "Should raise ValidationError for invalid enabled list"
-    except ValidationError:
-        pass
-from ansibledoctor.config.language import LanguageConfig
-import pytest
-
-
-def test_language_config_defaults():
-    c = LanguageConfig()
-    assert c.default == "en"
-    assert c.fallback == "en"
-    assert c.enabled == ["en"]
-    assert c.detect_system is False
+    with pytest.raises(ValidationError):
+        LanguageConfig(enabled=["en", "invalid"])  # invalid code in list
 
 
 def test_language_config_valid_custom():
@@ -44,10 +31,3 @@ def test_language_config_valid_custom():
     assert c.fallback == "en"
     assert set(c.enabled) == {"en", "fr"}
     assert c.detect_system is True
-
-
-def test_language_config_invalid_code_raises():
-    with pytest.raises(ValueError):
-        LanguageConfig(default="eng")
-    with pytest.raises(ValueError):
-        LanguageConfig(enabled=["en", "french"])  # invalid code in list

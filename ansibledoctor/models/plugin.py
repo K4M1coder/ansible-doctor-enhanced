@@ -67,8 +67,7 @@ class PluginType(str, Enum):
         if dirname not in mapping:
             valid = ", ".join(mapping.keys())
             raise ValueError(
-                f"Unknown plugin directory '{dirname}'. "
-                f"Valid directories: {valid}"
+                f"Unknown plugin directory '{dirname}'. " f"Valid directories: {valid}"
             )
 
         return mapping[dirname]
@@ -98,26 +97,14 @@ class Plugin(BaseModel):
         'my_module'
     """
 
-    name: str = Field(
-        ...,
-        description="Plugin name (filename without .py extension)"
-    )
-    type: PluginType = Field(
-        ...,
-        description="Plugin type (module, filter, lookup, etc.)"
-    )
-    path: Path = Field(
-        ...,
-        description="Absolute path to plugin file"
-    )
+    name: str = Field(..., description="Plugin name (filename without .py extension)")
+    type: PluginType = Field(..., description="Plugin type (module, filter, lookup, etc.)")
+    path: Path = Field(..., description="Absolute path to plugin file")
     short_description: Optional[str] = Field(
-        None,
-        description="Brief description of plugin functionality"
+        None, description="Brief description of plugin functionality"
     )
 
-    model_config = {
-        "frozen": True  # Immutable value object
-    }
+    model_config = {"frozen": True}  # Immutable value object
 
     def __str__(self) -> str:
         """String representation with name and type."""
@@ -211,11 +198,7 @@ class PluginCatalog:
             >>> catalog.list_names_by_type(PluginType.MODULE)
             ['module1', 'module2']
         """
-        return [
-            plugin.name
-            for plugin in self.plugins
-            if plugin.type == plugin_type
-        ]
+        return [plugin.name for plugin in self.plugins if plugin.type == plugin_type]
 
     def count(self) -> int:
         """

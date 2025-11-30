@@ -1,7 +1,8 @@
 """Tests for DocumentRenderer protocol and implementations."""
+
 import pytest
+
 from ansibledoctor.generator.protocols import DocumentRenderer
-from ansibledoctor.generator.output_format import OutputFormat
 
 
 class TestDocumentRendererProtocol:
@@ -10,9 +11,9 @@ class TestDocumentRendererProtocol:
     def test_protocol_exists(self):
         """Test that DocumentRenderer protocol is defined."""
         assert DocumentRenderer is not None
-        assert hasattr(DocumentRenderer, 'render')
-        assert hasattr(DocumentRenderer, 'escape')
-        assert hasattr(DocumentRenderer, 'code_block')
+        assert hasattr(DocumentRenderer, "render")
+        assert hasattr(DocumentRenderer, "escape")
+        assert hasattr(DocumentRenderer, "code_block")
 
 
 class MockRenderer:

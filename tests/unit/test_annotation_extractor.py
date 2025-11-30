@@ -5,11 +5,9 @@ Following Constitution Article III (TDD): Tests written BEFORE implementation.
 This test suite drives the design of AnnotationExtractor through Red-Green-Refactor cycle.
 """
 
-from pathlib import Path
-
 import pytest
 
-from ansibledoctor.models.annotation import Annotation, AnnotationType
+from ansibledoctor.models.annotation import AnnotationType
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 
 
@@ -25,7 +23,7 @@ class TestAnnotationExtraction:
     def test_extract_var_annotation_single_line(self, annotation_extractor):
         """
         RED: Test extracting single-line @var annotation.
-        
+
         Format: # @var variable_name: description here
         """
         yaml_content = """
@@ -33,7 +31,7 @@ class TestAnnotationExtraction:
 web_port: 80
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         assert len(annotations) == 1
         assert annotations[0].type == AnnotationType.VAR
         assert annotations[0].key == "web_port"
@@ -43,7 +41,7 @@ web_port: 80
     def test_extract_var_annotation_multiline(self, annotation_extractor):
         """
         RED: Test extracting multiline @var annotation.
-        
+
         Format:
         # @var variable_name:
         #   description: Long description
@@ -59,7 +57,7 @@ database_config:
   port: 5432
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         assert len(annotations) == 1
         var_annotation = annotations[0]
         assert var_annotation.type == AnnotationType.VAR
@@ -72,7 +70,7 @@ database_config:
     def test_extract_var_annotation_json(self, annotation_extractor):
         """
         RED: Test extracting @var annotation with JSON attributes.
-        
+
         Format: # @var variable_name: {"description": "...", "type": "string"}
         """
         yaml_content = """
@@ -80,12 +78,12 @@ database_config:
 app_name: myapp
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         assert len(annotations) == 1
         var_annotation = annotations[0]
         assert var_annotation.type == AnnotationType.VAR
         assert var_annotation.key == "app_name"
-        
+
         # JSON should be parsed into attributes
         assert var_annotation.get_attribute("description") == "Application name"
         assert var_annotation.get_attribute("type") == "string"
@@ -94,7 +92,7 @@ app_name: myapp
     def test_extract_tag_annotation(self, annotation_extractor):
         """
         RED: Test extracting @tag annotation from task files.
-        
+
         Format: # @tag tag_name: description of what this tag does
         """
         yaml_content = """
@@ -107,7 +105,7 @@ app_name: myapp
     - install
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "tasks/main.yml")
-        
+
         assert len(annotations) == 1
         tag_annotation = annotations[0]
         assert tag_annotation.type == AnnotationType.TAG
@@ -117,7 +115,7 @@ app_name: myapp
     def test_extract_todo_annotation(self, annotation_extractor):
         """
         RED: Test extracting @todo annotation.
-        
+
         Format: # @todo: description of what needs to be done
         """
         yaml_content = """
@@ -128,7 +126,7 @@ web_port: 80
 ssl_enabled: false
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         todos = [a for a in annotations if a.type == AnnotationType.TODO]
         assert len(todos) == 2
         assert "input validation" in todos[0].content
@@ -137,7 +135,7 @@ ssl_enabled: false
     def test_extract_example_annotation(self, annotation_extractor):
         """
         RED: Test extracting @example annotation.
-        
+
         Format:
         # @example: Example title
         # code line 1
@@ -152,7 +150,7 @@ ssl_enabled: false
 web_port: 80
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         examples = [a for a in annotations if a.type == AnnotationType.EXAMPLE]
         assert len(examples) == 1
         assert "Basic web server" in examples[0].content
@@ -174,11 +172,11 @@ ssl_port: 443
 # ssl_cert: /etc/ssl/cert.pem
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         vars_annotations = [a for a in annotations if a.type == AnnotationType.VAR]
         todos = [a for a in annotations if a.type == AnnotationType.TODO]
         examples = [a for a in annotations if a.type == AnnotationType.EXAMPLE]
-        
+
         assert len(vars_annotations) == 2
         assert len(todos) == 1
         assert len(examples) == 1
@@ -195,7 +193,7 @@ web_port: 80
 web_host: localhost
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         assert len(annotations) == 0
 
     def test_extract_malformed_annotation(self, annotation_extractor):
@@ -210,7 +208,7 @@ web_port: 80
 """
         # Should not crash, just skip malformed annotations
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         # Malformed annotations should be skipped or logged
         assert isinstance(annotations, list)
 
@@ -226,7 +224,7 @@ web_port: 80
 ssl_port: 443
 """
         annotations = annotation_extractor.extract_annotations(yaml_content, "defaults/main.yml")
-        
+
         assert len(annotations) == 2
         # Line numbers should be tracked (1-indexed)
         assert annotations[0].line_number > 0
@@ -241,9 +239,9 @@ class TestAnnotationParsing:
         RED: Test parsing JSON attributes from annotation.
         """
         annotation_text = '{"description": "Test", "type": "string", "required": true}'
-        
+
         attributes = annotation_extractor.parse_annotation_attributes(annotation_text)
-        
+
         assert attributes["description"] == "Test"
         assert attributes["type"] == "string"
         assert attributes["required"] is True
@@ -261,7 +259,7 @@ example:
   port: 5432
 """
         attributes = annotation_extractor.parse_annotation_attributes(annotation_text)
-        
+
         assert attributes["description"] == "Database configuration"
         assert attributes["required"] is True
         assert attributes["type"] == "dict"
@@ -272,9 +270,9 @@ example:
         RED: Test parsing simple text (no JSON/YAML structure).
         """
         annotation_text = "Simple description text here"
-        
+
         attributes = annotation_extractor.parse_annotation_attributes(annotation_text)
-        
+
         # Simple text should be accessible via description key or raw content
         assert isinstance(attributes, dict)
         assert len(attributes) == 0 or "description" in attributes
@@ -284,10 +282,10 @@ example:
         RED: Test handling invalid JSON gracefully.
         """
         annotation_text = '{"invalid": json syntax here}'
-        
+
         # Should not crash, return empty dict or raw text
         attributes = annotation_extractor.parse_annotation_attributes(annotation_text)
-        
+
         assert isinstance(attributes, dict)
 
 
@@ -309,7 +307,7 @@ key2: value2
 key3: value3  # Inline comment
 """
         comments = annotation_extractor.extract_comment_lines(yaml_content)
-        
+
         assert "# First comment" in comments
         assert "# Second comment" in comments
         assert "# Third comment" in comments
@@ -324,10 +322,8 @@ key3: value3  # Inline comment
 line 3
 # Comment on line 4
 """
-        comments_with_lines = annotation_extractor.extract_comment_lines_with_numbers(
-            yaml_content
-        )
-        
+        comments_with_lines = annotation_extractor.extract_comment_lines_with_numbers(yaml_content)
+
         assert len(comments_with_lines) == 2
         assert comments_with_lines[0][0] == 2  # Line number
         assert "Comment on line 2" in comments_with_lines[0][1]  # Comment text

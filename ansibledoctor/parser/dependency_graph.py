@@ -204,7 +204,9 @@ class DependencyGraph:
             raise CircularDependencyError(cycles[0])
 
         # Kahn's algorithm - calculate in-degree based on dependencies
-        in_degree: Dict[str, int] = {name: len(node.dependencies) for name, node in self._nodes.items()}
+        in_degree: Dict[str, int] = {
+            name: len(node.dependencies) for name, node in self._nodes.items()
+        }
 
         # Start with nodes that have no dependencies
         queue = deque([node for node, degree in in_degree.items() if degree == 0])
@@ -307,19 +309,12 @@ class DependencyGraph:
         """
         return {
             "nodes": [
-                {
-                    "name": name,
-                    "dependencies": node.dependencies,
-                    "dependents": node.dependents
-                }
+                {"name": name, "dependencies": node.dependencies, "dependents": node.dependents}
                 for name, node in self._nodes.items()
             ],
-            "edges": [
-                {"from": src, "to": dst}
-                for src, dst in self._edges
-            ],
+            "edges": [{"from": src, "to": dst} for src, dst in self._edges],
             "circular_dependencies": self.find_circular_dependencies(),
-            "has_cycles": self.has_circular_dependencies()
+            "has_cycles": self.has_circular_dependencies(),
         }
 
     @classmethod
@@ -354,7 +349,7 @@ class DependencyGraph:
 
             if meta_file.exists():
                 try:
-                    with open(meta_file, 'r', encoding='utf-8') as f:
+                    with open(meta_file, "r", encoding="utf-8") as f:
                         meta_data = yaml.safe_load(f) or {}
 
                     # Extract dependencies

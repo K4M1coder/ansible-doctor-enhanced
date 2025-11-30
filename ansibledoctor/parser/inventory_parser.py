@@ -5,6 +5,7 @@ documentation purposes: INI group definitions and simple YAML host/group
 structures. It's intentionally conservative and focuses on name discovery and
 group membership, not a full Ansible inventory expansion implementation.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -52,7 +53,7 @@ def parse_yaml_inventory(file_path: Path) -> Iterable[InventoryItem]:
         return []
     all_section = data.get("all") or data
     children = all_section.get("children", {}) if isinstance(all_section, dict) else {}
-    for group_name, group_val in (children.items() if isinstance(children, dict) else []):
+    for group_name, group_val in children.items() if isinstance(children, dict) else []:
         hosts = group_val.get("hosts", {}) if isinstance(group_val, dict) else {}
         for host_name in hosts.keys():
             if host_name not in items:
@@ -60,10 +61,8 @@ def parse_yaml_inventory(file_path: Path) -> Iterable[InventoryItem]:
             if group_name not in items[host_name].groups:
                 items[host_name].groups.append(group_name)
     # Also handle top-level hosts under all.hosts
-    hosts_top = (
-        all_section.get("hosts", {}) if isinstance(all_section, dict) else {}
-    )
-    for host_name in (hosts_top.keys() if isinstance(hosts_top, dict) else []):
+    hosts_top = all_section.get("hosts", {}) if isinstance(all_section, dict) else {}
+    for host_name in hosts_top.keys() if isinstance(hosts_top, dict) else []:
         if host_name not in items:
             items[host_name] = InventoryItem(name=host_name, groups=[])
     return list(items.values())

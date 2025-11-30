@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 class AnnotationType(str, Enum):
     """
     Enumeration of supported annotation types.
-    
+
     Follows ansible-doctor annotation syntax conventions.
     """
 
@@ -29,21 +29,19 @@ class AnnotationType(str, Enum):
 class Annotation(BaseModel):
     """
     Value Object: Inline documentation annotation.
-    
+
     Immutable representation of a comment-based annotation in Ansible files.
     Can be associated with variables, tags, or standalone.
     """
 
     type: AnnotationType = Field(..., description="Annotation type (@var, @tag, etc.)")
-    key: Optional[str] = Field(
-        None, description="Associated key (variable name, tag name, etc.)"
-    )
+    key: Optional[str] = Field(None, description="Associated key (variable name, tag name, etc.)")
     content: str = Field(..., description="Annotation content/description")
-    
+
     # Context for traceability
     file_path: str = Field(..., description="Source file path")
     line_number: int = Field(..., description="Line number in file")
-    
+
     # Parsed attributes (for JSON-format annotations)
     parsed_attributes: dict[str, Any] = Field(
         default_factory=dict,
@@ -64,7 +62,7 @@ class Annotation(BaseModel):
 class TodoItem(BaseModel):
     """
     Entity: TODO item with location tracking.
-    
+
     Tracked by location (file_path + line_number) for identity.
     """
 
@@ -83,7 +81,7 @@ class TodoItem(BaseModel):
 class Example(BaseModel):
     """
     Value Object: Usage example code block.
-    
+
     Immutable representation of example code with context.
     """
 
@@ -98,10 +96,10 @@ class Example(BaseModel):
     def get_preview(self, max_lines: int = 3) -> str:
         """
         Get preview of example code (first N lines).
-        
+
         Args:
             max_lines: Maximum lines to include in preview
-            
+
         Returns:
             Truncated code preview
         """

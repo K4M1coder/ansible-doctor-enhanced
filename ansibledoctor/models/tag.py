@@ -16,10 +16,10 @@ from pydantic import BaseModel, Field, field_validator
 class Tag(BaseModel):
     """
     Value Object: Ansible task tag.
-    
+
     Immutable representation of a tag used in task definitions.
     Tags enable selective playbook execution.
-    
+
     Attributes:
         name: The tag identifier (e.g., 'install', 'configure', 'deploy')
         description: Optional description from @tag annotation
@@ -27,15 +27,9 @@ class Tag(BaseModel):
         file_locations: List of file:line references where tag is used
     """
 
-    name: str = Field(
-        ..., min_length=1, description="Tag name (e.g., 'install', 'configure')"
-    )
-    description: Optional[str] = Field(
-        None, description="Tag description from @tag annotation"
-    )
-    usage_count: int = Field(
-        default=1, description="Number of tasks using this tag", ge=1
-    )
+    name: str = Field(..., min_length=1, description="Tag name (e.g., 'install', 'configure')")
+    description: Optional[str] = Field(None, description="Tag description from @tag annotation")
+    usage_count: int = Field(default=1, description="Number of tasks using this tag", ge=1)
     file_locations: list[str] = Field(
         default_factory=list,
         description="File:line references where tag appears (e.g., 'tasks/main.yml:10')",

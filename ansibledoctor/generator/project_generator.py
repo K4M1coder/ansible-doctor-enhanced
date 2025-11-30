@@ -4,15 +4,15 @@ Minimal ProjectDocumentationGenerator to produce a project README listing roles
 and collections. This is intentionally lightweight for initial tests and will be
 expanded by the T206 tasks in the spec.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
 
 from ansibledoctor.generator.engine import TemplateEngine
-from ansibledoctor.translation.loader import TranslationLoader
-from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.errors import TemplateNotFoundError
+from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat
 from ansibledoctor.models.project import Project
 from ansibledoctor.utils.slug import project_slug
@@ -106,7 +106,9 @@ class ProjectDocumentationGenerator:
                 template_content = template_path_obj.read_text(encoding="utf-8")
                 template = engine.environment.from_string(template_content)
             except Exception as e:
-                raise ValueError(f"Failed to load custom template: {template_path}\nError: {str(e)}")
+                raise ValueError(
+                    f"Failed to load custom template: {template_path}\nError: {str(e)}"
+                ) from e
         else:
             # Use default embedded template
             loader = self._get_embedded_loader()
@@ -114,7 +116,9 @@ class ProjectDocumentationGenerator:
                 output_format = OutputFormat[format.upper()]
             except KeyError:
                 supported_formats = ", ".join([f.name.lower() for f in OutputFormat])
-                raise ValueError(f"Unsupported output format: '{format}'\nSupported formats: {supported_formats}")
+                raise ValueError(
+                    f"Unsupported output format: '{format}'\nSupported formats: {supported_formats}"
+                ) from None
             try:
                 # Load the template content using the loader, but compile it with
                 # the engine instance created above so the translation provider
@@ -123,22 +127,30 @@ class ProjectDocumentationGenerator:
                 if content is None:
                     raise TemplateNotFoundError(
                         "project",
-                        [f"{loader.package}.{loader.templates_path}/{output_format.value}/project.j2"],
+                        [
+                            f"{loader.package}.{loader.templates_path}/{output_format.value}/project.j2"
+                        ],
                     )
                 template = engine.environment.from_string(content)
             except Exception as e:
-                raise ValueError(f"Failed to load embedded project template for format '{format}'\nError: {str(e)}")
+                raise ValueError(
+                    f"Failed to load embedded project template for format '{format}'\nError: {str(e)}"
+                ) from e
 
         # Render template with context
         try:
             output = template.render(**context)
         except Exception as e:
-            raise ValueError(f"Failed to render project documentation template\nError: {str(e)}")
+            raise ValueError(
+                f"Failed to render project documentation template\nError: {str(e)}"
+            ) from e
 
         # Write to file
         try:
             output_file.write_text(output, encoding="utf-8")
         except Exception as e:
-            raise IOError(f"Failed to write documentation to file: {output_file}\nError: {str(e)}")
+            raise IOError(
+                f"Failed to write documentation to file: {output_file}\nError: {str(e)}"
+            ) from e
 
         return output_file

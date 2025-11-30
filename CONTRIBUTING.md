@@ -67,6 +67,17 @@ git checkout -b feature/your-feature-name
 git checkout -b fix/bug-description
 ```
 
+> Note: If you encounter `fatal: ambiguous argument 'origin/main..HEAD'` when running the
+> atomic changelog validator locally, you may either fetch the remote branch, or run the
+> validator with an explicit fallback base (for local work):
+>
+> ```powershell
+> poetry run python scripts/validate_atomic_changelog.py --base HEAD~1 --head HEAD
+> ```
+>
+> The validator also attempts to normalize `origin/main` to `main` if the `main` branch
+> exists locally and will fall back to `HEAD~1..HEAD` automatically when required.
+
 ### 2. Follow TDD Cycle (MANDATORY)
 
 ```bash

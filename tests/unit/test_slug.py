@@ -1,10 +1,6 @@
 import re
-from ansibledoctor.utils.slug import (
-    collection_slug,
-    role_slug,
-    project_slug,
-    join_hierarchy,
-)
+
+from ansibledoctor.utils.slug import collection_slug, join_hierarchy, project_slug, role_slug
 
 
 def test_project_slug_basic():
@@ -13,9 +9,13 @@ def test_project_slug_basic():
 
 
 def test_collection_slug_basic():
-    assert collection_slug("my-namespace", "my-collection") == "collection_my-namespace.my-collection"
+    assert (
+        collection_slug("my-namespace", "my-collection") == "collection_my-namespace.my-collection"
+    )
     # underscores are converted to dashes in namespace for collections
-    assert collection_slug("my_namespace", "my_collection") == "collection_my-namespace.my-collection"
+    assert (
+        collection_slug("my_namespace", "my_collection") == "collection_my-namespace.my-collection"
+    )
 
 
 def test_role_slug_allows_underscore():

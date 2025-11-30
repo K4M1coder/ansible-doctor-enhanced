@@ -6,7 +6,6 @@ This test suite drives the design of CLI through Red-Green-Refactor cycle.
 """
 
 from pathlib import Path
-from unittest.mock import Mock, patch
 
 import pytest
 
@@ -39,7 +38,7 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Create minimal role structure
         role_path = tmp_path / "test_role"
         role_path.mkdir()
@@ -47,9 +46,9 @@ class TestParseCommand:
         (role_path / "meta" / "main.yml").write_text("---\nrole_name: test_role\n")
         (role_path / "defaults").mkdir()
         (role_path / "defaults" / "main.yml").write_text("---\ntest_var: value\n")
-        
+
         result = runner.invoke(cli, ["parse", str(role_path)])
-        
+
         # Should not crash
         assert result.exit_code in [0, 1, 2]  # Success or expected error
 
@@ -58,15 +57,13 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
         output_file = tmp_path / "output.json"
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--output", str(output_file)]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--output", str(output_file)])
+
         # Should accept output flag
         assert result.exit_code in [0, 1, 2]
 
@@ -75,14 +72,12 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         roles_dir = tmp_path / "roles"
         roles_dir.mkdir()
-        
-        result = runner.invoke(
-            cli, ["parse", str(roles_dir), "--recursive"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(roles_dir), "--recursive"])
+
         # Should accept recursive flag
         assert result.exit_code in [0, 1, 2]
 
@@ -91,14 +86,12 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--log-level", "DEBUG"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--log-level", "DEBUG"])
+
         # Should accept log-level flag
         assert result.exit_code in [0, 1, 2]
 
@@ -107,9 +100,9 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         result = runner.invoke(cli, ["parse"])
-        
+
         # Should fail with missing argument
         assert result.exit_code != 0
 
@@ -118,11 +111,11 @@ class TestParseCommand:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         non_existent = tmp_path / "does_not_exist"
-        
+
         result = runner.invoke(cli, ["parse", str(non_existent)])
-        
+
         # Should fail gracefully
         assert result.exit_code != 0
 
@@ -135,18 +128,16 @@ class TestParseCommandIntegration:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Path to minimal_role fixture
-        fixture_path = (
-            Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
-        )
-        
+        fixture_path = Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
+
         if fixture_path.exists():
             result = runner.invoke(cli, ["parse", str(fixture_path)])
-            
+
             # Should succeed
             assert result.exit_code == 0
-            
+
             # Should output JSON
             assert "metadata" in result.output or "{" in result.output
 
@@ -155,15 +146,13 @@ class TestParseCommandIntegration:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Path to complex_role fixture
-        fixture_path = (
-            Path(__file__).parent.parent / "integration" / "fixtures" / "complex_role"
-        )
-        
+        fixture_path = Path(__file__).parent.parent / "integration" / "fixtures" / "complex_role"
+
         if fixture_path.exists():
             result = runner.invoke(cli, ["parse", str(fixture_path)])
-            
+
             # Should succeed
             assert result.exit_code == 0
 
@@ -176,17 +165,18 @@ class TestOutputFormats:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
         (role_path / "defaults").mkdir()
         (role_path / "defaults" / "main.yml").write_text("test_var: 1")
-        
+
         result = runner.invoke(cli, ["parse", str(role_path)])
-        
+
         if result.exit_code == 0:
             # Output should be valid JSON
             import json
+
             try:
                 json.loads(result.output)
             except json.JSONDecodeError:
@@ -197,15 +187,13 @@ class TestOutputFormats:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
         output_file = tmp_path / "output.json"
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--output", str(output_file)]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--output", str(output_file)])
+
         if result.exit_code == 0:
             # Output file should be created
             assert output_file.exists()
@@ -215,12 +203,12 @@ class TestOutputFormats:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
+
         result = runner.invoke(cli, ["parse", str(role_path)])
-        
+
         # Should have output to stdout
         assert len(result.output) > 0
 
@@ -233,14 +221,12 @@ class TestValidationFlag:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--validate"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--validate"])
+
         # Should accept validate flag
         assert result.exit_code in [0, 1, 2]
 
@@ -249,15 +235,13 @@ class TestValidationFlag:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Invalid role (missing tasks/)
         role_path = tmp_path / "invalid_role"
         role_path.mkdir()
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--validate"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--validate"])
+
         # Should report validation error
         if result.exit_code != 0:
             assert "validate" in result.output.lower() or "error" in result.output.lower()
@@ -271,14 +255,12 @@ class TestExitCodes:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
-        fixture_path = (
-            Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
-        )
-        
+
+        fixture_path = Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
+
         if fixture_path.exists():
             result = runner.invoke(cli, ["parse", str(fixture_path)])
-            
+
             assert result.exit_code == 0
 
     def test_error_exit_code_nonexistent_role(self, tmp_path):
@@ -286,11 +268,11 @@ class TestExitCodes:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         non_existent = tmp_path / "does_not_exist"
-        
+
         result = runner.invoke(cli, ["parse", str(non_existent)])
-        
+
         assert result.exit_code != 0
 
     def test_validation_error_exit_code(self, tmp_path):
@@ -298,15 +280,13 @@ class TestExitCodes:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Invalid role
         role_path = tmp_path / "invalid_role"
         role_path.mkdir()
-        
-        result = runner.invoke(
-            cli, ["parse", str(role_path), "--validate"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(role_path), "--validate"])
+
         # Should return non-zero for validation failure
         if result.exit_code != 0:
             assert result.exit_code in [1, 2]  # Error or validation failure
@@ -320,21 +300,19 @@ class TestRecursiveMode:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         # Create multiple roles
         roles_dir = tmp_path / "roles"
         roles_dir.mkdir()
-        
+
         for i in range(3):
             role_path = roles_dir / f"role{i}"
             role_path.mkdir()
             (role_path / "defaults").mkdir()
             (role_path / "defaults" / "main.yml").write_text(f"var{i}: {i}")
-        
-        result = runner.invoke(
-            cli, ["parse", str(roles_dir), "--recursive"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(roles_dir), "--recursive"])
+
         if result.exit_code == 0:
             # Should have parsed multiple roles
             assert "role0" in result.output or len(result.output) > 100
@@ -344,25 +322,23 @@ class TestRecursiveMode:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
+
         roles_dir = tmp_path / "mixed"
         roles_dir.mkdir()
-        
+
         # Create a valid role
         role_path = roles_dir / "valid_role"
         role_path.mkdir()
         (role_path / "tasks").mkdir()
         (role_path / "tasks" / "main.yml").write_text("- name: test")
-        
+
         # Create a non-role directory
         non_role = roles_dir / "not_a_role"
         non_role.mkdir()
         (non_role / "random.txt").write_text("random")
-        
-        result = runner.invoke(
-            cli, ["parse", str(roles_dir), "--recursive"]
-        )
-        
+
+        result = runner.invoke(cli, ["parse", str(roles_dir), "--recursive"])
+
         # Should succeed (skip non-role)
         assert result.exit_code in [0, 1]
 
@@ -375,17 +351,16 @@ class TestJsonOutput:
         from click.testing import CliRunner
 
         runner = CliRunner()
-        
-        fixture_path = (
-            Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
-        )
-        
+
+        fixture_path = Path(__file__).parent.parent / "integration" / "fixtures" / "minimal_role"
+
         if fixture_path.exists():
             result = runner.invoke(cli, ["parse", str(fixture_path)])
-            
+
             if result.exit_code == 0:
                 import json
+
                 data = json.loads(result.output)
-                
+
                 # Should have expected top-level keys
                 assert "metadata" in data or "variables" in data or "name" in data

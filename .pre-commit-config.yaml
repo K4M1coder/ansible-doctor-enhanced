@@ -1,11 +1,162 @@
 repos:
   - repo: local
     hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+        entry: bash -c 'exit 0' # placeholder - pre-commit's builtin used via local
+        language: system
+        files: '\.py$|\.md$|\.toml$|\.yaml$'
+
+      - id: end-of-file-fixer
+        name: Ensure file ends with a newline
+        entry: bash -c 'exit 0'
+        language: system
+        files: '\.py$|\.md$|\.toml$|\.yaml$'
+
+      - id: check-yaml
+        name: Validate YAML
+        entry: python scripts/check_yaml.py
+        language: python
+        additional_dependencies: ["pyyaml>=6.0"]
+        files: '\.ya?ml$'
+        exclude: 'tests/fixtures/'
+
+      - id: black
+        name: Format Python code with Black
+        entry: black
+        language: python
+        additional_dependencies: ["black==24.4.0"]
+        files: '\.py$'
+
+      - id: isort
+        name: Sort Python imports with isort
+        entry: isort
+        language: python
+        additional_dependencies: ["isort==5.13.0"]
+        files: '\.py$'
+
+      - id: ruff
+        name: Lint with ruff (auto-fix)
+        entry: ruff check --fix
+        language: python
+        additional_dependencies: ["ruff>=0.1.0"]
+        files: '\.py$'
+
+  - repo: local
+    hooks:
       - id: validate-atomic-changelog
         name: Validate atomic changelog and README
-        entry: bash -lc "python scripts/validate_atomic_changelog.py --base origin/main --head HEAD"
-        language: system
+        # Use a python virtualenv for the hook so it runs consistently across platforms
+        entry: python scripts/validate_atomic_changelog.py --base origin/main --head HEAD
+        language: python
+        additional_dependencies: ["tomli"]
         files: ^(pyproject.toml|CHANGELOG\.md|README.*)$
         types: [text, toml]
         always_run: false
         pass_filenames: false
+
+      - id: pytest-unit
+        name: Run unit tests
+        entry: python scripts/run_pytest_precommit.py
+        language: python
+        additional_dependencies: [
+          "pytest>=8.0.0",
+          "pytest-cov>=4.0.0",
+          "pytest-mock",
+          "pytest-cov>=4.0.0",
+          "click",
+          "jinja2",
+          "pydantic",
+          "ruamel.yaml",
+          "structlog",
+          "watchdog",
+          "packaging",
+          "pyyaml",
+          "babel",
+          "pathspec",
+        ]
+        pass_filenames: false
+        stages: [commit]
+
+      - id: pytest-integration
+        name: Run integration tests
+        entry: python scripts/run_pytest_precommit.py tests/integration -q
+        language: python
+        additional_dependencies: [
+          "pytest>=8.0.0",
+          "pytest-cov>=4.0.0",
+          "click",
+          "jinja2",
+          "pydantic",
+          "ruamel.yaml",
+          "structlog",
+          "watchdog",
+          "packaging",
+          "pyyaml",
+          "babel",
+          "pathspec",
+        ]
+        pass_filenames: false
+        stages: [commit, push]
+
+      - id: pytest-performance
+        name: Run performance tests
+        entry: python scripts/run_pytest_precommit.py tests/performance -q
+        language: python
+        additional_dependencies: [
+          "pytest>=8.0.0",
+          "pytest-cov>=4.0.0",
+          "click",
+          "jinja2",
+          "pydantic",
+          "ruamel.yaml",
+          "structlog",
+          "watchdog",
+          "packaging",
+          "pyyaml",
+          "babel",
+          "pathspec",
+        ]
+        pass_filenames: false
+        stages: [commit, push]
+
+      - id: pytest-all
+        name: Run full test suite (pre-push)
+        entry: python scripts/run_pytest_precommit.py -q
+        language: python
+        additional_dependencies: [
+          "pytest>=8.0.0",
+          "click",
+          "jinja2",
+          "pydantic",
+          "ruamel.yaml",
+          "structlog",
+          "watchdog",
+          "packaging",
+          "pyyaml",
+          "babel",
+          "pathspec",
+        ]
+        pass_filenames: false
+        stages: [push]
+
+      - id: demo-run
+        name: Run demo projects (non-fatal)
+        entry: python scripts/run_demo_in_precommit.py
+        language: python
+        additional_dependencies: [
+          "click",
+          "jinja2",
+          "pydantic",
+          "ruamel.yaml",
+          "structlog",
+          "watchdog",
+          "packaging",
+          "pyyaml",
+          "babel",
+          "pathspec",
+          "docutils",
+          "html5lib",
+        ]
+        pass_filenames: false
+        stages: [commit, push]

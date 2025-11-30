@@ -1,14 +1,17 @@
 from pathlib import Path
+
 from ansibledoctor.generator.multi_language import MultiLanguageGenerator
+from ansibledoctor.models.project import CollectionInfo, Project, RoleInfo
 from ansibledoctor.translation.loader import TranslationLoader
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
 
 
 def make_project(tmp_path: Path) -> Project:
     proj_dir = tmp_path / "myproj"
     proj_dir.mkdir()
     roles = [RoleInfo(name="webserver", path=str(proj_dir / "roles" / "webserver"))]
-    collections = [CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))]
+    collections = [
+        CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))
+    ]
     return Project(name="My Project", path=str(proj_dir), roles=roles, collections=collections)
 
 

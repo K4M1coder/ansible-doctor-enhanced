@@ -1,8 +1,10 @@
 """Tests for generator data models."""
+
 from datetime import datetime
 from pathlib import Path
 
 import pytest
+
 from ansibledoctor import __version__
 from ansibledoctor.generator.models import RenderResult, TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
@@ -20,7 +22,7 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/path/to/role",
         )
-        
+
         assert result.content == "# Test\n\nContent"
         assert result.output_format == OutputFormat.MARKDOWN
         assert result.source_file == "/path/to/role"
@@ -35,24 +37,18 @@ class TestRenderResult:
             source_file="/path",
             template_name="custom.html.j2",
         )
-        
+
         assert result.template_name == "custom.html.j2"
 
     def test_render_result_file_extension(self):
         """Test file_extension property."""
-        result_md = RenderResult(
-            content="", output_format=OutputFormat.MARKDOWN, source_file="/"
-        )
+        result_md = RenderResult(content="", output_format=OutputFormat.MARKDOWN, source_file="/")
         assert result_md.file_extension == ".md"
-        
-        result_html = RenderResult(
-            content="", output_format=OutputFormat.HTML, source_file="/"
-        )
+
+        result_html = RenderResult(content="", output_format=OutputFormat.HTML, source_file="/")
         assert result_html.file_extension == ".html"
-        
-        result_rst = RenderResult(
-            content="", output_format=OutputFormat.RST, source_file="/"
-        )
+
+        result_rst = RenderResult(content="", output_format=OutputFormat.RST, source_file="/")
         assert result_rst.file_extension == ".rst"
 
     def test_render_result_size_bytes(self):
@@ -62,7 +58,7 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/",
         )
-        
+
         assert result.size_bytes == len("Hello World".encode("utf-8"))
 
     def test_render_result_size_bytes_unicode(self):
@@ -72,7 +68,7 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/",
         )
-        
+
         assert result.size_bytes == len("Hello 世界 🎉".encode("utf-8"))
         assert result.size_bytes > len("Hello 世界 🎉")  # UTF-8 is multi-byte
 
@@ -83,7 +79,7 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/",
         )
-        
+
         assert result.line_count == 3
 
     def test_render_result_line_count_empty(self):
@@ -93,7 +89,7 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/",
         )
-        
+
         assert result.line_count == 0
 
     def test_render_result_metadata(self):
@@ -105,7 +101,7 @@ class TestRenderResult:
             source_file="/",
             metadata=metadata,
         )
-        
+
         assert result.metadata == metadata
         assert result.metadata["author"] == "test"
 
@@ -117,9 +113,9 @@ class TestRenderResult:
             output_format=OutputFormat.MARKDOWN,
             source_file="/",
         )
-        
+
         result.save_to_file(str(output_file))
-        
+
         assert output_file.exists()
         assert output_file.read_text(encoding="utf-8") == "# Test\n\nContent"
 
@@ -130,35 +126,47 @@ class TestTemplateContext:
     @pytest.fixture
     def sample_role(self):
         """Create sample AnsibleRole for testing."""
-        from pathlib import Path
+
         from ansibledoctor.models.example import Example
         from ansibledoctor.models.tag import Tag
         from ansibledoctor.models.todo import TodoItem
         from ansibledoctor.models.variable import Variable, VariableType
-        
+
         metadata = RoleMetadata(
             description="A test role",
             author="Test Author",
         )
-        
+
         variables = [
-            Variable(name="var1", value="value1", type=VariableType.STRING, source="defaults", description="Variable 1"),
-            Variable(name="var2", value="value2", type=VariableType.STRING, source="defaults", description="Variable 2"),
+            Variable(
+                name="var1",
+                value="value1",
+                type=VariableType.STRING,
+                source="defaults",
+                description="Variable 1",
+            ),
+            Variable(
+                name="var2",
+                value="value2",
+                type=VariableType.STRING,
+                source="defaults",
+                description="Variable 2",
+            ),
         ]
-        
+
         tags = [
             Tag(name="install", description="Installation tasks"),
             Tag(name="configure", description="Configuration tasks"),
         ]
-        
+
         todos = [
             TodoItem(description="Fix bug", file_path="tasks/main.yml", line_number=10),
         ]
-        
+
         examples = [
             Example(title="Example 1", code="- hosts: all", description="Basic usage"),
         ]
-        
+
         return AnsibleRole(
             path=Path("C:/ansible/roles/test-role").resolve(),
             name="test-role",
@@ -176,7 +184,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.role == sample_role
         assert context.output_format == OutputFormat.MARKDOWN
         assert isinstance(context.generation_date, datetime)
@@ -189,7 +197,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.role_name == "test-role"
 
     def test_template_context_role_description(self, sample_role):
@@ -199,7 +207,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.role_description == "A test role"
 
     def test_template_context_has_variables(self, sample_role):
@@ -209,7 +217,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.has_variables is True
         assert context.variable_count == 2
 
@@ -220,7 +228,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.has_tags is True
         assert context.tag_count == 2
 
@@ -231,7 +239,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.has_todos is True
         assert context.todo_count == 1
 
@@ -242,7 +250,7 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         assert context.has_examples is True
         assert context.example_count == 1
 
@@ -254,14 +262,14 @@ class TestTemplateContext:
             generator_version=__version__,
         )
         assert context_md.format_name == "Markdown"
-        
+
         context_html = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.HTML,
             generator_version=__version__,
         )
         assert context_html.format_name == "HTML"
-        
+
         context_rst = TemplateContext(
             role=sample_role,
             output_format=OutputFormat.RST,
@@ -276,9 +284,9 @@ class TestTemplateContext:
             output_format=OutputFormat.MARKDOWN,
             generator_version=__version__,
         )
-        
+
         context_dict = context.to_dict()
-        
+
         assert isinstance(context_dict, dict)
         assert context_dict["role"] == sample_role
         assert context_dict["role_name"] == "test-role"
@@ -303,7 +311,7 @@ class TestTemplateContext:
             generator_version=__version__,
             custom_data=custom_data,
         )
-        
+
         assert context.custom_data == custom_data
         context_dict = context.to_dict()
         assert context_dict["custom_data"] == custom_data

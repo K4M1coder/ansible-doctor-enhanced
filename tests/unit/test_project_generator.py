@@ -1,13 +1,16 @@
 from pathlib import Path
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
+
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
+from ansibledoctor.models.project import CollectionInfo, Project, RoleInfo
 
 
 def make_project(tmp_path: Path) -> Project:
     proj_dir = tmp_path / "myproj"
     proj_dir.mkdir()
     roles = [RoleInfo(name="webserver", path=str(proj_dir / "roles" / "webserver"))]
-    collections = [CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))]
+    collections = [
+        CollectionInfo(name="my_collection", path=str(proj_dir / "collections" / "my_collection"))
+    ]
     return Project(name="My Project", path=str(proj_dir), roles=roles, collections=collections)
 
 
@@ -58,7 +61,9 @@ def test_generate_with_custom_template(tmp_path: Path):
     p = make_project(tmp_path)
     # create a simple Jinja2 template file
     tpl = tmp_path / "custom_template.j2"
-    tpl.write_text("Project: {{ project.name }} - roles: {% for r in roles %}{{ r.name }} {% endfor %}")
+    tpl.write_text(
+        "Project: {{ project.name }} - roles: {% for r in roles %}{{ r.name }} {% endfor %}"
+    )
     gen = ProjectDocumentationGenerator(p)
     output = gen.generate(format="markdown", template_path=str(tpl))
     assert output.exists()

@@ -3,8 +3,9 @@
 
 from ansible.plugins.inventory import BaseInventoryPlugin
 
+
 class InventoryModule(BaseInventoryPlugin):
-    NAME = 'test_inventory'
-    
+    NAME = "test_inventory"
+
     def parse(self, inventory, loader, path, cache=True):
         pass

@@ -1,93 +1,93 @@
 """Renderer implementations for different output formats."""
+
 import html
-import re
 from typing import Any, Dict, Optional
 
 from ansibledoctor.generator.engine import TemplateEngine
 from ansibledoctor.generator.loaders import FileSystemTemplateLoader
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
-from ansibledoctor.generator.protocols import DocumentRenderer
 
 
 class MarkdownRenderer:
     """Renderer for GitHub Flavored Markdown (GFM) format.
-    
+
     Implements rendering of role documentation to Markdown format using
     Jinja2 templates. Provides methods for escaping and code block formatting.
-    
+
     T217: Implementation to pass T216 tests.
-    
+
     Example:
         >>> renderer = MarkdownRenderer()
         >>> from ansibledoctor import __version__
         >>> context = TemplateContext(role=role, generator_version=__version__, ...)
         >>> markdown = renderer.render(context)
     """
-    
+
     format = OutputFormat.MARKDOWN
-    
+
     def __init__(self, template_path: Optional[str] = None):
         """Initialize Markdown renderer.
-        
+
         Args:
             template_path: Optional custom template path. If None, uses default.
         """
         self._template_path = template_path
         self._engine: Optional[TemplateEngine] = None
         self._loader: Optional[FileSystemTemplateLoader] = None
-    
+
     def _get_engine(self) -> TemplateEngine:
         """Get or create template engine instance (lazy initialization)."""
         if self._engine is None:
             self._engine = TemplateEngine.create()
         return self._engine
-    
+
     def _get_loader(self) -> FileSystemTemplateLoader:
         """Get or create template loader instance (lazy initialization)."""
         if self._loader is None:
             self._loader = FileSystemTemplateLoader()
         return self._loader
-    
+
     def render(self, context: TemplateContext) -> str:
         """Render role documentation to Markdown format.
-        
+
         Args:
             context: Template context containing role data and metadata
-            
+
         Returns:
             Rendered Markdown documentation
         """
         engine = self._get_engine()
-        
+
         # Determine template to use
         if self._template_path:
             # Custom template provided
             from pathlib import Path
+
             template_content = Path(self._template_path).read_text(encoding="utf-8")
             template = engine.environment.from_string(template_content)
         else:
             # Use default template
             template = engine.get_template("markdown/role.j2")
-        
+
         # Render template with context
         return template.render(**context.to_dict())
-    
+
     def escape(self, text: Optional[str]) -> str:
         """Escape special Markdown characters.
-        
+
         Escapes characters that have special meaning in Markdown:
         - Asterisk (*)
         - Underscore (_)
         - Brackets ([ ])
         - Backtick (`)
         - Hash (#)
-        
+
         Args:
             text: Text potentially containing special characters
-            
+
         Returns:
             Text with special characters escaped using backslash
-            
+
         Example:
             >>> renderer.escape("*bold* _italic_")
             '\\*bold\\* \\_italic\\_'
@@ -96,40 +96,40 @@ class MarkdownRenderer:
             return ""
         if not text:
             return text
-        
+
         # Characters that need escaping in Markdown
         special_chars = "*_[]`#"
-        
+
         # Escape each special character with backslash
         for char in special_chars:
             text = text.replace(char, f"\\{char}")
-        
+
         return text
 
     def code_block(self, code: str, language: str = "") -> str:
         """Format code block with optional syntax highlighting.
-        
+
         Uses GitHub Flavored Markdown fenced code blocks with triple backticks.
-        
+
         Args:
             code: Source code to format
             language: Programming language for syntax highlighting (e.g., 'python', 'yaml')
-            
+
         Returns:
             Formatted code block with language hint
-            
+
         Example:
             >>> renderer.code_block("x = 42", "python")
             '```python\\nx = 42\\n```'
         """
         return f"```{language}\n{code}\n```"
-    
+
     def validate_options(self, options: Dict[str, Any]) -> None:
         """Validate renderer options.
-        
+
         Args:
             options: Options dictionary to validate
-            
+
         Raises:
             TypeError: If gfm_mode is not a boolean
         """
@@ -138,17 +138,17 @@ class MarkdownRenderer:
 
     def heading(self, text: str, level: int = 1) -> str:
         """Generate Markdown heading.
-        
+
         Args:
             text: Heading text
             level: Heading level (1-6, where 1 is h1)
-            
+
         Returns:
             Markdown heading with appropriate number of # symbols
-            
+
         Raises:
             ValueError: If level is not between 1 and 6
-            
+
         Example:
             >>> renderer.heading("Title", level=1)
             '# Title'
@@ -157,20 +157,20 @@ class MarkdownRenderer:
         """
         if not 1 <= level <= 6:
             raise ValueError(f"Heading level must be between 1 and 6, got {level}")
-        
+
         return f"{'#' * level} {text}"
 
     def list_item(self, text: str, ordered: bool = False, number: int = 1) -> str:
         """Generate list item (ordered or unordered).
-        
+
         Args:
             text: Item text
             ordered: If True, create numbered list item; if False, bullet point
             number: Number for ordered list items (ignored for unordered)
-            
+
         Returns:
             Formatted list item
-            
+
         Example:
             >>> renderer.list_item("First item")
             '- First item'
@@ -183,15 +183,15 @@ class MarkdownRenderer:
 
     def link(self, text: str, url: str, title: str = "") -> str:
         """Generate Markdown link.
-        
+
         Args:
             text: Link text (visible to user)
             url: Link URL
             title: Optional title attribute (shown on hover)
-            
+
         Returns:
             Markdown link in format [text](url) or [text](url "title")
-            
+
         Example:
             >>> renderer.link("GitHub", "https://github.com")
             '[GitHub](https://github.com)'
@@ -204,13 +204,13 @@ class MarkdownRenderer:
 
     def bold(self, text: str) -> str:
         """Format text as bold.
-        
+
         Args:
             text: Text to make bold
-            
+
         Returns:
             Bold text wrapped in **
-            
+
         Example:
             >>> renderer.bold("Important")
             '**Important**'
@@ -219,13 +219,13 @@ class MarkdownRenderer:
 
     def italic(self, text: str) -> str:
         """Format text as italic.
-        
+
         Args:
             text: Text to make italic
-            
+
         Returns:
             Italic text wrapped in *
-            
+
         Example:
             >>> renderer.italic("Emphasized")
             '*Emphasized*'
@@ -234,13 +234,13 @@ class MarkdownRenderer:
 
     def inline_code(self, text: str) -> str:
         """Format text as inline code.
-        
+
         Args:
             text: Text to format as code
-            
+
         Returns:
             Inline code wrapped in backticks
-            
+
         Example:
             >>> renderer.inline_code("variable_name")
             '`variable_name`'
@@ -253,10 +253,10 @@ class MarkdownRenderer:
 
 class HtmlRenderer:
     """Renderer for HTML5 semantic format.
-    
+
     Implements the DocumentRenderer protocol to generate HTML5-formatted
     documentation with proper semantic markup and HTML entity escaping.
-    
+
     Example:
         >>> renderer = HtmlRenderer()
         >>> renderer.heading("My Role", level=1)
@@ -267,13 +267,13 @@ class HtmlRenderer:
 
     def render(self, content: str) -> str:
         """Render content in HTML format.
-        
+
         For HTML, rendering simply returns content as-is since HTML
         is already markup that doesn't require transformation.
-        
+
         Args:
             content: Raw HTML content to render
-            
+
         Returns:
             Content unchanged
         """
@@ -281,43 +281,43 @@ class HtmlRenderer:
 
     def escape(self, text: str) -> str:
         """Escape special HTML characters.
-        
+
         Escapes characters that have special meaning in HTML:
         - < (less than) → &lt;
         - > (greater than) → &gt;
         - & (ampersand) → &amp;
         - " (double quote) → &quot;
         - ' (single quote) → &#x27;
-        
+
         Args:
             text: Text potentially containing special HTML characters
-            
+
         Returns:
             Text with special characters escaped as HTML entities
-            
+
         Example:
             >>> renderer.escape("<tag>content & \"quotes\"")
             '&lt;tag&gt;content &amp; &quot;quotes&quot;'
         """
         if not text:
             return text
-        
+
         # Use html.escape for standard entities
         return html.escape(text, quote=True)
 
     def code_block(self, code: str, language: str = "") -> str:
         """Format code block with optional syntax highlighting class.
-        
+
         Uses HTML5 semantic markup with <pre><code> elements.
         Adds language class for syntax highlighting integration.
-        
+
         Args:
             code: Source code to format
             language: Programming language for syntax highlighting (e.g., 'python', 'yaml')
-            
+
         Returns:
             Formatted code block with proper HTML escaping
-            
+
         Example:
             >>> renderer.code_block("x = 42", "python")
             '<pre><code class="language-python">x = 42</code></pre>'
@@ -329,17 +329,17 @@ class HtmlRenderer:
 
     def heading(self, text: str, level: int = 1) -> str:
         """Generate HTML heading.
-        
+
         Args:
             text: Heading text (will be HTML-escaped)
             level: Heading level (1-6, where 1 is h1)
-            
+
         Returns:
             HTML heading element
-            
+
         Raises:
             ValueError: If level is not between 1 and 6
-            
+
         Example:
             >>> renderer.heading("Title", level=1)
             '<h1>Title</h1>'
@@ -348,24 +348,24 @@ class HtmlRenderer:
         """
         if not 1 <= level <= 6:
             raise ValueError(f"Heading level must be between 1 and 6, got {level}")
-        
+
         escaped_text = self.escape(text)
         return f"<h{level}>{escaped_text}</h{level}>"
 
     def list_item(self, text: str, ordered: bool = False, number: int = 1) -> str:
         """Generate list item.
-        
+
         Note: In HTML, list items are the same for ordered and unordered lists.
         The <ol> or <ul> parent element determines the style.
-        
+
         Args:
             text: Item text (will be HTML-escaped)
             ordered: Ignored (list type determined by parent element)
             number: Ignored (numbering handled by <ol> element)
-            
+
         Returns:
             HTML list item element
-            
+
         Example:
             >>> renderer.list_item("First item")
             '<li>First item</li>'
@@ -375,15 +375,15 @@ class HtmlRenderer:
 
     def link(self, text: str, url: str, title: str = "") -> str:
         """Generate HTML hyperlink.
-        
+
         Args:
             text: Link text (visible to user, will be HTML-escaped)
             url: Link URL (will be HTML-escaped)
             title: Optional title attribute (shown on hover)
-            
+
         Returns:
             HTML anchor element
-            
+
         Example:
             >>> renderer.link("GitHub", "https://github.com")
             '<a href="https://github.com">GitHub</a>'
@@ -392,7 +392,7 @@ class HtmlRenderer:
         """
         escaped_text = self.escape(text)
         escaped_url = self.escape(url)
-        
+
         if title:
             escaped_title = self.escape(title)
             return f'<a href="{escaped_url}" title="{escaped_title}">{escaped_text}</a>'
@@ -400,15 +400,15 @@ class HtmlRenderer:
 
     def bold(self, text: str) -> str:
         """Format text as bold.
-        
+
         Uses <strong> for semantic bold text.
-        
+
         Args:
             text: Text to make bold (will be HTML-escaped)
-            
+
         Returns:
             Bold text wrapped in <strong> element
-            
+
         Example:
             >>> renderer.bold("Important")
             '<strong>Important</strong>'
@@ -418,15 +418,15 @@ class HtmlRenderer:
 
     def italic(self, text: str) -> str:
         """Format text as italic.
-        
+
         Uses <em> for semantic emphasis.
-        
+
         Args:
             text: Text to make italic (will be HTML-escaped)
-            
+
         Returns:
             Italic text wrapped in <em> element
-            
+
         Example:
             >>> renderer.italic("Emphasized")
             '<em>Emphasized</em>'
@@ -436,13 +436,13 @@ class HtmlRenderer:
 
     def inline_code(self, text: str) -> str:
         """Format text as inline code.
-        
+
         Args:
             text: Text to format as code (will be HTML-escaped)
-            
+
         Returns:
             Inline code wrapped in <code> element
-            
+
         Example:
             >>> renderer.inline_code("variable_name")
             '<code>variable_name</code>'
@@ -452,13 +452,13 @@ class HtmlRenderer:
 
     def paragraph(self, text: str) -> str:
         """Format text as paragraph.
-        
+
         Args:
             text: Paragraph text (will be HTML-escaped)
-            
+
         Returns:
             Text wrapped in <p> element
-            
+
         Example:
             >>> renderer.paragraph("This is a paragraph.")
             '<p>This is a paragraph.</p>'
@@ -469,10 +469,10 @@ class HtmlRenderer:
 
 class RstRenderer:
     """Renderer for reStructuredText (RST) format.
-    
+
     Implements the DocumentRenderer protocol to generate RST-formatted
     documentation compatible with Sphinx and other RST processors.
-    
+
     Example:
         >>> renderer = RstRenderer()
         >>> renderer.heading("My Role", level=1)
@@ -487,19 +487,19 @@ class RstRenderer:
         2: "-",  # Subtitle
         3: "~",  # Section
         4: "^",  # Subsection
-        5: "\"", # Subsubsection
+        5: '"',  # Subsubsection
         6: "#",  # Paragraph
     }
 
     def render(self, content: str) -> str:
         """Render content in RST format.
-        
+
         For RST, rendering simply returns content as-is since RST
         is already a text format that doesn't require transformation.
-        
+
         Args:
             content: Raw RST content to render
-            
+
         Returns:
             Content unchanged
         """
@@ -507,49 +507,49 @@ class RstRenderer:
 
     def escape(self, text: str) -> str:
         """Escape special RST characters.
-        
+
         Escapes characters that have special meaning in RST:
         - Backslash (\\)
         - Asterisk (*)
         - Backtick (`)
         - Underscore (_) at end of word
         - Vertical bar (|)
-        
+
         Args:
             text: Text potentially containing special characters
-            
+
         Returns:
             Text with special characters escaped using backslash
-            
+
         Example:
             >>> renderer.escape("Text with *asterisks*")
             'Text with \\\\*asterisks\\\\*'
         """
         if not text:
             return text
-        
+
         # Escape backslashes first
         text = text.replace("\\", "\\\\")
-        
+
         # Escape other special RST characters
         special_chars = "*`_|"
         for char in special_chars:
             text = text.replace(char, f"\\{char}")
-        
+
         return text
 
     def code_block(self, code: str, language: str = "") -> str:
         """Format code block with optional syntax highlighting.
-        
+
         Uses RST code-block directive or literal block (::).
-        
+
         Args:
             code: Source code to format
             language: Programming language for syntax highlighting
-            
+
         Returns:
             Formatted RST code block
-            
+
         Example:
             >>> renderer.code_block("x = 42", "python")
             '.. code-block:: python\\n\\n    x = 42'
@@ -565,25 +565,25 @@ class RstRenderer:
 
     def heading(self, text: str, level: int = 1) -> str:
         """Generate RST heading with underline.
-        
+
         RST headings use underlines (and sometimes overlines) with specific characters:
         - Level 1: ======= (equals)
         - Level 2: ------- (hyphens)
         - Level 3: ~~~~~~~ (tildes)
         - Level 4: ^^^^^^^ (carets)
-        - Level 5: """"""" (double quotes)
+        - Level 5: \"\"\" (double quotes)
         - Level 6: ####### (hash)
-        
+
         Args:
             text: Heading text
             level: Heading level (1-6)
-            
+
         Returns:
             RST heading with appropriate underline
-            
+
         Raises:
             ValueError: If level is not between 1 and 6
-            
+
         Example:
             >>> renderer.heading("Title", level=1)
             'Title\\n====='
@@ -592,22 +592,22 @@ class RstRenderer:
         """
         if not 1 <= level <= 6:
             raise ValueError(f"Heading level must be between 1 and 6, got {level}")
-        
+
         char = self.HEADING_CHARS[level]
         underline = char * len(text)
         return f"{text}\n{underline}"
 
     def list_item(self, text: str, ordered: bool = False, number: int = 1) -> str:
         """Generate RST list item.
-        
+
         Args:
             text: Item text
             ordered: If True, create numbered list item; if False, bullet point
             number: Number for ordered list items
-            
+
         Returns:
             Formatted RST list item
-            
+
         Example:
             >>> renderer.list_item("First item")
             '- First item'
@@ -620,17 +620,17 @@ class RstRenderer:
 
     def link(self, text: str, url: str, title: str = "") -> str:
         """Generate RST hyperlink.
-        
+
         Note: RST doesn't support title attributes on links.
-        
+
         Args:
             text: Link text (visible to user)
             url: Link URL
             title: Ignored (RST doesn't support title attribute)
-            
+
         Returns:
             RST link in format `text <url>`_
-            
+
         Example:
             >>> renderer.link("GitHub", "https://github.com")
             '`GitHub <https://github.com>`_'
@@ -639,15 +639,15 @@ class RstRenderer:
 
     def bold(self, text: str) -> str:
         """Format text as bold.
-        
+
         Uses ** for bold text in RST.
-        
+
         Args:
             text: Text to make bold
-            
+
         Returns:
             Bold text wrapped in **
-            
+
         Example:
             >>> renderer.bold("Important")
             '**Important**'
@@ -656,15 +656,15 @@ class RstRenderer:
 
     def italic(self, text: str) -> str:
         """Format text as italic.
-        
+
         Uses * for italic text in RST.
-        
+
         Args:
             text: Text to make italic
-            
+
         Returns:
             Italic text wrapped in *
-            
+
         Example:
             >>> renderer.italic("Emphasized")
             '*Emphasized*'
@@ -673,19 +673,17 @@ class RstRenderer:
 
     def inline_code(self, text: str) -> str:
         """Format text as inline code.
-        
+
         Uses double backticks for inline code in RST.
-        
+
         Args:
             text: Text to format as code
-            
+
         Returns:
             Inline code wrapped in double backticks
-            
+
         Example:
             >>> renderer.inline_code("variable_name")
             '``variable_name``'
         """
         return f"``{text}``"
-
-

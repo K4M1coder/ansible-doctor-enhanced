@@ -10,7 +10,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from ansibledoctor.models.tag import Tag
 from ansibledoctor.parser.protocols import YAMLLoader
 from ansibledoctor.parser.task_parser import TaskParser
 
@@ -276,7 +275,7 @@ class TestMultipleTaskFiles:
         ]
 
         role_path = Path("/fake/role")
-        tags = task_parser.parse_tasks(role_path)
+        _ = task_parser.parse_tasks(role_path)
 
         # Should have called load_file with tasks/main.yml
         yaml_loader.load_file.assert_called()

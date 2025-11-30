@@ -4,8 +4,6 @@ Tests for project configuration and quality gates.
 Following Constitution Article III (TDD): Tests ensuring quality standards.
 """
 
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -38,14 +36,14 @@ class TestProjectStructure:
     def test_required_config_files(self):
         """Test that required configuration files exist."""
         project_root = Path(__file__).parent.parent.parent
-        
+
         required_files = [
             "pyproject.toml",
             "README.md",
             "CHANGELOG.md",
             ".gitignore",
         ]
-        
+
         for file_name in required_files:
             assert (project_root / file_name).exists(), f"Missing {file_name}"
 
@@ -64,7 +62,7 @@ class TestConstitutionCompliance:
         project_root = Path(__file__).parent.parent.parent
         specs_dir = project_root / "specs"
         assert specs_dir.exists()
-        
+
         # Feature 001 should exist
         feature_001 = specs_dir / "001-ansible-role-parser"
         assert feature_001.exists()
@@ -80,11 +78,11 @@ class TestCodeQuality:
         """Test that all Python modules have docstrings."""
         project_root = Path(__file__).parent.parent.parent
         package_dir = project_root / "ansibledoctor"
-        
+
         for py_file in package_dir.rglob("*.py"):
             if py_file.name == "__init__.py" and py_file.stat().st_size < 100:
                 continue  # Skip small __init__.py files
-            
+
             content = py_file.read_text(encoding="utf-8")
             # Should have docstring at the top
             lines = [line for line in content.split("\n") if line.strip()]
@@ -92,19 +90,19 @@ class TestCodeQuality:
                 # First non-comment line should be docstring
                 for line in lines:
                     if not line.startswith("#"):
-                        assert '"""' in line or "'''" in line, (
-                            f"Module {py_file.name} missing docstring"
-                        )
+                        assert (
+                            '"""' in line or "'''" in line
+                        ), f"Module {py_file.name} missing docstring"
                         break
 
     def test_no_bare_except_clauses(self):
         """Test that code doesn't use bare except clauses."""
         project_root = Path(__file__).parent.parent.parent
         package_dir = project_root / "ansibledoctor"
-        
+
         for py_file in package_dir.rglob("*.py"):
             content = py_file.read_text(encoding="utf-8")
-            
+
             # Check for bare except (allowing except Exception)
             lines = content.split("\n")
             for i, line in enumerate(lines, 1):
@@ -124,10 +122,10 @@ class TestImportCompliance:
         """Test that code doesn't use star imports."""
         project_root = Path(__file__).parent.parent.parent
         package_dir = project_root / "ansibledoctor"
-        
+
         for py_file in package_dir.rglob("*.py"):
             content = py_file.read_text(encoding="utf-8")
-            
+
             lines = content.split("\n")
             for i, line in enumerate(lines, 1):
                 if "import *" in line and not line.strip().startswith("#"):
@@ -140,10 +138,10 @@ class TestImportCompliance:
         """Test that modules import from ansibledoctor package correctly."""
         project_root = Path(__file__).parent.parent.parent
         package_dir = project_root / "ansibledoctor"
-        
+
         for py_file in package_dir.rglob("*.py"):
             content = py_file.read_text(encoding="utf-8")
-            
+
             # Check for relative imports at package level
             if "from .." in content and py_file.name != "__init__.py":
                 # Relative imports should be from direct parent only
@@ -157,18 +155,18 @@ class TestVersioning:
         """Test that version is defined in __init__.py."""
         project_root = Path(__file__).parent.parent.parent
         init_file = project_root / "ansibledoctor" / "__init__.py"
-        
+
         content = init_file.read_text(encoding="utf-8")
         assert "__version__" in content
 
     def test_version_format(self):
         """Test that version follows semantic versioning."""
         from ansibledoctor import __version__
-        
+
         # Should match X.Y.Z or X.Y.Z-prerelease format
         parts = __version__.split("-")[0].split(".")
         assert len(parts) == 3, "Version should be MAJOR.MINOR.PATCH"
-        
+
         for part in parts:
             assert part.isdigit(), f"Version part '{part}' should be numeric"
 
@@ -180,9 +178,9 @@ class TestDocumentation:
         """Test that README has required sections per Constitution Article IX."""
         project_root = Path(__file__).parent.parent.parent
         readme = project_root / "README.md"
-        
+
         content = readme.read_text(encoding="utf-8")
-        
+
         required_sections = [
             "# Ansible Doctor Enhanced",
             "## 🎯 Project Description",
@@ -193,7 +191,7 @@ class TestDocumentation:
             "## 🤝 Contributing",
             "## 📄 License",
         ]
-        
+
         for section in required_sections:
             assert section in content, f"README missing section: {section}"
 
@@ -201,9 +199,9 @@ class TestDocumentation:
         """Test that CHANGELOG follows Keep a Changelog format."""
         project_root = Path(__file__).parent.parent.parent
         changelog = project_root / "CHANGELOG.md"
-        
+
         content = changelog.read_text(encoding="utf-8")
-        
+
         # Should have standard sections
         assert "## [Unreleased]" in content
         assert "### Added" in content
@@ -217,16 +215,16 @@ class TestEntryPoints:
         """Test that CLI entry point is configured in pyproject.toml."""
         project_root = Path(__file__).parent.parent.parent
         pyproject = project_root / "pyproject.toml"
-        
+
         content = pyproject.read_text(encoding="utf-8")
-        
+
         assert "[tool.poetry.scripts]" in content
         assert "ansible-doctor-enhanced" in content
 
     def test_cli_module_exists(self):
         """Test that CLI module exists and has main function."""
         from ansibledoctor import cli
-        
+
         assert hasattr(cli, "main")
         assert callable(cli.main)
         assert hasattr(cli, "cli")

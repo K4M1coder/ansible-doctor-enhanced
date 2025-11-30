@@ -3,10 +3,13 @@
 This module provides `TranslationProvider`, the class responsible for looking
 up translation keys, formatting values, and handling minimal pluralization.
 """
+
 from __future__ import annotations
 
 from typing import Dict, Optional
+
 from ansibledoctor.utils.logging import get_logger
+
 try:
     # Babel is optional; if present, use it for plural rules
     from babel.core import Locale as BabelLocale

@@ -1,5 +1,7 @@
 """Tests for OutputFormat enum."""
+
 import pytest
+
 from ansibledoctor.generator.output_format import OutputFormat
 
 

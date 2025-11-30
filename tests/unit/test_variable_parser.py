@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from ansibledoctor.models.variable import Variable, VariableType
+from ansibledoctor.models.variable import VariableType
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.variable_parser import VariableParser
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
@@ -53,9 +53,9 @@ class TestVariableParsingBasic:
         RED: Test parsing simple defaults/main.yml file.
         """
         defaults_file = minimal_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) >= 3
         var_names = [v.name for v in variables]
         assert "minimal_role_port" in var_names
@@ -67,17 +67,17 @@ class TestVariableParsingBasic:
         RED: Test automatic type inference from variable values.
         """
         defaults_file = minimal_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # Port should be NUMBER
         port_var = next(v for v in variables if v.name == "minimal_role_port")
         assert port_var.type == VariableType.NUMBER
-        
+
         # Enabled should be BOOLEAN
         enabled_var = next(v for v in variables if v.name == "minimal_role_enabled")
         assert enabled_var.type == VariableType.BOOLEAN
-        
+
         # Name should be STRING
         name_var = next(v for v in variables if v.name == "minimal_role_name")
         assert name_var.type == VariableType.STRING
@@ -87,9 +87,9 @@ class TestVariableParsingBasic:
         RED: Test parsing variable with @var annotation.
         """
         defaults_file = minimal_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # All variables in minimal_role have @var annotations
         port_var = next(v for v in variables if v.name == "minimal_role_port")
         assert port_var.description is not None
@@ -100,9 +100,9 @@ class TestVariableParsingBasic:
         RED: Test that variables track their source file.
         """
         defaults_file = minimal_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) > 0
         for var in variables:
             assert var.source == "defaults"
@@ -114,13 +114,15 @@ class TestVariableParsingBasic:
         vars_dir = tmp_path / "vars"
         vars_dir.mkdir()
         vars_file = vars_dir / "main.yml"
-        vars_file.write_text("""
+        vars_file.write_text(
+            """
 # @var internal_port: Internal service port
 internal_port: 9000
-""")
-        
+"""
+        )
+
         variables = variable_parser.parse_variables_file(vars_file)
-        
+
         assert len(variables) == 1
         assert variables[0].name == "internal_port"
         assert variables[0].source == "vars"
@@ -134,9 +136,9 @@ class TestVariableParsingComplex:
         RED: Test parsing nested dictionary variable.
         """
         defaults_file = complex_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # complex_role has nested database_config
         db_var = next((v for v in variables if v.name == "complex_role_database"), None)
         if db_var:
@@ -148,9 +150,9 @@ class TestVariableParsingComplex:
         RED: Test parsing list variable.
         """
         defaults_file = complex_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # complex_role has list variables
         list_vars = [v for v in variables if v.type == VariableType.LIST]
         assert len(list_vars) > 0
@@ -160,9 +162,9 @@ class TestVariableParsingComplex:
         RED: Test parsing variable with multiline annotation.
         """
         defaults_file = complex_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # complex_role has multiline annotations
         for var in variables:
             if var.description and len(var.description) > 50:
@@ -175,9 +177,9 @@ class TestVariableParsingComplex:
         RED: Test parsing variable with JSON-formatted annotation.
         """
         defaults_file = complex_role_path / "defaults" / "main.yml"
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         # complex_role has JSON annotations with required/example fields
         for var in variables:
             if var.required is not None:
@@ -191,13 +193,15 @@ class TestVariableParsingComplex:
         """
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
-        defaults_file.write_text("""
+        defaults_file.write_text(
+            """
 # @var timeout: {"description": "Request timeout", "example": 30}
 timeout: 10
-""")
-        
+"""
+        )
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) == 1
         assert variables[0].example is not None
 
@@ -212,9 +216,9 @@ class TestVariableParsingEdgeCases:
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
         defaults_file.write_text("")
-        
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert variables == []
 
     def test_defaults_without_annotations(self, variable_parser, tmp_path):
@@ -223,13 +227,15 @@ class TestVariableParsingEdgeCases:
         """
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
-        defaults_file.write_text("""
+        defaults_file.write_text(
+            """
 web_port: 80
 web_host: localhost
-""")
-        
+"""
+        )
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) == 2
         # Variables should still be parsed, just without descriptions
         assert variables[0].description is None
@@ -241,13 +247,15 @@ web_host: localhost
         """
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
-        defaults_file.write_text("""
+        defaults_file.write_text(
+            """
 # @var optional_feature: Optional feature flag
 optional_feature: null
-""")
-        
+"""
+        )
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) == 1
         assert variables[0].type == VariableType.NULL
 
@@ -256,10 +264,10 @@ optional_feature: null
         RED: Test graceful handling when defaults file doesn't exist.
         """
         non_existent = tmp_path / "defaults" / "main.yml"
-        
+
         # Should return empty list, not crash
         variables = variable_parser.parse_variables_file(non_existent)
-        
+
         assert variables == []
 
     def test_malformed_yaml_handling(self, variable_parser, tmp_path):
@@ -268,14 +276,16 @@ optional_feature: null
         """
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
-        defaults_file.write_text("""
+        defaults_file.write_text(
+            """
 web_port: 80
   invalid: indentation
-""")
-        
+"""
+        )
+
         # Should handle gracefully (log error and return empty or partial)
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert isinstance(variables, list)
 
 
@@ -287,7 +297,7 @@ class TestRoleVariableParsing:
         RED: Test parsing all variables from a role (defaults + vars).
         """
         variables = variable_parser.parse_role_variables(minimal_role_path)
-        
+
         assert len(variables) >= 3
         # All should be from defaults or vars
         for var in variables:
@@ -298,19 +308,19 @@ class TestRoleVariableParsing:
         RED: Test parsing role with both defaults/ and vars/ directories.
         """
         role_path = tmp_path
-        
+
         # Create defaults
         defaults_dir = role_path / "defaults"
         defaults_dir.mkdir()
         (defaults_dir / "main.yml").write_text("default_var: 1")
-        
+
         # Create vars
         vars_dir = role_path / "vars"
         vars_dir.mkdir()
         (vars_dir / "main.yml").write_text("vars_var: 2")
-        
+
         variables = variable_parser.parse_role_variables(role_path)
-        
+
         assert len(variables) == 2
         sources = [v.source for v in variables]
         assert "defaults" in sources
@@ -321,7 +331,7 @@ class TestRoleVariableParsing:
         RED: Test parsing role with only defaults/ directory.
         """
         variables = variable_parser.parse_role_variables(minimal_role_path)
-        
+
         # minimal_role only has defaults
         assert all(v.source == "defaults" for v in variables)
 
@@ -331,13 +341,15 @@ class TestRoleVariableParsing:
         """
         defaults_file = tmp_path / "defaults" / "main.yml"
         defaults_file.parent.mkdir()
-        defaults_file.write_text("""
+        defaults_file.write_text(
+            """
 # @var old_var: {"description": "Old variable", "deprecated": true}
 old_var: legacy_value
-""")
-        
+"""
+        )
+
         variables = variable_parser.parse_variables_file(defaults_file)
-        
+
         assert len(variables) == 1
         assert variables[0].deprecated is True
         assert variables[0].is_deprecated()

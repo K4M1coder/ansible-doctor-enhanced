@@ -21,13 +21,13 @@ logger = get_logger(__name__)
 class MetadataParser:
     """
     Parser for Ansible role metadata files.
-    
+
     Responsibilities (DDD Domain Service):
     - Parse meta/main.yml galaxy_info section
     - Parse meta/argument_specs.yml (Ansible 2.11+)
     - Transform raw YAML into RoleMetadata value objects
     - Handle missing/malformed metadata gracefully
-    
+
     Following DDD principles:
     - Uses YAMLLoader protocol (Dependency Inversion)
     - Returns RoleMetadata aggregate
@@ -37,7 +37,7 @@ class MetadataParser:
     def __init__(self, yaml_loader: YAMLLoader):
         """
         Initialize metadata parser.
-        
+
         Args:
             yaml_loader: YAMLLoader implementation for reading YAML files
         """
@@ -47,15 +47,15 @@ class MetadataParser:
     def parse_metadata(self, meta_dir: Path) -> RoleMetadata:
         """
         Parse complete role metadata from meta directory.
-        
+
         This is the main entry point combining galaxy_info and argument_specs parsing.
-        
+
         Args:
             meta_dir: Path to role's meta/ directory
-            
+
         Returns:
             RoleMetadata: Parsed and validated metadata
-            
+
         Raises:
             ParsingError: If meta/main.yml cannot be parsed
         """
@@ -96,20 +96,20 @@ class MetadataParser:
     def parse_galaxy_info(self, meta_file: Path) -> RoleMetadata:
         """
         Parse galaxy_info section from meta/main.yml.
-        
+
         Extracts:
         - author, description, company, license
         - min_ansible_version
         - platforms (list of Platform value objects)
         - galaxy_tags
         - dependencies (list of Dependency value objects)
-        
+
         Args:
             meta_file: Path to meta/main.yml file
-            
+
         Returns:
             RoleMetadata: Parsed metadata with galaxy_info
-            
+
         Raises:
             ParsingError: If file doesn't exist or YAML is malformed
         """
@@ -175,13 +175,13 @@ class MetadataParser:
     def parse_argument_specs(self, specs_file: Path) -> dict[str, ArgumentSpec]:
         """
         Parse argument_specs.yml (Ansible 2.11+ feature).
-        
+
         argument_specs.yml defines role parameters similar to module arguments.
         This is an optional file, so missing file returns empty dict.
-        
+
         Args:
             specs_file: Path to meta/argument_specs.yml
-            
+
         Returns:
             dict[str, ArgumentSpec]: Argument specs by entry point name
         """
@@ -217,15 +217,15 @@ class MetadataParser:
     def _parse_platforms(self, platforms_raw: list[dict[str, Any]]) -> list[Platform]:
         """
         Parse platforms from galaxy_info.
-        
+
         Handles various formats:
         - versions as list: ["focal", "jammy"]
         - versions as string: "all"
         - missing versions field
-        
+
         Args:
             platforms_raw: Raw platforms list from galaxy_info
-            
+
         Returns:
             list[Platform]: Parsed Platform value objects
         """
@@ -259,15 +259,15 @@ class MetadataParser:
     def _parse_dependencies(self, dependencies_raw: list[Any]) -> list[Dependency]:
         """
         Parse role dependencies.
-        
+
         Handles two formats:
         1. String: "geerlingguy.nginx"
         2. Dict: {name: "geerlingguy.docker", version: ">=4.0.0"}
            or:   {role: "geerlingguy.php", version: "3.x"}
-        
+
         Args:
             dependencies_raw: Raw dependencies list from meta/main.yml
-            
+
         Returns:
             list[Dependency]: Parsed Dependency value objects
         """

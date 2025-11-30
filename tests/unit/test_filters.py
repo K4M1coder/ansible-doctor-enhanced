@@ -1,5 +1,5 @@
 """Tests for custom Jinja2 filters."""
-import pytest
+
 from ansibledoctor.generator.filters import (
     FILTERS,
     code_fence,
@@ -283,13 +283,13 @@ class TestFiltersRegistry:
             "html_attrs",
             "list_items",
         ]
-        
+
         for filter_name in expected_filters:
             assert filter_name in FILTERS
 
     def test_filters_registry_callable(self):
         """Test that all filters in registry are callable."""
-        for filter_name, filter_func in FILTERS.items():
+        for _filter_name, filter_func in FILTERS.items():
             assert callable(filter_func)
 
     def test_filters_registry_matches_functions(self):

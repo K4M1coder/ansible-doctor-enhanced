@@ -1,18 +1,28 @@
 import textwrap
 from pathlib import Path
-from ansibledoctor.parser.inventory_parser import parse_inventory_dir, parse_ini_inventory, parse_yaml_inventory
+
+from ansibledoctor.parser.inventory_parser import (
+    parse_ini_inventory,
+    parse_inventory_dir,
+    parse_yaml_inventory,
+)
 
 
 def test_parse_ini_inventory_group_parsing(tmp_path):
     inv_file = tmp_path / "hosts.ini"
-    inv_file.write_text(textwrap.dedent("""
+    inv_file.write_text(
+        textwrap.dedent(
+            """
     [webservers]
     host1 ansible_host=1.2.3.4
     host2
 
     [db]
     db1
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
 
     parsed = list(parse_ini_inventory(inv_file))
     names = {item.name for item in parsed}
@@ -26,7 +36,9 @@ def test_parse_ini_inventory_group_parsing(tmp_path):
 
 def test_parse_yaml_inventory_children_and_top_hosts(tmp_path):
     inv_file = tmp_path / "hosts.yml"
-    inv_file.write_text(textwrap.dedent("""
+    inv_file.write_text(
+        textwrap.dedent(
+            """
     all:
       children:
         webservers:
@@ -36,7 +48,10 @@ def test_parse_yaml_inventory_children_and_top_hosts(tmp_path):
             hostb: {}
       hosts:
         hosttop: {}
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
 
     parsed = list(parse_yaml_inventory(inv_file))
     names = {item.name for item in parsed}
@@ -51,17 +66,27 @@ def test_parse_inventory_dir_merges_groups_across_files(tmp_path):
     inv_dir = tmp_path / "inventory"
     inv_dir.mkdir()
     f1 = inv_dir / "hosts1.ini"
-    f1.write_text(textwrap.dedent("""
+    f1.write_text(
+        textwrap.dedent(
+            """
     [webservers]
     host1
     host2
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
     f2 = inv_dir / "hosts2.ini"
-    f2.write_text(textwrap.dedent("""
+    f2.write_text(
+        textwrap.dedent(
+            """
     [db]
     host1
     host3
-    """), encoding="utf-8")
+    """
+        ),
+        encoding="utf-8",
+    )
 
     parsed = list(parse_inventory_dir(Path(inv_dir)))
     names = {item.name for item in parsed}
@@ -81,41 +106,57 @@ def test_group_and_host_vars_parsing_and_precedence(tmp_path):
     # Inventory and host grouping
     inv = repo / "inventory"
     inv.mkdir()
-    (inv / "hosts.ini").write_text("""
+    (inv / "hosts.ini").write_text(
+        """
   [web]
   host1
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
     # group_vars -> all and web
     gdir = repo / "group_vars"
     gdir.mkdir()
-    (gdir / "all.yml").write_text("""
+    (gdir / "all.yml").write_text(
+        """
   global_setting: global
   db_password: group_secret
-  """, encoding="utf-8")
-    (gdir / "web.yml").write_text("""
+  """,
+        encoding="utf-8",
+    )
+    (gdir / "web.yml").write_text(
+        """
   db_password: web_secret
   role_only: webrole
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
     # host_vars
     hdir = repo / "host_vars"
     hdir.mkdir()
-    (hdir / "host1.yml").write_text("""
+    (hdir / "host1.yml").write_text(
+        """
   db_password: host_secret
   api_token: host_token
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
 
     # role defaults (simulate by creating a role with defaults/main.yml)
     roles = repo / "roles"
     roles.mkdir()
     r1 = roles / "webserver"
     (r1 / "defaults").mkdir(parents=True)
-    (r1 / "defaults" / "main.yml").write_text("""
+    (r1 / "defaults" / "main.yml").write_text(
+        """
   db_password: role_secret
   role_default: default
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
 
     # Parse project using ProjectParser.parse and verify effective vars
     from ansibledoctor.parser.project_parser import ProjectParser
+
     parser = ProjectParser(redact_sensitive=False)
     project = parser.parse(str(repo))
 
@@ -139,21 +180,31 @@ def test_project_parser_redacts_sensitive_by_default(tmp_path):
     (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
     inv = repo / "inventory"
     inv.mkdir()
-    (inv / "hosts.ini").write_text("""
+    (inv / "hosts.ini").write_text(
+        """
   [web]
   host1
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
     gdir = repo / "group_vars"
     gdir.mkdir()
-    (gdir / "all.yml").write_text("""
+    (gdir / "all.yml").write_text(
+        """
   db_password: group_secret
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
     hdir = repo / "host_vars"
     hdir.mkdir()
-    (hdir / "host1.yml").write_text("""
+    (hdir / "host1.yml").write_text(
+        """
   db_password: host_secret
-  """, encoding="utf-8")
+  """,
+        encoding="utf-8",
+    )
     from ansibledoctor.parser.project_parser import ProjectParser
+
     parser = ProjectParser()  # redact_sensitive default True
     project = parser.parse(str(repo))
     eff = project.effective_vars.get("host1")
@@ -165,25 +216,35 @@ def test_project_parser_respects_redaction_config(tmp_path):
     repo = tmp_path / "repo"
     repo.mkdir()
     (repo / "ansible.cfg").write_text("[defaults]\n", encoding="utf-8")
-    (repo / ".ansibledoctor.yml").write_text("""
+    (repo / ".ansibledoctor.yml").write_text(
+        """
 redaction:
   enabled: true
   patterns:
     - "secret"
   placeholder: "<MASKED>"
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     inv = repo / "inventory"
     inv.mkdir()
-    (inv / "hosts.ini").write_text("""
+    (inv / "hosts.ini").write_text(
+        """
 [web]
 host1
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     gdir = repo / "group_vars"
     gdir.mkdir()
-    (gdir / "all.yml").write_text("""
+    (gdir / "all.yml").write_text(
+        """
 db_secret: sensitive
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
     from ansibledoctor.parser.project_parser import ProjectParser
+
     parser = ProjectParser()
     project = parser.parse(str(repo))
     eff = project.effective_vars.get("host1")

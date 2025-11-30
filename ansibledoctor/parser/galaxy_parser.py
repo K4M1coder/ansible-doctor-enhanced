@@ -66,7 +66,7 @@ class GalaxyMetadataParser:
             suggestion=(
                 "Ensure this is a valid Ansible collection with a galaxy.yml file. "
                 "Try running 'ls -la' to check if the file exists in the collection root."
-            )
+            ),
         )
 
         # Load YAML (catches YAML syntax errors)
@@ -81,8 +81,8 @@ class GalaxyMetadataParser:
                     f"Run 'yamllint {galaxy_file}' to identify syntax errors",
                     "Ensure proper indentation (use spaces, not tabs)",
                     "Verify no special characters or encoding issues",
-                    "Check examples at https://galaxy.ansible.com/docs/contributing/creating_collections.html"
-                ]
+                    "Check examples at https://galaxy.ansible.com/docs/contributing/creating_collections.html",
+                ],
             ) from e
 
         # Validate required fields and construct model
@@ -92,7 +92,7 @@ class GalaxyMetadataParser:
                 raise ParsingError(
                     f"galaxy.yml must contain a dictionary, not {type(data).__name__}",
                     context={"file_path": str(galaxy_file), "data_type": type(data).__name__},
-                    suggestion="Ensure galaxy.yml contains key-value pairs, not a list or scalar value"
+                    suggestion="Ensure galaxy.yml contains key-value pairs, not a list or scalar value",
                 )
             metadata = GalaxyMetadata(**data)
 
@@ -111,10 +111,7 @@ class GalaxyMetadataParser:
 
             raise BaseValidator.create_actionable_error(
                 message=f"Invalid galaxy.yml: {error_details}",
-                context={
-                    "file_path": str(galaxy_file),
-                    "validation_errors": error_details
-                },
+                context={"file_path": str(galaxy_file), "validation_errors": error_details},
                 suggestion="Ensure galaxy.yml contains all required fields with valid formats",
                 troubleshooting_steps=[
                     "Required fields: namespace, name, version, authors, dependencies",
@@ -122,6 +119,6 @@ class GalaxyMetadataParser:
                     "version: semantic version format (e.g., '1.0.0')",
                     "authors: list of strings (e.g., ['Author Name <email@example.com>'])",
                     "dependencies: dictionary (e.g., {'community.general': '>=5.0.0'})",
-                    "See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html"
-                ]
+                    "See https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html",
+                ],
             ) from e

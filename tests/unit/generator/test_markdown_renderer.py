@@ -6,7 +6,6 @@ T216: MarkdownRenderer unit tests covering all methods and edge cases.
 
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -143,9 +142,9 @@ class TestMarkdownRendererWithMinimalData:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         assert "test-role" in result
         assert "Test Author" in result
         assert "Test role description" in result
@@ -160,9 +159,9 @@ class TestMarkdownRendererWithMinimalData:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Should mention no variables, not render empty section
         assert "## Variables" not in result or "No variables defined" in result.lower()
 
@@ -212,14 +211,14 @@ class TestMarkdownRendererWithCompleteData:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Check role name and metadata
         assert "complete-role" in result
         assert "Complete Author" in result
         assert "Complete role description" in result
-        
+
         # Check variables section exists (names are escaped in Markdown)
         assert "app_port" in result or "app\\_port" in result
         assert "app_debug" in result or "app\\_debug" in result
@@ -235,9 +234,9 @@ class TestMarkdownRendererWithCompleteData:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Check generation metadata appears
         assert "0.3.0" in result
 
@@ -271,9 +270,9 @@ class TestMarkdownRendererWithMissingFields:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Should not crash, should mention role name
         assert "no-examples-role" in result
         assert "Test Author" in result
@@ -289,7 +288,7 @@ class TestMarkdownRendererCustomTemplate:
         custom_template.write_text(
             "# {{ role.name }}\nCustom template by {{ role.metadata.author }}"
         )
-        
+
         role = AnsibleRole(
             name="custom-role",
             path=Path("E:/tmp/custom-role").resolve(),
@@ -303,7 +302,7 @@ class TestMarkdownRendererCustomTemplate:
             todos=[],
             examples=[],
         )
-        
+
         renderer = MarkdownRenderer(template_path=str(custom_template))
         context = TemplateContext(
             role=role,
@@ -311,9 +310,9 @@ class TestMarkdownRendererCustomTemplate:
             generation_date=datetime(2024, 1, 1, 12, 0, 0),
             output_format=OutputFormat.MARKDOWN,
         )
-        
+
         result = renderer.render(context)
-        
+
         assert "custom-role" in result
         assert "Custom template by Custom Author" in result
 
@@ -342,9 +341,9 @@ class TestMarkdownRendererThreadSafety:
     def test_concurrent_renders_dont_interfere(self):
         """Test multiple concurrent renders don't interfere with each other."""
         from concurrent.futures import ThreadPoolExecutor
-        
+
         renderer = MarkdownRenderer()
-        
+
         def render_role(name):
             role = AnsibleRole(
                 name=name,
@@ -366,11 +365,11 @@ class TestMarkdownRendererThreadSafety:
                 output_format=OutputFormat.MARKDOWN,
             )
             return renderer.render(context)
-        
+
         # Render 10 roles concurrently
         with ThreadPoolExecutor(max_workers=5) as executor:
             results = list(executor.map(render_role, [f"role{i}" for i in range(10)]))
-        
+
         # Each result should contain its own role name
         for i, result in enumerate(results):
             assert f"role{i}" in result

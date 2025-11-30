@@ -6,10 +6,10 @@ generation (Mermaid diagrams, node/edge lists).
 """
 
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict
 
+from ansibledoctor.models.project import Project
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
-from ansibledoctor.models.project import Playbook, Project
 
 
 class PlaybookAnalyzer:
@@ -28,7 +28,14 @@ class PlaybookAnalyzer:
     def analyze_playbook(self, playbook_name: str) -> Dict:
         """Return a dictionary representation including mermaid string"""
         # Accept either playbook base name (e.g. 'site') or filename 'site.yml'
-        pb = next((p for p in self.project.playbooks if p.name == playbook_name or Path(p.path).name == playbook_name), None)
+        pb = next(
+            (
+                p
+                for p in self.project.playbooks
+                if p.name == playbook_name or Path(p.path).name == playbook_name
+            ),
+            None,
+        )
         if pb is None:
             raise FileNotFoundError(f"Playbook not found: {playbook_name}")
 
@@ -55,7 +62,6 @@ class PlaybookAnalyzer:
             edges.append({"from": "project", "to": pid})
 
             # Collect tasks and roles in play
-            tasks_in_play = []
             if isinstance(play, dict):
                 inline_tasks = play.get("tasks", [])
                 if inline_tasks:
@@ -81,7 +87,9 @@ class PlaybookAnalyzer:
                     node_index += 1
 
                     # find role directory in project roles
-                    role_info = next((rr for rr in self.project.roles if rr.name == role_name), None)
+                    role_info = next(
+                        (rr for rr in self.project.roles if rr.name == role_name), None
+                    )
                     if role_info:
                         # Look for tasks/main.yml
                         tasks_file = Path(role_info.path) / "tasks" / "main.yml"
@@ -91,7 +99,11 @@ class PlaybookAnalyzer:
                             role_tasks = None
                         if isinstance(role_tasks, list):
                             for rt_idx, rtask in enumerate(role_tasks):
-                                rtask_name = rtask.get("name") if isinstance(rtask, dict) else f"role_task_{rt_idx}"
+                                rtask_name = (
+                                    rtask.get("name")
+                                    if isinstance(rtask, dict)
+                                    else f"role_task_{rt_idx}"
+                                )
                                 rtid = node_id("role_task", node_index)
                                 nodes.append({"id": rtid, "label": rtask_name, "type": "role_task"})
                                 edges.append({"from": rid, "to": rtid})

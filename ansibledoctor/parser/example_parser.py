@@ -34,7 +34,9 @@ class ExampleParser:
 
     # Regex patterns for different comment styles
     YAML_PYTHON_START = re.compile(r"^\s*#\s*@example(?::(\w+))?\s+(.+)$")
-    YAML_PYTHON_CODE = re.compile(r"^\s*#\s(.*)$")  # Capture everything after "# " including indentation
+    YAML_PYTHON_CODE = re.compile(
+        r"^\s*#\s(.*)$"
+    )  # Capture everything after "# " including indentation
     YAML_PYTHON_END = re.compile(r"^\s*#\s*@end\s*$")
 
     MARKDOWN_START = re.compile(r"<!--\s*@example(?::(\w+))?\s+(.+)\s*-->")
@@ -45,7 +47,15 @@ class ExampleParser:
     SCANNABLE_EXTENSIONS = {".yml", ".yaml", ".py", ".j2", ".jinja", ".jinja2", ".md"}
 
     # Directories to exclude from scanning
-    EXCLUDED_DIRS = {".git", "__pycache__", ".hypothesis", ".pytest_cache", "node_modules", "venv", ".venv"}
+    EXCLUDED_DIRS = {
+        ".git",
+        "__pycache__",
+        ".hypothesis",
+        ".pytest_cache",
+        "node_modules",
+        "venv",
+        ".venv",
+    }
 
     # Language mapping by file extension
     LANGUAGE_MAP = {
@@ -118,7 +128,12 @@ class ExampleParser:
 
                     example = Example(title=title, code=code, description=None, language=language)
                     examples.append(example)
-                    logger.debug("example_extracted", title=title, language=language, code_lines=len(code_lines))
+                    logger.debug(
+                        "example_extracted",
+                        title=title,
+                        language=language,
+                        code_lines=len(code_lines),
+                    )
             else:
                 i += 1
 
@@ -163,7 +178,11 @@ class ExampleParser:
                         if lines[i].strip().startswith("```"):
                             # Extract language from code fence
                             fence_match = re.match(r"```(\w+)?", lines[i].strip())
-                            fence_lang = fence_match.group(1) if fence_match and fence_match.group(1) else None
+                            fence_lang = (
+                                fence_match.group(1)
+                                if fence_match and fence_match.group(1)
+                                else None
+                            )
                             i += 1
 
                             # Collect code until closing ```
@@ -188,7 +207,10 @@ class ExampleParser:
                         language = explicit_lang or fence_lang or "markdown"
 
                         example = Example(
-                            title=title, code=code, description=description if description else None, language=language
+                            title=title,
+                            code=code,
+                            description=description if description else None,
+                            language=language,
                         )
                         examples.append(example)
                         logger.debug("markdown_example_extracted", title=title, language=language)
@@ -246,5 +268,7 @@ class ExampleParser:
         """
         logger.info("parsing_role_examples", role_path=str(role_path))
         examples = self.parse_directory(role_path)
-        logger.info("role_examples_extracted", role_path=str(role_path), example_count=len(examples))
+        logger.info(
+            "role_examples_extracted", role_path=str(role_path), example_count=len(examples)
+        )
         return examples

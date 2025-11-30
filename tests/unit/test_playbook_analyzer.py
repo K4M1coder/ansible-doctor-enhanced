@@ -1,6 +1,7 @@
 from pathlib import Path
-from ansibledoctor.parser.project_parser import ProjectParser
+
 from ansibledoctor.parser.playbook_analyzer import PlaybookAnalyzer
+from ansibledoctor.parser.project_parser import ProjectParser
 
 
 def test_playbook_analyzer_basic_inline_tasks(tmp_path: Path):
@@ -16,14 +17,17 @@ def test_playbook_analyzer_basic_inline_tasks(tmp_path: Path):
     playbooks_dir = project_dir / "playbooks"
     playbooks_dir.mkdir()
     pb = playbooks_dir / "site.yml"
-    pb.write_text("""
+    pb.write_text(
+        """
 - name: Site
   hosts: webservers
   tasks:
     - name: Ensure package
       apt:
         name: httpd
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
 
     parser = ProjectParser()
     project = parser.parse(str(project_dir))
@@ -42,20 +46,26 @@ def test_playbook_analyzer_expands_role_tasks(tmp_path: Path):
     web.mkdir(parents=True)
     tasks_dir = web / "tasks"
     tasks_dir.mkdir()
-    (tasks_dir / "main.yml").write_text("""
+    (tasks_dir / "main.yml").write_text(
+        """
 - name: role set up
   shell: echo hi
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
 
     playbooks_dir = project_dir / "playbooks"
     playbooks_dir.mkdir()
     pb = playbooks_dir / "site.yml"
-    pb.write_text("""
+    pb.write_text(
+        """
 - name: Site
   hosts: web
   roles:
     - webserver
-""", encoding="utf-8")
+""",
+        encoding="utf-8",
+    )
 
     parser = ProjectParser()
     project = parser.parse(str(project_dir))

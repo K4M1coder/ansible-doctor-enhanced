@@ -123,14 +123,12 @@ class CollectionParser:
             logger.debug(f"Discovered {total_plugins} plugins across {len(plugins)} types")
 
             # Build AnsibleCollection model
-            collection = AnsibleCollection(
-                metadata=metadata,
-                roles=roles,
-                plugins=plugins
-            )
+            collection = AnsibleCollection(metadata=metadata, roles=roles, plugins=plugins)
 
-            logger.info(f"Successfully parsed collection {metadata.fqcn} "
-                       f"({len(roles)} roles, {sum(len(p) for p in plugins.values())} plugins)")
+            logger.info(
+                f"Successfully parsed collection {metadata.fqcn} "
+                f"({len(roles)} roles, {sum(len(p) for p in plugins.values())} plugins)"
+            )
 
             return collection
 
@@ -145,7 +143,7 @@ class CollectionParser:
                 context={
                     "collection_path": str(collection_path),
                     "error_type": type(e).__name__,
-                    "error": str(e)
+                    "error": str(e),
                 },
                 suggestion="Check collection structure and file permissions",
                 troubleshooting_steps=[
@@ -153,8 +151,8 @@ class CollectionParser:
                     "Ensure you have read permissions for the collection directory",
                     "Check that roles/ and plugins/ directories are accessible",
                     "Run 'ansible-galaxy collection list' to see installed collections",
-                    f"Try: cd {collection_path} && ls -la"
-                ]
+                    f"Try: cd {collection_path} && ls -la",
+                ],
             ) from e
 
     def _validate_collection_path(self, collection_path: Path) -> None:
@@ -173,5 +171,5 @@ class CollectionParser:
                 "Ensure the path points to a valid Ansible collection directory. "
                 "Collections typically contain galaxy.yml, roles/, and/or plugins/ directories. "
                 "If the collection is not installed, run 'ansible-galaxy collection install <fqcn>'."
-            )
+            ),
         )

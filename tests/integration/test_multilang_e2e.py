@@ -3,11 +3,12 @@
 This test ensures that generating a sample project with a project-local
 translation file produces localized READMEs for `en`, `fr`, and `de`.
 """
+
 from pathlib import Path
 
 from ansibledoctor.generator.multi_language import MultiLanguageGenerator
+from ansibledoctor.models.project import CollectionInfo, Project, RoleInfo
 from ansibledoctor.translation.loader import TranslationLoader
-from ansibledoctor.models.project import Project, RoleInfo, CollectionInfo
 
 
 def make_project_with_files(tmp_path: Path, name: str = "myproj") -> Project:
@@ -18,7 +19,7 @@ def make_project_with_files(tmp_path: Path, name: str = "myproj") -> Project:
     roles_dir = proj_dir / "roles" / "webserver"
     roles_dir.mkdir(parents=True)
     (roles_dir / "tasks").mkdir()
-    (roles_dir / "tasks" / "main.yml").write_text("- name: do nothing\n  debug: msg=\"noop\"\n")
+    (roles_dir / "tasks" / "main.yml").write_text('- name: do nothing\n  debug: msg="noop"\n')
 
     collections_dir = proj_dir / "collections" / "my_collection"
     collections_dir.mkdir(parents=True)
@@ -28,13 +29,13 @@ def make_project_with_files(tmp_path: Path, name: str = "myproj") -> Project:
     translations_dir = proj_dir / ".ansibledoctor" / "translations"
     translations_dir.mkdir(parents=True)
     (translations_dir / "en.yml").write_text(
-        "project.title: \"My Project\"\nroles.header: \"Roles\"\n", encoding="utf-8"
+        'project.title: "My Project"\nroles.header: "Roles"\n', encoding="utf-8"
     )
     (translations_dir / "fr.yml").write_text(
-        "project.title: \"Mon Projet\"\nroles.header: \"Rôles\"\n", encoding="utf-8"
+        'project.title: "Mon Projet"\nroles.header: "Rôles"\n', encoding="utf-8"
     )
     (translations_dir / "de.yml").write_text(
-        "project.title: \"Mein Projekt\"\nroles.header: \"Rollen\"\n", encoding="utf-8"
+        'project.title: "Mein Projekt"\nroles.header: "Rollen"\n', encoding="utf-8"
     )
 
     roles = [RoleInfo(name="webserver", path=str(roles_dir))]
@@ -57,6 +58,12 @@ def test_multilang_e2e(tmp_path: Path):
     assert out_fr.exists()
     assert out_de.exists()
 
-    assert out_en.read_text(encoding="utf-8").startswith("# My Project"), out_en.read_text(encoding="utf-8")
-    assert out_fr.read_text(encoding="utf-8").startswith("# Mon Projet"), out_fr.read_text(encoding="utf-8")
-    assert out_de.read_text(encoding="utf-8").startswith("# Mein Projekt"), out_de.read_text(encoding="utf-8")
+    assert out_en.read_text(encoding="utf-8").startswith("# My Project"), out_en.read_text(
+        encoding="utf-8"
+    )
+    assert out_fr.read_text(encoding="utf-8").startswith("# Mon Projet"), out_fr.read_text(
+        encoding="utf-8"
+    )
+    assert out_de.read_text(encoding="utf-8").startswith("# Mein Projekt"), out_de.read_text(
+        encoding="utf-8"
+    )
