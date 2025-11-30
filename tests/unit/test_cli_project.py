@@ -169,7 +169,16 @@ def test_cli_generate_language_option_respects_translations(tmp_path: Path):
     trans_dir.mkdir(parents=True, exist_ok=True)
     fr_file = trans_dir / "fr.yml"
     fr_file.write_text(
-        "project.title: 'Mon Projet'\nroles.header: 'Rôles'\ncollections.header: 'Collections'\narchitecture.header: 'Architecture'",
+        """
+project:
+    title: 'Mon Projet'
+roles:
+    header: 'Rôles'
+collections:
+    header: 'Collections'
+architecture:
+    header: 'Architecture'
+""",
         encoding="utf-8",
     )
 

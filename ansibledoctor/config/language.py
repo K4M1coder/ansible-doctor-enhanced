@@ -36,6 +36,28 @@ class LanguageConfig(BaseModel):
         return v
 
 
+def detect_system_language() -> str | None:
+    """Return the system's default language code as an ISO 639-1 two-letter code.
+
+    Uses the locale module to derive the language code. Returns None if the
+    language cannot be determined or if it does not match the expected 2-letter code.
+    """
+    import locale
+
+    try:
+        loc = locale.getdefaultlocale()[0]
+        if not loc:
+            return None
+        # Extract 'en' from 'en_US' formats
+        code = loc.split(".")[0].split("_")[0]
+        code = code.lower()
+        if re.match(r"^[a-z]{2}$", code):
+            return code
+    except Exception:
+        return None
+    return None
+
+
 """(Pydantic v2) Language configuration models and validation.
 
 This module defines the `LanguageConfig` Pydantic model used to configure

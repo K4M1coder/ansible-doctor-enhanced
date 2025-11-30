@@ -1,4 +1,8 @@
-project.title: "Project"
-roles.header: "Roles"
-collections.header: "Collections"
-architecture.header: "Architecture"
+project:
+  title: "Project"
+roles:
+  header: "Roles"
+collections:
+  header: "Collections"
+architecture:
+  header: "Architecture"

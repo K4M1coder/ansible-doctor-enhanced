@@ -334,3 +334,16 @@ class TestConfigMerging:
         assert merged.recursive is True  # File (CLI default)
         assert merged.output_dir == "cli_output/"  # CLI override
         assert merged.exclude_patterns == ["file_*"]  # File (CLI default)
+
+    def test_merge_config_language_cli_overrides(self):
+        """Test merge_config() merges LanguageConfig correctly, with CLI taking precedence."""
+        from ansibledoctor.config.language import LanguageConfig
+
+        file_config = ConfigModel(languages=LanguageConfig(default="fr", enabled=["fr"]))
+        cli_config = ConfigModel(languages=LanguageConfig(default="en", enabled=["en"]))
+
+        merged = merge_config(file_config, cli_config)
+
+        assert merged.languages is not None
+        assert merged.languages.default == "en"
+        assert merged.languages.enabled == ["en"]

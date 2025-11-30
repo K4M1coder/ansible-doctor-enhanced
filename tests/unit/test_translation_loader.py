@@ -10,7 +10,15 @@ def test_translation_loader_package_and_project_override(tmp_path: Path):
     trans_dir = proj / ".ansibledoctor" / "translations"
     trans_dir.mkdir(parents=True)
     fr_file = trans_dir / "fr.yml"
-    fr_file.write_text("project.title: 'Mon Projet'\nroles.header: 'Rôles'", encoding="utf-8")
+    fr_file.write_text(
+        """
+project:
+    title: 'Mon Projet'
+roles:
+    header: 'Rôles'
+""",
+        encoding="utf-8",
+    )
 
     loader = TranslationLoader()
     provider = loader.load("fr", proj)

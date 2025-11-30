@@ -24,10 +24,22 @@ def make_project_with_custom_lang(tmp_path: Path, name: str = "myproj") -> Proje
     translations_dir = proj_dir / ".ansibledoctor" / "translations"
     translations_dir.mkdir(parents=True)
     # Only put 'roles.header' for custom language 'xx'
-    (translations_dir / "xx.yml").write_text('roles.header: "Rôles-XX"\n', encoding="utf-8")
+    (translations_dir / "xx.yml").write_text(
+        """
+roles:
+    header: "Rôles-XX"
+""",
+        encoding="utf-8",
+    )
     # Include an english title in project translation
     (translations_dir / "en.yml").write_text(
-        'project.title: "My Project"\nroles.header: "Roles"\n', encoding="utf-8"
+        """
+project:
+    title: "My Project"
+roles:
+    header: "Roles"
+""",
+        encoding="utf-8",
     )
 
     roles = [RoleInfo(name="webserver", path=str(roles_dir))]

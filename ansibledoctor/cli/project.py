@@ -10,6 +10,8 @@ from pathlib import Path
 
 import click
 
+from ansibledoctor.config.loader import find_config_file, load_config, merge_config
+from ansibledoctor.config.models import ConfigModel
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
 from ansibledoctor.parser.playbook_analyzer import PlaybookAnalyzer
 from ansibledoctor.parser.project_parser import ProjectParser
@@ -217,6 +219,21 @@ def generate(
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
         project = parser.parse(project_path)
+        # Load file config if present to check for language settings
+        config_path = find_config_file(Path(project_path))
+        file_config = load_config(config_path) if config_path else None
+        # Build CLI config and merge with file config for consistent precedence
+        cli_config = ConfigModel(
+            output=str(output_dir) if output_dir else None,
+            output_format=format,
+            template=str(template) if template else None,
+            output_dir=str(output_dir) if output_dir else None,
+        )
+        merged_config = merge_config(file_config, cli_config)
+        # Apply merged values where CLI didn't specify explicit overrides
+        format = merged_config.output_format or format
+        if merged_config.output_dir and not output_dir:
+            out_dir_path = Path(merged_config.output_dir)
         # Create translation provider if language specified
         from ansibledoctor.translation.loader import TranslationLoader
 
@@ -228,12 +245,41 @@ def generate(
                 out_dir_path = Path(project_path) / out_dir_path
         else:
             out_dir_path = None
-        # Normalize languages: --languages takes precedence over --language
+        # Normalize languages: --languages takes precedence over --language; if none supplied, use config file
         langs_list = None
         if languages:
             langs_list = [lang.strip() for lang in languages.split(",") if lang.strip()]
         elif language:
             langs_list = [language]
+        else:
+            # Use config file languages if present
+            if file_config and file_config.languages:
+                if file_config.languages.enabled:
+                    # Copy enabled languages list for mutability and safety
+                    langs_list = list(file_config.languages.enabled)
+                elif file_config.languages.default:
+                    langs_list = [file_config.languages.default]
+
+        # System locale detection: when enabled, ensure system language is considered
+        if file_config and file_config.languages and file_config.languages.detect_system:
+            try:
+                from ansibledoctor.config.language import detect_system_language
+
+                sys_lang = detect_system_language()
+                if sys_lang:
+                    if langs_list is None:
+                        # If nothing else selected, attempt to enable system language
+                        provider = loader.load(sys_lang, Path(project_path))
+                        if provider and provider._translations:
+                            langs_list = [sys_lang]
+                    elif sys_lang not in langs_list:
+                        # If set of languages provided, append system language if translations exist
+                        provider = loader.load(sys_lang, Path(project_path))
+                        if provider and provider._translations:
+                            langs_list.append(sys_lang)
+            except Exception:
+                # Non-fatal: detection best-effort only
+                pass
 
         # If multiple languages specified, generate per language under docs/lang/{code}/
         if langs_list and len(langs_list) > 1:

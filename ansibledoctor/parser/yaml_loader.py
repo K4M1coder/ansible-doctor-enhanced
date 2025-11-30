@@ -53,8 +53,12 @@ class RuamelYAMLLoader:
 
         try:
             logger.debug("loading_yaml_file", file_path=str(file_path))
+            # Create a new YAML parser per call to maintain thread-safety.
+            yaml = YAML()
+            yaml.preserve_quotes = True
+            yaml.default_flow_style = False
             with open(file_path, "r", encoding="utf-8") as f:
-                data = self.yaml.load(f)
+                data = yaml.load(f)
 
             # Handle empty files
             if data is None:
@@ -107,8 +111,12 @@ class RuamelYAMLLoader:
             logger.debug("loading_yaml_with_comments", file_path=str(file_path))
 
             # Load parsed data
+            # Create a fresh YAML instance for thread-safe parsing
+            yaml = YAML()
+            yaml.preserve_quotes = True
+            yaml.default_flow_style = False
             with open(file_path, "r", encoding="utf-8") as f:
-                data = self.yaml.load(f)
+                data = yaml.load(f)
 
             # Extract comments from raw file
             with open(file_path, "r", encoding="utf-8") as f:
@@ -153,6 +161,9 @@ class RuamelYAMLLoader:
         """
         from io import StringIO
 
+        yaml = YAML()
+        yaml.preserve_quotes = True
+        yaml.default_flow_style = False
         stream = StringIO()
-        self.yaml.dump(data, stream)
+        yaml.dump(data, stream)
         return stream.getvalue()

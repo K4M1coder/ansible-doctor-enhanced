@@ -8,6 +8,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
+from ansibledoctor.config.language import LanguageConfig
+
 
 class ConfigModel(BaseModel):
     """Configuration model for .ansibledoctor.yml files.
@@ -52,6 +54,10 @@ class ConfigModel(BaseModel):
     exclude_patterns: list[str] = Field(
         default_factory=lambda: ["*.pyc", "__pycache__", ".git"],
         description="Glob patterns to exclude from processing",
+    )
+
+    languages: Optional[LanguageConfig] = Field(
+        default=None, description="Language configuration for i18n"
     )
 
     @field_validator("output_format")

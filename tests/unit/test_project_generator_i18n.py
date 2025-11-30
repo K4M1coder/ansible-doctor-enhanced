@@ -27,10 +27,14 @@ def test_generate_markdown_with_translations(tmp_path: Path):
     fr_file = trans_dir / "fr.yml"
     fr_file.write_text(
         """
-project.title: "Mon Projet"
-roles.header: "Rôles"
-collections.header: "Collections"
-architecture.header: "Architecture"
+project:
+    title: "Mon Projet"
+roles:
+    header: "Rôles"
+collections:
+    header: "Collections"
+architecture:
+    header: "Architecture"
 """,
         encoding="utf-8",
     )
@@ -55,9 +59,12 @@ def test_generate_markdown_with_language_fallback(tmp_path: Path):
     fr_file = trans_dir / "fr.yml"
     fr_file.write_text(
         """
-project.title: "Mon Projet"
-collections.header: "Collections"
-architecture.header: "Architecture"
+project:
+    title: "Mon Projet"
+collections:
+    header: "Collections"
+architecture:
+    header: "Architecture"
 """,
         encoding="utf-8",
     )
