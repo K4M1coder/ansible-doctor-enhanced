@@ -1,0 +1,190 @@
+{# role.modern.html.j2 - Modern variant template for HTML output #}
+{# Feature 008 - Template Customization & Theming #}
+{# T350: Demo template for modern variant #}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ role.name | default('Role') }} | Docs</title>
+    {{ css_tags | join('\n') | safe }}
+    <style>
+    /* Modern variant enhancements */
+    .ad-modern {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: var(--ad-spacing-xl);
+    }
+    .ad-hero {
+        background: linear-gradient(135deg, var(--ad-color-primary), var(--ad-color-primary-dark));
+        color: white;
+        padding: var(--ad-spacing-xl);
+        border-radius: var(--ad-radius-lg);
+        margin-bottom: var(--ad-spacing-xl);
+    }
+    .ad-hero h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    .ad-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--ad-color-bg-secondary);
+        border-radius: var(--ad-radius-md);
+        font-size: 0.875rem;
+        margin-right: var(--ad-spacing-sm);
+    }
+    .ad-card {
+        background: var(--ad-color-bg);
+        border: 1px solid var(--ad-color-border);
+        border-radius: var(--ad-radius-lg);
+        padding: var(--ad-spacing-lg);
+        margin-bottom: var(--ad-spacing-lg);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .ad-card h2 {
+        margin-top: 0;
+        color: var(--ad-color-primary);
+    }
+    .ad-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--ad-spacing-lg);
+    }
+    .ad-var-card {
+        background: var(--ad-color-bg-tertiary);
+        border-radius: var(--ad-radius-md);
+        padding: var(--ad-spacing-md);
+    }
+    .ad-var-name {
+        font-family: var(--ad-font-family-mono);
+        font-weight: 600;
+        color: var(--ad-color-primary);
+    }
+    .ad-timeline {
+        position: relative;
+        padding-left: var(--ad-spacing-xl);
+    }
+    .ad-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--ad-color-border);
+    }
+    .ad-timeline-item {
+        position: relative;
+        padding-bottom: var(--ad-spacing-lg);
+    }
+    .ad-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: calc(-1 * var(--ad-spacing-xl) - 4px);
+        top: 0.25rem;
+        width: 10px;
+        height: 10px;
+        background: var(--ad-color-primary);
+        border-radius: 50%;
+    }
+    </style>
+</head>
+<body>
+    <div class="ad-modern">
+        {# Hero Section #}
+        <header class="ad-hero">
+            <h1>{{ role.name | default('Role') }}</h1>
+            {% if role.description %}
+            <p>{{ role.description }}</p>
+            {% endif %}
+            <div class="ad-badges">
+                {% if role.author %}
+                <span class="ad-badge">👤 {{ role.author }}</span>
+                {% endif %}
+                {% if role.license %}
+                <span class="ad-badge">📜 {{ role.license }}</span>
+                {% endif %}
+                {% if role.min_ansible_version %}
+                <span class="ad-badge">🔧 Ansible {{ role.min_ansible_version }}+</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <main>
+            {# Quick Start Card #}
+            {% if examples %}
+            <section class="ad-card">
+                <h2>🚀 {{ t('quick_start') | default('Quick Start') }}</h2>
+                <pre><code class="language-yaml">{{ examples[0].content }}</code></pre>
+            </section>
+            {% endif %}
+
+            {# Variables Card #}
+            {% if variables %}
+            <section class="ad-card">
+                <h2>⚙️ {{ t('variables') | default('Variables') }}</h2>
+                <div class="ad-grid">
+                {% for var in variables %}
+                    <div class="ad-var-card">
+                        <div class="ad-var-name">{{ var.name }}</div>
+                        <div class="ad-var-type">{{ var.type | default('any') }}</div>
+                        {% if var.default %}
+                        <div class="ad-var-default">Default: <code>{{ var.default }}</code></div>
+                        {% endif %}
+                        {% if var.description %}
+                        <p class="ad-var-desc">{{ var.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# Tasks Timeline #}
+            {% if tasks %}
+            <section class="ad-card">
+                <h2>📋 {{ t('tasks') | default('Tasks') }}</h2>
+                <div class="ad-timeline">
+                {% for task in tasks %}
+                    <div class="ad-timeline-item">
+                        <strong>{{ task.name | default(task.action) }}</strong>
+                        {% if task.description %}
+                        <p>{{ task.description }}</p>
+                        {% endif %}
+                        {% if task.tags %}
+                        <div>
+                        {% for tag in task.tags %}
+                            <span class="ad-badge">{{ tag }}</span>
+                        {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            {# Dependencies Card #}
+            {% if dependencies %}
+            <section class="ad-card">
+                <h2>🔗 {{ t('dependencies') | default('Dependencies') }}</h2>
+                <ul class="ad-list">
+                {% for dep in dependencies %}
+                    <li>{{ dep.role | default(dep) }}</li>
+                {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        </main>
+
+        <footer class="ad-footer" style="text-align: center; margin-top: var(--ad-spacing-xl); color: var(--ad-color-text-muted);">
+            <p>Built with ❤️ by <a href="https://github.com/ansible-doctor-enhanced">ansible-doctor-enhanced</a></p>
+        </footer>
+    </div>
+    
+    {% if theme_toggle %}
+    {{ theme_toggle | safe }}
+    {% endif %}
+</body>
+</html>

@@ -926,6 +926,159 @@ Outstanding tasks for this role:
 
 This template produces professional, emoji-enhanced Markdown documentation with tables, collapsible sections, and comprehensive metadata display.
 
+## Theming and Customization
+
+ansible-doctor-enhanced supports comprehensive theming for HTML output, including template variants, CSS customization, and dark mode toggle.
+
+### Template Variants
+
+Three built-in variants control the level of detail:
+
+| Variant | Description | Use Case |
+|---------|-------------|----------|
+| `minimal` | Compact output with essential info | Quick reference, embedding |
+| `detailed` | Full documentation with all sections | Comprehensive docs (default) |
+| `modern` | Contemporary styling with cards | User-facing portfolios |
+
+**CLI Usage:**
+
+```bash
+# Use minimal variant
+ansible-doctor role ./my-role --variant minimal --format html
+
+# Use modern variant
+ansible-doctor role ./my-role --variant modern --format html
+```
+
+**Configuration File:**
+
+```yaml
+# .ansibledoctor.yml
+theme:
+  variant: modern
+  color_scheme: auto
+```
+
+### CSS Customization
+
+Override default CSS using external URLs or inline styles:
+
+```bash
+# External CSS URL
+ansible-doctor role ./my-role --css-url https://cdn.example.com/theme.css
+
+# Inline CSS
+ansible-doctor role ./my-role --css-inline ":root { --ad-color-primary: #dc2626; }"
+```
+
+**CSS Cascade Order:**
+1. Base theme CSS (CSS variables)
+2. External CSS URL
+3. Inline CSS (highest priority)
+
+### CSS Variables
+
+Templates use CSS custom properties for easy customization:
+
+```css
+:root {
+  /* Colors */
+  --ad-color-primary: #2563eb;
+  --ad-color-bg: #ffffff;
+  --ad-color-text: #1e293b;
+  --ad-color-border: #e2e8f0;
+  
+  /* Typography */
+  --ad-font-family: system-ui, sans-serif;
+  --ad-line-height: 1.6;
+  
+  /* Spacing */
+  --ad-spacing-md: 1rem;
+  --ad-radius-md: 0.375rem;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] {
+  --ad-color-bg: #0f172a;
+  --ad-color-text: #f8fafc;
+}
+```
+
+### Dark Mode Toggle
+
+Add a theme toggle button for dark/light mode:
+
+```bash
+ansible-doctor role ./my-role --format html --theme-toggle
+```
+
+The toggle:
+- Respects `prefers-color-scheme` media query
+- Persists user preference to `localStorage`
+- Includes ARIA attributes for accessibility
+
+### Color Scheme Options
+
+```bash
+# Force light mode
+ansible-doctor role ./my-role --color-scheme light
+
+# Force dark mode  
+ansible-doctor role ./my-role --color-scheme dark
+
+# Auto (respects OS/browser preference)
+ansible-doctor role ./my-role --color-scheme auto
+```
+
+### Template Context Variables
+
+Theming templates receive these variables:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `css_tags` | `list[str]` | CSS tags for `<head>` |
+| `theme_toggle` | `str` | Theme toggle HTML/JS |
+| `theme_config` | `ThemeConfig` | Full theme configuration |
+
+**Example Template Usage:**
+
+```jinja2
+<head>
+    {{ css_tags | join('\n') | safe }}
+</head>
+<body>
+    <!-- Content -->
+    {% if theme_toggle %}
+    {{ theme_toggle | safe }}
+    {% endif %}
+</body>
+```
+
+### Custom Template Location
+
+Templates are discovered in this order:
+1. Role/collection `templates/` directory
+2. Project root `templates/` directory
+3. Built-in package templates
+
+To override, place your template at:
+```
+my-role/
+├── templates/
+│   └── role.custom.html.j2
+```
+
+### Demo Templates
+
+See `demo/templates/` for example implementations:
+- `role.minimal.html.j2` - Minimal variant
+- `role.detailed.html.j2` - Detailed variant
+- `role.modern.html.j2` - Modern variant with cards
+
+See `demo/css/` for CSS examples:
+- `sample-theme.css` - Complete custom theme
+- `inline-overrides.css` - Minimal overrides
+
 ## Resources
 
 - [Jinja2 Documentation](https://jinja.palletsprojects.com/)

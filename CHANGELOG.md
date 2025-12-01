@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-12-01
+
+### Added - Feature 008: Template Inheritance Validation
+
+- **NEW**: `get_parent_templates()` method - Extract parent template names from extends statements
+- **NEW**: `get_included_templates()` method - Extract included template names from include statements
+- **NEW**: `get_template_dependencies()` method - Get all template dependencies (extends, includes, imports)
+- **NEW**: `validate_inheritance()` method - Validate template inheritance chain with actionable errors
+  - Reports missing parent templates with search paths tried
+  - Reports missing includes with suggestions for fix
+  - Reports missing imports with helpful error messages
+  - Supports custom search paths for template resolution
+
+### Security - Feature 008: Template Sandboxing
+
+- **NEW**: `SecureSandboxedEnvironment` class - Extends Jinja2's SandboxedEnvironment with additional security restrictions
+  - Blocks access to dangerous dunder attributes (__class__, __mro__, __globals__, etc.)
+  - Restricts unsafe callable objects (eval, exec, compile, open, type)
+  - Prevents private attribute access (attributes starting with _)
+- **NEW**: `DANGEROUS_PATTERNS` list - Pattern-based detection for unsafe template constructs
+  - Detects __import__, eval, exec, open, os.system, subprocess, getattr, setattr
+- **NEW**: `UNSAFE_ATTRIBUTES` frozenset - List of blocked attribute names for sandboxing
+- **NEW**: `validate_security()` method - Check templates for dangerous patterns
+- **NEW**: `is_safe_template()` method - Quick safety check returning boolean
+- **NEW**: `validate_secure()` method - Validation with exception on security violations
+- **NEW**: `create_sandboxed_environment()` factory - Create pre-configured secure environment
+- **NEW**: `create_secure_validator()` factory - Create validator with secure environment
+
+### Testing - Feature 008: Template Sandboxing
+
+- **TEST**: Unit tests for sandboxing: `tests/unit/test_template_sandboxing.py` (62 tests)
+  - SecureSandboxedEnvironment attribute blocking
+  - Secure callable restrictions
+  - Dangerous pattern detection
+  - validate_secure method behavior
+  - Factory function tests
+  - Complex template security scenarios
+
+### Testing - Feature 008: Theme Accessibility
+
+- **TEST**: Integration tests for accessibility: `tests/integration/test_theme_accessibility.py` (45 tests)
+  - Toggle ARIA attributes (aria-pressed, aria-label, aria-hidden)
+  - Toggle script accessibility (prefers-color-scheme, localStorage persistence)
+  - CSS accessibility (color tokens, dark mode, font settings)
+  - HTML structure validation (button pattern, toggle pattern)
+  - ARIA authoring pattern compliance
+  - Keyboard accessibility support
+  - Color contrast support tokens
+
+### Documentation - Feature 008: Demo Templates
+
+- **NEW**: Demo templates for theme variants under `demo/templates/`
+  - `role.minimal.html.j2` - Compact output with essential info
+  - `role.detailed.html.j2` - Full documentation with all sections
+  - `role.modern.html.j2` - Contemporary styling with cards and timeline
+- **NEW**: Demo CSS examples under `demo/css/`
+  - `sample-theme.css` - Complete custom theme with brand colors
+  - `inline-overrides.css` - Minimal inline CSS example
+- **NEW**: Template documentation in `demo/templates/README.md`
+  - Usage examples for each variant
+  - CSS variables reference
+  - Custom template creation guide
+
+### Documentation - Feature 008: Theming Guide
+
+- **UPDATED**: `README.md` with new Theming & Customization section (v0.8.0 feature)
+  - Template variants usage (minimal, detailed, modern)
+  - CSS customization (external URL and inline)
+  - Dark mode toggle features
+  - Color scheme options
+  - Configuration file examples
+- **UPDATED**: `docs/TEMPLATE_GUIDE.md` with comprehensive theming section
+  - Template variants reference table
+  - CSS cascade order explanation
+  - CSS variables reference
+  - Dark mode toggle documentation
+  - Template context variables for theming
+  - Custom template location guide
+
 ### Added - Feature 007: Hierarchical Context Detection
 
 - **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships

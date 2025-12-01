@@ -1,11 +1,17 @@
 """Data models for documentation generator."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.models.role import AnsibleRole
+
+if TYPE_CHECKING:
+    from ansibledoctor.config.theme import ColorScheme, ThemeConfig
+    from ansibledoctor.generator.css_injector import CSSTag
 
 
 @runtime_checkable
@@ -107,6 +113,7 @@ class TemplateContext:
         generation_date: Date of documentation generation
         generator_version: Version of ansible-doctor-enhanced
         custom_data: Additional custom data for templates
+        theme_config: Optional theme configuration for styling
 
     Example:
         >>> from ansibledoctor import __version__
@@ -128,6 +135,82 @@ class TemplateContext:
     custom_data: dict[str, Any] = field(default_factory=dict)
     language: str = "en"
     hierarchical_context: HasBreadcrumb | None = None
+    theme_config: ThemeConfig | None = None
+
+    @property
+    def css_tags(self) -> list[CSSTag]:
+        """Get CSS tags for HTML head injection.
+        
+        Returns list of CSSTag objects based on theme_config.
+        Returns empty list if theme_config is None.
+        
+        Returns:
+            List of CSSTag objects for HTML inclusion
+        """
+        if self.theme_config is None:
+            return []
+        
+        from ansibledoctor.generator.css_injector import CSSInjector
+        
+        injector = CSSInjector()
+        return injector.generate_tags(
+            css_url=self.theme_config.css_url,
+            css_inline=self.theme_config.css_inline,
+            include_base=True,
+        )
+
+    @property
+    def theme_toggle_html(self) -> str:
+        """Get theme toggle button HTML.
+        
+        Returns HTML for dark/light mode toggle button.
+        Returns empty string if theme_config is None or toggle is disabled.
+        
+        Returns:
+            HTML string for toggle button
+        """
+        if self.theme_config is None:
+            return ""
+        if not self.theme_config.enable_toggle:
+            return ""
+        
+        from ansibledoctor.generator.css_injector import ThemeToggleGenerator
+        
+        generator = ThemeToggleGenerator()
+        result = generator.generate_toggle(enabled=True)
+        return result.button_html
+
+    @property
+    def theme_toggle_js(self) -> str:
+        """Get theme toggle JavaScript.
+        
+        Returns JavaScript for dark/light mode toggle functionality.
+        Returns empty string if theme_config is None or toggle is disabled.
+        
+        Returns:
+            JavaScript string for toggle functionality
+        """
+        if self.theme_config is None:
+            return ""
+        if not self.theme_config.enable_toggle:
+            return ""
+        
+        from ansibledoctor.generator.css_injector import ThemeToggleGenerator
+        
+        generator = ThemeToggleGenerator()
+        result = generator.generate_toggle(enabled=True)
+        return result.script_js
+
+    @property
+    def color_scheme(self) -> ColorScheme | None:
+        """Get color scheme from theme config.
+        
+        Returns:
+            ColorScheme enum value or None if no theme_config
+        """
+        if self.theme_config is None:
+            return None
+        return self.theme_config.color_scheme
 
     @property
     def role_name(self) -> str:
@@ -257,6 +340,12 @@ class TemplateContext:
             "example_count": self.example_count,
             "custom_data": self.custom_data,
             "language": self.language,
+            # Theme-related properties
+            "theme_config": self.theme_config,
+            "css_tags": self.css_tags,
+            "theme_toggle_html": self.theme_toggle_html,
+            "theme_toggle_js": self.theme_toggle_js,
+            "color_scheme": self.color_scheme,
         }
 
         # Add hierarchical context for breadcrumb and sibling navigation

@@ -1,0 +1,19 @@
+# Example config with MODERN theme variant
+# Use for user-facing portfolios and documentation sites
+
+output_format: html
+output: docs/README.html
+
+theme:
+  variant: modern
+  color_scheme: auto
+  toggle_enabled: true
+  css_url: null   # Or use external CSS: https://cdn.example.com/theme.css
+
+# Modern variant features:
+# - Hero section with badges (author, license, version)
+# - Card-based layout for sections
+# - Variable grid display
+# - Task timeline visualization
+# - Gradient accents
+# - Contemporary styling

@@ -9,10 +9,15 @@ Constitutional Principles:
 - Domain-Driven Design (Article X)
 
 Feature 003 - US1: Configuration File Support
+Feature 008 - Template Customization & Theming
 """
 
 from ansibledoctor.config.models import ConfigModel
+from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
 
 __all__ = [
     "ConfigModel",
+    "ColorScheme",
+    "ThemeConfig",
+    "ThemeVariant",
 ]

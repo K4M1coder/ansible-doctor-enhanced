@@ -3,11 +3,6 @@ Ansible Doctor Enhanced - Modernized Ansible role documentation generator.
 
 This package provides tools for parsing Ansible roles and generating comprehensive
 documentation from metadata, variables, tasks, and inline annotations.
-
-Constitutional Principles:
-- Library-First Architecture (Article I)
-- Test-Driven Development (Article III)
-- Domain-Driven Design (Article X)
 """
 
 from importlib.metadata import PackageNotFoundError, version
@@ -16,7 +11,7 @@ try:
     __version__ = version("ansibledoctor")
 except PackageNotFoundError:
     # Fallback for development or uninstalled package
-    __version__ = "0.4.0"
+    __version__ = "0.8.0"
 
 __author__ = "Cédric Thédrez"
 __license__ = "MIT"

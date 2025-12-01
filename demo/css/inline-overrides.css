@@ -1,0 +1,20 @@
+/* inline-overrides.css - Example inline CSS overrides */
+/* Feature 008 - Template Customization & Theming */
+/* T350: Demo inline CSS example */
+
+/* Quick override example for css_inline option */
+
+/* Adjust primary color */
+:root {
+  --ad-color-primary: #dc2626;
+}
+
+/* Make headers larger */
+h1 {
+  font-size: 2.5rem;
+}
+
+/* Add padding to main container */
+.ad-container {
+  padding: 2rem;
+}

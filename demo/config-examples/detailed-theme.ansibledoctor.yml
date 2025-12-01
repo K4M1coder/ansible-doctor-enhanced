@@ -1,0 +1,18 @@
+# Example config with DETAILED theme variant (default)
+# Use for comprehensive documentation
+
+output_format: html
+output: docs/README.html
+
+theme:
+  variant: detailed
+  color_scheme: auto
+  toggle_enabled: true
+
+# Detailed variant produces full documentation:
+# - Full metadata (author, license, version)
+# - Variables table with types and descriptions
+# - Tasks with descriptions and tags
+# - Dependencies section
+# - Examples section
+# - Breadcrumb navigation (if hierarchical)

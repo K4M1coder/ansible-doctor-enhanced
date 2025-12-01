@@ -1,0 +1,16 @@
+# Example config with DARK theme
+# Forces dark mode regardless of system preference
+
+output_format: html
+output: docs/README.html
+
+theme:
+  variant: detailed
+  color_scheme: dark
+  toggle_enabled: false  # No toggle since mode is forced
+
+# Dark mode features:
+# - Dark background (#0f172a)
+# - Light text (#f8fafc)
+# - Adjusted contrast colors
+# - No toggle button (mode is fixed)
