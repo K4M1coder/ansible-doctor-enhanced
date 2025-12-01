@@ -50,9 +50,9 @@ def update_changelog(changelog_path: Path, version: str) -> bool:
     # Basic parsing: find '## [Unreleased]' at start of a line
     unre_match = re.search(r"^## \[Unreleased\]\s*$", text, flags=re.MULTILINE)
     if not unre_match:
-        # If no Unreleased section, add a new versioned section at top
+        # If no Unreleased section, add a new versioned section at top with empty Unreleased
         date_str = datetime.date.today().isoformat()
-        new_header = f"## [{version}] - {date_str}\n\n- \n\n"
+        new_header = f"## [Unreleased]\n\n- \n\n## [{version}] - {date_str}\n\n- \n\n"
         changelog_path.write_text(new_header + text, encoding="utf-8")
         return True
 
@@ -105,8 +105,9 @@ def update_readme_versions(repo_root: Path, version: str) -> int:
             content = f.read_text(encoding="utf-8")
         except Exception:
             continue
-        new_content = version_pattern.sub(rf"\1{version}", content)
-        new_content = alt_pattern.sub(rf"\1{version}", new_content)
+        # Use \g<1> syntax to avoid ambiguity when version starts with a digit
+        new_content = version_pattern.sub(rf"\g<1>{version}", content)
+        new_content = alt_pattern.sub(rf"\g<1>{version}", new_content)
         if new_content != content:
             f.write_text(new_content, encoding="utf-8")
             modified += 1

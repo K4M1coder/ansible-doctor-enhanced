@@ -48,7 +48,8 @@ def repo(tmp_path):
 
 def run_sync(repo, stage=False):
     # locate script relative to this test file (repo root), but run it in the tmp repo cwd
-    script_path = Path(__file__).resolve().parents[3] / "scripts" / "sync_version.py"
+    # parents[0]=tests/unit, parents[1]=tests, parents[2]=project root
+    script_path = Path(__file__).resolve().parents[2] / "scripts" / "sync_version.py"
     cmd = [sys.executable, str(script_path)]
     if stage:
         cmd += ["--stage", "1"]
@@ -67,11 +68,18 @@ def test_sync_moves_unreleased_to_version(repo, tmp_path):
     readme = (repo / "README.md").read_text(encoding="utf-8")
     assert "Version: 0.5.1" in readme
 
-    # If staged, git status should show no changes
+    # If staged, git status should show staged changes (M in first column)
     out = subprocess.run(
         ["git", "status", "--porcelain"], cwd=str(repo), check=True, capture_output=True
     )
-    assert out.stdout.decode().strip() == ""
+    status_output = out.stdout.decode().strip()
+    # Staged files show as "M  filename" or "A  filename" (first column is staging area)
+    # We expect CHANGELOG.md and README.md to be staged
+    assert "CHANGELOG.md" in status_output
+    assert "README.md" in status_output
+    # Verify they are staged (M in first column, not second)
+    for line in status_output.splitlines():
+        assert line[0] in ("M", "A"), f"Expected staged changes, got: {line}"
 
 
 def test_sync_creates_version_when_no_unreleased(repo):
@@ -94,11 +102,20 @@ def test_sync_stages_with_env_var(repo):
 
     env = os.environ.copy()
     env["PRECOMMIT_SYNC_STAGE"] = "1"
-    script_path = Path(__file__).resolve().parents[3] / "scripts" / "sync_version.py"
+    # parents[0]=tests/unit, parents[1]=tests, parents[2]=project root
+    script_path = Path(__file__).resolve().parents[2] / "scripts" / "sync_version.py"
     cmd = [sys.executable, str(script_path)]
     subprocess.run(cmd, cwd=str(repo), check=True, env=env)
 
+    # If staged via env var, git status should show staged changes (M in first column)
     out = subprocess.run(
         ["git", "status", "--porcelain"], cwd=str(repo), check=True, capture_output=True
     )
-    assert out.stdout.decode().strip() == ""
+    status_output = out.stdout.decode().strip()
+    # Staged files show as "M  filename" or "A  filename" (first column is staging area)
+    # We expect CHANGELOG.md and README.md to be staged
+    assert "CHANGELOG.md" in status_output
+    assert "README.md" in status_output
+    # Verify they are staged (M in first column, not second)
+    for line in status_output.splitlines():
+        assert line[0] in ("M", "A"), f"Expected staged changes, got: {line}"
