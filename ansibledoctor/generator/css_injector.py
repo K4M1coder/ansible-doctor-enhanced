@@ -14,23 +14,23 @@ from typing import NamedTuple
 @dataclass(frozen=True)
 class CSSTag:
     """Represents a CSS inclusion tag.
-    
+
     Can be either a <link> tag for external stylesheets or a <style>
     tag for inline CSS content.
-    
+
     Attributes:
         tag_type: "link" for external CSS or "style" for inline
         content: URL for link tags, CSS content for style tags
         attributes: Optional additional HTML attributes
     """
-    
+
     tag_type: str  # "link" or "style"
     content: str
     attributes: dict[str, str] | None = None
-    
+
     def to_html(self) -> str:
         """Render as HTML tag.
-        
+
         Returns:
             HTML string for this CSS tag
         """
@@ -46,36 +46,36 @@ class CSSTag:
 
 class ToggleResult(NamedTuple):
     """Result of theme toggle generation.
-    
+
     Attributes:
         button_html: HTML for the toggle button
         script_js: JavaScript for toggle functionality
     """
-    
+
     button_html: str
     script_js: str
 
 
 class CSSInjector:
     """Generates CSS tags for HTML documentation.
-    
+
     Manages CSS inclusion order for proper cascade:
     1. Base theme CSS variables
     2. External CSS URL
     3. Inline CSS overrides
-    
+
     Example:
         >>> injector = CSSInjector()
         >>> html = injector.render_head_tags(
         ...     css_url="https://example.com/theme.css",
         ...     include_base=True
         ... )
-    
+
     Feature: US26 - CSS Injection
     Task: T339 - CSSInjector implementation
     """
-    
-    BASE_CSS = '''
+
+    BASE_CSS = """
 :root {
   /* Color Tokens - Primary Palette */
   --ad-color-primary: #2563eb;
@@ -144,8 +144,8 @@ body {
   color: var(--ad-color-text);
   background-color: var(--ad-color-bg);
 }
-'''
-    
+"""
+
     def generate_tags(
         self,
         css_url: str | None = None,
@@ -153,41 +153,47 @@ body {
         include_base: bool = True,
     ) -> list[CSSTag]:
         """Generate CSS tags in correct order.
-        
+
         Args:
             css_url: External CSS URL to include
             css_inline: Inline CSS content to embed
             include_base: Include base theme CSS variables
-            
+
         Returns:
             List of CSSTag objects in order of inclusion
         """
         tags: list[CSSTag] = []
-        
+
         # 1. Base theme CSS (first, can be overridden)
         if include_base:
-            tags.append(CSSTag(
-                tag_type="style",
-                content=self.BASE_CSS.strip(),
-            ))
-        
+            tags.append(
+                CSSTag(
+                    tag_type="style",
+                    content=self.BASE_CSS.strip(),
+                )
+            )
+
         # 2. External CSS URL (second, extends/overrides base)
         if css_url:
-            tags.append(CSSTag(
-                tag_type="link",
-                content=css_url,
-                attributes={"crossorigin": "anonymous"},
-            ))
-        
+            tags.append(
+                CSSTag(
+                    tag_type="link",
+                    content=css_url,
+                    attributes={"crossorigin": "anonymous"},
+                )
+            )
+
         # 3. Inline CSS (last, highest priority)
         if css_inline:
-            tags.append(CSSTag(
-                tag_type="style",
-                content=css_inline.strip(),
-            ))
-        
+            tags.append(
+                CSSTag(
+                    tag_type="style",
+                    content=css_inline.strip(),
+                )
+            )
+
         return tags
-    
+
     def render_head_tags(
         self,
         css_url: str | None = None,
@@ -195,12 +201,12 @@ body {
         include_base: bool = True,
     ) -> str:
         """Render all CSS tags as HTML string for head injection.
-        
+
         Args:
             css_url: External CSS URL to include
             css_inline: Inline CSS content to embed
             include_base: Include base theme CSS variables
-            
+
         Returns:
             HTML string containing all CSS tags
         """
@@ -210,54 +216,54 @@ body {
 
 class ThemeToggleGenerator:
     """Generates JavaScript for dark/light mode toggle.
-    
+
     Features:
     - Respects prefers-color-scheme media query
     - Persists preference to localStorage
     - ARIA attributes for accessibility
     - No external dependencies
-    
+
     Example:
         >>> generator = ThemeToggleGenerator()
         >>> html = generator.render_toggle()
         >>> # Include html in document body
-    
+
     Feature: US26 - Theme Toggle
     Task: T339 - ThemeToggleGenerator implementation
     """
-    
-    TOGGLE_JS = '''
+
+    TOGGLE_JS = """
 (function() {
   const STORAGE_KEY = 'ad-theme';
   const toggle = document.getElementById('ad-theme-toggle');
-  
+
   function getPreferredTheme() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
-  
+
   function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem(STORAGE_KEY, theme);
     if (toggle) {
       toggle.setAttribute('aria-pressed', theme === 'dark');
-      toggle.setAttribute('aria-label', 
+      toggle.setAttribute('aria-label',
         theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
       );
     }
   }
-  
+
   // Initialize theme
   setTheme(getPreferredTheme());
-  
+
   // Listen for system preference changes
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     if (!localStorage.getItem(STORAGE_KEY)) {
       setTheme(e.matches ? 'dark' : 'light');
     }
   });
-  
+
   // Toggle handler
   if (toggle) {
     toggle.addEventListener('click', () => {
@@ -266,48 +272,48 @@ class ThemeToggleGenerator:
     });
   }
 })();
-'''
-    
-    TOGGLE_BUTTON_HTML = '''
-<button 
-  id="ad-theme-toggle" 
-  type="button" 
+"""
+
+    TOGGLE_BUTTON_HTML = """
+<button
+  id="ad-theme-toggle"
+  type="button"
   class="ad-theme-toggle"
   aria-pressed="false"
   aria-label="Switch to dark mode"
   title="Toggle dark/light mode">
   <span class="ad-theme-toggle-icon" aria-hidden="true">🌙</span>
 </button>
-'''
-    
+"""
+
     def generate_toggle(self, enabled: bool = True) -> ToggleResult:
         """Generate toggle button and script.
-        
+
         Args:
             enabled: Whether toggle is enabled
-            
+
         Returns:
             ToggleResult with button HTML and script JS
         """
         if not enabled:
             return ToggleResult(button_html="", script_js="")
-        
+
         return ToggleResult(
             button_html=self.TOGGLE_BUTTON_HTML.strip(),
             script_js=self.TOGGLE_JS.strip(),
         )
-    
+
     def render_toggle(self, enabled: bool = True) -> str:
         """Render complete toggle HTML snippet.
-        
+
         Args:
             enabled: Whether toggle is enabled
-            
+
         Returns:
             HTML string with button and script, or empty if disabled
         """
         if not enabled:
             return ""
-        
+
         result = self.generate_toggle(enabled=True)
         return f"{result.button_html}\n<script>\n{result.script_js}\n</script>"

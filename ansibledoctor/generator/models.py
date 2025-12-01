@@ -140,18 +140,18 @@ class TemplateContext:
     @property
     def css_tags(self) -> list[CSSTag]:
         """Get CSS tags for HTML head injection.
-        
+
         Returns list of CSSTag objects based on theme_config.
         Returns empty list if theme_config is None.
-        
+
         Returns:
             List of CSSTag objects for HTML inclusion
         """
         if self.theme_config is None:
             return []
-        
+
         from ansibledoctor.generator.css_injector import CSSInjector
-        
+
         injector = CSSInjector()
         return injector.generate_tags(
             css_url=self.theme_config.css_url,
@@ -162,10 +162,10 @@ class TemplateContext:
     @property
     def theme_toggle_html(self) -> str:
         """Get theme toggle button HTML.
-        
+
         Returns HTML for dark/light mode toggle button.
         Returns empty string if theme_config is None or toggle is disabled.
-        
+
         Returns:
             HTML string for toggle button
         """
@@ -173,9 +173,9 @@ class TemplateContext:
             return ""
         if not self.theme_config.enable_toggle:
             return ""
-        
+
         from ansibledoctor.generator.css_injector import ThemeToggleGenerator
-        
+
         generator = ThemeToggleGenerator()
         result = generator.generate_toggle(enabled=True)
         return result.button_html
@@ -183,10 +183,10 @@ class TemplateContext:
     @property
     def theme_toggle_js(self) -> str:
         """Get theme toggle JavaScript.
-        
+
         Returns JavaScript for dark/light mode toggle functionality.
         Returns empty string if theme_config is None or toggle is disabled.
-        
+
         Returns:
             JavaScript string for toggle functionality
         """
@@ -194,9 +194,9 @@ class TemplateContext:
             return ""
         if not self.theme_config.enable_toggle:
             return ""
-        
+
         from ansibledoctor.generator.css_injector import ThemeToggleGenerator
-        
+
         generator = ThemeToggleGenerator()
         result = generator.generate_toggle(enabled=True)
         return result.script_js
@@ -204,7 +204,7 @@ class TemplateContext:
     @property
     def color_scheme(self) -> ColorScheme | None:
         """Get color scheme from theme config.
-        
+
         Returns:
             ColorScheme enum value or None if no theme_config
         """

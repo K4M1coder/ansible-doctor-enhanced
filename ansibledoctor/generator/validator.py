@@ -9,7 +9,6 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from ansibledoctor.generator.errors import TemplateValidationError
 
-
 # Dangerous constructs that should be blocked in user templates
 DANGEROUS_PATTERNS = [
     "__import__",
@@ -324,7 +323,7 @@ class TemplateValidator:
         parents.extend(matches)
 
         # Also match {% extends variable %}
-        variable_pattern = r'{%\s*extends\s+(\w+)\s*%}'
+        variable_pattern = r"{%\s*extends\s+(\w+)\s*%}"
         var_matches = re.findall(variable_pattern, template_source)
         parents.extend(var_matches)
 

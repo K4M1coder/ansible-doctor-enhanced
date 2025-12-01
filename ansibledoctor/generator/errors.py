@@ -1,5 +1,7 @@
 """Custom exceptions for documentation generator."""
 
+from typing import Any
+
 
 class GeneratorError(Exception):
     """Base exception for all generator errors."""
@@ -55,7 +57,7 @@ class TemplateValidationError(TemplateError):
 class RenderError(GeneratorError):
     """Raised when rendering fails."""
 
-    def __init__(self, message: str, context: dict | None = None):
+    def __init__(self, message: str, context: dict[str, Any] | None = None):
         """Initialize with error message and optional context.
 
         Args:
