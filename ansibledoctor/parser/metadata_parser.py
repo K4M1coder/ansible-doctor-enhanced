@@ -134,6 +134,11 @@ class MetadataParser:
                 suggestion="Check YAML syntax in meta/main.yml file.",
             ) from e
 
+        # Ensure data is a dict (YAML file might contain a list)
+        if not isinstance(data, dict):
+            logger.warning("metadata_not_dict", file=str(meta_file))
+            data = {}
+
         galaxy_info = data.get("galaxy_info", {})
         dependencies_raw = data.get("dependencies", [])
 
@@ -197,17 +202,24 @@ class MetadataParser:
             logger.warning("argument_specs_parse_failed", error=str(e))
             return {}
 
+        # Ensure data is a dict
+        if not isinstance(data, dict):
+            logger.warning("argument_specs_not_dict", file=str(specs_file))
+            return {}
+
         argument_specs_raw = data.get("argument_specs", {})
         argument_specs = {}
 
         for entry_point, spec_data in argument_specs_raw.items():
             short_description = spec_data.get("short_description", "")
             options = spec_data.get("options", {})
+            description = spec_data.get("description")
 
             argument_specs[entry_point] = ArgumentSpec(
                 entry_point=entry_point,
                 short_description=short_description,
                 options=options,
+                description=description,
             )
 
         logger.debug("argument_specs_parsed", count=len(argument_specs))

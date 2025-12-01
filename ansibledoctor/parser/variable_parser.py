@@ -189,6 +189,9 @@ class VariableParser:
                 example=example,
                 required=required,
                 deprecated=deprecated,
+                default=None,
+                file_path=str(file_path),
+                line_number=None,
             )
 
             variables.append(variable)
