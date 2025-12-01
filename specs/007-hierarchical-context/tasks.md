@@ -21,11 +21,20 @@ description: "Task breakdown for Feature 007: Hierarchical Context Detection"
     - Sibling discovery and session-scoped caching
 
 ## Phase 3: Templates & Links
-- [ ] T311 Update templates to render breadcrumbs and navigation based on slug paths
-- [ ] T312 Add integration tests verifying that docs for role inside collection inside project generate links: `docs/lang/{lang}/ansibleproject_proj/collections/collection_ns.collection/role_ns.role/` and that navigation back to project & collection levels works
+- [x] T311 Update templates to render breadcrumbs and navigation based on slug paths
+    - Created _breadcrumb.j2 and _siblings.j2 partials for all formats
+    - Updated role.j2 and collection.j2 templates with includes
+    - Fixed template loaders to support {% include %} with PackageLoader
+- [x] T312 Add integration tests verifying that docs for role inside collection inside project generate links: `docs/lang/{lang}/ansibleproject_proj/collections/collection_ns.collection/role_ns.role/` and that navigation back to project & collection levels works
+    - 12 integration tests for hierarchical context navigation
+    - BreadcrumbItem.link field for relative documentation links
+    - HasBreadcrumb protocol for type-safe hierarchical context
+    - TemplateContext extended with hierarchical_context field
 
 ## Phase 4: Polish
-- [ ] T313 Update CHANGELOG and examples to reflect the new slug path layout
+- [x] T313 Update CHANGELOG and examples to reflect the new slug path layout
+    - Added Feature 007 section to CHANGELOG.md with all new components
+    - Documented ContextDetector, slug utilities, template partials
 
 ## Acceptance
 - [ ] T314 E2E test: generate docs for a full project with nested collections and roles, and verify link navigation across all levels is correct

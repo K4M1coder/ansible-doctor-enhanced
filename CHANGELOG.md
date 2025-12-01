@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Feature 007: Hierarchical Context Detection
+
+- **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships
+  - ComponentType enum: PROJECT, COLLECTION, ROLE, STANDALONE
+  - HierarchicalContext with parent chain and sibling discovery
+  - BreadcrumbItem dataclass for navigation trail
+  - Session-scoped caching via `@lru_cache`
+- **NEW**: `ansibledoctor/utils/slug.py` extensions for hierarchical documentation paths
+  - `build_context_path()` - Construct hierarchical doc paths (project/collections/ns.coll/roles/role)
+  - `relative_link()` - Generate relative navigation links between doc levels
+- **NEW**: Template partials for breadcrumb and sibling navigation
+  - `_breadcrumb.j2` for Markdown/HTML/RST formats
+  - `_siblings.j2` for related component navigation
+- **ENHANCED**: Template loaders support `{% include %}` directive with PackageLoader/FileSystemLoader
+- **ENHANCED**: `TemplateContext` now includes `hierarchical_context` field for navigation data
+- **ENHANCED**: `HasBreadcrumb` protocol for type-safe hierarchical context typing
+
+### Testing
+
+- **TEST**: Unit tests for context detection: `tests/unit/test_context.py` (17 tests)
+- **TEST**: Unit tests for slug path utilities: `tests/unit/test_slug.py` (22 tests)
+- **TEST**: Integration tests: `tests/integration/test_hierarchical_context.py` (12 tests)
+
 ### Added - Feature 006: Project Documentation Support
 
 - **NEW**: `ansibledoctor/models/project.py` - Pydantic models for Project, Playbook, RoleInfo, CollectionInfo and InventoryItem
