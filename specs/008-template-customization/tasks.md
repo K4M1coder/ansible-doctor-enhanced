@@ -98,7 +98,11 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - CSSInjector with BASE_CSS containing CSS variables and dark mode
     - ThemeToggleGenerator with ARIA-accessible toggle button
     - Auto dark mode via prefers-color-scheme media query
-- [ ] T340 [P] Add `css_tags`/`theme_config` to `ansibledoctor/generator/context.py` or `ansibledoctor/generator/models.py` (RenderResult) and update `ansibledoctor/generator/renderers/html.py` to include `css_tags`
+- [x] T340 [P] Add `css_tags`/`theme_config` to `ansibledoctor/generator/context.py` or `ansibledoctor/generator/models.py` (RenderResult) and update `ansibledoctor/generator/renderers/html.py` to include `css_tags`
+    - Added theme_config field to TemplateContext dataclass
+    - Implemented css_tags, theme_toggle_html, theme_toggle_js, color_scheme properties
+    - Updated to_dict() to include all theme-related properties
+    - 34 unit tests in test_theme_integration.py
 - [ ] T341 [US23] Write failing unit tests in `tests/unit/test_cli_flags.py` validating CLI precedence over YAML for `--variant`, `--color-scheme`, `--no-theme-toggle`, `--template-dir`
 - [ ] T342 [US23] Implement CLI flags in `ansibledoctor/cli/generate.py` and update `tests/unit/test_cli_generate.py` (TDD)
 
