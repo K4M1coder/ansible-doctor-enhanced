@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] - 2025-12-01
+
+### Added - Feature 001: Ansible Role Parser CLI Interface
+
+- **NEW**: CLI interface with `parse` command for extracting role documentation
+- **NEW**: `--recursive` flag for multi-role directory scanning
+- **NEW**: `--validate` flag for role structure validation
+- **NEW**: `--log-level` flag for controlling output verbosity
+- **NEW**: JSON output to stdout, logs to stderr (shell pipeline compatible)
+- **NEW**: Structured exit codes: 0 (success), 1 (parse error), 2 (validation error)
+- **NEW**: CLI entry points in `pyproject.toml`: `ansible-doctor-enhanced` and `ansibledoctor`
+- **NEW**: Recursive include following for `include_tasks` and `import_tasks` in task parsing
+- **NEW**: Role slug generation in CLI output for consistent role identification
 
 ## [0.8.0] - 2025-12-01
 
