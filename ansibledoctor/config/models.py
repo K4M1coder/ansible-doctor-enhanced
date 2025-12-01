@@ -2,6 +2,9 @@
 
 Feature 003 - US1: Configuration File Support
 T005: ConfigModel Pydantic schema with validation
+
+Feature 008 - Template Customization & Theming
+T333: Integration of ThemeConfig into ConfigModel
 """
 
 from typing import Optional
@@ -9,6 +12,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 from ansibledoctor.config.language import LanguageConfig
+from ansibledoctor.config.theme import ThemeConfig
 
 
 class ConfigModel(BaseModel):
@@ -58,6 +62,10 @@ class ConfigModel(BaseModel):
 
     languages: Optional[LanguageConfig] = Field(
         default=None, description="Language configuration for i18n"
+    )
+    
+    theme: Optional[ThemeConfig] = Field(
+        default=None, description="Theme configuration for documentation output"
     )
 
     @field_validator("output_format")

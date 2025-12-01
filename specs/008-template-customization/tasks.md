@@ -61,8 +61,15 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Phase 2: Implementation (T332-T342)
 
-- [ ] T332 [US23] Write failing unit tests in `tests/unit/test_theme_config.py` that assert YAML parsing, defaulting, and validation errors for `ThemeConfig` (TDD)
-- [ ] T333 [US23] Implement `ansibledoctor/config/theme.py` (Pydantic model) and register it to runtime config loader at `ansibledoctor/config/__init__.py`
+- [x] T332 [US23] Write failing unit tests in `tests/unit/test_theme_config.py` that assert YAML parsing, defaulting, and validation errors for `ThemeConfig` (TDD)
+    - 40 unit tests covering enums, defaults, parsing, validation, immutability, serialization
+    - Tests for ThemeVariant (minimal, detailed, modern) and ColorScheme (light, dark, auto)
+    - Validation tests for css_url absolute path requirement
+- [x] T333 [US23] Implement `ansibledoctor/config/theme.py` (Pydantic model) and register it to runtime config loader at `ansibledoctor/config/__init__.py`
+    - ThemeConfig with name, variant, color_scheme, enable_toggle, css_url, css_inline
+    - ThemeVariant and ColorScheme enums
+    - Frozen model with css_url validator
+    - Integrated into ConfigModel and exported from __init__.py
 - [ ] T334 [US24] Write failing unit tests in `tests/unit/generator/test_cascading_template_loader.py` asserting search order (role/collection/project/embedded) and caching behavior
 - [ ] T335 [US24] Implement `ansibledoctor/generator/cascading_loader.py` with logging for the template source and caching behavior
 - [ ] T336 [US25] Write failing unit tests in `tests/unit/generator/test_variant_resolver.py` for `role.modern.*.j2` resolution and fallback chains
