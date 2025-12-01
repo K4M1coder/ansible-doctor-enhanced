@@ -8,11 +8,27 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Phase 0: Research (T321-T325)
 
-- [ ] T321 Research: Create `specs/008-template-customization/research.md` with CSS variable schema & color token map (no code changes)
-- [ ] T322 Research: Investigate TemplateLoader fallback chain & caching; document API changes to `ansibledoctor/generator/template_loader.py` (no code changes)
-- [ ] T323 [US28] Research: Validate Jinja2 inheritance across search paths and list edge cases for template validation (no code changes)
-- [ ] T324 Research: Evaluate security & sandboxing needs for optional theme toggle JS; document recommendations
-- [ ] T325 Research: UX mapping for CLI flags and precedence vs YAML config; add examples to research.md
+- [x] T321 Research: Create `specs/008-template-customization/research.md` with CSS variable schema & color token map (no code changes)
+    - Created research.md with `--ad-` prefixed CSS variables
+    - 20+ color tokens: primary, semantic, neutral, typography, spacing, effects
+    - Light/dark mode support via `[data-theme="dark"]`
+- [x] T322 Research: Investigate TemplateLoader fallback chain & caching; document API changes to `ansibledoctor/generator/template_loader.py` (no code changes)
+    - Documented 5-level cascading discovery: role → collection → project → user → embedded
+    - Proposed `CascadingTemplateLoader` with TTL-based caching
+    - Defined `TemplateDiscoveryResult` dataclass for tracking source
+- [x] T323 [US28] Research: Validate Jinja2 inheritance across search paths and list edge cases for template validation (no code changes)
+    - Proposed `ChoiceLoader` for multi-path resolution
+    - Documented edge cases: cross-level inheritance, circular includes, missing parent
+    - Defined validation requirements and logging
+- [x] T324 Research: Evaluate security & sandboxing needs for optional theme toggle JS; document recommendations
+    - Proposed `SandboxedEnvironment` for user templates
+    - Self-contained JS toggle with localStorage persistence
+    - ARIA attributes for accessibility
+    - `--no-theme-toggle` flag recommendation
+- [x] T325 Research: UX mapping for CLI flags and precedence vs YAML config; add examples to research.md
+    - Defined 7-level precedence: CLI > Env > Role > Collection > Project > User > Default
+    - Mapped 6 CLI flags: --variant, --color-scheme, --no-theme-toggle, --template-dir, --css-url, --css-inline
+    - Added example .ansibledoctor.yml with theme configuration
 
 ## Phase 1: Design & Contracts (T326-T331)
 
