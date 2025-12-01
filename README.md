@@ -148,6 +148,86 @@ poetry run ansible-doctor-enhanced project parse ./ --output project.json --pret
 
 **Demo**: Try the included demo project at `demo-role/` or `test-role/`
 
+## 🌐 Internationalization (i18n) Support (New in v0.5.1)
+
+Ansible Doctor Enhanced supports multi-language documentation generation through a translation system. Generate documentation in multiple languages from a single codebase with YAML-based translation files.
+
+### Language Configuration
+
+Configure language settings in `.ansibledoctor.yml`:
+
+```yaml
+# .ansibledoctor.yml
+languages:
+  default: en              # Default language
+  enabled:                 # Languages to generate
+    - en
+    - fr
+    - de
+  fallback: en            # Fallback when translation missing
+```
+
+### Generate Multi-Language Documentation
+
+```bash
+# Generate project docs in multiple languages
+poetry run ansible-doctor-enhanced project generate ./ --languages en,fr,de
+
+# Generate in a single language
+poetry run ansible-doctor-enhanced project generate ./ --language fr
+
+# Output structure:
+# docs/
+# └── lang/
+#     ├── en/README.md
+#     ├── fr/README.md
+#     └── de/README.md
+```
+
+### Custom Translations
+
+Override default translations by creating custom translation files in your project:
+
+```
+.ansibledoctor/
+└── translations/
+    ├── en.yml    # English overrides
+    ├── fr.yml    # French overrides
+    └── de.yml    # German overrides
+```
+
+Translation file format:
+
+```yaml
+# translations/fr.yml
+overview:
+  title: "Aperçu"
+  description: "Description du rôle"
+variables:
+  title: "Variables"
+  required: "Variables Requises"
+  optional: "Variables Optionnelles"
+```
+
+### Template Translation Markers
+
+Use the `t()` filter in custom templates for translatable strings:
+
+```jinja2
+{# Using translation in templates #}
+## {{ t('overview.title') }}
+
+{{ t('overview.description') }}
+
+{# With variable substitution #}
+{{ t('install.version', version='1.0.0') }}
+
+{# Pluralization support #}
+{{ t('items.count', count=5) }}
+```
+
+**Supported Languages**: English (en), French (fr), German (de) - extensible with custom translation files.
+
 ## 🏗️ Architecture
 
 Ansible Doctor Enhanced follows **Domain-Driven Design (DDD)** principles with clean architecture:

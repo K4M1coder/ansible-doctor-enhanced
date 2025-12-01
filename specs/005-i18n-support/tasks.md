@@ -36,9 +36,9 @@
 
 - [x] T005-18 [US12] Implement test fixtures and sample translation YAMLs under `specs/005-i18n-support/fixtures/` for EN/FR/DE to be used by the tests; add embedded defaults in `ansibledoctor/translations/`.  ✅ Implemented (added de.yml and fixtures)
 
-- [ ] T005-19 [P] Documentation tasks: Update `README.md` QuickStart, `specs/005-i18n-support/spec.md` usage examples, CLI help, and `CHANGELOG.md` in `docs` and `README-generated.md`. (Files: `README.md`, `specs/005-i18n-support/spec.md`, `CHANGELOG.md`)
+- [x] T005-19 [P] Documentation tasks: Update `README.md` QuickStart, `specs/005-i18n-support/spec.md` usage examples, CLI help, and `CHANGELOG.md` in `docs` and `README-generated.md`. (Files: `README.md`, `specs/005-i18n-support/spec.md`, `CHANGELOG.md`) ✅ Added dedicated i18n section to README.md with configuration examples, CLI usage, custom translations, and template markers
 
-- [ ] T005-20 [P] Add demo updates: Update `demo/` and `demo-role/` outputs to include language-specific directories and examples. Update templates and sample custom translations in `demo/` files.
+- [x] T005-20 [P] Add demo updates: Update `demo/` and `demo-role/` outputs to include language-specific directories and examples. Update templates and sample custom translations in `demo/` files. ✅ Added translations in demo/project_demo_namespace.demo_project/.ansibledoctor/translations/, generated multi-language output, updated USE_CASE_DEMO.md
 
 - [x] T005-21 [US13] Add integration test verifying custom translation file in `project/.ansibledoctor/translations/fr.yml` overrides embedded translations and overrides collection-level translations if present. ✅ Implemented (unit tests cover project-level overrides and deep merge behavior)
 
@@ -46,7 +46,7 @@
 
 - [x] T005-23 [US12] Security & validation: Add unit tests for YAML parsing safety and substitution injection patterns (`tests/unit/test_translation_security.py`) and implement safe string formatting (no code execution). ✅ Implemented
 
-- [ ] T005-24 [P] Release tasks: Update Roadmap/Version: Bump feature milestone references, prepare CHANGELOG entry in `CHANGELOG.md`, and create PR checklist ensuring TDD, tests passing, documentation updated, and SemVer considerations handled (breaking change or not documented).
+- [x] T005-24 [P] Release tasks: Update Roadmap/Version: Bump feature milestone references, prepare CHANGELOG entry in `CHANGELOG.md`, and create PR checklist ensuring TDD, tests passing, documentation updated, and SemVer considerations handled (breaking change or not documented). ✅ ROADMAP.md updated with v0.6.0 i18n status, CHANGELOG.md has v0.5.1 entry with i18n features
 
 ---
 

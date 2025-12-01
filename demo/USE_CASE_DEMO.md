@@ -274,6 +274,70 @@ poetry run python -m ansibledoctor templates validate custom.j2
 
 ---
 
+## Feature 005: Internationalization (i18n) Support ✅
+
+**Status**: Complete (v0.5.1)
+
+### Use Case: Multi-Language Documentation
+
+**Problem**: Your team spans multiple countries. You need documentation in English, French, and German.
+
+**Solution**: Generate multi-language documentation with translations:
+
+```bash
+# Generate docs in multiple languages
+poetry run ansible-doctor-enhanced project generate ./demo/project_demo_namespace.demo_project --languages en,fr,de
+
+# Output structure:
+# docs/lang/
+# ├── en/README.md
+# ├── fr/README.md
+# └── de/README.md
+```
+
+### Custom Translations
+
+Create translation overrides in your project:
+
+```
+.ansibledoctor/
+└── translations/
+    ├── en.yml
+    ├── fr.yml
+    └── de.yml
+```
+
+Example translation file (`fr.yml`):
+
+```yaml
+overview:
+  title: "Aperçu du Projet"
+  description: "Description du projet"
+roles:
+  title: "Rôles"
+collections:
+  title: "Collections"
+```
+
+### Demo
+
+Try the included demo project with i18n:
+
+```bash
+# Navigate to demo project
+cd demo/project_demo_namespace.demo_project
+
+# Generate multi-language docs
+poetry run ansible-doctor-enhanced project generate ./ --languages en,fr,de --output-dir docs/lang
+
+# Check generated files
+ls docs/lang/*/
+```
+
+**Supported Languages**: English (en), French (fr), German (de)
+
+---
+
 ## Feature 003 Implementation Ready
 
 **Spec**: `specs/003-role-parity/spec.md` ✅  
