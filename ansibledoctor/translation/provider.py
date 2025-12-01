@@ -6,15 +6,18 @@ up translation keys, formatting values, and handling minimal pluralization.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from ansibledoctor.utils.logging import get_logger
 
 try:
     # Babel is optional; if present, use it for plural rules
     from babel.core import Locale as BabelLocale
+
+    _BabelLocaleType = BabelLocale
 except Exception:  # pragma: no cover - optional
-    BabelLocale = None
+    BabelLocale = None  # type: ignore[assignment, misc]
+    _BabelLocaleType = None  # type: ignore[assignment, misc]
 
 logger = get_logger(__name__)
 
@@ -38,7 +41,7 @@ class TranslationProvider:
         self._fallback_lang = fallback_lang
         self._logged_missing_keys: set[str] = set()
         # Try to cache a parsed Babel locale when Babel is available
-        self._babel_locale = None
+        self._babel_locale: Any = None
         if BabelLocale is not None:
             try:
                 self._babel_locale = BabelLocale.parse(lang)
@@ -46,7 +49,7 @@ class TranslationProvider:
                 # fallback silently to None; pluralization will use simple rules
                 self._babel_locale = None
 
-    def _lookup(self, key: str):
+    def _lookup(self, key: str) -> str | dict[str, Any] | None:
         """Look up a key in nested translation mapping.
 
         Supports dotted key lookups and returns either a string, a dict (for plural forms),
@@ -58,6 +61,7 @@ class TranslationProvider:
 
         # Otherwise attempt nested lookup via '.' splitting
         parts = key.split(".")
+        node: Any = self._translations
         node = self._translations
         try:
             for part in parts:
@@ -68,7 +72,7 @@ class TranslationProvider:
         except Exception:
             return None
 
-    def get(self, key: str, default: Optional[str] = None, **kwargs) -> str:
+    def get(self, key: str, default: Optional[str] = None, **kwargs: Any) -> str:
         value = self._lookup(key)
         # If a dict was returned (e.g., plural forms), it's not a direct string
         if value is None:
@@ -119,7 +123,7 @@ class TranslationProvider:
             logger.debug("translation_format_failed", key=key, value=value)
             return str(value)
 
-    def t(self, key: str, default: Optional[str] = None, **kwargs) -> str:
+    def t(self, key: str, default: Optional[str] = None, **kwargs: Any) -> str:
         count = kwargs.get("count")
         if count is not None:
             # Try using Babel to determine the plural category, falling back
@@ -170,7 +174,7 @@ class TranslationProvider:
         if key in self._orig_translations:
             return True
         parts = key.split(".")
-        node = self._orig_translations
+        node: Any = self._orig_translations
         try:
             for p in parts:
                 if not isinstance(node, dict):

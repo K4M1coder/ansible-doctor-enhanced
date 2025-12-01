@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     # Import types for static type-checking only to satisfy linters/types
-    from jinja2 import Template  # type: ignore
+    from jinja2 import Template
 
-    from ansibledoctor.generator.models import OutputFormat  # type: ignore
+    from ansibledoctor.generator.models import OutputFormat
 
 
 @runtime_checkable

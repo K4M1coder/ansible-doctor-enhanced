@@ -21,7 +21,7 @@ class YAMLLoader(Protocol):
     Enables easy testing and potential YAML library replacement.
     """
 
-    def load_file(self, file_path: Path) -> dict[str, Any]:
+    def load_file(self, file_path: Path) -> dict[str, Any] | list[Any]:
         """
         Load and parse a YAML file.
 
@@ -29,7 +29,7 @@ class YAMLLoader(Protocol):
             file_path: Path to YAML file
 
         Returns:
-            Parsed YAML content as dictionary
+            Parsed YAML content as dictionary or list
 
         Raises:
             ParsingError: If YAML syntax is invalid
