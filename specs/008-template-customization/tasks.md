@@ -32,12 +32,32 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Phase 1: Design & Contracts (T326-T331)
 
-- [ ] T326 Design: Create `ThemeConfig` model and YAML contract in `ansibledoctor/config/theme.py` and `specs/008-template-customization/contracts/theme_config.yaml`
-- [ ] T327 Design: Draft `CascadingTemplateLoader` contract and caching rules in `specs/008-template-customization/contracts/cascading_loader.md`
-- [ ] T328 Design: Draft `VariantTemplateResolver` contract and fallback chain rules in `specs/008-template-customization/contracts/variant_resolver.md`
-- [ ] T329 Design: Define `CSSInjector` and `ThemeToggleGenerator` interfaces and examples in `specs/008-template-customization/contracts/css_injector.md`
-- [ ] T330 Design: Define TemplateContext changes (`css_tags`, `theme_config`, `variant`, `context.breadcrumb`) and update `specs/002-doc-generator/contracts/context.md`
-- [ ] T331 Deliver: Collate all contracts in `specs/008-template-customization/contracts/` for PR review
+- [x] T326 Design: Create `ThemeConfig` model and YAML contract in `ansibledoctor/config/theme.py` and `specs/008-template-customization/contracts/theme_config.yaml`
+    - Created contracts/theme_config.yaml with Pydantic model spec
+    - Defined ThemeVariant and ColorScheme enums
+    - Validation rules for css_url, defaults for all fields
+- [x] T327 Design: Draft `CascadingTemplateLoader` contract and caching rules in `specs/008-template-customization/contracts/cascading_loader.md`
+    - 5-level discovery order: role → collection → project → user → embedded
+    - TemplateSource dataclass for tracking source level
+    - TTL-based caching with clear_cache() support
+- [x] T328 Design: Draft `VariantTemplateResolver` contract and fallback chain rules in `specs/008-template-customization/contracts/variant_resolver.md`
+    - Variant enum: minimal, detailed, modern, default
+    - 4-step fallback chain for template resolution
+    - ResolvedTemplate dataclass with is_fallback flag
+- [x] T329 Design: Define `CSSInjector` and `ThemeToggleGenerator` interfaces and examples in `specs/008-template-customization/contracts/css_injector.md`
+    - CSSInjector with base CSS variables (20+ tokens)
+    - ThemeToggleGenerator with ARIA-compliant JS toggle
+    - Dark mode support via data-theme attribute
+- [x] T330 Design: Define TemplateContext changes (`css_tags`, `theme_config`, `variant`, `context.breadcrumb`) and update `specs/008-template-customization/contracts/template_context.md`
+    - New fields: theme_config, variant, css_tags, toggle_*
+    - Factory method with_theme() for theme-aware context
+    - Backward-compatible with existing templates
+- [x] T331 Deliver: Collate all contracts in `specs/008-template-customization/contracts/` for PR review
+    - theme_config.yaml: ThemeConfig model
+    - cascading_loader.md: CascadingTemplateLoader
+    - variant_resolver.md: VariantTemplateResolver
+    - css_injector.md: CSSInjector + ThemeToggleGenerator
+    - template_context.md: TemplateContext extensions
 
 ## Phase 2: Implementation (T332-T342)
 
