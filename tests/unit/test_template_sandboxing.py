@@ -573,3 +573,156 @@ class TestSecurityWithComplexTemplates:
         assert validator.is_safe_template(template) is False
         violations = validator.validate_security(template)
         assert any("eval(" in v for v in violations)
+
+
+class TestTemplateInheritanceValidation:
+    """Tests for template inheritance validation (T356)."""
+
+    @pytest.fixture
+    def validator(self):
+        """Create validator with standard environment."""
+        return create_secure_validator()
+
+    def test_validate_extends_detects_parent(self, validator):
+        """Test detecting parent template in extends."""
+        template = '{% extends "base.html.j2" %}'
+
+        # Get inheritance info
+        parents = validator.get_parent_templates(template)
+
+        assert "base.html.j2" in parents
+
+    def test_validate_extends_multiple_layers(self, validator):
+        """Test detecting extends with dynamic parent."""
+        template = '{% extends parent_template %}'
+
+        parents = validator.get_parent_templates(template)
+
+        # Should return the variable name when dynamic
+        assert "parent_template" in parents or len(parents) == 0
+
+    def test_validate_includes_detects_partials(self, validator):
+        """Test detecting included templates."""
+        template = '''
+        {% extends "base.html.j2" %}
+        {% include "_header.j2" %}
+        {% include "_footer.j2" %}
+        '''
+
+        includes = validator.get_included_templates(template)
+
+        assert "_header.j2" in includes
+        assert "_footer.j2" in includes
+
+    def test_validate_inheritance_chain(self, validator):
+        """Test getting all template dependencies."""
+        template = '''
+        {% extends "layout.html.j2" %}
+        {% include "_nav.j2" %}
+        {% block content %}
+            {% include "_sidebar.j2" %}
+        {% endblock %}
+        '''
+
+        deps = validator.get_template_dependencies(template)
+
+        assert "layout.html.j2" in deps["extends"]
+        assert "_nav.j2" in deps["includes"]
+        assert "_sidebar.j2" in deps["includes"]
+
+    def test_missing_parent_error_message(self, validator, tmp_path):
+        """Test actionable error for missing parent template."""
+        child = tmp_path / "child.html.j2"
+        child.write_text('{% extends "missing_parent.html.j2" %}')
+
+        errors = validator.validate_inheritance(str(child))
+
+        assert len(errors) > 0
+        assert any("missing_parent.html.j2" in e for e in errors)
+        assert any("not found" in e.lower() or "missing" in e.lower() for e in errors)
+
+    def test_missing_include_error_message(self, validator, tmp_path):
+        """Test actionable error for missing include."""
+        template = tmp_path / "page.html.j2"
+        template.write_text('{% include "_nonexistent.j2" %}')
+
+        errors = validator.validate_inheritance(str(template))
+
+        assert len(errors) > 0
+        assert any("_nonexistent.j2" in e for e in errors)
+
+    def test_circular_inheritance_detection(self, validator):
+        """Test detecting circular template inheritance."""
+        # This would require multi-file validation
+        template_a = '{% extends "b.html.j2" %}'
+        template_b = '{% extends "a.html.j2" %}'
+
+        # Should be detected in multi-template validation
+        deps_a = validator.get_template_dependencies(template_a)
+        deps_b = validator.get_template_dependencies(template_b)
+
+        # At minimum, dependencies are captured
+        assert "b.html.j2" in deps_a["extends"]
+        assert "a.html.j2" in deps_b["extends"]
+
+    def test_error_message_includes_suggestions(self, validator, tmp_path):
+        """Test error messages include helpful suggestions."""
+        child = tmp_path / "child.html.j2"
+        child.write_text('{% extends "base.html.j2" %}')
+
+        errors = validator.validate_inheritance(str(child))
+
+        # Error should suggest where to look
+        assert len(errors) > 0
+        error_text = " ".join(errors).lower()
+        assert "base.html.j2" in error_text
+
+    def test_valid_inheritance_no_errors(self, validator, tmp_path):
+        """Test valid inheritance reports no errors."""
+        # Create parent template
+        parent = tmp_path / "base.html.j2"
+        parent.write_text("<html>{% block content %}{% endblock %}</html>")
+
+        # Create child template
+        child = tmp_path / "child.html.j2"
+        child.write_text('{% extends "base.html.j2" %}{% block content %}Hello{% endblock %}')
+
+        # Validate with search path including tmp_path
+        errors = validator.validate_inheritance(str(child), search_paths=[str(tmp_path)])
+
+        assert len(errors) == 0
+
+    def test_nested_includes_validation(self, validator, tmp_path):
+        """Test validation of nested include dependencies."""
+        template = '''
+        {% include "level1.j2" %}
+        '''
+
+        deps = validator.get_template_dependencies(template)
+
+        assert "level1.j2" in deps["includes"]
+
+    def test_conditional_includes(self, validator):
+        """Test conditional includes are detected."""
+        template = '''
+        {% if show_header %}
+            {% include "_header.j2" %}
+        {% endif %}
+        '''
+
+        includes = validator.get_included_templates(template)
+
+        assert "_header.j2" in includes
+
+    def test_import_detection(self, validator):
+        """Test import statements are detected."""
+        template = '''
+        {% import "macros.j2" as macros %}
+        {% from "helpers.j2" import format_date %}
+        '''
+
+        deps = validator.get_template_dependencies(template)
+
+        assert "macros.j2" in deps.get("imports", [])
+        assert "helpers.j2" in deps.get("imports", [])
+

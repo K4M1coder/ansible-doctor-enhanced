@@ -1,5 +1,6 @@
 """Template validation for Jinja2 templates with sandboxing security."""
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -306,6 +307,150 @@ class TemplateValidator:
         if violations:
             error_details = "; ".join(violations)
             raise TemplateValidationError(template_name, f"Security violations: {error_details}")
+
+    def get_parent_templates(self, template_source: str) -> list[str]:
+        """Extract parent template names from extends statements.
+
+        Args:
+            template_source: Template source code
+
+        Returns:
+            List of parent template names
+        """
+        parents = []
+        # Match {% extends "template.j2" %} or {% extends 'template.j2' %}
+        extends_pattern = r'{%\s*extends\s+["\']([^"\']+)["\']\s*%}'
+        matches = re.findall(extends_pattern, template_source)
+        parents.extend(matches)
+
+        # Also match {% extends variable %}
+        variable_pattern = r'{%\s*extends\s+(\w+)\s*%}'
+        var_matches = re.findall(variable_pattern, template_source)
+        parents.extend(var_matches)
+
+        return parents
+
+    def get_included_templates(self, template_source: str) -> list[str]:
+        """Extract included template names from include statements.
+
+        Args:
+            template_source: Template source code
+
+        Returns:
+            List of included template names
+        """
+        includes = []
+        # Match {% include "template.j2" %} or {% include 'template.j2' %}
+        include_pattern = r'{%\s*include\s+["\']([^"\']+)["\']\s*%}'
+        matches = re.findall(include_pattern, template_source)
+        includes.extend(matches)
+
+        return includes
+
+    def get_template_dependencies(self, template_source: str) -> dict[str, list[str]]:
+        """Get all template dependencies including extends, includes, and imports.
+
+        Args:
+            template_source: Template source code
+
+        Returns:
+            Dictionary with keys: extends, includes, imports
+        """
+        deps: dict[str, list[str]] = {
+            "extends": [],
+            "includes": [],
+            "imports": [],
+        }
+
+        # Get extends
+        deps["extends"] = self.get_parent_templates(template_source)
+
+        # Get includes
+        deps["includes"] = self.get_included_templates(template_source)
+
+        # Get imports: {% import "macros.j2" as x %} and {% from "helpers.j2" import y %}
+        import_pattern = r'{%\s*import\s+["\']([^"\']+)["\']\s+as\s+\w+\s*%}'
+        from_pattern = r'{%\s*from\s+["\']([^"\']+)["\']\s+import\s+'
+
+        import_matches = re.findall(import_pattern, template_source)
+        from_matches = re.findall(from_pattern, template_source)
+
+        deps["imports"] = list(set(import_matches + from_matches))
+
+        return deps
+
+    def validate_inheritance(
+        self,
+        template_path: str | Path,
+        search_paths: list[str] | None = None,
+    ) -> list[str]:
+        """Validate template inheritance chain for missing parents or includes.
+
+        Args:
+            template_path: Path to template file
+            search_paths: Optional list of directories to search for templates
+
+        Returns:
+            List of error messages for missing dependencies
+        """
+        errors = []
+        path = Path(template_path)
+
+        if not path.exists():
+            errors.append(f"Template file not found: {template_path}")
+            return errors
+
+        template_source = path.read_text(encoding="utf-8")
+        deps = self.get_template_dependencies(template_source)
+
+        # Default search paths include template's directory
+        paths_to_search = [path.parent]
+        if search_paths:
+            paths_to_search.extend(Path(p) for p in search_paths)
+
+        # Check extends
+        for parent in deps["extends"]:
+            found = False
+            for search_path in paths_to_search:
+                if (search_path / parent).exists():
+                    found = True
+                    break
+            if not found:
+                errors.append(
+                    f"Parent template '{parent}' not found. "
+                    f"Searched in: {', '.join(str(p) for p in paths_to_search)}. "
+                    f"Create '{parent}' or check the template search path."
+                )
+
+        # Check includes
+        for include in deps["includes"]:
+            found = False
+            for search_path in paths_to_search:
+                if (search_path / include).exists():
+                    found = True
+                    break
+            if not found:
+                errors.append(
+                    f"Included template '{include}' not found. "
+                    f"Searched in: {', '.join(str(p) for p in paths_to_search)}. "
+                    f"Create '{include}' or update the include path."
+                )
+
+        # Check imports
+        for imp in deps["imports"]:
+            found = False
+            for search_path in paths_to_search:
+                if (search_path / imp).exists():
+                    found = True
+                    break
+            if not found:
+                errors.append(
+                    f"Imported template '{imp}' not found. "
+                    f"Searched in: {', '.join(str(p) for p in paths_to_search)}. "
+                    f"Create '{imp}' or update the import path."
+                )
+
+        return errors
 
 
 def create_sandboxed_environment(**options: Any) -> SecureSandboxedEnvironment:

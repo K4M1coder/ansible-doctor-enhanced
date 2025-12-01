@@ -117,20 +117,35 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 ## Phase 3: Integration & multi-language support (T343-T349)
 
 - [x] T343 [US25] Integration: End-to-end `tests/integration/test_theme_variants.py` that renders minimal/detailed/modern variants for roles and collections and validates structure and content
-- [ ] T344 [P] [US23] Integration: End-to-end `tests/integration/test_i18n_theme_integration.py` validating `t()` translation keys for theme labels and translations for multilingual outputs
-- [ ] T345 [US24] Integration: `tests/integration/test_template_source_logging.py` verifying custom templates at role/collection/project are used and template source is logged
-- [ ] T346 [US26] Integration: `tests/integration/test_css_injection.py` verifying CSS injection & optional toggle JS in HTML and ensuring CSS is ignored for Markdown/RST outputs
-- [ ] T347 [P] Performance: `tests/perf/test_theme_perf.py` benchmark verifying template discovery and CSS injection overhead < 50ms for a typical role
-- [ ] T348 [P] Security: Update `ansibledoctor/generator/template_validator.py` and add tests `tests/unit/test_template_sandboxing.py` to ensure safe Jinja2 options and prevent code execution from templates
-- [ ] T349 [US27] Accessibility: `tests/integration/test_theme_accessibility.py` ensuring ARIA attributes in toggle controls and valid HTML structure
+    - 14 integration tests for theme variant rendering
+- [x] T344 [P] [US23] Integration: End-to-end `tests/integration/test_i18n_theme_integration.py` validating `t()` translation keys for theme labels and translations for multilingual outputs
+    - 17 integration tests for i18n theme integration
+- [x] T345 [US24] Integration: `tests/integration/test_template_source_logging.py` verifying custom templates at role/collection/project are used and template source is logged
+    - 17 integration tests for template source logging
+- [x] T346 [US26] Integration: `tests/integration/test_css_injection.py` verifying CSS injection & optional toggle JS in HTML and ensuring CSS is ignored for Markdown/RST outputs
+    - 26 integration tests for CSS injection behavior
+- [x] T347 [P] Performance: `tests/perf/test_theme_perf.py` benchmark verifying template discovery and CSS injection overhead < 50ms for a typical role
+    - 15 performance benchmark tests
+- [x] T348 [P] Security: Update `ansibledoctor/generator/template_validator.py` and add tests `tests/unit/test_template_sandboxing.py` to ensure safe Jinja2 options and prevent code execution from templates
+    - 62 unit tests for template sandboxing security
+    - SecureSandboxedEnvironment with restricted attributes
+- [x] T349 [US27] Accessibility: `tests/integration/test_theme_accessibility.py` ensuring ARIA attributes in toggle controls and valid HTML structure
+    - 45 accessibility tests for ARIA and valid HTML
 
 ## Phase 4: Demos & Documentation (T350-T354)
 
-- [ ] T350 [P] [US25] Create demo templates under `demo/` for minimal/detailed/modern variants (`demo/role.*.html.j2`) and sample CSS inline/URL usage
-- [ ] T351 [P] Update `README.md` QuickStart and `docs/TEMPLATE_GUIDE.md` with theme examples, flags, and override behavior
-- [ ] T352 [P] Add `specs/008-template-customization/MIGRATION.md` (optional) if we need to change template search paths or config keys
-- [ ] T353 [P] Add example configs & theme css examples to `demo/` for selenium/manual testing
-- [ ] T354 [P] Add e2e demo tests `tests/e2e/test_demo_themes.py` validating demo outputs and theme toggle
+- [x] T350 [P] [US25] Create demo templates under `demo/` for minimal/detailed/modern variants (`demo/role.*.html.j2`) and sample CSS inline/URL usage
+    - Created role.minimal.html.j2, role.detailed.html.j2, role.modern.html.j2
+    - Created sample-theme.css and inline-overrides.css
+- [x] T351 [P] Update `README.md` QuickStart and `docs/TEMPLATE_GUIDE.md` with theme examples, flags, and override behavior
+    - Added theming section to README.md
+    - Added comprehensive theming section to TEMPLATE_GUIDE.md
+- [x] T352 [P] Add `specs/008-template-customization/MIGRATION.md` (optional) if we need to change template search paths or config keys
+    - Created 241-line migration guide
+- [x] T353 [P] Add example configs & theme css examples to `demo/` for selenium/manual testing
+    - Created 5 example configs: minimal-theme, detailed-theme, modern-theme, dark-theme, custom-css
+- [x] T354 [P] Add e2e demo tests `tests/e2e/test_demo_themes.py` validating demo outputs and theme toggle
+    - 45 E2E tests for demo templates, CSS, configs, theme toggle
 
 ## Phase 5: Polish & Release (T355-T360)
 
