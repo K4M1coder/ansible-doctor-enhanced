@@ -1,0 +1,17 @@
+# Example config with MINIMAL theme variant
+# Use for compact documentation output
+
+output_format: html
+output: docs/README.html
+
+theme:
+  variant: minimal
+  color_scheme: light
+  toggle_enabled: false
+
+# Minimal variant produces compact output:
+# - Role name and description only
+# - Variables list (name + default)
+# - Tasks list (names only)
+# - No metadata section
+# - No examples section

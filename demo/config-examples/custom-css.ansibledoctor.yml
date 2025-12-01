@@ -1,0 +1,29 @@
+# Example config with CUSTOM CSS
+# Demonstrates CSS URL and inline overrides
+
+output_format: html
+output: docs/README.html
+
+theme:
+  variant: modern
+  color_scheme: auto
+  toggle_enabled: true
+  
+  # External CSS URL (loaded after base CSS)
+  css_url: ../css/sample-theme.css
+  
+  # Inline CSS (highest priority, loaded last)
+  css_inline: |
+    :root {
+      --ad-color-primary: #059669;
+      --ad-color-primary-light: #10b981;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+    }
+
+# CSS cascade order:
+# 1. Base theme CSS (CSS variables)
+# 2. External CSS URL
+# 3. Inline CSS (highest priority)
