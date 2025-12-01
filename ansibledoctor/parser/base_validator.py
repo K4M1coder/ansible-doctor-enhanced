@@ -8,7 +8,7 @@ that can be reused across different parsers.
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from ansibledoctor.exceptions import ParsingError
 
@@ -112,7 +112,7 @@ class BaseValidator:
     @staticmethod
     def create_actionable_error(
         message: str,
-        context: dict,
+        context: dict[str, Any],
         suggestion: str,
         troubleshooting_steps: Optional[list[str]] = None,
     ) -> ParsingError:
