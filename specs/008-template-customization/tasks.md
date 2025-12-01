@@ -164,7 +164,10 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - 1508 tests passing (2 skipped for platform-specific reasons)
     - 83% code coverage
     - Performance, accessibility, and security tests all pass
-- [ ] T359 Tag v0.8.0 and prepare release PR with tests green, docs updated, and migration notes
+- [x] T359 Tag v0.8.0 and prepare release PR with tests green, docs updated, and migration notes
+    - Updated pyproject.toml version to 0.8.0
+    - Updated __init__.py fallback version to 0.8.0
+    - Updated CHANGELOG.md with [0.8.0] - 2025-12-01 section
 - [ ] T360 Post-release: Compile deferred v0.9.0 enhancements in `specs/008-template-customization/post_release.md`
 
 ## Acceptance Criteria & Traceability
