@@ -124,7 +124,7 @@ def relative_link(from_path: str, to_path: str) -> str:
 
     # Find common prefix
     common_length = 0
-    for i, (f, t) in enumerate(zip(from_parts, to_parts)):
+    for i, (f, t) in enumerate(zip(from_parts, to_parts, strict=False)):
         if f == t:
             common_length = i + 1
         else:
@@ -143,4 +143,3 @@ def relative_link(from_path: str, to_path: str) -> str:
         return "/".join(rel_parts) + "/README.md"
     else:
         return "README.md"
-

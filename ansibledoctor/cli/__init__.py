@@ -37,6 +37,7 @@ from ansibledoctor.parser.variable_parser import VariableParser
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 from ansibledoctor.utils.logging import get_logger, setup_logging
 from ansibledoctor.utils.paths import RolePathValidator
+from ansibledoctor.utils.slug import role_slug
 
 logger = get_logger(__name__)
 
@@ -280,10 +281,18 @@ def _parse_single_role(role_path: Path, validate: bool) -> dict:
             "license": metadata.license,
             "min_ansible_version": metadata.min_ansible_version,
         }
+        # Add slug to metadata
+        namespace = metadata.company or "unknown"
+        slug = role_slug(namespace, role_path.name)
+        result["metadata"]["slug"] = slug
+        result["slug"] = slug
         logger.debug("metadata_parsed", author=metadata.author)
     except Exception as e:
         logger.warning("metadata_parse_failed", error=str(e))
         result["metadata"] = None
+        # Still add slug even if metadata fails
+        slug = role_slug("unknown", role_path.name)
+        result["slug"] = slug
 
     # Parse variables
     try:
@@ -633,7 +642,7 @@ def generate(
 
         # Build theme configuration from CLI options
         from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
-        
+
         theme_config = ThemeConfig(
             variant=ThemeVariant(variant.lower()),
             color_scheme=ColorScheme(color_scheme.lower()),
