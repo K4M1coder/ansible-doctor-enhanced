@@ -1,0 +1,8 @@
+{# Breadcrumb navigation partial for Markdown #}
+{% if context is defined and context and context.breadcrumb and context.breadcrumb|length > 1 %}
+{# Breadcrumb Navigation #}
+{% for item in context.breadcrumb %}{% if not loop.last %}[{{ item.name }}]({{ item.link }}) > {% else %}**{{ item.name }}**{% endif %}{% endfor %}
+
+---
+
+{% endif %}

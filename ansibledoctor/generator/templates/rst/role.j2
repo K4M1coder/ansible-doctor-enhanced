@@ -1,4 +1,7 @@
-{% if sphinx_compat is not defined %}{% set sphinx_compat = true %}{% endif %}
+{% if sphinx_compat is not defined %}{% set sphinx_compat = true %}{% endif -%}
+{# Breadcrumb navigation -#}
+{% include '_breadcrumb.j2' ignore missing -%}
+
 {{ role_name | rst_escape }}
 {{ '=' * (role_name | rst_escape | length) }}
 
@@ -153,6 +156,9 @@ No examples provided.
 {% endfor %}
 {% endif %}
 {% endif %}
+
+{# Sibling navigation #}
+{% include '_siblings.j2' ignore missing %}
 
 ----
 

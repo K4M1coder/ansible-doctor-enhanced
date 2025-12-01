@@ -7,9 +7,11 @@ in HTML format using Jinja2 templates with embedded CSS and responsive design.
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from jinja2 import Environment, FileSystemLoader
 from markupsafe import escape
 
 from ansibledoctor.generator.engine import TemplateEngine
+from ansibledoctor.generator.filters import FILTERS
 from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.protocols import DocumentRenderer
@@ -124,13 +126,19 @@ class HtmlRenderer(DocumentRenderer):
         # Validate options before rendering
         self.validate_options(render_options)
 
-        engine = self._get_engine()
-
         # Determine template to use
         if self._template_path:
-            # Custom template provided
-            template_content = Path(self._template_path).read_text(encoding="utf-8")
-            template = engine.environment.from_string(template_content)
+            # Custom template provided - use FileSystemLoader for include support
+            template_file = Path(self._template_path)
+            template_dir = template_file.parent
+            loader = FileSystemLoader(str(template_dir))
+            env = Environment(
+                loader=loader,
+                trim_blocks=True,
+                lstrip_blocks=True,
+            )
+            env.filters.update(FILTERS)
+            template = env.get_template(template_file.name)
         else:
             # Use default embedded template
             loader = self._get_embedded_loader()

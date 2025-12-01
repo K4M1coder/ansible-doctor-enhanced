@@ -4,9 +4,13 @@ This module provides the RstRenderer class that renders role documentation
 in reStructuredText format using Jinja2 templates, with optional Sphinx directives.
 """
 
+from pathlib import Path
 from typing import Any, Dict, Optional
 
+from jinja2 import Environment, FileSystemLoader
+
 from ansibledoctor.generator.engine import TemplateEngine
+from ansibledoctor.generator.filters import FILTERS
 from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.protocols import DocumentRenderer
@@ -138,8 +142,22 @@ class RstRenderer(DocumentRenderer):
         self.validate_options(render_options)
 
         # Load template
-        loader = self._get_embedded_loader()
-        template = loader.load_template("role", OutputFormat.RST)
+        if self._template_path:
+            # Custom template provided - use FileSystemLoader for include support
+            template_file = Path(self._template_path)
+            template_dir = template_file.parent
+            fs_loader = FileSystemLoader(str(template_dir))
+            env = Environment(
+                loader=fs_loader,
+                trim_blocks=True,
+                lstrip_blocks=True,
+            )
+            env.filters.update(FILTERS)
+            template = env.get_template(template_file.name)
+        else:
+            # Use default embedded template
+            loader = self._get_embedded_loader()
+            template = loader.load_template("role", OutputFormat.RST)
 
         # Prepare template variables
         template_vars = context.to_dict()

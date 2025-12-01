@@ -1,4 +1,7 @@
-{% set collection_fqcn = fqcn if fqcn is defined else metadata.namespace ~ '.' ~ metadata.name %}
+{% set collection_fqcn = fqcn if fqcn is defined else metadata.namespace ~ '.' ~ metadata.name -%}
+{# Breadcrumb navigation -#}
+{% include '_breadcrumb.j2' ignore missing -%}
+
 # {{ metadata.namespace }}.{{ metadata.name }}
 
 {% if description is defined and description %}
@@ -156,6 +159,9 @@ ansible-galaxy collection install -r requirements.yml
 ## License
 
 See LICENSE file in the collection.
+
+{# Sibling navigation #}
+{% include '_siblings.j2' ignore missing %}
 
 ---
 

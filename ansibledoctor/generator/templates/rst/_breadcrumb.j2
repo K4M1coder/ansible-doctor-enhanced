@@ -1,0 +1,10 @@
+{# Breadcrumb navigation partial for RST #}
+{% if context is defined and context and context.breadcrumb and context.breadcrumb|length > 1 %}
+.. rubric:: Navigation
+
+{% for item in context.breadcrumb %}{% if not loop.last %}`{{ item.name }} <{{ item.link }}>`_ > {% else %}**{{ item.name }}**{% endif %}{% endfor %}
+
+
+----
+
+{% endif %}
