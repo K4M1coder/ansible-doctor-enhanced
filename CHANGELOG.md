@@ -57,6 +57,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CSS variables reference
   - Custom template creation guide
 
+### Documentation - Feature 008: Theming Guide
+
+- **UPDATED**: `README.md` with new Theming & Customization section (v0.8.0 feature)
+  - Template variants usage (minimal, detailed, modern)
+  - CSS customization (external URL and inline)
+  - Dark mode toggle features
+  - Color scheme options
+  - Configuration file examples
+- **UPDATED**: `docs/TEMPLATE_GUIDE.md` with comprehensive theming section
+  - Template variants reference table
+  - CSS cascade order explanation
+  - CSS variables reference
+  - Dark mode toggle documentation
+  - Template context variables for theming
+  - Custom template location guide
+
 ### Added - Feature 007: Hierarchical Context Detection
 
 - **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships

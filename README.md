@@ -425,6 +425,76 @@ ansible-doctor-enhanced generate --input role-docs.json --output README.md --tem
 }
 ```
 
+## 🎨 Theming & Customization (New in v0.8.0)
+
+ansible-doctor-enhanced supports comprehensive theming for HTML documentation output.
+
+### Template Variants
+
+Choose from three built-in variants:
+
+```bash
+# Minimal - compact essential info
+ansible-doctor role ./my-role --variant minimal --format html
+
+# Detailed - full documentation (default)
+ansible-doctor role ./my-role --variant detailed --format html
+
+# Modern - contemporary card-based styling
+ansible-doctor role ./my-role --variant modern --format html
+```
+
+### CSS Customization
+
+Apply custom CSS via external URL or inline styles:
+
+```bash
+# External CSS theme
+ansible-doctor role ./my-role --css-url https://cdn.example.com/theme.css
+
+# Inline CSS overrides
+ansible-doctor role ./my-role --css-inline ":root { --ad-color-primary: #dc2626; }"
+```
+
+### Dark Mode Toggle
+
+Add a theme toggle button for dark/light mode:
+
+```bash
+ansible-doctor role ./my-role --format html --theme-toggle
+```
+
+Features:
+- ✅ Respects `prefers-color-scheme` system preference
+- ✅ Persists user choice to `localStorage`
+- ✅ ARIA attributes for accessibility
+
+### Color Schemes
+
+```bash
+# Force light/dark mode
+ansible-doctor role ./my-role --color-scheme light
+ansible-doctor role ./my-role --color-scheme dark
+
+# Auto (respects OS preference - default)
+ansible-doctor role ./my-role --color-scheme auto
+```
+
+### Configuration File
+
+```yaml
+# .ansibledoctor.yml
+theme:
+  variant: modern
+  color_scheme: auto
+  css_url: https://example.com/theme.css
+  toggle_enabled: true
+```
+
+**Documentation:** See [TEMPLATE_GUIDE.md](docs/TEMPLATE_GUIDE.md) for CSS variables, custom templates, and advanced theming.
+
+**Demo:** Try demo templates at `demo/templates/` and CSS examples at `demo/css/`.
+
 ## 📖 Usage
 
 ### Library API (Phase 2 Complete)
