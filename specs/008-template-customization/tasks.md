@@ -116,7 +116,7 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Phase 3: Integration & multi-language support (T343-T349)
 
-- [ ] T343 [US25] Integration: End-to-end `tests/integration/test_theme_variants.py` that renders minimal/detailed/modern variants for roles and collections and validates structure and content
+- [x] T343 [US25] Integration: End-to-end `tests/integration/test_theme_variants.py` that renders minimal/detailed/modern variants for roles and collections and validates structure and content
 - [ ] T344 [P] [US23] Integration: End-to-end `tests/integration/test_i18n_theme_integration.py` validating `t()` translation keys for theme labels and translations for multilingual outputs
 - [ ] T345 [US24] Integration: `tests/integration/test_template_source_logging.py` verifying custom templates at role/collection/project are used and template source is logged
 - [ ] T346 [US26] Integration: `tests/integration/test_css_injection.py` verifying CSS injection & optional toggle JS in HTML and ensuring CSS is ignored for Markdown/RST outputs
