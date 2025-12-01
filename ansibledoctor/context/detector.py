@@ -12,14 +12,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import structlog
 
 from ansibledoctor.utils.slug import collection_slug, project_slug, role_slug
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    pass
 
 logger = structlog.get_logger(__name__)
 
@@ -196,9 +196,7 @@ class ContextDetector:
 
         return ComponentType.STANDALONE
 
-    def _get_name_and_slug(
-        self, path: Path, component_type: ComponentType
-    ) -> tuple[str, str]:
+    def _get_name_and_slug(self, path: Path, component_type: ComponentType) -> tuple[str, str]:
         """Get component name and slug based on type."""
         if component_type == ComponentType.ROLE:
             # Try to get namespace from parent collection or use directory name
@@ -343,7 +341,10 @@ class ContextDetector:
                     if ns_dir.is_dir():
                         for coll_path in ns_dir.iterdir():
                             if coll_path.is_dir() and coll_path != ctx.component_path:
-                                if self._identify_component_type(coll_path) == ComponentType.COLLECTION:
+                                if (
+                                    self._identify_component_type(coll_path)
+                                    == ComponentType.COLLECTION
+                                ):
                                     name, slug = self._get_name_and_slug(
                                         coll_path, ComponentType.COLLECTION
                                     )

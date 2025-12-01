@@ -63,7 +63,7 @@ class ConfigModel(BaseModel):
     languages: Optional[LanguageConfig] = Field(
         default=None, description="Language configuration for i18n"
     )
-    
+
     theme: Optional[ThemeConfig] = Field(
         default=None, description="Theme configuration for documentation output"
     )
