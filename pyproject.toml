@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ansible-doctor-enhanced"
-version = "0.9.0"
+version = "0.9.1"
 description = "Enhanced Ansible role documentation generator with annotation support, logging, error handling, and reporting"
 authors = ["Cédric Thédrez <kamicth@gmail.com>"]
 license = "MIT"

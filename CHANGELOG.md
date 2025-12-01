@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.9.1] - 2025-12-02
+
+### Fixed
+
+- **FIX**: TaskParser now correctly passes `description` parameter to Tag constructor
+- **FIX**: Added type annotation for `files` variable in `_collect_task_files` method
+- **FIX**: Unit tests now properly mock `Path.exists()` for TaskParser tests
+- **FIX**: Added missing `[Unreleased]` section in CHANGELOG.md
+
 ## [0.9.0] - 2025-12-01
 
 ### Added

@@ -6,7 +6,7 @@ Following TDD Red-Green-Refactor cycle for Phase 8 US3.
 """
 
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -36,7 +36,8 @@ class TestTaskParserBasics:
         assert parser is not None
         assert parser.yaml_loader is yaml_loader
 
-    def test_parse_single_tag(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_single_tag(self, mock_exists, task_parser, yaml_loader):
         """Should extract single tag from task."""
         yaml_loader.load_file.return_value = [
             {
@@ -53,7 +54,8 @@ class TestTaskParserBasics:
         assert tags[0].name == "install"
         assert tags[0].usage_count == 1
 
-    def test_parse_multiple_tags_single_task(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_multiple_tags_single_task(self, mock_exists, task_parser, yaml_loader):
         """Should extract multiple tags from single task."""
         yaml_loader.load_file.return_value = [
             {
@@ -71,7 +73,8 @@ class TestTaskParserBasics:
         assert "install" in tag_names
         assert "configure" in tag_names
 
-    def test_parse_multiple_tasks_same_tag(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_multiple_tasks_same_tag(self, mock_exists, task_parser, yaml_loader):
         """Should aggregate tag usage count across tasks."""
         yaml_loader.load_file.return_value = [
             {"name": "Task 1", "debug": {"msg": "test"}, "tags": ["install"]},
@@ -86,7 +89,8 @@ class TestTaskParserBasics:
         assert tags[0].name == "install"
         assert tags[0].usage_count == 3
 
-    def test_parse_task_without_tags(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_task_without_tags(self, mock_exists, task_parser, yaml_loader):
         """Should handle tasks without tags gracefully."""
         yaml_loader.load_file.return_value = [
             {"name": "Task without tags", "debug": {"msg": "test"}}
@@ -97,7 +101,8 @@ class TestTaskParserBasics:
 
         assert len(tags) == 0
 
-    def test_parse_empty_task_file(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_empty_task_file(self, mock_exists, task_parser, yaml_loader):
         """Should handle empty task file."""
         yaml_loader.load_file.return_value = []
 
@@ -110,7 +115,8 @@ class TestTaskParserBasics:
 class TestTagFormatVariations:
     """Test different tag format variations."""
 
-    def test_parse_tag_as_string(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_tag_as_string(self, mock_exists, task_parser, yaml_loader):
         """Should handle single tag as string instead of list."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": "install"}
@@ -122,7 +128,8 @@ class TestTagFormatVariations:
         assert len(tags) == 1
         assert tags[0].name == "install"
 
-    def test_parse_tag_with_whitespace(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_tag_with_whitespace(self, mock_exists, task_parser, yaml_loader):
         """Should strip whitespace from tag names."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": ["  install  "]}
@@ -134,7 +141,8 @@ class TestTagFormatVariations:
         assert len(tags) == 1
         assert tags[0].name == "install"
 
-    def test_parse_duplicate_tags_in_same_task(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_duplicate_tags_in_same_task(self, mock_exists, task_parser, yaml_loader):
         """Should handle duplicate tags in same task (count as one)."""
         yaml_loader.load_file.return_value = [
             {
@@ -157,7 +165,8 @@ class TestTagFormatVariations:
 class TestFileLocationTracking:
     """Test tracking of file locations for tags."""
 
-    def test_track_tag_file_location(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_track_tag_file_location(self, mock_exists, task_parser, yaml_loader):
         """Should track file location where tag is used."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": ["install"]}
@@ -171,7 +180,8 @@ class TestFileLocationTracking:
         # Should contain reference to tasks/main.yml
         assert any("tasks" in loc for loc in tags[0].file_locations)
 
-    def test_track_multiple_file_locations(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_track_multiple_file_locations(self, mock_exists, task_parser, yaml_loader):
         """Should track tag usage across multiple files."""
         # This would be tested when parsing multiple task files
         # For now, ensure file_locations is populated
@@ -191,7 +201,8 @@ class TestFileLocationTracking:
 class TestTagDescriptions:
     """Test extraction of tag descriptions from @tag annotations."""
 
-    def test_parse_tag_without_description(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_tag_without_description(self, mock_exists, task_parser, yaml_loader):
         """Should create tag without description when no annotation present."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": ["install"]}
@@ -203,7 +214,8 @@ class TestTagDescriptions:
         assert len(tags) == 1
         assert tags[0].description is None
 
-    def test_associate_tag_description_from_annotation(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_associate_tag_description_from_annotation(self, mock_exists, task_parser, yaml_loader):
         """Should associate @tag annotation with tag (integration with annotation parser)."""
         # This will be tested in integration tests
         # The TaskParser itself just extracts tags, descriptions come from annotations
@@ -223,15 +235,15 @@ class TestErrorHandling:
 
     def test_handle_missing_tasks_directory(self, task_parser, yaml_loader):
         """Should handle missing tasks directory gracefully."""
-        yaml_loader.load_file.side_effect = FileNotFoundError("tasks/main.yml not found")
-
+        # By default Path.exists() returns False for fake paths, so no patching needed
         role_path = Path("/fake/role")
         tags = task_parser.parse_tasks(role_path)
 
         # Should return empty list, not crash
         assert tags == []
 
-    def test_handle_malformed_task_yaml(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_handle_malformed_task_yaml(self, mock_exists, task_parser, yaml_loader):
         """Should handle malformed YAML gracefully."""
         yaml_loader.load_file.side_effect = ValueError("Invalid YAML")
 
@@ -241,7 +253,8 @@ class TestErrorHandling:
         # Should return empty list and log warning
         assert tags == []
 
-    def test_handle_task_with_invalid_tags_type(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_handle_task_with_invalid_tags_type(self, mock_exists, task_parser, yaml_loader):
         """Should handle invalid tags field type."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": 123}  # Invalid: int
@@ -253,7 +266,8 @@ class TestErrorHandling:
         # Should skip invalid tags
         assert len(tags) == 0
 
-    def test_handle_none_tags_field(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_handle_none_tags_field(self, mock_exists, task_parser, yaml_loader):
         """Should handle None tags field."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": None}
@@ -268,7 +282,8 @@ class TestErrorHandling:
 class TestMultipleTaskFiles:
     """Test parsing multiple task files."""
 
-    def test_parse_main_tasks_file(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_parse_main_tasks_file(self, mock_exists, task_parser, yaml_loader):
         """Should parse tasks/main.yml by default."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": ["install"]}
@@ -297,7 +312,8 @@ class TestMultipleTaskFiles:
 class TestTagAggregation:
     """Test tag aggregation and deduplication."""
 
-    def test_aggregate_tags_across_tasks(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_aggregate_tags_across_tasks(self, mock_exists, task_parser, yaml_loader):
         """Should aggregate and deduplicate tags."""
         yaml_loader.load_file.return_value = [
             {"name": "Task 1", "debug": {"msg": "test"}, "tags": ["install", "configure"]},
@@ -317,7 +333,8 @@ class TestTagAggregation:
         assert tag_dict["configure"].usage_count == 2
         assert tag_dict["deploy"].usage_count == 1
 
-    def test_return_sorted_tags(self, task_parser, yaml_loader):
+    @patch.object(Path, "exists", return_value=True)
+    def test_return_sorted_tags(self, mock_exists, task_parser, yaml_loader):
         """Should return tags in consistent order (alphabetically)."""
         yaml_loader.load_file.return_value = [
             {"name": "Task", "debug": {"msg": "test"}, "tags": ["zebra", "alpha", "beta"]}

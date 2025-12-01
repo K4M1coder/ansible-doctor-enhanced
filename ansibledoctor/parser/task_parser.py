@@ -47,7 +47,7 @@ class TaskParser:
         """
         Recursively collect all task files starting from current_file, following includes.
         """
-        files = []
+        files: list[Path] = []
         if current_file in visited:
             return files
         visited.add(current_file)
@@ -176,6 +176,7 @@ class TaskParser:
         tags = [
             Tag(
                 name=tag_data["name"],
+                description=None,
                 usage_count=tag_data["usage_count"],
                 file_locations=tag_data["file_locations"],
             )
