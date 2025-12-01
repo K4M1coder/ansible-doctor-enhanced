@@ -37,4 +37,9 @@ description: "Task breakdown for Feature 007: Hierarchical Context Detection"
     - Documented ContextDetector, slug utilities, template partials
 
 ## Acceptance
-- [ ] T314 E2E test: generate docs for a full project with nested collections and roles, and verify link navigation across all levels is correct
+- [x] T314 E2E test: generate docs for a full project with nested collections and roles, and verify link navigation across all levels is correct
+    - 8 E2E tests covering full project hierarchy
+    - Tests for project->collection->role detection chain
+    - Breadcrumb completeness and sibling discovery
+    - Bidirectional navigation link generation
+    - Standalone role/collection handling
