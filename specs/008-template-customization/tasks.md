@@ -80,8 +80,15 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - TTL-based caching with clear_cache()
     - Project root detection via ansible.cfg, pyproject.toml, .git
     - Jinja2 ChoiceLoader with embedded fallback
-- [ ] T336 [US25] Write failing unit tests in `tests/unit/generator/test_variant_resolver.py` for `role.modern.*.j2` resolution and fallback chains
-- [ ] T337 [US25] Implement `ansibledoctor/generator/variant_resolver.py` and integrate with `cascading_loader` to support variant-aware resolution
+- [x] T336 [US25] Write failing unit tests in `tests/unit/generator/test_variant_resolver.py` for `role.modern.*.j2` resolution and fallback chains
+    - 24 unit tests covering Variant enum, ResolvedTemplate, resolution chain, fallback behavior
+    - Tests for 4-step fallback: variant → format → default → generic
+    - Integration tests with CascadingTemplateLoader
+- [x] T337 [US25] Implement `ansibledoctor/generator/variant_resolver.py` and integrate with `cascading_loader` to support variant-aware resolution
+    - Variant enum (minimal, detailed, modern, default)
+    - ResolvedTemplate dataclass with candidates property
+    - 4-step fallback chain resolution
+    - list_variants() for discovering available variants
 - [ ] T338 [US26] Write failing unit tests in `tests/unit/generator/test_css_injector.py` for external link, inline CSS, dark-mode wrapper, and tag generation (HTML only)
 - [ ] T339 [US26] Implement `ansibledoctor/generator/css_injector.py` and `ansibledoctor/generator/theme_toggle.py` (JS snippet) with safe defaults and tests
 - [ ] T340 [P] Add `css_tags`/`theme_config` to `ansibledoctor/generator/context.py` or `ansibledoctor/generator/models.py` (RenderResult) and update `ansibledoctor/generator/renderers/html.py` to include `css_tags`
