@@ -61,8 +61,12 @@ description: "Task breakdown for Feature 006: Project Documentation"
     - Added pytest --ignore=tests/fixtures to pyproject.toml
 
 ## Task Mapping to Checklists & Acceptance
-- [ ] T321 Create traceability matrix that maps `checklists/project.md` CHK items to these tasks (T201-T320) and mark any coverage gaps; create `mappings/traceability.md` artifact
-- [ ] T322 [ADMIN] Resolve or document feature numbering mismatch (constitution vs repo) and add guidance for maintainers; do not change code or branch names without consensus
+- [x] T321 Create traceability matrix that maps `checklists/project.md` CHK items to these tasks (T201-T320) and mark any coverage gaps; create `mappings/traceability.md` artifact
+    - Matrix already existed in mappings/traceability.md - verified complete with all 23 CHK items mapped
+- [x] T322 [ADMIN] Resolve or document feature numbering mismatch (constitution vs repo) and add guidance for maintainers; do not change code or branch names without consensus
+    - Created `specs/FEATURE_NUMBERING.md` documenting duplicate 007 folders and resolution guidance
+    - Identified `007-hierarchical-context/` as canonical spec, `007-project-navigation/` as duplicate
+    - Added version/feature alignment table and maintainer guidance
 
 ---
 
@@ -75,12 +79,9 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ## Status Summary
 
-**Completed**: 30 tasks
-**Remaining**: 2 tasks (T321, T322)
+**Completed**: 32 tasks
+**Remaining**: 0 tasks
 
-- T321: Traceability matrix (documentation/admin task)
-- T322: Feature numbering clarification (admin/maintenance task)
-
-Feature 006 is ~94% complete with all code functionality fully implemented.
-Only administrative/documentation tasks remain.
+Feature 006 is 100% COMPLETE!
+All code functionality, documentation, and administrative tasks are done.
 
