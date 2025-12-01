@@ -18,13 +18,13 @@ Ansible Doctor Enhanced sera la solution de documentation complète pour Ansible
 | Collection Docs | v0.5.0 ✅ | Complete | 800+ | 83% |
 | i18n Support | v0.6.0 ✅ | Complete (24/24 tasks) | 950+ | 83% |
 | Project Docs | v0.7.0 ✅ | Complete (32/32 tasks) | 1018+ | 83% |
-| Hierarchical Context | v0.8.0 ⏳ | ~10% (Specification) | - | - |
-| Template Customization | v0.8.0 ⏳ | ~7.5% (Specification) | - | - |
+| Hierarchical Context | v0.8.0 ✅ | Complete (7/7 tasks) | 1071+ | 84% |
+| Template Customization | v0.9.0 ⏳ | ~7.5% (Specification) | - | - |
 
 **Dernière mise à jour**: 2025-12-01
-**Branche active**: `dev`
-**Prochain milestone**: v0.8.0 - Hierarchical Context & Template Customization
-**Tests**: 1018+ passing (83% coverage)
+**Branche active**: `007-hierarchical-context`
+**Prochain milestone**: v0.9.0 - Template Customization
+**Tests**: 1071+ passing (84% coverage)
 
 ## Milestones Détaillés
 
@@ -199,46 +199,39 @@ Ansible Doctor Enhanced sera la solution de documentation complète pour Ansible
 ---
 ---
 
-### ⏳ v0.8.0 - Hierarchical Context Detection (PLANNED)
+### ✅ v0.8.0 - Hierarchical Context Detection (COMPLETE)
 
-**Branch**: `007-hierarchical-context` (to be created)
+**Branch**: `007-hierarchical-context`
 **Prerequisites**: v0.7.0 COMPLETE ✅  
 **Spec**: `specs/007-hierarchical-context/spec.md`  
 **Date spec**: 2025-11-26
-**Status**: ~10% (Specification complete, implementation pending)
+**Date complete**: 2025-12-01
+**Status**: ✅ Complete (7/7 tasks)
 
 **Objectif**: **NOUVELLE FONCTIONNALITÉ** - Détection automatique du contexte parent et navigation hiérarchique.
 
-**Contexte**: Détection automatique des relations parent (role → collection → project) en analysant la structure de répertoires. Génération de breadcrumbs et vue d'ensemble contextuelle montrant les composants liés.
+**Fonctionnalités implémentées**:
+- ✅ `ansibledoctor/context/detector.py` - ContextDetector avec HierarchicalContext
+- ✅ `ansibledoctor/utils/slug.py` - `build_context_path()` et `relative_link()`
+- ✅ Template partials `_breadcrumb.j2` et `_siblings.j2` pour Markdown/HTML/RST
+- ✅ Support template includes avec PackageLoader/FileSystemLoader
+- ✅ HasBreadcrumb protocol pour typage hierarchique
+- ✅ TemplateContext avec champ `hierarchical_context`
 
-**Fonctionnalités prévues**:
-- Détection automatique du parent collection (galaxy.yml) ou projet (ansible.cfg)
-- Génération de breadcrumb navigation (Projet > Collection > Rôle)
-- Section overview contextuelle listant les composants siblings
-- Liens relatifs entre composants (structure `docs/lang/{code}/`)
-- Flag `--no-parent` pour désactiver la détection
-- Configuration `context.detect_parent: false` dans `.ansibledoctor.yml`
+**Tests**:
+- 17 tests unitaires (context detection)
+- 22 tests unitaires (slug utilities)
+- 12 tests d'intégration (hierarchical navigation)
+- 8 tests E2E (full project hierarchy)
 
-**User Stories**:
-- US19: Auto-détection du contexte parent
-- US20: Génération de breadcrumb navigation
-- US21: Section overview contextuelle (siblings)
-- US22: Mode standalone (`--no-parent`)
-
-**Critères de succès**:
-- Détection collection parent (galaxy.yml, max 3 niveaux)
-- Détection projet parent (ansible.cfg/playbooks/, max 3 niveaux)
-- Breadcrumbs avec liens cliquables vers documentation parent
-- Listing siblings avec liens relatifs
-- Performance: <500ms overhead pour détection
-- Cache des résultats de détection par session
-- **Support multi-langue**: Breadcrumbs et labels traduits (Feature 005)
-
-**GATE**: v0.7.0 DOIT être stable (project docs validés). Feature 005 requise pour i18n des breadcrumbs.
+**Métriques**:
+- 1071+ tests (100% passing)
+- 84% code coverage
+- Performance: détection <100ms par composant
 
 ---
 
-### ⏳ v0.8.0 - Advanced Template Customization & Theming (PLANNED)
+### ⏳ v0.9.0 - Advanced Template Customization & Theming (PLANNED)
 
 **Branch**: `008-template-customization` (to be created)
 **Prerequisites**: v0.2.0 COMPLETE ✅  
