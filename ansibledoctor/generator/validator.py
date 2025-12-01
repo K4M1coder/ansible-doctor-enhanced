@@ -1,11 +1,100 @@
-"""Template validation for Jinja2 templates."""
+"""Template validation for Jinja2 templates with sandboxing security."""
 
 from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, TemplateSyntaxError, meta
+from jinja2.sandbox import SandboxedEnvironment
 
 from ansibledoctor.generator.errors import TemplateValidationError
+
+
+# Dangerous constructs that should be blocked in user templates
+DANGEROUS_PATTERNS = [
+    "__import__",
+    "eval(",
+    "exec(",
+    "compile(",
+    "open(",
+    "__builtins__",
+    "__globals__",
+    "__class__",
+    "__mro__",
+    "__subclasses__",
+    "os.system",
+    "subprocess",
+    "getattr(",
+    "setattr(",
+    "delattr(",
+]
+
+# Attributes that should not be accessible in sandboxed templates
+UNSAFE_ATTRIBUTES = frozenset(
+    [
+        "__class__",
+        "__mro__",
+        "__subclasses__",
+        "__bases__",
+        "__init__",
+        "__globals__",
+        "__code__",
+        "__builtins__",
+        "__reduce__",
+        "__reduce_ex__",
+        "func_globals",
+        "func_code",
+        "gi_frame",
+        "gi_code",
+        "cr_frame",
+        "cr_code",
+    ]
+)
+
+
+class SecureSandboxedEnvironment(SandboxedEnvironment):
+    """Sandboxed Jinja2 environment with additional security restrictions.
+
+    Extends Jinja2's SandboxedEnvironment with:
+    - Blocked access to dangerous attributes
+    - Restricted callable objects
+    - Prevention of class introspection
+    """
+
+    def is_safe_attribute(self, obj: Any, attr: str, value: Any) -> bool:
+        """Check if attribute access is safe.
+
+        Args:
+            obj: Object being accessed
+            attr: Attribute name
+            value: Attribute value
+
+        Returns:
+            True if attribute access is safe
+        """
+        if attr in UNSAFE_ATTRIBUTES:
+            return False
+        if attr.startswith("_"):
+            return False
+        return super().is_safe_attribute(obj, attr, value)
+
+    def is_safe_callable(self, obj: Any) -> bool:
+        """Check if callable is safe to call.
+
+        Args:
+            obj: Callable object
+
+        Returns:
+            True if callable is safe
+        """
+        # Prevent calling dangerous builtins
+        dangerous_callables = (type, eval, exec, compile, open, __import__)
+        try:
+            if obj in dangerous_callables:
+                return False
+        except TypeError:
+            # Some objects can't be compared
+            pass
+        return super().is_safe_callable(obj)
 
 
 class TemplateValidator:
@@ -164,3 +253,100 @@ class TemplateValidator:
                 result["errors"].append(f"Missing required variables: {', '.join(sorted(missing))}")
 
         return result
+
+    def validate_security(
+        self,
+        template_source: str,
+        template_name: str = "template",
+    ) -> list[str]:
+        """Check template for dangerous patterns.
+
+        Args:
+            template_source: Template source code
+            template_name: Template identifier
+
+        Returns:
+            List of security violations found
+        """
+        violations = []
+
+        for pattern in DANGEROUS_PATTERNS:
+            if pattern in template_source:
+                violations.append(f"Dangerous pattern '{pattern}' found in {template_name}")
+
+        return violations
+
+    def is_safe_template(self, template_source: str) -> bool:
+        """Check if template is safe to render.
+
+        Args:
+            template_source: Template source code
+
+        Returns:
+            True if template passes security checks
+        """
+        violations = self.validate_security(template_source)
+        return len(violations) == 0
+
+    def validate_secure(
+        self,
+        template_source: str,
+        template_name: str = "template",
+    ) -> None:
+        """Validate template security, raising on violations.
+
+        Args:
+            template_source: Template source code
+            template_name: Template identifier
+
+        Raises:
+            TemplateValidationError: If security violations found
+        """
+        violations = self.validate_security(template_source)
+        if violations:
+            error_details = "; ".join(violations)
+            raise TemplateValidationError(template_name, f"Security violations: {error_details}")
+
+
+def create_sandboxed_environment(**options: Any) -> SecureSandboxedEnvironment:
+    """Create a secure sandboxed Jinja2 environment.
+
+    Creates a SandboxedEnvironment with restricted attribute access
+    and blocked dangerous operations.
+
+    Args:
+        **options: Additional Jinja2 environment options
+
+    Returns:
+        Configured SecureSandboxedEnvironment
+
+    Example:
+        >>> env = create_sandboxed_environment()
+        >>> validator = TemplateValidator(env)
+    """
+    default_options = {
+        "autoescape": True,
+        "trim_blocks": True,
+        "lstrip_blocks": True,
+    }
+    default_options.update(options)
+    return SecureSandboxedEnvironment(**default_options)
+
+
+def create_secure_validator(**env_options: Any) -> TemplateValidator:
+    """Create a TemplateValidator with secure sandboxed environment.
+
+    Convenience function to create a fully configured secure validator.
+
+    Args:
+        **env_options: Options for the sandboxed environment
+
+    Returns:
+        TemplateValidator with secure environment
+
+    Example:
+        >>> validator = create_secure_validator()
+        >>> validator.validate_secure("{{ user.name }}")
+    """
+    env = create_sandboxed_environment(**env_options)
+    return TemplateValidator(env)

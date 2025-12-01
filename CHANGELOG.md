@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security - Feature 008: Template Sandboxing
+
+- **NEW**: `SecureSandboxedEnvironment` class - Extends Jinja2's SandboxedEnvironment with additional security restrictions
+  - Blocks access to dangerous dunder attributes (__class__, __mro__, __globals__, etc.)
+  - Restricts unsafe callable objects (eval, exec, compile, open, type)
+  - Prevents private attribute access (attributes starting with _)
+- **NEW**: `DANGEROUS_PATTERNS` list - Pattern-based detection for unsafe template constructs
+  - Detects __import__, eval, exec, open, os.system, subprocess, getattr, setattr
+- **NEW**: `UNSAFE_ATTRIBUTES` frozenset - List of blocked attribute names for sandboxing
+- **NEW**: `validate_security()` method - Check templates for dangerous patterns
+- **NEW**: `is_safe_template()` method - Quick safety check returning boolean
+- **NEW**: `validate_secure()` method - Validation with exception on security violations
+- **NEW**: `create_sandboxed_environment()` factory - Create pre-configured secure environment
+- **NEW**: `create_secure_validator()` factory - Create validator with secure environment
+
+### Testing - Feature 008: Template Sandboxing
+
+- **TEST**: Unit tests for sandboxing: `tests/unit/test_template_sandboxing.py` (62 tests)
+  - SecureSandboxedEnvironment attribute blocking
+  - Secure callable restrictions
+  - Dangerous pattern detection
+  - validate_secure method behavior
+  - Factory function tests
+  - Complex template security scenarios
+
 ### Added - Feature 007: Hierarchical Context Detection
 
 - **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships
