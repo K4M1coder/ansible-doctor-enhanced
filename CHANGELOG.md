@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-12-01
+
+### Added
+
+- **NEW**: Recursive include following for `include_tasks` and `import_tasks` in task parsing
+- **NEW**: Role slug generation in CLI output for consistent role identification
+
+### Fixed
+
+- **FIX**: Updated CSS injector string literals and formatting for consistency
+
+### Changed
+
+- **REFACTOR**: Code formatting and minor improvements across multiple modules
+
 ## [0.1.0] - 2025-12-01
 
 ### Added - Feature 001: Ansible Role Parser CLI Interface
