@@ -70,8 +70,16 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - ThemeVariant and ColorScheme enums
     - Frozen model with css_url validator
     - Integrated into ConfigModel and exported from __init__.py
-- [ ] T334 [US24] Write failing unit tests in `tests/unit/generator/test_cascading_template_loader.py` asserting search order (role/collection/project/embedded) and caching behavior
-- [ ] T335 [US24] Implement `ansibledoctor/generator/cascading_loader.py` with logging for the template source and caching behavior
+- [x] T334 [US24] Write failing unit tests in `tests/unit/generator/test_cascading_template_loader.py` asserting search order (role/collection/project/embedded) and caching behavior
+    - 29 unit tests covering TemplateSource, loader init, discovery order, caching, environment, errors
+    - Tests for 5-level discovery: role → collection → project → user → embedded
+    - Cache TTL expiry and clear_cache() tests
+- [x] T335 [US24] Implement `ansibledoctor/generator/cascading_loader.py` with logging for the template source and caching behavior
+    - CascadingTemplateLoader with 5-level discovery
+    - TemplateSource dataclass for tracking source level
+    - TTL-based caching with clear_cache()
+    - Project root detection via ansible.cfg, pyproject.toml, .git
+    - Jinja2 ChoiceLoader with embedded fallback
 - [ ] T336 [US25] Write failing unit tests in `tests/unit/generator/test_variant_resolver.py` for `role.modern.*.j2` resolution and fallback chains
 - [ ] T337 [US25] Implement `ansibledoctor/generator/variant_resolver.py` and integrate with `cascading_loader` to support variant-aware resolution
 - [ ] T338 [US26] Write failing unit tests in `tests/unit/generator/test_css_injector.py` for external link, inline CSS, dark-mode wrapper, and tag generation (HTML only)
