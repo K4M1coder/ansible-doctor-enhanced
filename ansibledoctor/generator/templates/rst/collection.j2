@@ -1,6 +1,6 @@
 {% set collection_fqcn = fqcn if fqcn is defined else metadata.namespace ~ '.' ~ metadata.name %}
-{{ collection_fqcn }}
-{{ '=' * (collection_fqcn | length) }}
+{{ collection_fqcn | rst_escape }}
+{{ '=' * (collection_fqcn | rst_escape | length) }}
 
 {% if description is defined and description %}
 {{ description }}
@@ -70,8 +70,9 @@ Roles
 =====
 
 {% for role in roles %}
-{{ collection_fqcn }}.{{ role.name }}
-{{ '-' * ((collection_fqcn ~ '.' ~ role.name) | length) }}
+{% set role_fqn = collection_fqcn ~ '.' ~ role.name %}
+{{ role_fqn | rst_escape }}
+{{ '-' * (role_fqn | rst_escape | length) }}
 
 {% if role.description %}{{ role.description }}{% endif %}
 
@@ -120,8 +121,8 @@ Examples
 ========
 
 {% for example in examples %}
-{{ example.title }}
-{{ '-' * (example.title | length) }}
+{{ example.title | rst_escape }}
+{{ '-' * (example.title | rst_escape | length) }}
 
 {% if example.description %}{{ example.description }}{% endif %}
 

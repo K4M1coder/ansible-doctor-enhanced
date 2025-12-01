@@ -1,12 +1,14 @@
 {% if t is defined %}
-{{ t('project.title') }}
+{% set project_title = t('project.title') %}
 {% else %}
-{{ project.name or title }}
+{% set project_title = project.name or title %}
 {% endif %}
-{{ "=" * ((project.name or title) | length) }}
+{{ project_title | rst_escape }}
+{{ "=" * (project_title | rst_escape | length) }}
 
-{{ t('architecture.header') if t is defined else 'Architecture' }}
-------------
+{% set arch_header = t('architecture.header') if t is defined else 'Architecture' %}
+{{ arch_header | rst_escape }}
+{{ '-' * (arch_header | rst_escape | length) }}
 
 .. mermaid::
 
@@ -17,8 +19,9 @@
        A --> E[Inventory ({{ project.inventory | length }})]
 
 {% if roles %}
-{{ t('roles.header') if t is defined else 'Roles' }}
------
+{% set roles_header = t('roles.header') if t is defined else 'Roles' %}
+{{ roles_header | rst_escape }}
+{{ '-' * (roles_header | rst_escape | length) }}
 
 {% for role in roles %}
 - {{ role.name }}
@@ -26,8 +29,9 @@
 {% endif %}
 
 {% if collections %}
-{{ t('collections.header') if t is defined else 'Collections' }}
------------
+{% set collections_header = t('collections.header') if t is defined else 'Collections' %}
+{{ collections_header | rst_escape }}
+{{ '-' * (collections_header | rst_escape | length) }}
 
 {% for collection in collections %}
 - {{ collection.name }}
