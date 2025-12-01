@@ -46,6 +46,7 @@ docutils = "^0.20"
 pre-commit = "^3.4.0"
 ghapi = "^1.0.8"
 tomli = "^2.0"
+types-pyyaml = "^6.0.12.20250915"
 
 [tool.poetry.scripts]
 ansible-doctor-enhanced = "ansibledoctor.cli:main"
