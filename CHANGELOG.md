@@ -32,6 +32,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Factory function tests
   - Complex template security scenarios
 
+### Testing - Feature 008: Theme Accessibility
+
+- **TEST**: Integration tests for accessibility: `tests/integration/test_theme_accessibility.py` (45 tests)
+  - Toggle ARIA attributes (aria-pressed, aria-label, aria-hidden)
+  - Toggle script accessibility (prefers-color-scheme, localStorage persistence)
+  - CSS accessibility (color tokens, dark mode, font settings)
+  - HTML structure validation (button pattern, toggle pattern)
+  - ARIA authoring pattern compliance
+  - Keyboard accessibility support
+  - Color contrast support tokens
+
 ### Added - Feature 007: Hierarchical Context Detection
 
 - **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships
