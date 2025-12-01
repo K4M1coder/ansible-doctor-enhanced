@@ -62,13 +62,14 @@ class TranslationProvider:
         # Otherwise attempt nested lookup via '.' splitting
         parts = key.split(".")
         node: Any = self._translations
-        node = self._translations
         try:
             for part in parts:
                 if not isinstance(node, dict):
                     return None
                 node = node.get(part)
-            return node
+            if isinstance(node, (str, dict)) or node is None:
+                return node
+            return str(node)
         except Exception:
             return None
 
@@ -133,7 +134,7 @@ class TranslationProvider:
                 try:
                     # Babel Locale objects expose `plural_form` which may return
                     # a category (e.g. "one", "other") or an index; handle both
-                    value = self._babel_locale.plural_form(count)  # type: ignore[attr-defined]
+                    value = self._babel_locale.plural_form(count)
                     if isinstance(value, str):
                         form = value
                     else:
