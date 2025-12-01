@@ -41,6 +41,7 @@ class BreadcrumbItem:
     slug: str
     component_type: ComponentType
     path: Path | None = None
+    link: str = ""  # Relative link to this item's documentation
 
 
 @dataclass
