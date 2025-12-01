@@ -43,6 +43,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Keyboard accessibility support
   - Color contrast support tokens
 
+### Documentation - Feature 008: Demo Templates
+
+- **NEW**: Demo templates for theme variants under `demo/templates/`
+  - `role.minimal.html.j2` - Compact output with essential info
+  - `role.detailed.html.j2` - Full documentation with all sections
+  - `role.modern.html.j2` - Contemporary styling with cards and timeline
+- **NEW**: Demo CSS examples under `demo/css/`
+  - `sample-theme.css` - Complete custom theme with brand colors
+  - `inline-overrides.css` - Minimal inline CSS example
+- **NEW**: Template documentation in `demo/templates/README.md`
+  - Usage examples for each variant
+  - CSS variables reference
+  - Custom template creation guide
+
 ### Added - Feature 007: Hierarchical Context Detection
 
 - **NEW**: `ansibledoctor/context/detector.py` - ContextDetector for discovering hierarchical relationships

@@ -1,0 +1,158 @@
+/* sample-theme.css - Custom CSS theme example for ansible-doctor-enhanced */
+/* Feature 008 - Template Customization & Theming */
+/* T350: Demo CSS theme example */
+
+/* Override color tokens for a custom brand */
+:root {
+  /* Brand colors */
+  --ad-color-primary: #059669;
+  --ad-color-primary-light: #10b981;
+  --ad-color-primary-dark: #047857;
+
+  /* Accent colors */
+  --ad-color-accent: #8b5cf6;
+  --ad-color-accent-light: #a78bfa;
+}
+
+/* Dark mode brand colors */
+[data-theme="dark"] {
+  --ad-color-primary: #34d399;
+  --ad-color-primary-light: #6ee7b7;
+  --ad-color-primary-dark: #10b981;
+  
+  --ad-color-accent: #a78bfa;
+  --ad-color-accent-light: #c4b5fd;
+}
+
+/* Custom typography */
+body {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Custom card styling */
+.ad-card {
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ad-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom badge styling */
+.ad-badge {
+  background: linear-gradient(135deg, var(--ad-color-primary), var(--ad-color-primary-dark));
+  color: white;
+  font-weight: 500;
+}
+
+/* Code block styling */
+pre {
+  background: var(--ad-color-bg-tertiary);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+code {
+  font-family: var(--ad-font-family-mono);
+  font-size: 0.9em;
+  background: var(--ad-color-bg-secondary);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Table styling */
+.ad-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.ad-table th,
+.ad-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--ad-color-border);
+}
+
+.ad-table th {
+  background: var(--ad-color-bg-secondary);
+  font-weight: 600;
+}
+
+.ad-table tr:hover {
+  background: var(--ad-color-bg-secondary);
+}
+
+/* Theme toggle button positioning */
+.ad-theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ad-color-primary);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, background 0.2s;
+  z-index: 1000;
+}
+
+.ad-theme-toggle:hover {
+  transform: scale(1.1);
+  background: var(--ad-color-primary-dark);
+}
+
+.ad-theme-toggle:focus {
+  outline: 2px solid var(--ad-color-primary-light);
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ad-modern {
+    padding: var(--ad-spacing-md);
+  }
+  
+  .ad-hero h1 {
+    font-size: 1.75rem;
+  }
+  
+  .ad-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  .ad-theme-toggle {
+    display: none;
+  }
+  
+  .ad-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  a {
+    text-decoration: none;
+  }
+}

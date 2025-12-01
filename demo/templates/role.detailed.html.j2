@@ -1,0 +1,144 @@
+{# role.detailed.html.j2 - Detailed variant template for HTML output #}
+{# Feature 008 - Template Customization & Theming #}
+{# T350: Demo template for detailed variant #}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ role.name | default('Role') }} - Documentation</title>
+    {{ css_tags | join('\n') | safe }}
+</head>
+<body>
+    <header class="ad-header">
+        <nav class="ad-breadcrumb" aria-label="Breadcrumb">
+            {% if breadcrumb %}
+            <ol>
+            {% for item in breadcrumb %}
+                <li><a href="{{ item.url }}">{{ item.title }}</a></li>
+            {% endfor %}
+            </ol>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="ad-container ad-detailed">
+        <article class="ad-role">
+            <h1>{{ role.name | default('Role') }}</h1>
+            
+            {% if role.description %}
+            <section class="ad-summary">
+                <p class="ad-description">{{ role.description }}</p>
+            </section>
+            {% endif %}
+            
+            {# Metadata Section #}
+            {% if role.author or role.license or role.min_ansible_version %}
+            <section class="ad-section ad-metadata">
+                <h2>{{ t('metadata') | default('Metadata') }}</h2>
+                <dl class="ad-definition-list">
+                    {% if role.author %}
+                    <dt>{{ t('author') | default('Author') }}</dt>
+                    <dd>{{ role.author }}</dd>
+                    {% endif %}
+                    {% if role.license %}
+                    <dt>{{ t('license') | default('License') }}</dt>
+                    <dd>{{ role.license }}</dd>
+                    {% endif %}
+                    {% if role.min_ansible_version %}
+                    <dt>{{ t('min_ansible_version') | default('Minimum Ansible Version') }}</dt>
+                    <dd>{{ role.min_ansible_version }}</dd>
+                    {% endif %}
+                </dl>
+            </section>
+            {% endif %}
+            
+            {# Variables Section #}
+            {% if variables %}
+            <section class="ad-section ad-variables">
+                <h2>{{ t('variables') | default('Variables') }}</h2>
+                <table class="ad-table">
+                    <thead>
+                        <tr>
+                            <th>{{ t('name') | default('Name') }}</th>
+                            <th>{{ t('type') | default('Type') }}</th>
+                            <th>{{ t('default') | default('Default') }}</th>
+                            <th>{{ t('description') | default('Description') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for var in variables %}
+                        <tr>
+                            <td><code>{{ var.name }}</code></td>
+                            <td>{{ var.type | default('any') }}</td>
+                            <td>{% if var.default %}<code>{{ var.default }}</code>{% else %}<em>none</em>{% endif %}</td>
+                            <td>{{ var.description | default('-') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            {% endif %}
+            
+            {# Tasks Section #}
+            {% if tasks %}
+            <section class="ad-section ad-tasks">
+                <h2>{{ t('tasks') | default('Tasks') }}</h2>
+                <ol class="ad-task-list">
+                {% for task in tasks %}
+                    <li>
+                        <strong>{{ task.name | default(task.action) }}</strong>
+                        {% if task.description %}
+                        <p>{{ task.description }}</p>
+                        {% endif %}
+                        {% if task.tags %}
+                        <span class="ad-tags">
+                        {% for tag in task.tags %}
+                            <span class="ad-tag">{{ tag }}</span>
+                        {% endfor %}
+                        </span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
+            
+            {# Dependencies Section #}
+            {% if dependencies %}
+            <section class="ad-section ad-dependencies">
+                <h2>{{ t('dependencies') | default('Dependencies') }}</h2>
+                <ul class="ad-list">
+                {% for dep in dependencies %}
+                    <li>{{ dep.role | default(dep) }}</li>
+                {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+            
+            {# Examples Section #}
+            {% if examples %}
+            <section class="ad-section ad-examples">
+                <h2>{{ t('examples') | default('Examples') }}</h2>
+                {% for example in examples %}
+                <div class="ad-example">
+                    {% if example.name %}
+                    <h3>{{ example.name }}</h3>
+                    {% endif %}
+                    <pre><code class="language-yaml">{{ example.content }}</code></pre>
+                </div>
+                {% endfor %}
+            </section>
+            {% endif %}
+        </article>
+    </main>
+
+    <footer class="ad-footer">
+        <p>Generated by <a href="https://github.com/ansible-doctor-enhanced">ansible-doctor-enhanced</a></p>
+    </footer>
+    
+    {% if theme_toggle %}
+    {{ theme_toggle | safe }}
+    {% endif %}
+</body>
+</html>

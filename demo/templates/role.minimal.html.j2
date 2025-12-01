@@ -1,0 +1,47 @@
+{# role.minimal.html.j2 - Minimal variant template for HTML output #}
+{# Feature 008 - Template Customization & Theming #}
+{# T350: Demo template for minimal variant #}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ role.name | default('Role') }}</title>
+    {{ css_tags | join('\n') | safe }}
+</head>
+<body>
+    <main class="ad-container">
+        <h1>{{ role.name | default('Role') }}</h1>
+        
+        {% if role.description %}
+        <p class="ad-description">{{ role.description }}</p>
+        {% endif %}
+        
+        {% if variables %}
+        <section class="ad-section">
+            <h2>{{ t('variables') | default('Variables') }}</h2>
+            <ul class="ad-list">
+            {% for var in variables %}
+                <li><code>{{ var.name }}</code>{% if var.default %}: <code>{{ var.default }}</code>{% endif %}</li>
+            {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+        
+        {% if tasks %}
+        <section class="ad-section">
+            <h2>{{ t('tasks') | default('Tasks') }}</h2>
+            <ul class="ad-list">
+            {% for task in tasks %}
+                <li>{{ task.name | default(task.action) }}</li>
+            {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+    </main>
+    
+    {% if theme_toggle %}
+    {{ theme_toggle | safe }}
+    {% endif %}
+</body>
+</html>
