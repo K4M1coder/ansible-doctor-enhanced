@@ -1,0 +1,12 @@
+{# Sibling navigation partial for HTML #}
+{% if context is defined and context and context.siblings and context.siblings|length > 0 %}
+<hr>
+<section class="siblings-nav">
+  <h2>Related {{ context.sibling_type | default('Components') }}</h2>
+  <ul class="siblings-list">
+    {% for sibling in context.siblings %}
+    <li><a href="{{ sibling.link }}">{{ sibling.name }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}

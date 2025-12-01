@@ -1,0 +1,11 @@
+{# Sibling navigation partial for Markdown #}
+{% if context is defined and context and context.siblings and context.siblings|length > 0 %}
+
+---
+
+## Related {{ context.sibling_type | default('Components') }}
+
+{% for sibling in context.siblings %}
+- [{{ sibling.name }}]({{ sibling.link }})
+{% endfor %}
+{% endif %}

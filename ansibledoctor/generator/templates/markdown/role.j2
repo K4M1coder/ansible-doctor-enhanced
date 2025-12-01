@@ -1,3 +1,6 @@
+{# Breadcrumb navigation -#}
+{% include '_breadcrumb.j2' ignore missing -%}
+
 # {{ role_name }}
 
 {% if role_description %}
@@ -125,6 +128,9 @@ No examples provided.
 {% endfor %}
 {% endif %}
 {% endif %}
+
+{# Sibling navigation #}
+{% include '_siblings.j2' ignore missing %}
 
 ---
 

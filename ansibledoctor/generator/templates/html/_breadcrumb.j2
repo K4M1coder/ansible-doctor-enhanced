@@ -1,0 +1,17 @@
+{# Breadcrumb navigation partial for HTML #}
+{% if context is defined and context and context.breadcrumb and context.breadcrumb|length > 1 %}
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+  <ol class="breadcrumb">
+    {% for item in context.breadcrumb %}
+    <li class="breadcrumb-item{% if loop.last %} active{% endif %}"{% if loop.last %} aria-current="page"{% endif %}>
+      {% if not loop.last %}
+      <a href="{{ item.link }}">{{ item.name }}</a>
+      {% else %}
+      {{ item.name }}
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</nav>
+<hr>
+{% endif %}

@@ -5,18 +5,41 @@ description: "Task breakdown for Feature 007: Hierarchical Context Detection"
 # Tasks: Hierarchical Context Detection
 
 ## Phase 1: Setup
-- [ ] T308 Add `context_slug` usage guidelines to `ansibledoctor/utils/slug.py` and design tests in `tests/unit/test_slug.py` to ensure path joining preserves slugs across project->collection->role hierarchies
+- [x] T308 Add `context_slug` usage guidelines to `ansibledoctor/utils/slug.py` and design tests in `tests/unit/test_slug.py` to ensure path joining preserves slugs across project->collection->role hierarchies
+    - Added `build_context_path()` for hierarchical doc paths
+    - Added `relative_link()` for cross-component linking
+    - 22 tests passing for slug utilities
 
 ## Phase 2: Detection & Mapping
--- [ ] T309 [US-Context] Write unit tests for context detector in `tests/unit/test_context.py` (TDD)
--- [ ] T310 Implement context mapping that yields hierarchical slugs for each node (project, collection, role) and breadcrumbs
+- [x] T309 [US-Context] Write unit tests for context detector in `tests/unit/test_context.py` (TDD)
+    - 17 tests covering standalone, nested, and full hierarchy detection
+    - Tests for breadcrumb generation, sibling discovery, caching
+- [x] T310 Implement context mapping that yields hierarchical slugs for each node (project, collection, role) and breadcrumbs
+    - Created `ansibledoctor/context/detector.py` with ContextDetector class
+    - HierarchicalContext with parent chain and breadcrumb generation
+    - ComponentType enum (PROJECT, COLLECTION, ROLE, STANDALONE)
+    - Sibling discovery and session-scoped caching
 
 ## Phase 3: Templates & Links
--- [ ] T311 Update templates to render breadcrumbs and navigation based on slug paths
--- [ ] T312 Add integration tests verifying that docs for role inside collection inside project generate links: `docs/lang/{lang}/ansibleproject_proj/collections/collection_ns.collection/role_ns.role/` and that navigation back to project & collection levels works
+- [x] T311 Update templates to render breadcrumbs and navigation based on slug paths
+    - Created _breadcrumb.j2 and _siblings.j2 partials for all formats
+    - Updated role.j2 and collection.j2 templates with includes
+    - Fixed template loaders to support {% include %} with PackageLoader
+- [x] T312 Add integration tests verifying that docs for role inside collection inside project generate links: `docs/lang/{lang}/ansibleproject_proj/collections/collection_ns.collection/role_ns.role/` and that navigation back to project & collection levels works
+    - 12 integration tests for hierarchical context navigation
+    - BreadcrumbItem.link field for relative documentation links
+    - HasBreadcrumb protocol for type-safe hierarchical context
+    - TemplateContext extended with hierarchical_context field
 
 ## Phase 4: Polish
--- [ ] T313 Update CHANGELOG and examples to reflect the new slug path layout
+- [x] T313 Update CHANGELOG and examples to reflect the new slug path layout
+    - Added Feature 007 section to CHANGELOG.md with all new components
+    - Documented ContextDetector, slug utilities, template partials
 
 ## Acceptance
--- [ ] T314 E2E test: generate docs for a full project with nested collections and roles, and verify link navigation across all levels is correct
+- [x] T314 E2E test: generate docs for a full project with nested collections and roles, and verify link navigation across all levels is correct
+    - 8 E2E tests covering full project hierarchy
+    - Tests for project->collection->role detection chain
+    - Breadcrumb completeness and sibling discovery
+    - Bidirectional navigation link generation
+    - Standalone role/collection handling

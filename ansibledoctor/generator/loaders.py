@@ -4,9 +4,10 @@ import importlib.resources as pkg_resources
 from pathlib import Path
 from typing import Protocol, runtime_checkable
 
-from jinja2 import Template
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader, Template
 
 from ansibledoctor.generator.errors import TemplateNotFoundError
+from ansibledoctor.generator.filters import FILTERS
 from ansibledoctor.generator.output_format import OutputFormat
 
 
@@ -105,21 +106,35 @@ class FileSystemTemplateLoader:
         Raises:
             TemplateNotFoundError: If template not found
         """
-        from ansibledoctor.generator.engine import TemplateEngine
-
         template_path = self._find_template(template_name, output_format)
         if template_path is None:
             search_paths = self._get_search_paths(template_name, output_format)
             raise TemplateNotFoundError(template_name, [str(p) for p in search_paths])
 
-        # Load template content
-        content = template_path.read_text(encoding="utf-8")
+        # Create loader that can resolve includes from format-specific and root dirs
+        format_dir = self.template_dir / output_format.value
+        search_dirs = []
+        if format_dir.exists():
+            search_dirs.append(str(format_dir))
+        search_dirs.append(str(self.template_dir))
 
-        # Create engine and compile template. Ensure a minimal translation function
-        # is available in the Jinja environment so templates that reference `t`
-        # will still render when no translation provider is provided.
-        engine = TemplateEngine.create()
-        return engine.environment.from_string(content)
+        loader = FileSystemLoader(search_dirs)
+        env = Environment(
+            loader=loader,
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        env.filters.update(FILTERS)
+
+        # Load template using the loader (supports {% include %})
+        template_filename = template_path.name
+        if template_path.parent == format_dir:
+            # Template is in format dir, use just the filename
+            return env.get_template(template_filename)
+        else:
+            # Template is in root or other location, use relative path
+            rel_path = template_path.relative_to(self.template_dir)
+            return env.get_template(str(rel_path))
 
     def discover_templates(self, output_format: OutputFormat) -> list[str]:
         """Discover available templates for format.
@@ -241,9 +256,7 @@ class EmbeddedTemplateLoader:
         Raises:
             TemplateNotFoundError: If template not found
         """
-        from ansibledoctor.generator.engine import TemplateEngine
-
-        # Try to load template content
+        # Check if template exists first
         content = self._read_template(template_name, output_format)
         if content is None:
             raise TemplateNotFoundError(
@@ -251,12 +264,31 @@ class EmbeddedTemplateLoader:
                 [f"{self.package}.{self.templates_path}/{output_format.value}/{template_name}.j2"],
             )
 
-        # Compile template using the package's embedded translations as a
-        # fallback. This ensures the template translation function `t`
-        # resolves when no project translations are provided.
+        # Create environment with PackageLoader for include support
+        # The loader searches format-specific dir first, then root templates
+        try:
+            format_loader = PackageLoader(
+                self.package, f"{self.templates_path}/{output_format.value}"
+            )
+            root_loader = PackageLoader(self.package, self.templates_path)
+            loader = ChoiceLoader([format_loader, root_loader])
+        except (ModuleNotFoundError, ValueError):
+            # Fallback if package loader doesn't work
+            loader = None
 
-        engine = TemplateEngine.create()
-        return engine.environment.from_string(content)
+        env = Environment(
+            loader=loader,
+            trim_blocks=True,
+            lstrip_blocks=True,
+        )
+        env.filters.update(FILTERS)
+
+        # If we have a loader, use get_template for include support
+        if loader:
+            return env.get_template(f"{template_name}.j2")
+        else:
+            # Fallback to string template (no include support)
+            return env.from_string(content)
 
     def discover_templates(self, output_format: OutputFormat) -> list[str]:
         """Discover embedded templates.

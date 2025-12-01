@@ -1,0 +1,12 @@
+{# Sibling navigation partial for RST #}
+{% if context is defined and context and context.siblings and context.siblings|length > 0 %}
+
+----
+
+Related {{ context.sibling_type | default('Components') }}
+{{ '=' * (8 + (context.sibling_type | default('Components') | length)) }}
+
+{% for sibling in context.siblings %}
+* `{{ sibling.name }} <{{ sibling.link }}>`_
+{% endfor %}
+{% endif %}

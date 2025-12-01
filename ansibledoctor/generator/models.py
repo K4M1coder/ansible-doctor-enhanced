@@ -2,10 +2,23 @@
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.models.role import AnsibleRole
+
+
+@runtime_checkable
+class HasBreadcrumb(Protocol):
+    """Protocol for objects that can provide breadcrumb navigation."""
+
+    def get_breadcrumb(self) -> list[Any]:
+        """Get breadcrumb trail."""
+        ...
+
+    def get_siblings(self) -> list[Any]:
+        """Get sibling components."""
+        ...
 
 
 @dataclass
@@ -113,6 +126,8 @@ class TemplateContext:
     generator_version: str  # Must be passed explicitly from __version__
     generation_date: datetime = field(default_factory=datetime.now)
     custom_data: dict[str, Any] = field(default_factory=dict)
+    language: str = "en"
+    hierarchical_context: HasBreadcrumb | None = None
 
     @property
     def role_name(self) -> str:
@@ -224,7 +239,7 @@ class TemplateContext:
         Returns:
             Dictionary with all context data and computed properties
         """
-        return {
+        result = {
             "role": self.role,
             "role_name": self.role_name,
             "role_description": self.role_description,
@@ -241,4 +256,14 @@ class TemplateContext:
             "has_examples": self.has_examples,
             "example_count": self.example_count,
             "custom_data": self.custom_data,
+            "language": self.language,
         }
+
+        # Add hierarchical context for breadcrumb and sibling navigation
+        if self.hierarchical_context is not None:
+            result["context"] = {
+                "breadcrumb": self.hierarchical_context.get_breadcrumb(),
+                "siblings": self.hierarchical_context.get_siblings(),
+            }
+
+        return result
