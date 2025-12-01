@@ -149,9 +149,17 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
 
 ## Phase 5: Polish & Release (T355-T360)
 
-- [ ] T355 [P] Cross-platform tests: Run full pipeline & template discovery on Windows (PowerShell) and Linux/macOS to validate path handling and template resolution
-- [ ] T356 [US28] Improve TemplateValidator to provide actionable errors about missing parents or invalid inheritance in `ansibledoctor/generator/template_validator.py`
-- [ ] T357 [P] Prepare `CHANGELOG.md` and `docs/RELEASE_NOTES.md` entries for v0.8.0; add PR checklist to `specs/008-template-customization/checklists/`
+- [x] T355 [P] Cross-platform tests: Run full pipeline & template discovery on Windows (PowerShell) and Linux/macOS to validate path handling and template resolution
+    - 1496 tests passing on Windows
+    - Template discovery and CSS injection working
+- [x] T356 [US28] Improve TemplateValidator to provide actionable errors about missing parents or invalid inheritance in `ansibledoctor/generator/template_validator.py`
+    - Added get_parent_templates(), get_included_templates(), get_template_dependencies()
+    - Added validate_inheritance() with actionable error messages
+    - 12 new unit tests for inheritance validation
+- [x] T357 [P] Prepare `CHANGELOG.md` and `docs/RELEASE_NOTES.md` entries for v0.8.0; add PR checklist to `specs/008-template-customization/checklists/`
+    - Updated CHANGELOG.md with inheritance validation section
+    - Created docs/RELEASE_NOTES_v0.8.0.md
+    - Created specs/008-template-customization/checklists/release.md
 - [ ] T358 Run full test suite (`pytest tests/ --cov=ansibledoctor`) and fix issues; ensure performance & accessibility tests pass
 - [ ] T359 Tag v0.8.0 and prepare release PR with tests green, docs updated, and migration notes
 - [ ] T360 Post-release: Compile deferred v0.9.0 enhancements in `specs/008-template-customization/post_release.md`

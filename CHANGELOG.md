@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Feature 008: Template Inheritance Validation
+
+- **NEW**: `get_parent_templates()` method - Extract parent template names from extends statements
+- **NEW**: `get_included_templates()` method - Extract included template names from include statements
+- **NEW**: `get_template_dependencies()` method - Get all template dependencies (extends, includes, imports)
+- **NEW**: `validate_inheritance()` method - Validate template inheritance chain with actionable errors
+  - Reports missing parent templates with search paths tried
+  - Reports missing includes with suggestions for fix
+  - Reports missing imports with helpful error messages
+  - Supports custom search paths for template resolution
+
 ### Security - Feature 008: Template Sandboxing
 
 - **NEW**: `SecureSandboxedEnvironment` class - Extends Jinja2's SandboxedEnvironment with additional security restrictions
