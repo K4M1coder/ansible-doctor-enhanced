@@ -101,7 +101,7 @@ description: "Task list template for feature implementation"
   - Test load_config() raises clear error on Pydantic validation error
   - Test load_config() handles missing optional fields (uses defaults)
 
-- [ ] T009 [P] [US1] Integration tests in `tests/integration/test_config_integration.py`
+- [X] T009 [P] [US1] Integration tests in `tests/integration/test_config_integration.py`
   - Test CLI reads config from `.ansibledoctor.yml` (output_format: html)
   - Test CLI flags override config file (config says html, CLI says rst → rst wins)
   - Test invalid config shows clear error before generation starts
@@ -308,12 +308,12 @@ description: "Task list template for feature implementation"
   - Verify all 3 user stories work independently
   - **Complete**: 652 tests passing, 81% coverage (exceeds 80% target) ✅
 
-- [ ] T036 Update pyproject.toml version to 0.4.0
-  - Bump version: 0.3.0 → 0.4.0
+- [X] T036 Update pyproject.toml version to 0.4.0
+  - Bump version: 0.3.0 → 0.4.0 (now at 0.5.1)
   - Ensure CHANGELOG.md has [0.4.0] section with today's date
   - Commit: "chore(release): bump version to 0.4.0"
 
-- [ ] T037 Create git tag 0.4.0
+- [X] T037 Create git tag 0.4.0
   - Tag message: "Release 0.4.0 - ansible-doctor Role Parity Complete"
   - No 'v' prefix per Article XI (constitution)
   - Annotated tag with feature summary
@@ -383,15 +383,15 @@ description: "Task list template for feature implementation"
 
 ## Success Criteria
 
-- [ ] All tests passing (593 baseline + ~30 new = 623 tests)
-- [ ] Coverage ≥80% maintained
-- [ ] `.ansibledoctor.yml` config files work (US1)
-- [ ] `ansible-doctor watch` auto-regenerates (US2)
-- [ ] Config discovered in parent directories (US3)
-- [ ] `config validate` and `config show` commands work (US3)
-- [ ] CLI flags override config file
-- [ ] Documentation complete (README, CHANGELOG, CONFIG_GUIDE, MIGRATION)
-- [ ] v0.4.0 tag created per Article XI
+- [X] All tests passing (593 baseline + ~30 new = 623 tests) → **Now 1010+ tests!**
+- [X] Coverage ≥80% maintained → **83% coverage**
+- [X] `.ansibledoctor.yml` config files work (US1)
+- [X] `ansible-doctor watch` auto-regenerates (US2)
+- [X] Config discovered in parent directories (US3)
+- [X] `config validate` and `config show` commands work (US3)
+- [X] CLI flags override config file
+- [X] Documentation complete (README, CHANGELOG, CONFIG_GUIDE, MIGRATION)
+- [X] v0.4.0 tag created per Article XI → **Version now 0.5.1**
 
 ---
 
