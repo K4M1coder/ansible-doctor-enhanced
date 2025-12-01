@@ -44,11 +44,11 @@ class PlaybookAnalyzer:
         plays = content if isinstance(content, list) else [content]
 
         # Build nodes as ordered steps: play->tasks/roles->(role tasks)
-        nodes = []
-        edges = []
+        nodes: list[dict[str, Any]] = []
+        edges: list[dict[str, str]] = []
         node_index = 0
 
-        def node_id(prefix: str, idx: int):
+        def node_id(prefix: str, idx: int) -> str:
             return f"{prefix}{idx}"
 
         # Root project node
@@ -112,7 +112,7 @@ class PlaybookAnalyzer:
         # Build a simplistic mermaid flow string
         mermaid_lines = ["graph TD"]
         for n in nodes:
-            lab = n["label"].replace("'", "\\'")
+            lab = str(n["label"]).replace("'", "\\'") if n["label"] else ""
             mermaid_lines.append(f"    {n['id']}[" + lab + "]")
         for e in edges:
             mermaid_lines.append(f"    {e['from']} --> {e['to']}")

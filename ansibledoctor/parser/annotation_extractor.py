@@ -42,7 +42,7 @@ class AnnotationExtractor:
     EXAMPLE_PATTERN = re.compile(r"#\s*@example:\s*(.*)", re.IGNORECASE)
     META_PATTERN = re.compile(r"#\s*@meta\s+(\w+):\s*(.*)", re.IGNORECASE)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize annotation extractor."""
         self._yaml = YAML()
         self._yaml.preserve_quotes = True

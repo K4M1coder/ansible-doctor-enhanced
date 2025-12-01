@@ -55,7 +55,7 @@ class DependencyGraph:
         ['database', 'webserver']
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty dependency graph."""
         self._nodes: Dict[str, DependencyNode] = {}
         self._edges: List[tuple[str, str]] = []
