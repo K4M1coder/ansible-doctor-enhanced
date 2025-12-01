@@ -168,7 +168,9 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - Updated pyproject.toml version to 0.8.0
     - Updated __init__.py fallback version to 0.8.0
     - Updated CHANGELOG.md with [0.8.0] - 2025-12-01 section
-- [ ] T360 Post-release: Compile deferred v0.9.0 enhancements in `specs/008-template-customization/post_release.md`
+- [x] T360 Post-release: Compile deferred v0.9.0 enhancements in `specs/008-template-customization/post_release.md`
+    - Created post_release.md with enhancement categories
+    - Template system, CSS/theming, performance, integration, accessibility, i18n ideas
 
 ## Acceptance Criteria & Traceability
 
