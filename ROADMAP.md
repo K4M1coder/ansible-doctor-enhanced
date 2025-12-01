@@ -15,16 +15,16 @@ Ansible Doctor Enhanced sera la solution de documentation complète pour Ansible
 | Role Parser | v0.2.0 ✅ | Complete | 262 | 84% |
 | Documentation Generator | v0.3.0 ✅ | Complete | 498 | 81% |
 | Role Parity | v0.4.0 ✅ | Complete | 650+ | 83% |
-| Collection Docs | v0.5.0 ✅ | ~95% Complete | 800+ | 83% |
-| i18n Support | v0.6.0 ✅ | ~92% Complete (21/24 tasks) | 950+ | 83% |
-| Project Docs | v0.7.0 ✅ | ~90% Complete | 1010+ | 83% |
+| Collection Docs | v0.5.0 ✅ | Complete | 800+ | 83% |
+| i18n Support | v0.6.0 ✅ | Complete (24/24 tasks) | 950+ | 83% |
+| Project Docs | v0.7.0 ✅ | Complete (32/32 tasks) | 1018+ | 83% |
 | Hierarchical Context | v0.8.0 ⏳ | ~10% (Specification) | - | - |
 | Template Customization | v0.8.0 ⏳ | ~7.5% (Specification) | - | - |
 
 **Dernière mise à jour**: 2025-12-01
 **Branche active**: `dev`
 **Prochain milestone**: v0.8.0 - Hierarchical Context & Template Customization
-**Tests**: 1010+ passing (83% coverage)
+**Tests**: 1018+ passing (83% coverage)
 
 ## Milestones Détaillés
 
