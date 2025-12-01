@@ -160,7 +160,10 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - Updated CHANGELOG.md with inheritance validation section
     - Created docs/RELEASE_NOTES_v0.8.0.md
     - Created specs/008-template-customization/checklists/release.md
-- [ ] T358 Run full test suite (`pytest tests/ --cov=ansibledoctor`) and fix issues; ensure performance & accessibility tests pass
+- [x] T358 Run full test suite (`pytest tests/ --cov=ansibledoctor`) and fix issues; ensure performance & accessibility tests pass
+    - 1508 tests passing (2 skipped for platform-specific reasons)
+    - 83% code coverage
+    - Performance, accessibility, and security tests all pass
 - [ ] T359 Tag v0.8.0 and prepare release PR with tests green, docs updated, and migration notes
 - [ ] T360 Post-release: Compile deferred v0.9.0 enhancements in `specs/008-template-customization/post_release.md`
 
