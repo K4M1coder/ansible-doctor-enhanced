@@ -89,8 +89,15 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - ResolvedTemplate dataclass with candidates property
     - 4-step fallback chain resolution
     - list_variants() for discovering available variants
-- [ ] T338 [US26] Write failing unit tests in `tests/unit/generator/test_css_injector.py` for external link, inline CSS, dark-mode wrapper, and tag generation (HTML only)
-- [ ] T339 [US26] Implement `ansibledoctor/generator/css_injector.py` and `ansibledoctor/generator/theme_toggle.py` (JS snippet) with safe defaults and tests
+- [x] T338 [US26] Write failing unit tests in `tests/unit/generator/test_css_injector.py` for external link, inline CSS, dark-mode wrapper, and tag generation (HTML only)
+    - 33 unit tests covering CSSTag, CSSInjector, ThemeToggleGenerator
+    - Tag rendering (link/style), base CSS variables, dark mode support
+    - Theme toggle JS with localStorage, ARIA attributes
+- [x] T339 [US26] Implement `ansibledoctor/generator/css_injector.py` and `ansibledoctor/generator/theme_toggle.py` (JS snippet) with safe defaults and tests
+    - CSSTag dataclass with to_html() method
+    - CSSInjector with BASE_CSS containing CSS variables and dark mode
+    - ThemeToggleGenerator with ARIA-accessible toggle button
+    - Auto dark mode via prefers-color-scheme media query
 - [ ] T340 [P] Add `css_tags`/`theme_config` to `ansibledoctor/generator/context.py` or `ansibledoctor/generator/models.py` (RenderResult) and update `ansibledoctor/generator/renderers/html.py` to include `css_tags`
 - [ ] T341 [US23] Write failing unit tests in `tests/unit/test_cli_flags.py` validating CLI precedence over YAML for `--variant`, `--color-scheme`, `--no-theme-toggle`, `--template-dir`
 - [ ] T342 [US23] Implement CLI flags in `ansibledoctor/cli/generate.py` and update `tests/unit/test_cli_generate.py` (TDD)
