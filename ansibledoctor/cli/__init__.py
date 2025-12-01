@@ -503,6 +503,28 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     default="INFO",
     help="Set logging level (default: INFO)",
 )
+@click.option(
+    "--variant",
+    type=click.Choice(["minimal", "detailed", "modern"], case_sensitive=False),
+    default="detailed",
+    help="Template variant (default: detailed)",
+)
+@click.option(
+    "--color-scheme",
+    type=click.Choice(["light", "dark", "auto"], case_sensitive=False),
+    default="auto",
+    help="Color scheme for HTML output (default: auto)",
+)
+@click.option(
+    "--theme-toggle/--no-theme-toggle",
+    default=True,
+    help="Enable dark/light mode toggle button (default: enable)",
+)
+@click.option(
+    "--template-dir",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Custom template directory path",
+)
 def generate(
     role_path,
     format,
@@ -515,6 +537,10 @@ def generate(
     sphinx_compat,
     verbose,
     log_level,
+    variant,
+    color_scheme,
+    theme_toggle,
+    template_dir,
 ):
 
     # Setup logging
@@ -605,11 +631,21 @@ def generate(
                 {"requested_format": format},
             )
 
-        # Create template context
+        # Build theme configuration from CLI options
+        from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
+        
+        theme_config = ThemeConfig(
+            variant=ThemeVariant(variant.lower()),
+            color_scheme=ColorScheme(color_scheme.lower()),
+            enable_toggle=theme_toggle,
+        )
+
+        # Create template context with theme config
         context = TemplateContext(
             role=role,
             generator_version=__version__,
             output_format=output_format,
+            theme_config=theme_config,
         )
 
         # Render documentation

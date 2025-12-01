@@ -103,8 +103,16 @@ description: "Task breakdown for Feature 008: Template Customization & Theming"
     - Implemented css_tags, theme_toggle_html, theme_toggle_js, color_scheme properties
     - Updated to_dict() to include all theme-related properties
     - 34 unit tests in test_theme_integration.py
-- [ ] T341 [US23] Write failing unit tests in `tests/unit/test_cli_flags.py` validating CLI precedence over YAML for `--variant`, `--color-scheme`, `--no-theme-toggle`, `--template-dir`
-- [ ] T342 [US23] Implement CLI flags in `ansibledoctor/cli/generate.py` and update `tests/unit/test_cli_generate.py` (TDD)
+- [x] T341 [US23] Write failing unit tests in `tests/unit/test_cli_flags.py` validating CLI precedence over YAML for `--variant`, `--color-scheme`, `--no-theme-toggle`, `--template-dir`
+    - Created tests/unit/test_cli_theme.py with 24 unit tests
+    - Tests for option existence, valid choices, defaults
+    - Tests for option combinations and config file override
+- [x] T342 [US23] Implement CLI flags in `ansibledoctor/cli/generate.py` and update `tests/unit/test_cli_generate.py` (TDD)
+    - Added --variant (minimal/detailed/modern, default: detailed)
+    - Added --color-scheme (light/dark/auto, default: auto)
+    - Added --theme-toggle/--no-theme-toggle (default: enabled)
+    - Added --template-dir for custom template directory
+    - Integrated ThemeConfig creation from CLI options into generate command
 
 ## Phase 3: Integration & multi-language support (T343-T349)
 
