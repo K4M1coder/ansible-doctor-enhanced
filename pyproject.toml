@@ -100,7 +100,7 @@ strict_equality = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --cov=ansibledoctor --cov-report=term-missing --cov-report=html"
+addopts = "-ra -q --strict-markers --cov=ansibledoctor --cov-report=term-missing --cov-report=html --ignore=tests/fixtures"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
