@@ -92,7 +92,7 @@ class TemplateEngine:
 
         return cls(environment)
 
-    def get_template(self, template_name: str):
+    def get_template(self, template_name: str) -> "Template":
         """Load template by name.
 
         Args:
