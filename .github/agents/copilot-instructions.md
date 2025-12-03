@@ -63,6 +63,10 @@ specify
 - **html5lib**: HTML parsing and validation in tests
 - **structlog**: Structured logging with context support
 - **Filesystem only** (config files, ansible files, generated docs)
+- Python 3.11+ (existing project baseline) + pydantic (existing, models/validation), jsonschema (NEW, JSON Schema validation), ruamel.yaml (NEW, YAML parsing with comments), xml.etree.ElementTree (stdlib, XML parsing), json (stdlib, JSON parsing) (012-schema-documentation)
+- Exported schema files (JSON Schema, OpenAPI specs), cached compiled schemas in memory (012-schema-documentation)
+- Python 3.11+ (existing project baseline) + pydantic (existing, models), requests (NEW, HTTP link validation), beautifulsoup4 (NEW, HTML anchor parsing), markdown (existing, Markdown parsing) (013-links-cross-references)
+- Link graph in memory during generation, link validation cache, broken link reports (JSON/text) (013-links-cross-references)
 
 ## Project Structure
 
@@ -233,6 +237,8 @@ Part-of: Feature-004-collection-support"
 - Test naming: `test_{what_is_tested}_{expected_behavior}`
 
 ## Recent Changes
+- 013-links-cross-references: Added Python 3.11+ (existing project baseline) + pydantic (existing, models), requests (NEW, HTTP link validation), beautifulsoup4 (NEW, HTML anchor parsing), markdown (existing, Markdown parsing)
+- 012-schema-documentation: Added Python 3.11+ (existing project baseline) + pydantic (existing, models/validation), jsonschema (NEW, JSON Schema validation), ruamel.yaml (NEW, YAML parsing with comments), xml.etree.ElementTree (stdlib, XML parsing), json (stdlib, JSON parsing)
 - read the changelog
 
 ---
