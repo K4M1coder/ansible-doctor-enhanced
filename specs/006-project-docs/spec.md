@@ -58,6 +58,7 @@ As a project maintainer, I want to parse my complete Ansible project so that I c
 3. **Given** project with playbooks, **When** parsing, **Then** extract playbook metadata (name, hosts, roles, tasks)
 4. **Given** group_vars and host_vars, **When** parsing, **Then** extract variable definitions by group/host
 5. **Given** project with local roles and collections, **When** parsing, **Then** discover and parse all roles and collections
+6. **Given** project with existing README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE, **When** parsing, **Then** extract and store existing documentation content in ExistingDocs model
 
 ---
 
@@ -72,6 +73,7 @@ As a project maintainer, I want to generate project-level documentation so that 
 2. **Given** multiple playbooks, **When** generating docs, **Then** document each playbook's purpose, target hosts, roles used
 3. **Given** inventory structure, **When** generating docs, **Then** visualize group hierarchy and host assignments
 4. **Given** group_vars/host_vars, **When** generating docs, **Then** document variable precedence and overrides
+5. **Given** existing README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE, **When** generating docs, **Then** include or link existing documentation in output with license badge
 
 ---
 
@@ -128,7 +130,10 @@ As a project maintainer working with international teams, I want to generate pro
 **SC-007**: Project documentation generation completes in <10s for typical project (5 playbooks, 10 roles, 50 hosts)  
 **SC-008**: Reuse template system from v0.3.0 (no new template engine)  
 **SC-009**: CLI commands: `parse-project`, `generate-project`, `analyze-project`, `visualize-project`  
-**SC-010**: Generate project documentation in all enabled languages with translated section headers and labels (integrates Feature 005 i18n)
+**SC-010**: Generate project documentation in all enabled languages with translated section headers and labels (integrates Feature 005 i18n)  
+**SC-011**: Extract and store existing project documentation (README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE) using shared ExistingDocs model  
+**SC-012**: Detect license type from LICENSE file content and generate appropriate license badge (shields.io style)  
+**SC-013**: Support deep recursive parsing (--deep flag) to fully parse roles/collections within project instead of shallow discovery
 
 ## Technical Constraints
 
@@ -176,6 +181,50 @@ The `project` generator accepts the following CLI flags (examples):
 - `--no-siblings` — omit sibling listing.
 - `--force` — overwrite existing generated files (by default writes safely and does not overwrite unless `--force` is provided).
 - `--redact-values` — redact variable values that match sensitive patterns.
+- `--deep` — enable deep recursive parsing of roles/collections (parse full content, not just discovery)
+
+## Existing Documentation Extraction
+
+The project parser must discover and extract existing documentation files at the project root:
+
+**Functional Requirements**:
+- **FR-001**: Discover README.md (case-insensitive: readme.md, README.MD, Readme.md)
+- **FR-002**: Discover CHANGELOG.md (case-insensitive variants)
+- **FR-003**: Discover CONTRIBUTING.md (case-insensitive variants)
+- **FR-004**: Discover LICENSE (with or without .md, .txt extensions)
+- **FR-005**: Extract license type from LICENSE content using keyword patterns (MIT, Apache-2.0, GPL-3.0, BSD-3-Clause, etc.)
+- **FR-006**: Store extracted docs in ExistingDocs model (shared with roles and collections)
+- **FR-007**: Generate license badge in output based on detected license type
+
+**ExistingDocs Model** (shared across Role, Collection, Project):
+```python
+@dataclass
+class ExistingDocs:
+    readme_content: Optional[str] = None
+    changelog_content: Optional[str] = None
+    contributing_content: Optional[str] = None
+    license_content: Optional[str] = None
+    license_type: Optional[str] = None  # e.g., "MIT", "Apache-2.0", "GPL-3.0"
+```
+
+**License Detection Patterns**:
+- MIT: Contains "MIT License" or "Permission is hereby granted, free of charge"
+- Apache-2.0: Contains "Apache License, Version 2.0"
+- GPL-3.0: Contains "GNU General Public License" and "version 3"
+- BSD-3-Clause: Contains "BSD 3-Clause License" or "Redistribution and use in source and binary"
+
+## Deep Recursive Parsing
+
+When `--deep` flag is provided:
+- Parse each discovered role with full RoleParser (tasks, vars, handlers, meta, defaults)
+- Parse each discovered collection with full CollectionParser (plugins, roles, playbooks)
+- Store full models instead of shallow (name, path) references
+- Increases parsing time but provides comprehensive documentation
+
+Default behavior (without `--deep`):
+- Discover roles/collections with name and path only
+- Generate documentation index with links
+- Faster parsing for large projects
 
 ## Redaction & Sensitive Data
 

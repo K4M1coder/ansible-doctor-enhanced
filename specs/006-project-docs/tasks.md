@@ -77,11 +77,45 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ---
 
+## Phase 7: Existing Docs & Deep Parsing (NEW)
+
+**Purpose**: Add existing documentation extraction and deep recursive parsing support per SC-011, SC-012, SC-013.
+
+### T325-T330: Existing Docs Extraction (US14 Extension)
+
+- [ ] T325 [R] Write test_project_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE at project root
+- [ ] T326 [G] Integrate DocsExtractor into ProjectParser.parse() - populate Project.existing_docs field
+- [ ] T327 [R] Write test for license type detection in project context (MIT, Apache-2.0, GPL-3.0)
+- [ ] T328 [G] Add existing_docs: ExistingDocs field to Project model in models/project.py
+- [ ] T329 [R] Write test for partial docs (only README exists, other files missing)
+- [ ] T330 [R] Integration test: extract demo project existing docs, verify in Project model
+
+### T331-T336: Deep Recursive Parsing (US14 Extension)
+
+- [ ] T331 [R] Write test_deep_parsing.py: test --deep flag triggers full role/collection parsing
+- [ ] T332 [G] Add deep_parse: bool parameter to ProjectParser.parse()
+- [ ] T333 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
+- [ ] T334 [G] When deep_parse=True, call CollectionParser.parse() for each discovered collection
+- [ ] T335 [R] Integration test: deep parse demo project, verify full role/collection details
+- [ ] T336 [REFACTOR] Add CLI --deep flag to project parse/generate commands
+
+### T337-T342: Generate Docs for Existing Docs (US15 Extension)
+
+- [ ] T337 [R] Write test_generate_existing_docs_section.py: verify existing docs appear in generated project output
+- [ ] T338 [G] Add existing docs section to project template (README content, CHANGELOG summary, license badge)
+- [ ] T339 [R] Write test for license badge generation based on license_type
+- [ ] T340 [G] Implement license badge rendering in project generator (shields.io style)
+- [ ] T341 [R] Write test for CONTRIBUTING link in generated docs
+- [ ] T342 [R] Integration test: generate docs for demo project with existing docs
+
+---
+
 ## Status Summary
 
-**Completed**: 32 tasks
-**Remaining**: 0 tasks
+**Completed**: 32 tasks (T201-T324)
+**New Tasks**: 18 tasks (T325-T342) - Existing Docs & Deep Parsing
+**Remaining**: 18 tasks
 
-Feature 006 is 100% COMPLETE!
-All code functionality, documentation, and administrative tasks are done.
+Feature 006 implementation is 64% COMPLETE (32/50 tasks)
+New Phase 7 adds existing documentation extraction and deep parsing support.
 

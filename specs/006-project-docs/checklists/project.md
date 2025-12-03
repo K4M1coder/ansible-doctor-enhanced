@@ -34,4 +34,15 @@ This checklist verifies that `spec.md` and `tasks.md` contain explicit requireme
 
 ---
 
+## Phase 7: Existing Docs & Deep Parsing (NEW)
+
+24. [ ] CHK024 - Is existing documentation extraction specified for README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE with ExistingDocs model? [Completeness, SC-011, FR-001-006] [T325-T330]
+25. [ ] CHK025 - Is license type detection algorithm defined (keyword patterns for MIT, Apache-2.0, GPL-3.0) with expected output (license badge)? [Clarity, SC-012, FR-005/FR-007] [T327/T339/T340]
+26. [ ] CHK026 - Is deep recursive parsing option (--deep flag) specified with behavior for full role/collection parsing vs shallow discovery? [Completeness, SC-013] [T331-T336]
+27. [ ] CHK027 - Are generated documentation sections for existing docs defined (template slots, section order, license badge placement)? [Clarity, US15 Acc-5] [T337-T342]
+28. [ ] CHK028 - Is the ExistingDocs model defined as shared across Role, Collection, and Project parsers? [Consistency, Architecture] [T328]
+
+---
+
 Checklist completed and validated against `spec.md` and `tasks.md`.
+New CHK024-CHK028 added for Phase 7 requirements.
