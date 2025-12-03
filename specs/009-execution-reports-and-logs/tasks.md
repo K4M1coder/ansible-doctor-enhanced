@@ -1,14 +1,14 @@
----
-
-description: "Task list for Execution Reports and Structured Logging implementation"
----
-
 # Tasks: Execution Reports & Structured Logging
 
 **Input**: Design documents from `/specs/009-execution-reports-and-logs/`
 **Prerequisites**: plan.md ✅, spec.md ✅
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
+
+**Cross-Spec Dependencies**:
+- **Consumes Spec 010**: ErrorAggregator from `ansibledoctor/exceptions/aggregator.py` for error summaries
+- **Extends**: Existing `ansibledoctor/utils/logging.py` structlog infrastructure
+- **Consumed by**: Specs 011, 012, 013 for metrics integration
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -153,6 +153,9 @@ description: "Task list for Execution Reports and Structured Logging implementat
 
 **Goal**: Provide consolidated error/warning summaries at command completion for large projects
 
+**Cross-Spec Dependency**: This story CONSUMES `ErrorAggregator` from Spec 010 (`ansibledoctor/exceptions/aggregator.py`).
+If Spec 010 is not yet implemented, use a simplified local implementation that can be replaced later.
+
 **Independent Test**: Run `ansible-doctor generate project/` with errors → End of output shows summary table
 
 ### Tests for User Story 4 ✅
@@ -169,12 +172,13 @@ description: "Task list for Execution Reports and Structured Logging implementat
 
 - [ ] T063 [P] [US4] Implement error collection in ExecutionContext during parsing/generation
 - [ ] T064 [US4] Implement warning collection in ExecutionContext during parsing/generation
-- [ ] T065 [US4] Implement error aggregation logic in `ansibledoctor/reporting/report_generator.py`
+- [ ] T065 [US4] Implement error aggregation logic in `ansibledoctor/reporting/report_generator.py` (consume Spec 010 ErrorAggregator when available)
 - [ ] T066 [US4] Implement summary formatter for console output in `ansibledoctor/reporting/serializers.py`
 - [ ] T067 [US4] Add `--fail-on-warnings` flag to CLI in `ansibledoctor/cli/__init__.py`
 - [ ] T068 [US4] Add `--continue-on-error` flag to CLI in `ansibledoctor/cli/__init__.py`
 - [ ] T069 [US4] Display aggregated summary at command completion in CLI in `ansibledoctor/cli/__init__.py`
 - [ ] T070 [US4] Add error/warning arrays to ExecutionReport in report generation
+- [ ] T070b [US4] **INTEGRATION**: When Spec 010 available, refactor T065 to use `from ansibledoctor.exceptions.aggregator import ErrorAggregator`
 
 **Checkpoint**: User Story 4 complete - aggregated error summaries displayed at end of execution
 
@@ -274,6 +278,17 @@ MVP delivery requires completing User Stories 1 and 2 (report generation + metri
 3. **Backward Compatibility**: All features opt-in via CLI flags
 4. **Performance Testing**: Validate <100ms report overhead with benchmarks
 5. **Integration Testing**: Ensure works with existing watch mode, project generation
+6. **Regression Testing**: Verify existing Spec 001-008 functionality unchanged
+
+---
+
+## Backward Compatibility Regression Tasks
+
+These tasks ensure existing functionality is not broken:
+
+- [ ] T092 [REGRESSION] Run existing Spec 001-006 test suites to verify no regressions
+- [ ] T093 [REGRESSION] Verify default behavior (no --report flag) produces identical output to before
+- [ ] T094 [REGRESSION] Test that existing CLI commands work without new flags
 
 ---
 
