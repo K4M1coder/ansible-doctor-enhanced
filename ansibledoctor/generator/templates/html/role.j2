@@ -53,8 +53,10 @@
                 <li><a href="#overview">Overview</a></li>
                 {% if has_variables %}<li><a href="#variables">Variables</a></li>{% endif %}
                 {% if has_tags %}<li><a href="#tags">Tags</a></li>{% endif %}
+                {% if role.handlers %}<li><a href="#handlers">Handlers</a></li>{% endif %}
                 {% if has_todos %}<li><a href="#todos">TODOs</a></li>{% endif %}
                 {% if has_examples %}<li><a href="#examples">Examples</a></li>{% endif %}
+                {% if role.existing_docs %}<li><a href="#documentation">Documentation</a></li>{% endif %}
             </ul>
         </nav>
         {% endif %}
@@ -166,6 +168,30 @@
         {% endif %}
         {% endif %}
 
+        {% if role.handlers %}
+        <h2 id="handlers">Handlers</h2>
+        
+        {% set handler_count = role.handlers | length %}
+        {% if handler_count == 0 %}
+        <p>No handlers defined.</p>
+        {% else %}
+        <p>{{ handler_count }} handler(s) available:</p>
+        
+        {% for handler in role.handlers %}
+        <div class="variable">
+            <h3><code>{{ handler.name | html_escape }}</code></h3>
+            {% if handler.tags %}
+            <p><strong>Tags:</strong> {% for tag in handler.tags %}<code>{{ tag }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+            {% endif %}
+            {% if handler.listen %}
+            <p><strong>Listen:</strong> {% for listen_name in handler.listen %}<code>{{ listen_name | html_escape }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+            {% endif %}
+            <p><strong>Source:</strong> <code>{{ handler.file_path }}:{{ handler.line_number }}</code></p>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endif %}
+
         {% if has_todos %}
         <h2 id="todos">TODOs</h2>
         
@@ -203,6 +229,48 @@
             <pre><code class="language-{{ example.language }}">{{ example.code | html_escape }}</code></pre>
         </div>
         {% endfor %}
+        {% endif %}
+        {% endif %}
+
+        {% if role.existing_docs %}
+        <h2 id="documentation">Documentation</h2>
+        
+        {% if role.existing_docs.readme_content %}
+        <h3>README</h3>
+        {% if role.existing_docs.readme_format %}
+        <p><em>Format: {{ role.existing_docs.readme_format | upper }}</em></p>
+        {% endif %}
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+            <pre style="background: transparent; color: #333; white-space: pre-wrap;">{{ role.existing_docs.readme_content | html_escape }}</pre>
+        </div>
+        {% endif %}
+        
+        {% if role.existing_docs.license_content %}
+        <h3>License</h3>
+        {% if role.existing_docs.license_type %}
+        <p><strong>License Type:</strong> {{ role.existing_docs.license_type }}</p>
+        {% endif %}
+        <pre><code>{{ role.existing_docs.license_content | html_escape }}</code></pre>
+        {% endif %}
+        
+        {% if role.existing_docs.templates_list %}
+        <h3>Templates</h3>
+        <p>Available Jinja2 templates:</p>
+        <ul>
+        {% for template in role.existing_docs.templates_list %}
+            <li><code>{{ template }}</code></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if role.existing_docs.files_list %}
+        <h3>Static Files</h3>
+        <p>Available static files:</p>
+        <ul>
+        {% for file in role.existing_docs.files_list %}
+            <li><code>{{ file }}</code></li>
+        {% endfor %}
+        </ul>
         {% endif %}
         {% endif %}
 

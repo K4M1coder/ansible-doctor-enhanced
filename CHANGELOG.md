@@ -13,6 +13,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
 - **Shared**: `--deep` CLI flag for recursive role/collection parsing
 
+## [0.9.3] - 2025-12-04
+
+### Added - Template Support for Handlers and Documentation (Spec 002 T219)
+
+- **Markdown Template**: Added Handlers and Documentation sections to `role.j2`
+  - Handlers section displays handler name, tags, listen directives, and source location
+  - Documentation section includes README, LICENSE (with type detection), templates list, and static files list
+- **HTML Template**: Added matching Handlers and Documentation sections with styled output
+- **RST Template**: Added Handlers and Documentation sections with proper reStructuredText formatting
+- **TOC Updates**: All templates now include Handlers and Documentation in table of contents
+
+### Changed
+
+- **Template Consistency**: All three output formats (Markdown, HTML, RST) now render handlers and existing documentation uniformly
+
+## [0.9.2] - 2025-12-04
+
+### Added - Handler and Documentation Extraction (Spec 001 Phase 5B)
+
+- **Handler Parsing**: Extract handler definitions from `handlers/*.yml` files
+  - Handler name, tags, and listen directive extraction
+  - Support for `include_tasks` and `import_tasks` in handlers
+  - Integration with existing role parsing pipeline
+- **Existing Documentation Extraction**: Automatic discovery and extraction of role documentation
+  - README content extraction with format detection (Markdown/reStructuredText)
+  - CHANGELOG.md content extraction
+  - CONTRIBUTING.md content extraction
+  - LICENSE file extraction with automatic type detection (MIT, Apache-2.0, GPL-2.0/3.0, BSD-2-Clause/3-Clause)
+  - Templates directory file listing (templates/*.j2)
+  - Static files directory listing (files/*)
+- **Shared Models**: `Handler` and `ExistingDocs` Pydantic models
+- **Shared Utilities**: `extract_tags_from_yaml()` utility for consistent tag parsing across parsers
+- **Integration Tests**: Comprehensive end-to-end tests for role parsing with handlers and documentation
+
+### Changed
+
+- **Refactored** tag extraction logic: Extracted common `extract_tags_from_yaml()` utility shared between `TaskParser` and `HandlerParser`
+- **Enhanced** `AnsibleRole` model with `handlers` and `existing_docs` fields
+- **Updated** CLI JSON output to include handler and existing documentation information
+
 ## [0.9.2] - 2025-12-04
 
 ### Added - Handler and Documentation Extraction (Spec 001 Phase 5B)

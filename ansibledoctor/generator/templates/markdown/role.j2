@@ -16,8 +16,10 @@
 - [Overview](#overview)
 {% if has_variables %}- [Variables](#variables){% endif %}
 {% if has_tags %}- [Tags](#tags){% endif %}
+{% if role.handlers %}- [Handlers](#handlers){% endif %}
 {% if has_todos %}- [TODOs](#todos){% endif %}
 {% if has_examples %}- [Examples](#examples){% endif %}
+{% if role.existing_docs %}- [Documentation](#documentation){% endif %}
 
 ---
 
@@ -94,6 +96,32 @@ No tags defined.
 
 ---
 
+{% if role.handlers %}
+## Handlers
+
+{% set handler_count = role.handlers | length %}
+{% if handler_count == 0 %}
+No handlers defined.
+{% else %}
+{{ handler_count }} handler(s) available:
+
+{% for handler in role.handlers %}
+### `{{ handler.name | markdown_escape }}`
+
+{% if handler.tags %}
+- **Tags:** {% for tag in handler.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}
+{% endif %}
+{% if handler.listen %}
+- **Listen:** {% for listen_name in handler.listen %}`{{ listen_name | markdown_escape }}`{% if not loop.last %}, {% endif %}{% endfor %}
+{% endif %}
+- **Source:** `{{ handler.file_path }}:{{ handler.line_number }}`
+
+{% endfor %}
+{% endif %}
+{% endif %}
+
+---
+
 {% if has_todos %}
 ## TODOs
 
@@ -126,6 +154,59 @@ No examples provided.
 {{ example.code | code_fence(example.language) }}
 
 {% endfor %}
+{% endif %}
+{% endif %}
+
+---
+
+{% if role.existing_docs %}
+## Documentation
+
+{% if role.existing_docs.readme_content %}
+### README
+{% if role.existing_docs.readme_format %}
+*Format: {{ role.existing_docs.readme_format | upper }}*
+{% endif %}
+
+{{ role.existing_docs.readme_content }}
+
+---
+{% endif %}
+
+{% if role.existing_docs.license_content %}
+### License
+
+{% if role.existing_docs.license_type %}
+**License Type:** {{ role.existing_docs.license_type }}
+{% endif %}
+
+```
+{{ role.existing_docs.license_content }}
+```
+
+---
+{% endif %}
+
+{% if role.existing_docs.templates_list %}
+### Templates
+
+Available Jinja2 templates:
+{% for template in role.existing_docs.templates_list %}
+- `{{ template }}`
+{% endfor %}
+
+---
+{% endif %}
+
+{% if role.existing_docs.files_list %}
+### Static Files
+
+Available static files:
+{% for file in role.existing_docs.files_list %}
+- `{{ file }}`
+{% endfor %}
+
+---
 {% endif %}
 {% endif %}
 
