@@ -3,7 +3,7 @@
 **Feature Branch**: `012-schema-documentation`  
 **Created**: 2025-12-02  
 **Milestone**: v0.10.0  
-**Prerequisites**: v0.9.0 (Execution Reports) COMPLETE ✅  
+**Prerequisites**: v0.9.0 (Execution Reports) PLANNED  
 **Status**: Draft
 
 ## Objective

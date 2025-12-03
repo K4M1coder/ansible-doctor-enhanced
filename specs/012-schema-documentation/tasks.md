@@ -3,7 +3,12 @@
 **Input**: Design documents from `/specs/012-schema-documentation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: Tests are included as this is infrastructure that requires comprehensive testing.
+**Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
+
+**Cross-Spec Dependencies**:
+- **Extends Spec 003**: Add proper schema validation to existing `ansibledoctor/config/` module
+- **Provides to All Specs**: SchemaService for format conversion and validation
+- **Library Versions**: pydantic>=2.0, jsonschema>=4.0, ruamel.yaml>=0.17
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -289,6 +294,16 @@ With multiple developers:
    - Developer D: User Story 4 (model validation)
    - Developer E: User Story 5 (schema docs)
 4. Stories complete and integrate independently
+
+---
+
+## Backward Compatibility Regression Tasks
+
+These tasks ensure existing functionality is not broken:
+
+- [ ] T092 [REGRESSION] Run existing Spec 001-008 test suites to verify no regressions
+- [ ] T093 [REGRESSION] Verify existing `.ansibledoctor.yml` configs remain valid without changes
+- [ ] T094 [REGRESSION] Test that existing config loading behavior unchanged without validation flag
 
 ---
 
