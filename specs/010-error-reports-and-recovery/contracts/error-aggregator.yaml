@@ -1,0 +1,380 @@
+openapi: 3.1.0
+info:
+  title: Error Aggregator API
+  description: Protocol for collecting and aggregating errors during ansible-doctor execution
+  version: 1.0.0
+
+components:
+  schemas:
+    ErrorEntry:
+      type: object
+      description: Single error or warning with full context
+      required:
+        - code
+        - severity
+        - category
+        - message
+      properties:
+        code:
+          type: string
+          pattern: '^[EW]\d{3}$'
+          example: "E101"
+          description: Error code (E101, W201, etc.)
+        severity:
+          type: string
+          enum: [error, warning]
+          description: Error severity level
+        category:
+          type: string
+          enum: [parsing, validation, generation, io]
+          description: Error category
+        message:
+          type: string
+          example: "YAML syntax error: expected <block end>, but found '<scalar>'"
+          description: Human-readable error message
+        file:
+          type: string
+          format: path
+          nullable: true
+          example: "roles/webserver/tasks/main.yml"
+          description: File where error occurred
+        line:
+          type: integer
+          minimum: 1
+          nullable: true
+          example: 15
+          description: Line number (1-indexed)
+        column:
+          type: integer
+          minimum: 1
+          nullable: true
+          example: 5
+          description: Column number (1-indexed)
+        context_lines:
+          type: array
+          items:
+            type: string
+          maxItems: 5
+          example:
+            - "  - name: Install nginx"
+            - "    apt:"
+            - "      name nginx"
+            - "      state: present"
+            - ""
+          description: Source lines around error location
+        recovery_suggestions:
+          type: array
+          items:
+            type: string
+          example:
+            - "Check YAML indentation. Ansible requires 2-space indents."
+            - "Validate YAML syntax with `yamllint tasks/main.yml`"
+          description: Ordered list of recovery suggestions
+        related_errors:
+          type: array
+          items:
+            type: string
+            pattern: '^[EW]\d{3}$'
+          example: ["E102", "E104"]
+          description: Related error codes to check
+
+    ErrorReport:
+      type: object
+      description: Aggregated error report for a single execution run
+      required:
+        - correlation_id
+        - timestamp
+        - errors
+        - warnings
+        - error_count
+        - warning_count
+        - max_errors_reached
+        - partial_success
+      properties:
+        correlation_id:
+          type: string
+          format: uuid
+          example: "01HN7XYKFQJBM3N8YXRW5PTGAQ"
+          description: Links to ExecutionReport from Spec 009
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-12-03T10:30:45.123456Z"
+          description: When report was generated (ISO 8601)
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorEntry'
+          description: All collected errors
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorEntry'
+          description: All collected warnings
+        error_count:
+          type: integer
+          minimum: 0
+          example: 5
+          description: Total error count (including suppressed)
+        warning_count:
+          type: integer
+          minimum: 0
+          example: 12
+          description: Total warning count
+        max_errors_reached:
+          type: boolean
+          example: false
+          description: True if error cap (1000) was reached
+        partial_success:
+          type: boolean
+          example: true
+          description: True if some files processed successfully despite errors
+
+    RecoverySuggestion:
+      type: object
+      description: Recovery suggestions for a specific error code
+      required:
+        - error_code
+        - primary_suggestion
+        - alternative_suggestions
+        - auto_fixable
+      properties:
+        error_code:
+          type: string
+          pattern: '^[EW]\d{3}$'
+          example: "E101"
+        primary_suggestion:
+          type: string
+          example: "Check YAML indentation. Ansible requires 2-space indents."
+          description: Main recovery action to try first
+        alternative_suggestions:
+          type: array
+          items:
+            type: string
+          example:
+            - "Validate YAML syntax with `yamllint tasks/main.yml`"
+            - "Check for tabs (YAML requires spaces)"
+          description: Additional recovery options
+        documentation_link:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html"
+          description: Link to relevant documentation
+        auto_fixable:
+          type: boolean
+          example: false
+          description: Whether error can be auto-fixed (future)
+        related_codes:
+          type: array
+          items:
+            type: string
+            pattern: '^[EW]\d{3}$'
+          example: ["E102", "E104"]
+          description: Other error codes to check
+
+  protocols:
+    ErrorAggregator:
+      description: Protocol for error collection and aggregation
+      methods:
+        add_error:
+          summary: Add error to aggregator
+          description: |
+            Collects error with full context. May drop error if max_errors reached.
+            Performs hash-based deduplication to avoid duplicate entries.
+          parameters:
+            - name: code
+              in: args
+              required: true
+              schema:
+                type: string
+                pattern: '^E\d{3}$'
+              description: Error code (E101, E201, etc.)
+            - name: message
+              in: args
+              required: true
+              schema:
+                type: string
+              description: Error message
+            - name: file
+              in: args
+              required: false
+              schema:
+                type: string
+                format: path
+                nullable: true
+              description: File where error occurred
+            - name: line
+              in: args
+              required: false
+              schema:
+                type: integer
+                minimum: 1
+                nullable: true
+              description: Line number (1-indexed)
+            - name: column
+              in: args
+              required: false
+              schema:
+                type: integer
+                minimum: 1
+                nullable: true
+              description: Column number (1-indexed)
+            - name: context
+              in: args
+              required: false
+              schema:
+                type: array
+                items:
+                  type: string
+                maxItems: 5
+                nullable: true
+              description: Source lines around error location
+          responses:
+            success:
+              description: Error added successfully
+            error:
+              description: Max errors reached (if configured to raise)
+
+        add_warning:
+          summary: Add warning to aggregator
+          description: Collects warning with location context. No cap on warnings.
+          parameters:
+            - name: code
+              in: args
+              required: true
+              schema:
+                type: string
+                pattern: '^W\d{3}$'
+              description: Warning code (W101, W201, etc.)
+            - name: message
+              in: args
+              required: true
+              schema:
+                type: string
+              description: Warning message
+            - name: file
+              in: args
+              required: false
+              schema:
+                type: string
+                format: path
+                nullable: true
+            - name: line
+              in: args
+              required: false
+              schema:
+                type: integer
+                minimum: 1
+                nullable: true
+          responses:
+            success:
+              description: Warning added successfully
+
+        has_errors:
+          summary: Check if any errors collected
+          description: Returns true if error_count > 0
+          parameters: []
+          responses:
+            success:
+              description: Boolean indicating presence of errors
+              content:
+                type: boolean
+
+        has_warnings:
+          summary: Check if any warnings collected
+          description: Returns true if warning_count > 0
+          parameters: []
+          responses:
+            success:
+              description: Boolean indicating presence of warnings
+              content:
+                type: boolean
+
+        generate_report:
+          summary: Generate final error report
+          description: |
+            Creates ErrorReport with all collected errors and warnings.
+            Includes recovery suggestions from database.
+          parameters: []
+          responses:
+            success:
+              description: Completed error report
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/ErrorReport'
+
+        get_recovery_suggestions:
+          summary: Retrieve recovery suggestions for error code
+          description: |
+            Looks up error code in recovery database and returns suggestions.
+            Returns primary suggestion first, followed by alternatives.
+          parameters:
+            - name: error_code
+              in: args
+              required: true
+              schema:
+                type: string
+                pattern: '^[EW]\d{3}$'
+          responses:
+            success:
+              description: List of suggestions (primary first)
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      type: string
+
+        clear:
+          summary: Clear all collected errors and warnings
+          description: Resets aggregator state for new collection cycle
+          parameters: []
+          responses:
+            success:
+              description: Aggregator cleared
+
+examples:
+  basic_usage:
+    summary: Basic error aggregation workflow
+    description: |
+      Typical usage pattern for collecting errors during parsing/validation.
+    code: |
+      from ansibledoctor.exceptions.aggregator import ErrorAggregatorImpl
+      from ansibledoctor.exceptions.codes import ErrorCode
+      
+      # Create aggregator
+      aggregator = ErrorAggregatorImpl(max_errors=1000)
+      
+      # Collect errors during processing
+      try:
+          parse_yaml_file("tasks/main.yml")
+      except yaml.YAMLError as e:
+          aggregator.add_error(
+              code=ErrorCode.E101.name,
+              message=str(e),
+              file="tasks/main.yml",
+              line=e.problem_mark.line if hasattr(e, 'problem_mark') else None,
+              context=extract_context_lines(e),
+          )
+      
+      # Check annotations
+      if not has_required_annotations(role):
+          aggregator.add_error(
+              code=ErrorCode.E201.name,
+              message="Missing required @meta description annotation",
+              file="meta/main.yml",
+              line=1,
+          )
+      
+      # Generate report
+      if aggregator.has_errors():
+          report = aggregator.generate_report()
+          print(report.to_text())  # Human-readable
+          # or
+          with open("errors.json", "w") as f:
+              f.write(report.to_json())  # Machine-readable
+          # or
+          with open("results.sarif", "w") as f:
+              json.dump(report.to_sarif(), f)  # IDE integration
