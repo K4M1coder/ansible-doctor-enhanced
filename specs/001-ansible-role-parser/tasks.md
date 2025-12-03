@@ -173,41 +173,41 @@ description: "Task breakdown for Feature 001: Ansible Role Parser"
 
 ### Tests for User Story 5 (TDD RED Phase)
 
-- [ ] T105 [P] [US5] Test: HandlerParser parses handlers/main.yml in tests/unit/test_handler_parser.py
-- [ ] T106 [P] [US5] Test: HandlerParser extracts handler name, tags, listen directive in tests/unit/test_handler_parser.py
-- [ ] T107 [P] [US5] Test: HandlerParser follows includes (include_tasks in handlers) in tests/unit/test_handler_parser.py
-- [ ] T108 [P] [US5] Test: DocsExtractor extracts README.md content in tests/unit/test_docs_extractor.py
-- [ ] T109 [P] [US5] Test: DocsExtractor detects markdown vs rst format in tests/unit/test_docs_extractor.py
-- [ ] T110 [P] [US5] Test: DocsExtractor extracts CHANGELOG.md content in tests/unit/test_docs_extractor.py
-- [ ] T111 [P] [US5] Test: DocsExtractor extracts LICENSE and detects license type in tests/unit/test_docs_extractor.py
-- [ ] T112 [P] [US5] Test: DocsExtractor lists templates/ directory files in tests/unit/test_docs_extractor.py
-- [ ] T113 [P] [US5] Test: DocsExtractor lists files/ directory files in tests/unit/test_docs_extractor.py
-- [ ] T114 [P] [US5] Test: DocsExtractor returns None for missing docs in tests/unit/test_docs_extractor.py
+- [X] T105 [P] [US5] Test: HandlerParser parses handlers/main.yml in tests/unit/test_handler_parser.py
+- [X] T106 [P] [US5] Test: HandlerParser extracts handler name, tags, listen directive in tests/unit/test_handler_parser.py
+- [X] T107 [P] [US5] Test: HandlerParser follows includes (include_tasks in handlers) in tests/unit/test_handler_parser.py
+- [X] T108 [P] [US5] Test: DocsExtractor extracts README.md content in tests/unit/test_docs_extractor.py
+- [X] T109 [P] [US5] Test: DocsExtractor detects markdown vs rst format in tests/unit/test_docs_extractor.py
+- [X] T110 [P] [US5] Test: DocsExtractor extracts CHANGELOG.md content in tests/unit/test_docs_extractor.py
+- [X] T111 [P] [US5] Test: DocsExtractor extracts LICENSE and detects license type in tests/unit/test_docs_extractor.py
+- [X] T112 [P] [US5] Test: DocsExtractor lists templates/ directory files in tests/unit/test_docs_extractor.py
+- [X] T113 [P] [US5] Test: DocsExtractor lists files/ directory files in tests/unit/test_docs_extractor.py
+- [X] T114 [P] [US5] Test: DocsExtractor returns None for missing docs in tests/unit/test_docs_extractor.py
 
 ### Implementation for User Story 5 (TDD GREEN Phase)
 
-- [ ] T115 [US5] Create Handler Pydantic model in ansibledoctor/models/handler.py (name, tags, listen, file_path, line_number)
-- [ ] T116 [US5] Create ExistingDocs Pydantic model in ansibledoctor/models/existing_docs.py (readme, readme_format, changelog, license_text, license_type, templates_list, files_list)
-- [ ] T117 [US5] Implement HandlerParser in ansibledoctor/parser/handler_parser.py (reuse TaskParser patterns)
-- [ ] T118 [US5] Implement handler tag extraction (same regex as task tags)
-- [ ] T119 [US5] Implement handler include following (include_tasks, import_tasks)
-- [ ] T120 [US5] Implement DocsExtractor in ansibledoctor/parser/docs_extractor.py
-- [ ] T121 [US5] Implement README extraction with format detection (check for RST markers like `===`, `---`)
-- [ ] T122 [US5] Implement CHANGELOG extraction (read file content)
-- [ ] T123 [US5] Implement LICENSE extraction with type detection (scan for MIT, Apache, GPL patterns)
-- [ ] T124 [US5] Implement templates/ directory listing (os.listdir, filter files only)
-- [ ] T125 [US5] Implement files/ directory listing
-- [ ] T126 [US5] Integrate HandlerParser and DocsExtractor into main RoleParser
-- [ ] T127 [US5] Add handlers and existing_docs fields to AnsibleRole model
-- [ ] T128 [US5] Add structured logging for handler and docs extraction
-- [ ] T129 [US5] Write integration tests for role_with_docs fixture in tests/integration/test_role_parser.py
+- [X] T115 [US5] Create Handler Pydantic model in ansibledoctor/models/handler.py (name, tags, listen, file_path, line_number)
+- [X] T116 [US5] Create ExistingDocs Pydantic model in ansibledoctor/models/existing_docs.py (readme, readme_format, changelog, license_text, license_type, templates_list, files_list)
+- [X] T117 [US5] Implement HandlerParser in ansibledoctor/parser/handler_parser.py (reuse TaskParser patterns)
+- [X] T118 [US5] Implement handler tag extraction (same regex as task tags)
+- [X] T119 [US5] Implement handler include following (include_tasks, import_tasks)
+- [X] T120 [US5] Implement DocsExtractor in ansibledoctor/parser/docs_extractor.py
+- [X] T121 [US5] Implement README extraction with format detection (check for RST markers like `===`, `---`)
+- [X] T122 [US5] Implement CHANGELOG extraction (read file content)
+- [X] T123 [US5] Implement LICENSE extraction with type detection (scan for MIT, Apache, GPL patterns)
+- [X] T124 [US5] Implement templates/ directory listing (os.listdir, filter files only)
+- [X] T125 [US5] Implement files/ directory listing
+- [X] T126 [US5] Integrate HandlerParser and DocsExtractor into main RoleParser
+- [X] T127 [US5] Add handlers and existing_docs fields to AnsibleRole model
+- [X] T128 [US5] Add structured logging for handler and docs extraction
+- [X] T129 [US5] Write integration tests for role_with_docs fixture in tests/integration/test_role_parser.py
 
 ### Refactoring for User Story 5
 
-- [ ] T130 [US5] Refactor: Extract common tag parsing logic shared between TaskParser and HandlerParser
-- [ ] T131 [US5] Update CHANGELOG.md [Unreleased] → Added: "Handler extraction from handlers/*.yml"
-- [ ] T132 [US5] Update CHANGELOG.md [Unreleased] → Added: "Existing documentation extraction (README, CHANGELOG, LICENSE)"
-- [ ] T133 [US5] Update README.md Usage section with handler and existing docs examples
+- [X] T130 [US5] Refactor: Extract common tag parsing logic shared between TaskParser and HandlerParser
+- [X] T131 [US5] Update CHANGELOG.md [Unreleased] → Added: "Handler extraction from handlers/*.yml"
+- [X] T132 [US5] Update CHANGELOG.md [Unreleased] → Added: "Existing documentation extraction (README, CHANGELOG, LICENSE)"
+- [X] T133 [US5] Update README.md Usage section with handler and existing docs examples
 
 **Checkpoint**: User Story 5 complete - handlers and existing documentation extractable
 

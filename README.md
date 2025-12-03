@@ -421,7 +421,33 @@ ansible-doctor-enhanced generate --input role-docs.json --output README.md --tem
       "description": null,
       "language": "yaml"
     }
-  ]
+  ],
+  "handlers": [
+    {
+      "name": "restart nginx",
+      "tags": ["restart", "service"],
+      "listen": ["nginx config changed"],
+      "file_path": "handlers/main.yml",
+      "line_number": 3
+    },
+    {
+      "name": "reload nginx",
+      "tags": ["reload"],
+      "listen": ["nginx config updated"],
+      "file_path": "handlers/main.yml",
+      "line_number": 8
+    }
+  ],
+  "existing_docs": {
+    "readme_content": "# My Ansible Role\n\nConfigures web server...",
+    "readme_format": "markdown",
+    "changelog_content": "## [1.0.0] - 2025-01-01\n\n### Added\n- Initial release",
+    "contributing_content": "# Contributing Guide\n\nPlease follow...",
+    "license_content": "MIT License\n\nCopyright (c) 2025...",
+    "license_type": "MIT",
+    "templates_list": ["nginx.conf.j2", "vhost.conf.j2"],
+    "files_list": ["index.html", "favicon.ico"]
+  }
 }
 ```
 

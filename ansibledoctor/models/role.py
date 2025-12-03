@@ -14,6 +14,8 @@ from pydantic import BaseModel, Field, field_validator
 
 from ansibledoctor.models.annotation import Annotation
 from ansibledoctor.models.example import Example
+from ansibledoctor.models.existing_docs import ExistingDocs
+from ansibledoctor.models.handler import Handler
 from ansibledoctor.models.metadata import RoleMetadata
 from ansibledoctor.models.tag import Tag
 from ansibledoctor.models.todo import TodoItem
@@ -59,6 +61,15 @@ class AnsibleRole(BaseModel):
 
     examples: list[Example] = Field(
         default_factory=list, description="Code examples from @example annotations"
+    )
+
+    handlers: list[Handler] = Field(
+        default_factory=list, description="Handler definitions from handlers/"
+    )
+
+    existing_docs: ExistingDocs = Field(
+        default_factory=ExistingDocs,
+        description="Existing documentation (README, CHANGELOG, LICENSE, etc.)"
     )
 
     # Parsing metadata
