@@ -1,0 +1,801 @@
+openapi: 3.1.0
+info:
+  title: Link Validator API
+  description: |
+    API specification for ansible-doctor link validation and cross-reference management.
+    
+    This API defines the contracts for:
+    - Link validation (internal and external)
+    - Cross-reference generation
+    - Navigation building (table of contents)
+    - Link health monitoring
+    
+    **Note**: This is an internal API specification for implementation reference.
+    The actual implementation uses Python protocols and CLI commands.
+  version: 1.0.0
+  contact:
+    name: ansible-doctor Team
+    url: https://github.com/thegeeklab/ansible-doctor
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server (if API server mode added)
+
+tags:
+  - name: validation
+    description: Link validation operations
+  - name: cross-references
+    description: Cross-reference generation and management
+  - name: navigation
+    description: Navigation and TOC generation
+  - name: reporting
+    description: Link health reporting
+
+paths:
+  /validate/link:
+    post:
+      summary: Validate Single Link
+      description: Validate a single link and return its status
+      operationId: validateLink
+      tags:
+        - validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkValidationRequest'
+            examples:
+              internalFile:
+                summary: Internal File Link
+                value:
+                  source_file: /docs/guides/installation.md
+                  target: ../roles/demo_role.md
+                  link_type: relative_path
+                  check_external: false
+              externalUrl:
+                summary: External URL Link
+                value:
+                  source_file: /docs/api/reference.md
+                  target: https://docs.ansible.com/ansible/latest/
+                  link_type: external_url
+                  check_external: true
+                  timeout: 10
+      responses:
+        '200':
+          description: Link validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+              examples:
+                valid:
+                  summary: Valid Link
+                  value:
+                    source_file: /docs/guides/installation.md
+                    target: ../roles/demo_role.md
+                    link_type: relative_path
+                    text: Demo Role Guide
+                    line_number: 42
+                    status: valid
+                    http_status: null
+                    error_message: null
+                    last_checked: '2024-01-15T10:30:00Z'
+                broken:
+                  summary: Broken Link
+                  value:
+                    source_file: /docs/guides/installation.md
+                    target: ../roles/nonexistent.md
+                    link_type: relative_path
+                    text: Nonexistent Role
+                    line_number: 89
+                    status: broken
+                    http_status: null
+                    error_message: 'Target file not found: /docs/roles/nonexistent.md'
+                    last_checked: '2024-01-15T10:30:05Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /validate/file:
+    post:
+      summary: Validate All Links in File
+      description: Validate all links found in a specific file
+      operationId: validateFile
+      tags:
+        - validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileValidationRequest'
+      responses:
+        '200':
+          description: File validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkValidationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /validate/all:
+    post:
+      summary: Validate All Links in Documentation Set
+      description: |
+        Validate all links across entire documentation directory.
+        Supports parallel validation for performance.
+      operationId: validateAll
+      tags:
+        - validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkValidationRequest'
+            examples:
+              internalOnly:
+                summary: Internal Links Only (Fast)
+                value:
+                  docs_dir: /docs
+                  check_external: false
+                  parallel: true
+                  max_workers: 10
+              full:
+                summary: Full Validation (Internal + External)
+                value:
+                  docs_dir: /docs
+                  check_external: true
+                  parallel: true
+                  max_workers: 10
+                  timeout: 30
+                  cache_ttl: 86400
+      responses:
+        '200':
+          description: Bulk validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkValidationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /cross-references/generate:
+    post:
+      summary: Generate Cross-References
+      description: |
+        Generate automatic cross-references between documentation items
+        based on relationships (dependencies, similarities, etc.)
+      operationId: generateCrossReferences
+      tags:
+        - cross-references
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrossReferenceGenerationRequest'
+      responses:
+        '200':
+          description: Cross-references generated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CrossReference'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /cross-references/related:
+    post:
+      summary: Find Related Content
+      description: |
+        Find documentation items related to a given item based on
+        similarity scoring, shared tags, or link graph proximity
+      operationId: findRelatedContent
+      tags:
+        - cross-references
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelatedContentRequest'
+      responses:
+        '200':
+          description: Related content found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CrossReference'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /navigation/toc:
+    post:
+      summary: Generate Table of Contents
+      description: |
+        Generate hierarchical table of contents from document headers
+        with configurable depth and anchor generation
+      operationId: generateToc
+      tags:
+        - navigation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TocGenerationRequest'
+      responses:
+        '200':
+          description: TOC generated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NavigationSection'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /navigation/sections:
+    post:
+      summary: Extract Section Anchors
+      description: Extract all section anchors from a document file
+      operationId: extractSectionAnchors
+      tags:
+        - navigation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - file_path
+              properties:
+                file_path:
+                  type: string
+                  format: path
+                  description: Path to document file
+                format:
+                  type: string
+                  enum: [markdown, html, rst]
+                  default: markdown
+                  description: Document format
+      responses:
+        '200':
+          description: Anchors extracted successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    anchor:
+                      type: string
+                    level:
+                      type: integer
+                      minimum: 1
+                      maximum: 6
+                    line_number:
+                      type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /report/health:
+    post:
+      summary: Generate Link Health Report
+      description: |
+        Generate comprehensive link health report with statistics,
+        broken link details, and trend analysis
+      operationId: generateHealthReport
+      tags:
+        - reporting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthReportRequest'
+      responses:
+        '200':
+          description: Health report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkHealthReport'
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  ========================================
+                  Link Health Report
+                  ========================================
+                  Total Links: 142
+                  Valid: 138 (97.2%)
+                  Broken: 4
+            text/html:
+              schema:
+                type: string
+                example: '<html><body><h1>Link Health Report</h1>...</body></html>'
+
+  /graph/cycles:
+    post:
+      summary: Detect Link Cycles
+      description: Detect circular link dependencies in documentation
+      operationId: detectCycles
+      tags:
+        - reporting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - docs_dir
+              properties:
+                docs_dir:
+                  type: string
+                  format: path
+      responses:
+        '200':
+          description: Cycle detection completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cycles_found:
+                    type: integer
+                  cycles:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                        format: path
+
+components:
+  schemas:
+    LinkType:
+      type: string
+      enum:
+        - internal_file
+        - internal_section
+        - cross_reference
+        - external_url
+        - relative_path
+        - absolute_path
+      description: Type of link
+
+    LinkStatus:
+      type: string
+      enum:
+        - valid
+        - broken
+        - redirect
+        - timeout
+        - invalid_syntax
+        - not_checked
+      description: Link validation status
+
+    Link:
+      type: object
+      required:
+        - source_file
+        - target
+        - link_type
+        - status
+      properties:
+        source_file:
+          type: string
+          format: path
+          description: File containing the link
+        target:
+          type: string
+          description: Link target (URL, file path, or anchor)
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+        text:
+          type: string
+          nullable: true
+          description: Link text/title
+        line_number:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Line number in source file
+        status:
+          $ref: '#/components/schemas/LinkStatus'
+        http_status:
+          type: integer
+          minimum: 100
+          maximum: 599
+          nullable: true
+          description: HTTP status code for external links
+        redirect_url:
+          type: string
+          nullable: true
+          description: Final URL after redirects
+        error_message:
+          type: string
+          nullable: true
+          description: Error message if broken
+        last_checked:
+          type: string
+          format: date-time
+          nullable: true
+          description: Last validation timestamp
+
+    NavigationSection:
+      type: object
+      required:
+        - title
+        - anchor
+        - level
+        - line_number
+        - file_path
+      properties:
+        title:
+          type: string
+          description: Section title
+        anchor:
+          type: string
+          description: URL-safe anchor
+        level:
+          type: integer
+          minimum: 1
+          maximum: 6
+          description: Heading level (1-6)
+        line_number:
+          type: integer
+          minimum: 1
+          description: Line number in source file
+        file_path:
+          type: string
+          format: path
+          description: File containing this section
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/NavigationSection'
+          description: Nested subsections
+
+    CrossReferenceType:
+      type: string
+      enum:
+        - dependency
+        - used_by
+        - related
+        - parent
+        - child
+        - extends
+        - implements
+
+    CrossReference:
+      type: object
+      required:
+        - source
+        - target
+        - link_type
+      properties:
+        source:
+          $ref: '#/components/schemas/IndexItem'
+        target:
+          $ref: '#/components/schemas/IndexItem'
+        link_type:
+          $ref: '#/components/schemas/CrossReferenceType'
+        forward_link:
+          $ref: '#/components/schemas/Link'
+          nullable: true
+        backward_link:
+          $ref: '#/components/schemas/Link'
+          nullable: true
+        strength:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          default: 1.0
+          description: Relationship strength
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    IndexItem:
+      type: object
+      description: Documentation item from Spec 011 index
+      required:
+        - name
+        - type
+        - path
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [role, playbook, module, collection, project]
+        path:
+          type: string
+          format: path
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    LinkValidationResult:
+      type: object
+      required:
+        - total_links
+        - valid_links
+        - broken_links
+        - links
+        - duration_ms
+      properties:
+        total_links:
+          type: integer
+          minimum: 0
+        valid_links:
+          type: integer
+          minimum: 0
+        broken_links:
+          type: integer
+          minimum: 0
+        redirect_links:
+          type: integer
+          minimum: 0
+          default: 0
+        external_links_checked:
+          type: integer
+          minimum: 0
+          default: 0
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        duration_ms:
+          type: number
+          format: float
+          minimum: 0.0
+        validation_timestamp:
+          type: string
+          format: date-time
+        errors_by_file:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Link'
+
+    LinkHealthReport:
+      type: object
+      properties:
+        validation_result:
+          $ref: '#/components/schemas/LinkValidationResult'
+        graph_metrics:
+          type: object
+          properties:
+            total_files:
+              type: integer
+            circular_dependencies:
+              type: integer
+            average_links_per_file:
+              type: number
+              format: float
+            most_linked_files:
+              type: array
+              items:
+                type: object
+                properties:
+                  file:
+                    type: string
+                    format: path
+                  score:
+                    type: number
+                    format: float
+        trends:
+          type: object
+          properties:
+            success_rate_change:
+              type: number
+              format: float
+              description: Change in success rate since last report
+            new_broken_links:
+              type: integer
+            fixed_links:
+              type: integer
+
+    LinkValidationRequest:
+      type: object
+      required:
+        - source_file
+        - target
+        - link_type
+      properties:
+        source_file:
+          type: string
+          format: path
+        target:
+          type: string
+        link_type:
+          $ref: '#/components/schemas/LinkType'
+        check_external:
+          type: boolean
+          default: false
+        timeout:
+          type: integer
+          minimum: 1
+          default: 10
+        output_dir:
+          type: string
+          format: path
+
+    FileValidationRequest:
+      type: object
+      required:
+        - file_path
+        - output_dir
+      properties:
+        file_path:
+          type: string
+          format: path
+        output_dir:
+          type: string
+          format: path
+        check_external:
+          type: boolean
+          default: false
+        timeout:
+          type: integer
+          default: 10
+
+    BulkValidationRequest:
+      type: object
+      required:
+        - docs_dir
+      properties:
+        docs_dir:
+          type: string
+          format: path
+        check_external:
+          type: boolean
+          default: false
+        parallel:
+          type: boolean
+          default: true
+        max_workers:
+          type: integer
+          minimum: 1
+          maximum: 50
+          default: 10
+        timeout:
+          type: integer
+          default: 10
+        cache_ttl:
+          type: integer
+          description: Cache TTL in seconds
+          default: 86400
+
+    CrossReferenceGenerationRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexItem'
+        bidirectional:
+          type: boolean
+          default: true
+        max_related:
+          type: integer
+          minimum: 1
+          default: 5
+        similarity_threshold:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.7
+
+    RelatedContentRequest:
+      type: object
+      required:
+        - item
+        - all_items
+      properties:
+        item:
+          $ref: '#/components/schemas/IndexItem'
+        all_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexItem'
+        max_related:
+          type: integer
+          default: 5
+
+    TocGenerationRequest:
+      type: object
+      required:
+        - file_path
+      properties:
+        file_path:
+          type: string
+          format: path
+        max_depth:
+          type: integer
+          minimum: 1
+          maximum: 6
+          default: 3
+        format:
+          type: string
+          enum: [markdown, html, rst]
+          default: markdown
+
+    HealthReportRequest:
+      type: object
+      required:
+        - docs_dir
+      properties:
+        docs_dir:
+          type: string
+          format: path
+        format:
+          type: string
+          enum: [text, json, html]
+          default: text
+        show_valid:
+          type: boolean
+          default: false
+        include_trends:
+          type: boolean
+          default: false
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: bad_request
+            message: Invalid link type specified
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: not_found
+            message: File not found: /docs/nonexistent.md
