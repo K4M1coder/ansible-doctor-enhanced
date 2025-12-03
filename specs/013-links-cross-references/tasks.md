@@ -3,7 +3,13 @@
 **Input**: Design documents from `/specs/013-links-cross-references/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: Tests are included as this feature requires comprehensive link validation testing.
+**Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
+
+**Cross-Spec Dependencies**:
+- **Extends Spec 002**: Add link generation to existing `ansibledoctor/generator/` document generation
+- **Extends Spec 011**: Enhance index pages with smart cross-referencing (provides CrossReference model)
+- **Owns**: CrossReference model, LinkValidator, LinkManager - single source of truth for linking
+- **Library Versions**: requests>=2.28, beautifulsoup4>=4.11
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -286,6 +292,16 @@ With multiple developers:
    - Developer D: User Story 4 (external resources)
    - Developer E: User Story 5 (index navigation)
 4. Stories complete and integrate independently
+
+---
+
+## Backward Compatibility Regression Tasks
+
+These tasks ensure existing functionality is not broken:
+
+- [ ] T091 [REGRESSION] Run existing Spec 001-008 test suites to verify no regressions
+- [ ] T092 [REGRESSION] Verify existing generated documentation unchanged without link features
+- [ ] T093 [REGRESSION] Test that document generation works without --validate-links flag
 
 ---
 
