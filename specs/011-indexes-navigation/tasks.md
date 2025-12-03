@@ -3,8 +3,13 @@
 **Feature**: Spec 011 - Indexes & Navigation  
 **Branch**: `011-indexes-navigation`  
 **Generated**: 2025-12-03  
-**Total Tasks**: 82  
-**Estimated Effort**: 68 hours (~8.5 developer days)
+**Total Tasks**: 96 (reduced from 105 - US7 moved to Spec 013)  
+**Estimated Effort**: 60 hours (~7.5 developer days)
+
+**Cross-Spec Dependencies**:
+- **Consumes Spec 013**: CrossReference model and LinkValidator from `ansibledoctor/links/` (US7 functionality)
+- **Consumes Spec 012**: MermaidBuilder can use SchemaService for diagram validation
+- **Integrates Spec 009**: Index generation metrics feed into ExecutionReport
 
 ---
 
@@ -13,9 +18,8 @@
 **Goal**: Initialize module structure, models, and test infrastructure.
 
 - [ ] T001 Create index models module at ansibledoctor/models/index.py with IndexItem, IndexPage, SectionIndex models
-- [ ] T002 [P] Create cross-reference models module at ansibledoctor/models/cross_reference.py with CrossReference model
-- [ ] T003 [P] Create index generator module skeleton at ansibledoctor/generator/indexes.py with IndexGenerator protocol
-- [ ] T004 [P] Create test fixtures directory at tests/fixtures/project_structures/ with simple_project/, hierarchical_project/, large_project/ subdirectories
+- [ ] T002 [P] Create index generator module skeleton at ansibledoctor/generator/indexes.py with IndexGenerator protocol
+- [ ] T003 [P] Create test fixtures directory at tests/fixtures/project_structures/ with simple_project/, hierarchical_project/, large_project/ subdirectories
 
 ---
 
@@ -25,13 +29,13 @@
 
 **Note**: These tasks MUST complete before any user story work begins.
 
-- [ ] T005 Write tests for IndexItem model in tests/unit/test_index_models.py (depth calculation, find_child, find_descendant)
-- [ ] T006 Implement IndexItem model in ansibledoctor/models/index.py with properties (depth, total_descendants, find_child, find_descendant)
-- [ ] T007 [P] Write tests for IndexPage model in tests/unit/test_index_models.py (pagination logic, filter tracking)
-- [ ] T008 [P] Implement IndexPage model in ansibledoctor/models/index.py with render() method
-- [ ] T009 [P] Write tests for SectionIndex model in tests/unit/test_index_models.py (inline rendering, limit behavior)
-- [ ] T010 [P] Implement SectionIndex model in ansibledoctor/models/index.py with render_inline() method
-- [ ] T011 Create test fixture projects in tests/fixtures/project_structures/ (simple: 1 collection/3 roles, hierarchical: 3 collections/15 roles, large: 500+ components)
+- [ ] T004 Write tests for IndexItem model in tests/unit/test_index_models.py (depth calculation, find_child, find_descendant)
+- [ ] T005 Implement IndexItem model in ansibledoctor/models/index.py with properties (depth, total_descendants, find_child, find_descendant)
+- [ ] T006 [P] Write tests for IndexPage model in tests/unit/test_index_models.py (pagination logic, filter tracking)
+- [ ] T007 [P] Implement IndexPage model in ansibledoctor/models/index.py with render() method
+- [ ] T008 [P] Write tests for SectionIndex model in tests/unit/test_index_models.py (inline rendering, limit behavior)
+- [ ] T009 [P] Implement SectionIndex model in ansibledoctor/models/index.py with render_inline() method
+- [ ] T010 Create test fixture projects in tests/fixtures/project_structures/ (simple: 1 collection/3 roles, hierarchical: 3 collections/15 roles, large: 500+ components)
 
 ---
 
@@ -191,46 +195,23 @@
 
 ---
 
-## Phase 9: User Story 7 - Cross-Reference Links (12 tasks, ~11 hours, P3)
-
-**Story Goal**: Add cross-reference links between related components with validation.
-
-**Independent Test**: Generate role index → Each role links to docs, dependencies link correctly, broken links validated.
-
-### Tests First
-
-- [ ] T084 [P] [US7] Write test for cross-reference link generation in tests/unit/test_index_generator.py (role → doc link)
-- [ ] T085 [P] [US7] Write test for dependency links in tests/unit/test_index_generator.py (dependency → doc link)
-- [ ] T086 [P] [US7] Write test for broken link detection in tests/unit/test_link_validator.py (missing target detected)
-- [ ] T087 [P] [US7] Write test for link validation in tests/integration/test_index_generation.py (--validate-links flag)
-- [ ] T088 [P] [US7] Write test for used_by links in tests/unit/test_index_generator.py (reverse dependencies)
-
-### Implementation
-
-- [ ] T089 [US7] Create LinkValidator class in ansibledoctor/utils/link_validator.py with validate_link() method
-- [ ] T090 [US7] Implement CrossReference model in ansibledoctor/models/cross_reference.py (source, target, link_type, is_valid)
-- [ ] T091 [US7] Implement cross-reference link generation in IndexGenerator (resolve target paths)
-- [ ] T092 [US7] Implement link validation in LinkValidator (check file existence)
-- [ ] T093 [US7] Add broken link handling in templates (render as plain text, show warning icon)
-- [ ] T094 [US7] Add --validate-links CLI flag in ansibledoctor/cli/__init__.py (enable validation)
-- [ ] T095 [US7] Integrate link validation into generation flow (validate after index creation, report errors)
-
----
-
-## Phase 10: Polish & Cross-Cutting Concerns (10 tasks, ~8 hours)
+## Phase 9: Polish & Cross-Cutting Concerns (10 tasks, ~8 hours)
 
 **Goal**: Documentation, optimization, integration testing, and release preparation.
 
-- [ ] T096 [P] Update CHANGELOG.md with Spec 011 feature summary (index pages, embedded sections, multiple formats)
-- [ ] T097 [P] Create user guide docs/INDEX_GUIDE.md (usage examples for all index styles)
-- [ ] T098 [P] Update README.md with index feature showcase (examples of list, tree, nested-table, diagram)
-- [ ] T099 [P] Add quickstart examples to docs/ (basic role index, hierarchical project, embedded sections)
-- [ ] T100 Write comprehensive integration test in tests/integration/test_full_index_workflow.py (end-to-end with all features)
-- [ ] T101 Performance test large project in tests/integration/test_index_performance.py (500+ components < 500ms)
-- [ ] T102 [P] Add index generation metrics to execution reports (integrate with Spec 009 ExecutionReport)
-- [ ] T103 Create demo projects in demo/ showing index features (collection with indexes, project with tree)
-- [ ] T104 Update cli help text in ansibledoctor/cli/__init__.py (document all index flags with examples)
-- [ ] T105 Final code review and cleanup (remove debug logging, optimize imports, fix style)
+**Note**: Cross-reference functionality (US7) has been moved to Spec 013 (Links & Cross-References).
+Spec 011 should consume CrossReference and LinkValidator from Spec 013's `ansibledoctor/links/` module.
+
+- [ ] T084 [P] Update CHANGELOG.md with Spec 011 feature summary (index pages, embedded sections, multiple formats)
+- [ ] T085 [P] Create user guide docs/INDEX_GUIDE.md (usage examples for all index styles)
+- [ ] T086 [P] Update README.md with index feature showcase (examples of list, tree, nested-table, diagram)
+- [ ] T087 [P] Add quickstart examples to docs/ (basic role index, hierarchical project, embedded sections)
+- [ ] T088 Write comprehensive integration test in tests/integration/test_full_index_workflow.py (end-to-end with all features)
+- [ ] T089 Performance test large project in tests/integration/test_index_performance.py (500+ components < 500ms)
+- [ ] T090 [P] Add index generation metrics to execution reports (integrate with Spec 009 ExecutionReport)
+- [ ] T091 Create demo projects in demo/ showing index features (collection with indexes, project with tree)
+- [ ] T092 Update cli help text in ansibledoctor/cli/__init__.py (document all index flags with examples)
+- [ ] T093 Final code review and cleanup (remove debug logging, optimize imports, fix style)
 
 ---
 
@@ -248,8 +229,8 @@ graph TD
     US4[US4: Nested Tables]
     US5[US5: Mermaid Diagrams]
     US6[US6: Filtering]
-    US7[US7: Cross-References]
-    Polish[Phase 10: Polish]
+    Spec013[Spec 013: Links & Cross-Refs]
+    Polish[Phase 9: Polish]
     
     Setup --> Foundation
     Foundation --> US1
@@ -260,29 +241,31 @@ graph TD
     US2 --> US4
     US2 --> US5
     US3 --> US6
-    US1 --> US7
     US4 --> Polish
     US5 --> Polish
     US6 --> Polish
-    US7 --> Polish
+    Spec013 -.provides.-> US1
+    Spec013 -.provides.-> US2
 ```
 
 ### Parallel Execution Opportunities
 
-**After Foundation Phase (T011 complete)**:
+**After Foundation Phase (T010 complete)**:
 
-- **Group A** (Independent): T012-T016 (US1 tests), T027-T031 (US2 tests), T041-T045 (US3 tests)
-- **Group B** (After US1 implementation): T018-T019 (templates), T053-T056 (US4 tests), T063-T067 (US5 tests)
-- **Group C** (After US3 implementation): T074-T078 (US6 tests), T084-T088 (US7 tests)
-- **Group D** (Documentation): T096-T099 (docs updates can happen in parallel with late-stage implementation)
+- **Group A** (Independent): T011-T015 (US1 tests), T026-T030 (US2 tests), T040-T044 (US3 tests)
+- **Group B** (After US1 implementation): T017-T018 (templates), T052-T055 (US4 tests), T062-T066 (US5 tests)
+- **Group C** (After US3 implementation): T073-T077 (US6 tests)
+- **Group D** (Documentation): T084-T087 (docs updates can happen in parallel with late-stage implementation)
+
+**Note**: Cross-reference functionality is provided by Spec 013 - integrate via `from ansibledoctor.links import CrossReference, LinkValidator`
 
 ### MVP Scope (US1 + US2 + US3)
 
-**Tasks**: T001-T052 (52 tasks)  
+**Tasks**: T001-T051 (51 tasks)  
 **Effort**: ~32 hours (~4 developer days)  
 **Deliverable**: Basic index generation with role indexes, hierarchical views, and embedded sections
 
-**Why these stories**: Role indexes (US1) enable discovery, hierarchical views (US2) show structure, embedded sections (US3) improve UX. These three provide complete core indexing functionality. US4-US7 add advanced features but aren't blocking.
+**Why these stories**: Role indexes (US1) enable discovery, hierarchical views (US2) show structure, embedded sections (US3) improve UX. These three provide complete core indexing functionality. US4-US6 add advanced features. Cross-referencing (former US7) is now provided by Spec 013.
 
 ---
 
@@ -297,34 +280,47 @@ graph TD
 
 ### Incremental Delivery
 
-1. **Sprint 1** (Setup + Foundation): T001-T011 (~8 hours) - Models, fixtures, basic infrastructure
-2. **Sprint 2** (US1 MVP): T012-T026 (~12 hours) - Role index pages working
-3. **Sprint 3** (US2 + US3 MVP): T027-T052 (~20 hours) - Hierarchical and embedded indexes
-4. **Sprint 4** (US4 + US5): T053-T073 (~17 hours) - Advanced visualizations
-5. **Sprint 5** (US6 + US7): T074-T095 (~20 hours) - Filtering and cross-references
-6. **Sprint 6** (Polish): T096-T105 (~8 hours) - Documentation and optimization
+1. **Sprint 1** (Setup + Foundation): T001-T010 (~8 hours) - Models, fixtures, basic infrastructure
+2. **Sprint 2** (US1 MVP): T011-T025 (~12 hours) - Role index pages working
+3. **Sprint 3** (US2 + US3 MVP): T026-T051 (~20 hours) - Hierarchical and embedded indexes
+4. **Sprint 4** (US4 + US5): T052-T072 (~17 hours) - Advanced visualizations
+5. **Sprint 5** (US6): T073-T083 (~9 hours) - Filtering
+6. **Sprint 6** (Polish): T084-T093 (~8 hours) - Documentation and optimization
+
+**Note**: Cross-references now provided by Spec 013 (implement after or in parallel)
 
 ### Testing Strategy
 
-- **Unit Tests**: Models (IndexItem, IndexPage), TreeVisualizer, MermaidBuilder, IndexFilter, LinkValidator
+- **Unit Tests**: Models (IndexItem, IndexPage), TreeVisualizer, MermaidBuilder, IndexFilter
 - **Integration Tests**: Full index generation workflows, template marker integration, CLI flag combinations
 - **Performance Tests**: 500+ component projects, pagination, large tree rendering
 - **Fixture-Based**: Reusable test projects (simple/hierarchical/large) for consistent testing
+- **Cross-Spec**: Integration with Spec 013 CrossReference/LinkValidator via imports
 
 ---
 
 ## Success Metrics
 
-- ✅ All 15 functional requirements (FR-001 to FR-015) implemented and tested
-- ✅ All 7 user stories deliver expected behavior with acceptance criteria met
+- ✅ All 12 functional requirements (FR-001 to FR-012) implemented and tested (FR-013 to FR-015 moved to Spec 013)
+- ✅ All 6 user stories deliver expected behavior with acceptance criteria met
 - ✅ Index generation <200ms per 100 components (SC-001)
 - ✅ Tree visualizations support 5+ hierarchy levels (SC-004)
-- ✅ 95%+ cross-reference links resolve correctly (SC-005)
+- ✅ Cross-reference links provided by Spec 013 integration (SC-005)
 - ✅ Mermaid diagrams render in GitHub/GitLab (SC-006)
 - ✅ HTML indexes support client-side filtering (SC-007)
 - ✅ Test coverage >85% for new code
 - ✅ All edge cases handled (circular dependencies, missing descriptions, 500+ components)
 - ✅ Constitution compliance verified (TDD, Library-First, CLI Mandate, Observability, Backward Compatibility)
+
+---
+
+## Backward Compatibility Regression Tasks
+
+These tasks ensure existing functionality is not broken:
+
+- [ ] T094 [REGRESSION] Run existing Spec 001-008 test suites to verify no regressions
+- [ ] T095 [REGRESSION] Verify existing generated documentation structure unchanged
+- [ ] T096 [REGRESSION] Test that document generation works without --include-index flag
 
 ---
 
@@ -339,4 +335,4 @@ graph TD
 - **Performance**: Target <200ms/100 components for index generation, <500ms for 500+ component projects
 - **Mermaid Compatibility**: Test with GitHub/GitLab Markdown renderers, use standard Mermaid syntax
 - **Template Marker Validation**: Validate syntax, show helpful error messages with line numbers
-- **Link Validation**: Optional via --validate-links flag, warns on broken links, doesn't fail generation
+- **Link Validation**: Provided by Spec 013 - use `from ansibledoctor.links import LinkValidator` when integrating

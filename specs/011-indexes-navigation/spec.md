@@ -3,8 +3,13 @@
 **Feature Branch**: `011-indexes-navigation`  
 **Created**: 2025-12-02  
 **Milestone**: v0.10.0  
-**Prerequisites**: v0.8.0 (Template Customization) COMPLETE ✅  
+**Prerequisites**: v0.8.0 (Template Customization) PLANNED  
 **Status**: Draft
+
+**Cross-Spec Dependencies**:
+- **Consumes Spec 013**: CrossReference model and LinkValidator for cross-references (US7 moved to Spec 013)
+- **Consumes Spec 012**: MermaidBuilder can use SchemaService for diagram validation
+- **Integrates Spec 009**: Index generation metrics feed into ExecutionReport
 
 ## Objective
 
