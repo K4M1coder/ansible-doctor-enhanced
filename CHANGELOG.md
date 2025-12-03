@@ -9,11 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Specs: Recursive Parsing & Existing Docs Coverage
 
-- **Spec 001**: US5 (Handlers and Existing Documentation extraction), FR-025 to FR-030, SC-011 to SC-013, Phase 5B tasks (T105-T133)
 - **Spec 004**: Playbooks discovery, existing docs extraction, deep parsing support (FR-006 to FR-011, SC-009 to SC-011), Phase 7 tasks (T266-T295), CHK021-CHK025
 - **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
-- **Shared**: ExistingDocs model (README, CHANGELOG, CONTRIBUTING, LICENSE) with license type detection
 - **Shared**: `--deep` CLI flag for recursive role/collection parsing
+
+## [0.9.2] - 2025-12-04
+
+### Added - Handler and Documentation Extraction (Spec 001 Phase 5B)
+
+- **Handler Parsing**: Extract handler definitions from `handlers/*.yml` files
+  - Handler name, tags, and listen directive extraction
+  - Support for `include_tasks` and `import_tasks` in handlers
+  - Integration with existing role parsing pipeline
+- **Existing Documentation Extraction**: Automatic discovery and extraction of role documentation
+  - README content extraction with format detection (Markdown/reStructuredText)
+  - CHANGELOG.md content extraction
+  - CONTRIBUTING.md content extraction
+  - LICENSE file extraction with automatic type detection (MIT, Apache-2.0, GPL-2.0/3.0, BSD-2-Clause/3-Clause)
+  - Templates directory file listing (templates/*.j2)
+  - Static files directory listing (files/*)
+- **Shared Models**: `Handler` and `ExistingDocs` Pydantic models
+- **Shared Utilities**: `extract_tags_from_yaml()` utility for consistent tag parsing across parsers
+- **Integration Tests**: Comprehensive end-to-end tests for role parsing with handlers and documentation
+
+### Changed
+
+- **Refactored** tag extraction logic: Extracted common `extract_tags_from_yaml()` utility shared between `TaskParser` and `HandlerParser`
+- **Enhanced** `AnsibleRole` model with `handlers` and `existing_docs` fields
+- **Updated** CLI JSON output to include handler and existing documentation information
 
 ## [0.9.1] - 2025-12-02
 

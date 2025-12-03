@@ -16,6 +16,7 @@ import structlog
 
 from ansibledoctor.models.tag import Tag
 from ansibledoctor.parser.protocols import YAMLLoader
+from ansibledoctor.parser.yaml_utils import extract_tags_from_yaml
 
 logger = structlog.get_logger()
 
@@ -119,20 +120,13 @@ class TaskParser:
                     if not isinstance(task, dict):
                         continue
 
-                    task_tags = task.get("tags")
-                    if not task_tags:
+                    task_tags_raw = task.get("tags")
+                    if not task_tags_raw:
                         continue
 
-                    # Handle both string and list formats
-                    if isinstance(task_tags, str):
-                        task_tags = [task_tags]
-                    elif not isinstance(task_tags, list):
-                        logger.warning(
-                            "invalid_tags_type",
-                            task_index=task_index,
-                            task_name=task.get("name", "unnamed"),
-                            tags_type=type(task_tags).__name__,
-                        )
+                    # Extract and normalize tags using shared utility
+                    task_tags = extract_tags_from_yaml(task_tags_raw)
+                    if not task_tags:
                         continue
 
                     # Process each tag
@@ -140,12 +134,6 @@ class TaskParser:
                     file_location = f"{task_file.relative_to(role_path)}:{task_index + 1}"
 
                     for tag_name in task_tags:
-                        if not isinstance(tag_name, str):
-                            continue
-
-                        tag_name = tag_name.strip()
-                        if not tag_name:
-                            continue
 
                         # Aggregate tag information
                         if tag_name not in tags_dict:

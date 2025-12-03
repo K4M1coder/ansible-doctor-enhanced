@@ -29,7 +29,9 @@ from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.generator.renderers.rst import RstRenderer
 from ansibledoctor.models import AnsibleRole
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
+from ansibledoctor.parser.docs_extractor import DocsExtractor
 from ansibledoctor.parser.example_parser import ExampleParser
+from ansibledoctor.parser.handler_parser import HandlerParser
 from ansibledoctor.parser.metadata_parser import MetadataParser
 from ansibledoctor.parser.task_parser import TaskParser
 from ansibledoctor.parser.todo_parser import TodoParser
@@ -387,6 +389,60 @@ def _parse_single_role(role_path: Path, validate: bool) -> dict:
     except Exception as e:
         logger.warning("examples_parse_failed", error=str(e))
         result["examples"] = []
+
+    # Parse handlers (Phase 5B - US5)
+    try:
+        handler_parser = HandlerParser(str(role_path))
+        handlers = handler_parser.parse()
+        result["handlers"] = [
+            {
+                "name": h.name,
+                "tags": h.tags,
+                "listen": h.listen,
+                "file_path": h.file_path,
+                "line_number": h.line_number,
+            }
+            for h in handlers
+        ]
+        logger.debug("handlers_parsed", count=len(handlers))
+    except Exception as e:
+        logger.warning("handlers_parse_failed", error=str(e))
+        result["handlers"] = []
+
+    # Extract existing documentation (Phase 5B - US5)
+    try:
+        docs_extractor = DocsExtractor(str(role_path))
+        existing_docs = docs_extractor.extract()
+        result["existing_docs"] = {
+            "readme_content": existing_docs.readme_content,
+            "readme_format": existing_docs.readme_format,
+            "changelog_content": existing_docs.changelog_content,
+            "contributing_content": existing_docs.contributing_content,
+            "license_content": existing_docs.license_content,
+            "license_type": existing_docs.license_type,
+            "templates_list": existing_docs.templates_list,
+            "files_list": existing_docs.files_list,
+        }
+        logger.debug(
+            "existing_docs_extracted",
+            has_readme=bool(existing_docs.readme_content),
+            has_license=bool(existing_docs.license_content),
+            license_type=existing_docs.license_type,
+            templates_count=len(existing_docs.templates_list),
+            files_count=len(existing_docs.files_list),
+        )
+    except Exception as e:
+        logger.warning("existing_docs_extraction_failed", error=str(e))
+        result["existing_docs"] = {
+            "readme_content": None,
+            "readme_format": None,
+            "changelog_content": None,
+            "contributing_content": None,
+            "license_content": None,
+            "license_type": None,
+            "templates_list": [],
+            "files_list": [],
+        }
 
     logger.info("role_parsed_successfully", role_name=result["name"])
     return result
