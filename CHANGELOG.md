@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
 - **Shared**: `--deep` CLI flag for recursive role/collection parsing
 
+## [0.9.3] - 2025-12-04
+
+### Added - Template Support for Handlers and Documentation (Spec 002 T219)
+
+- **Markdown Template**: Added Handlers and Documentation sections to `role.j2`
+  - Handlers section displays handler name, tags, listen directives, and source location
+  - Documentation section includes README, LICENSE (with type detection), templates list, and static files list
+- **HTML Template**: Added matching Handlers and Documentation sections with styled output
+- **RST Template**: Added Handlers and Documentation sections with proper reStructuredText formatting
+- **TOC Updates**: All templates now include Handlers and Documentation in table of contents
+
+### Changed
+
+- **Template Consistency**: All three output formats (Markdown, HTML, RST) now render handlers and existing documentation uniformly
+
 ## [0.9.2] - 2025-12-04
 
 ### Added - Handler and Documentation Extraction (Spec 001 Phase 5B)
