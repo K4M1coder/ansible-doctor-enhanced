@@ -3,6 +3,13 @@
 **Input**: Design documents from `/specs/010-error-reports-and-recovery/`
 **Prerequisites**: plan.md ✅, spec.md ✅, data-model.md ✅, contracts/ ✅
 
+**Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
+
+**Cross-Spec Dependencies**:
+- **Extends**: Existing `ansibledoctor/exceptions.py` exception hierarchy
+- **Consumed by Spec 009**: ErrorAggregator provides error summaries for ExecutionReport
+- **Provides**: ErrorEntry, ErrorAggregator, RecoverySuggestions models for all specs
+
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `- [ ] [ID] [P?] [Story?] Description with file path`
@@ -286,7 +293,19 @@ MVP delivery requires completing User Stories 1, 2, and 3 (aggregation + suggest
 2. **Incremental Delivery**: Complete US1+US2+US3 for MVP, then iterate
 3. **Backward Compatibility**: Existing error behavior unchanged without new flags
 4. **Performance Testing**: Validate <50ms error report overhead with benchmarks
-5. **SARIF Validation**: Use schema validation in tests to ensure IDE compatibility
+5. **SARIF Validation**: Use schema validation in tests to ensure IDE compatibility (A15 remediation)
+6. **Regression Testing**: Verify existing Spec 001-008 error handling unchanged
+
+---
+
+## Backward Compatibility Regression Tasks
+
+These tasks ensure existing functionality is not broken:
+
+- [ ] T091 [REGRESSION] Run existing test suites to verify no regressions
+- [ ] T092 [REGRESSION] Verify default error output format unchanged without new flags
+- [ ] T093 [REGRESSION] Test that existing exception messages remain identical
+- [ ] T094 [A15] Add SARIF 2.1.0 schema validation test in `tests/integration/test_sarif_validation.py`
 
 ---
 
