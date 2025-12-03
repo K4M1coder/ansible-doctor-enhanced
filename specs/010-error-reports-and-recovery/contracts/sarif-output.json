@@ -1,0 +1,311 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ansible-doctor",
+          "version": "0.9.0",
+          "informationUri": "https://github.com/thegeeklab/ansible-doctor",
+          "semanticVersion": "0.9.0",
+          "rules": [
+            {
+              "id": "E101",
+              "name": "YAMLSyntaxError",
+              "shortDescription": {
+                "text": "YAML syntax error"
+              },
+              "fullDescription": {
+                "text": "YAML file contains syntax errors that prevent parsing. Common causes include incorrect indentation, missing colons, or improperly quoted strings."
+              },
+              "help": {
+                "text": "Check YAML indentation (Ansible requires 2-space indents). Validate syntax with `yamllint`. Ensure special characters are quoted.",
+                "markdown": "## YAML Syntax Error\n\n**Common Causes:**\n- Incorrect indentation (must use 2 spaces, not tabs)\n- Missing colons after keys\n- Unquoted strings with special characters (`:`, `[`, `]`, `{`, `}`)\n\n**Solutions:**\n1. Run `yamllint tasks/main.yml` to identify issues\n2. Check that all keys have colons: `name: value`\n3. Quote strings with special characters: `msg: \"Value: {{ var }}\"`\n\n**Example:**\n```yaml\n# ❌ Wrong (missing colon)\n- name Install nginx\n  apt:\n    name: nginx\n\n# ✅ Correct\n- name: Install nginx\n  apt:\n    name: nginx\n```"
+              },
+              "helpUri": "https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html",
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "category": "parsing",
+                "tags": ["yaml", "syntax"]
+              }
+            },
+            {
+              "id": "E201",
+              "name": "MissingRequiredAnnotation",
+              "shortDescription": {
+                "text": "Missing required annotation"
+              },
+              "fullDescription": {
+                "text": "Role, collection, or project is missing a required annotation. Annotations provide metadata for documentation generation."
+              },
+              "help": {
+                "text": "Add required @meta annotation to file header. Example: @meta description: Role configures web server",
+                "markdown": "## Missing Required Annotation\n\n**Required Annotations:**\n- `@meta description: <text>` - High-level description of component\n- `@var <name>: <description>` - Description of default variables\n\n**Example:**\n```yaml\n# roles/webserver/meta/main.yml\n# @meta description: Installs and configures nginx web server\n# @meta author: DevOps Team\n\ngalaxy_info:\n  author: devops\n  description: Web server role\n```"
+              },
+              "helpUri": "https://ansible-doctor.example.com/annotations",
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "category": "validation",
+                "tags": ["annotation", "metadata"]
+              }
+            },
+            {
+              "id": "W201",
+              "name": "MissingRecommendedAnnotation",
+              "shortDescription": {
+                "text": "Missing recommended annotation"
+              },
+              "fullDescription": {
+                "text": "Optional but recommended annotation is missing. Adding this annotation improves documentation quality."
+              },
+              "help": {
+                "text": "Add @var annotation for better documentation. Example: @var webserver_port: Port for nginx to listen on",
+                "markdown": "## Missing Recommended Annotation\n\n**Recommended Annotations:**\n- `@var <name>: <description>` - Document variable purpose and usage\n- `@meta license: <license>` - Specify role license\n- `@meta version: <semver>` - Track role version\n\n**Example:**\n```yaml\n# roles/webserver/defaults/main.yml\n# @var webserver_port: Port for nginx to listen on (default: 80)\nwebserver_port: 80\n\n# @var webserver_ssl_enabled: Enable HTTPS support\nwebserver_ssl_enabled: false\n```"
+              },
+              "helpUri": "https://ansible-doctor.example.com/annotations#recommended",
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "category": "validation",
+                "tags": ["annotation", "documentation"]
+              }
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": false,
+          "startTimeUtc": "2025-12-03T10:30:40.000Z",
+          "endTimeUtc": "2025-12-03T10:30:45.123Z",
+          "commandLine": "ansible-doctor generate . --error-format sarif --error-output results.sarif",
+          "workingDirectory": {
+            "uri": "file:///home/user/ansible-project"
+          },
+          "exitCode": 1,
+          "executionTimeInMilliseconds": 5123
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "roles/webserver/tasks/main.yml"
+          },
+          "length": 1234,
+          "mimeType": "application/x-yaml",
+          "roles": ["analysisTarget"]
+        },
+        {
+          "location": {
+            "uri": "roles/webserver/meta/main.yml"
+          },
+          "length": 567,
+          "mimeType": "application/x-yaml",
+          "roles": ["analysisTarget"]
+        },
+        {
+          "location": {
+            "uri": "roles/database/defaults/main.yml"
+          },
+          "length": 890,
+          "mimeType": "application/x-yaml",
+          "roles": ["analysisTarget"]
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "E101",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "YAML syntax error: expected <block end>, but found '<scalar>'",
+            "markdown": "**YAML syntax error:** expected `<block end>`, but found `<scalar>`\n\nThis error indicates a YAML structure violation. Check the indentation and colon placement on line 15."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "roles/webserver/tasks/main.yml",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 5,
+                  "endLine": 15,
+                  "endColumn": 15,
+                  "snippet": {
+                    "text": "      name nginx"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 13,
+                  "endLine": 17,
+                  "snippet": {
+                    "text": "  - name: Install nginx\n    apt:\n      name nginx\n      state: present\n"
+                  }
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Add colon after 'name' key",
+                "markdown": "Add colon after `name` key to fix YAML syntax:\n```yaml\nname: nginx\n```"
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "roles/webserver/tasks/main.yml"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "startLine": 15,
+                        "startColumn": 7,
+                        "endLine": 15,
+                        "endColumn": 11
+                      },
+                      "insertedContent": {
+                        "text": "name:"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "roles/webserver/tasks/main.yml"
+                },
+                "region": {
+                  "startLine": 14,
+                  "snippet": {
+                    "text": "    apt:"
+                  }
+                }
+              },
+              "message": {
+                "text": "Parent task declaration"
+              }
+            }
+          ],
+          "properties": {
+            "errorCode": "E101",
+            "category": "parsing",
+            "recoverySuggestions": [
+              "Check YAML indentation. Ansible requires 2-space indents.",
+              "Validate YAML syntax with `yamllint tasks/main.yml`",
+              "Check for tabs (YAML requires spaces)",
+              "Ensure quotes around strings with special characters (: [ ] { })"
+            ],
+            "relatedErrors": ["E102", "E104"]
+          }
+        },
+        {
+          "ruleId": "E201",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Missing required @meta description annotation",
+            "markdown": "**Missing required annotation:** `@meta description`\n\nAll roles must include a `@meta description` annotation in `meta/main.yml` to document their purpose."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "roles/webserver/meta/main.yml",
+                  "index": 1
+                },
+                "region": {
+                  "startLine": 1,
+                  "snippet": {
+                    "text": "galaxy_info:"
+                  }
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Add @meta description annotation to file header",
+                "markdown": "Add `@meta description` annotation:\n```yaml\n# @meta description: Installs and configures nginx web server\n# @meta author: DevOps Team\n\ngalaxy_info:\n  ...\n```"
+              }
+            }
+          ],
+          "properties": {
+            "errorCode": "E201",
+            "category": "validation",
+            "recoverySuggestions": [
+              "Add required @meta annotation to file header",
+              "Example: @meta description: Role configures web server",
+              "See documentation for required annotations"
+            ],
+            "relatedErrors": ["E202"]
+          }
+        },
+        {
+          "ruleId": "W201",
+          "ruleIndex": 2,
+          "level": "warning",
+          "message": {
+            "text": "Missing @var annotation for variable 'db_port'",
+            "markdown": "**Missing recommended annotation:** `@var db_port`\n\nVariable `db_port` should be documented with a `@var` annotation for better documentation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "roles/database/defaults/main.yml",
+                  "index": 2
+                },
+                "region": {
+                  "startLine": 5,
+                  "snippet": {
+                    "text": "db_port: 5432"
+                  }
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Add @var annotation above variable definition",
+                "markdown": "Add `@var` annotation:\n```yaml\n# @var db_port: PostgreSQL server port (default: 5432)\ndb_port: 5432\n```"
+              }
+            }
+          ],
+          "properties": {
+            "errorCode": "W201",
+            "category": "validation",
+            "recoverySuggestions": [
+              "Add @var annotation for better documentation",
+              "Example: @var db_port: PostgreSQL server port"
+            ],
+            "relatedErrors": []
+          }
+        }
+      ],
+      "columnKind": "utf16CodeUnits",
+      "properties": {
+        "correlationId": "01HN7XYKFQJBM3N8YXRW5PTGAQ",
+        "totalErrors": 5,
+        "totalWarnings": 12,
+        "maxErrorsReached": false,
+        "partialSuccess": true
+      }
+    }
+  ]
+}

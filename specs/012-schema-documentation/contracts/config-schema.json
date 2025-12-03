@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ansibledoctor.com/schemas/config.json",
+  "title": "AnsibleDoctorConfig",
+  "description": "Configuration schema for ansible-doctor-enhanced",
+  "type": "object",
+  "properties": {
+    "output_format": {
+      "type": "string",
+      "enum": ["markdown", "html", "rst"],
+      "default": "markdown",
+      "description": "Documentation output format",
+      "examples": ["markdown", "html", "rst"]
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "docs",
+      "description": "Output directory for generated documentation",
+      "examples": ["docs", "documentation", "./output"]
+    },
+    "template_dir": {
+      "type": ["string", "array"],
+      "description": "Custom template directory or list of directories",
+      "items": {
+        "type": "string"
+      },
+      "examples": ["./templates", ["./templates", "./custom"]]
+    },
+    "languages": {
+      "type": "object",
+      "description": "Language configuration for multi-language documentation",
+      "properties": {
+        "default": {
+          "type": "string",
+          "enum": ["en", "fr", "de"],
+          "default": "en",
+          "description": "Default language for documentation"
+        },
+        "enabled": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["en", "fr", "de"]
+          },
+          "default": ["en"],
+          "description": "List of enabled languages",
+          "uniqueItems": true
+        }
+      },
+      "required": ["default"],
+      "additionalProperties": false
+    },
+    "verbose": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging output"
+    },
+    "log_level": {
+      "type": "string",
+      "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+      "default": "INFO",
+      "description": "Logging level"
+    },
+    "execution_reports": {
+      "type": "object",
+      "description": "Execution report configuration (Spec 009)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable execution report generation"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "yaml"],
+          "default": "json",
+          "description": "Report output format"
+        },
+        "output_dir": {
+          "type": "string",
+          "default": "reports",
+          "description": "Report output directory"
+        }
+      },
+      "additionalProperties": false
+    },
+    "indexes": {
+      "type": "object",
+      "description": "Index generation configuration (Spec 011)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable index page generation"
+        },
+        "style": {
+          "type": "string",
+          "enum": ["list", "table", "tree", "nested-table", "diagram"],
+          "default": "list",
+          "description": "Index visualization style"
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 50,
+          "description": "Items per page for pagination"
+        }
+      },
+      "additionalProperties": false
+    },
+    "schema_validation": {
+      "type": "object",
+      "description": "Schema validation configuration (Spec 012)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable schema validation"
+        },
+        "strict": {
+          "type": "boolean",
+          "default": false,
+          "description": "Treat warnings as errors"
+        }
+      },
+      "additionalProperties": false
+    },
+    "custom_fields": {
+      "type": "object",
+      "description": "User-defined custom configuration fields",
+      "additionalProperties": true
+    }
+  },
+  "required": ["output_format"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "output_format": "markdown",
+      "output_dir": "docs",
+      "languages": {
+        "default": "en",
+        "enabled": ["en", "fr"]
+      },
+      "verbose": false,
+      "log_level": "INFO",
+      "execution_reports": {
+        "enabled": true,
+        "format": "json",
+        "output_dir": "reports"
+      },
+      "indexes": {
+        "enabled": true,
+        "style": "tree",
+        "page_size": 50
+      },
+      "schema_validation": {
+        "enabled": true,
+        "strict": false
+      }
+    }
+  ],
+  "$defs": {
+    "language_code": {
+      "type": "string",
+      "enum": ["en", "fr", "de"],
+      "description": "Supported language code"
+    },
+    "output_format_type": {
+      "type": "string",
+      "enum": ["markdown", "html", "rst"],
+      "description": "Supported output format"
+    }
+  }
+}

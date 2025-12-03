@@ -1,0 +1,340 @@
+openapi: 3.1.0
+info:
+  title: Ansible Doctor Schema Validator API
+  version: 1.0.0
+  description: |
+    Schema validation and format conversion API for ansible-doctor-enhanced.
+    Provides endpoints for validating configurations, exporting schemas, and converting formats.
+
+servers:
+  - url: https://api.ansibledoctor.com/v1
+    description: Production API (hypothetical)
+
+paths:
+  /validate:
+    post:
+      summary: Validate data against JSON Schema
+      description: Validate configuration or data against a JSON Schema with detailed error reporting
+      operationId: validateData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation completed (may have errors)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '400':
+          description: Invalid request (malformed JSON, missing schema)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /convert:
+    post:
+      summary: Convert between data formats
+      description: Convert data between YAML, JSON, XML, and other supported formats
+      operationId: convertFormat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionRequest'
+      responses:
+        '200':
+          description: Conversion completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResult'
+        '400':
+          description: Invalid request or unsupported format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /schemas/{type}:
+    get:
+      summary: Export JSON Schema
+      description: Export JSON Schema for specific data model type
+      operationId: exportSchema
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [config, role, collection, playbook]
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [json-schema, openapi]
+            default: json-schema
+      responses:
+        '200':
+          description: Schema exported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaDefinition'
+            application/x-yaml:
+              schema:
+                type: string
+        '404':
+          description: Schema type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      required:
+        - data
+        - schema
+      properties:
+        data:
+          type: object
+          description: Data to validate
+          additionalProperties: true
+        schema:
+          type: object
+          description: JSON Schema to validate against
+          additionalProperties: true
+        strict:
+          type: boolean
+          default: false
+          description: Treat warnings as errors
+
+    ValidationResult:
+      type: object
+      required:
+        - is_valid
+        - errors
+        - warnings
+        - schema_id
+        - validated_at
+      properties:
+        is_valid:
+          type: boolean
+          description: Overall validation status
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          description: List of validation errors
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          description: List of validation warnings
+        schema_id:
+          type: string
+          description: Schema identifier used for validation
+        validated_at:
+          type: string
+          format: date-time
+          description: Validation timestamp
+        file_path:
+          type: string
+          nullable: true
+          description: Source file path (if validating file)
+        duration_ms:
+          type: number
+          format: float
+          description: Validation duration in milliseconds
+
+    ValidationError:
+      type: object
+      required:
+        - path
+        - message
+        - schema_path
+        - validator
+      properties:
+        path:
+          type: string
+          description: JSONPath to error location (e.g., "$.output_format")
+          example: "$.languages.default"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "must be one of: en, fr, de"
+        schema_path:
+          type: string
+          description: Schema path that failed validation
+          example: "#/properties/languages/properties/default/enum"
+        validator:
+          type: string
+          description: JSON Schema validator keyword
+          example: "enum"
+          enum: [type, enum, required, pattern, minimum, maximum, additionalProperties]
+        expected:
+          description: Expected value or type
+          nullable: true
+          example: ["en", "fr", "de"]
+        actual:
+          description: Actual value that failed validation
+          nullable: true
+          example: "es"
+        suggestion:
+          type: string
+          nullable: true
+          description: Recovery suggestion
+          example: "Set languages.default to 'en', 'fr', or 'de'"
+        line_number:
+          type: integer
+          nullable: true
+          description: Line number in source file
+          example: 8
+
+    ConversionRequest:
+      type: object
+      required:
+        - source
+        - source_format
+        - target_format
+      properties:
+        source:
+          type: string
+          description: Source data as string
+        source_format:
+          type: string
+          enum: [yaml, json, xml, toml]
+          description: Source data format
+        target_format:
+          type: string
+          enum: [yaml, json, xml, toml]
+          description: Target data format
+        preserve_comments:
+          type: boolean
+          default: true
+          description: Preserve comments when possible (YAML only)
+
+    ConversionResult:
+      type: object
+      required:
+        - source_format
+        - target_format
+        - output
+        - warnings
+        - duration_ms
+      properties:
+        source_format:
+          type: string
+          enum: [yaml, json, xml, toml]
+          description: Original format
+        target_format:
+          type: string
+          enum: [yaml, json, xml, toml]
+          description: Converted format
+        output:
+          type: string
+          description: Converted content as string
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Data loss warnings
+          example: ["YAML anchor &ref lost during conversion"]
+        duration_ms:
+          type: number
+          format: float
+          description: Conversion duration in milliseconds
+        source_size_bytes:
+          type: integer
+          description: Original size in bytes
+        output_size_bytes:
+          type: integer
+          description: Converted size in bytes
+
+    SchemaDefinition:
+      type: object
+      required:
+        - title
+        - type
+      properties:
+        $schema:
+          type: string
+          description: JSON Schema version URI
+          example: "https://json-schema.org/draft/2020-12/schema"
+        $id:
+          type: string
+          description: Schema identifier URI
+          example: "https://ansibledoctor.com/schemas/config.json"
+        title:
+          type: string
+          description: Schema title
+        description:
+          type: string
+          description: Schema description
+        type:
+          type: string
+          enum: [object, array, string, number, integer, boolean, "null"]
+          description: JSON Schema type
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SchemaDefinition'
+          description: Object properties (nested schemas)
+        required:
+          type: array
+          items:
+            type: string
+          description: List of required property names
+        additionalProperties:
+          oneOf:
+            - type: boolean
+            - $ref: '#/components/schemas/SchemaDefinition'
+          description: Allow extra properties
+        items:
+          $ref: '#/components/schemas/SchemaDefinition'
+          description: Array item schema
+        enum:
+          type: array
+          description: Allowed values for enum types
+        pattern:
+          type: string
+          description: Regex pattern for string validation
+        minimum:
+          type: number
+          description: Minimum value for numbers
+        maximum:
+          type: number
+          description: Maximum value for numbers
+        examples:
+          type: array
+          items:
+            type: object
+          description: Example values
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "INVALID_REQUEST"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Missing required field: schema"
+        details:
+          type: object
+          additionalProperties: true
+          description: Additional error details
