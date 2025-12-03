@@ -23,4 +23,14 @@ Purpose: Validate the Collection Documentation spec (`specs/004-collection-suppo
 - [x] CHK019 - Is expected behavior for embedded `docs/` vs generated docs specified (do embedded READMEs remain untouched)? [Clarity]
 - [x] CHK020 - Are observability requirements (structured logging, warnings for circular dependencies) defined and testable? [Non-Functional Requirements, Spec §Success Criteria]
 
+---
+
+## Phase 7: Playbooks, Existing Docs & Deep Parsing (NEW)
+
+- [ ] CHK021 - Is playbooks discovery defined with scanning rules (playbooks/*.yml, playbooks/*.yaml) and PlaybookInfo model fields (name, path, description, tags)? [Completeness, FR-006, SC-009]
+- [ ] CHK022 - Is existing documentation extraction specified for README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE with ExistingDocs model? [Completeness, FR-007-010, SC-010]
+- [ ] CHK023 - Is license type detection algorithm defined (keyword patterns for MIT, Apache-2.0, GPL-3.0, etc.) with expected output (license badge)? [Clarity, FR-010]
+- [ ] CHK024 - Is deep recursive parsing option (--deep flag) specified with behavior for full role/plugin content parsing vs shallow (name, path only)? [Completeness, FR-011, SC-011-014]
+- [ ] CHK025 - Are generated documentation sections for playbooks and existing docs defined (template slots, section order, linking)? [Clarity, US9 Acc-4]
+
 If any item above is marked [Gap], please clarify or add to the spec: examples (output path naming), multi-language integration, error semantics for parsing, and security considerations.

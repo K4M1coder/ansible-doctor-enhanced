@@ -267,6 +267,48 @@ Rerun tests: `poetry run pytest tests/unit/models/test_galaxy_metadata.py -v`
 - **Inventory** (Priority P3): Dynamic inventory plugins
 - **Callbacks** (Priority P3): Ansible callback plugins
 
+### Playbook Discovery Architecture (NEW)
+
+**Objective**: Discover playbooks in `playbooks/` directory and extract basic metadata
+
+**Discovery Rules**:
+- Scan `playbooks/` directory (if exists)
+- Identify `.yml`/`.yaml` files as playbooks
+- Extract description from first play name or top-level comment
+- No full task parsing (deferred to Feature 006)
+
+**Integration**:
+- Add `playbooks: list[PlaybookInfo]` field to `AnsibleCollection` model
+- `PlaybookInfo`: filename, path, description (optional)
+
+### Existing Documentation Extraction (NEW)
+
+**Objective**: Extract existing README.md and CHANGELOG.md for reference in generated docs
+
+**Strategy**:
+- Reuse `DocsExtractor` from Feature 001 (TC-007)
+- Add `existing_docs: ExistingDocs | None` field to `AnsibleCollection` model
+- Include existing content in generated docs (configurable sections)
+
+### Deep Recursive Parsing Architecture (NEW)
+
+**Objective**: Support `--deep` flag for full role parsing
+
+**Shallow Mode (default)**:
+- `roles: list[str]` - role names only
+- Fast discovery for large collections
+- Performance: <5s for typical collection
+
+**Deep Mode (`--deep` flag)**:
+- `roles: list[AnsibleRole]` - fully parsed role objects
+- Uses RoleParser from Feature 001 recursively
+- Performance: May take longer for large collections (10-30s)
+
+**Implementation**:
+- Add `deep: bool = False` parameter to `CollectionParser.parse()`
+- If `deep=True`, invoke `RoleParser.parse()` for each discovered role
+- Store full `AnsibleRole` objects instead of string names
+
 **Module DOCUMENTATION Block Example**:
 ```python
 # plugins/modules/my_module.py

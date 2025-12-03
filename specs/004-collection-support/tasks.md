@@ -469,6 +469,54 @@ These tasks implement the production of slug-based output directories for collec
 
 ---
 
+## Phase 7: Playbooks, Existing Docs & Deep Parsing (NEW)
+
+**Purpose**: Add playbooks discovery, existing documentation extraction, and deep recursive parsing support per FR-006 to FR-011, SC-009 to SC-014.
+
+### T266-T272: Playbooks Discovery (US8 Extension)
+
+- [ ] T266 [R] Write test_collection_playbooks_discovery.py: test discover_playbooks() finds .yml/.yaml in playbooks/
+- [ ] T267 [G] Implement PlaybookInfo model (name, path, description, tags) in models/collection.py
+- [ ] T268 [G] Implement discover_playbooks() in collection_parser.py returning List[PlaybookInfo]
+- [ ] T269 [R] Write test for playbook metadata extraction (title from first comment, tags from plays)
+- [ ] T270 [G] Add playbooks parsing to CollectionParser.parse() - populate Collection.playbooks
+- [ ] T271 [REFACTOR] Add playbooks: List[PlaybookInfo] field to Collection model
+- [ ] T272 [R] Integration test: parse demo collection playbooks, verify in Collection model
+
+### T273-T280: Existing Docs Extraction (US8 Extension)
+
+- [ ] T273 [R] Write test_collection_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE
+- [ ] T274 [G] Implement ExistingDocs model (readme_content, changelog_content, contributing_content, license_content, license_type)
+- [ ] T275 [G] Implement DocsExtractor.extract(path) -> ExistingDocs in parser/docs_extractor.py
+- [ ] T276 [R] Write test for license type detection (MIT, Apache-2.0, GPL-3.0, etc.)
+- [ ] T277 [G] Implement license_type_from_content() helper using keyword patterns
+- [ ] T278 [G] Add existing_docs: ExistingDocs field to Collection model
+- [ ] T279 [R] Write test for partial docs (only README exists, no CHANGELOG)
+- [ ] T280 [R] Integration test: extract demo collection existing docs, verify in Collection model
+
+### T281-T288: Deep Recursive Parsing (US8 Extension)
+
+- [ ] T281 [R] Write test_deep_parsing.py: test --deep flag triggers full role/plugin parsing
+- [ ] T282 [G] Add deep_parse: bool parameter to CollectionParser.parse()
+- [ ] T283 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
+- [ ] T284 [G] Store full RoleModel (tasks, vars, handlers, meta) instead of just (name, path)
+- [ ] T285 [R] Write test for deep plugin parsing (module arguments, return values)
+- [ ] T286 [G] When deep_parse=True, parse plugin DOCUMENTATION blocks completely
+- [ ] T287 [R] Integration test: deep parse demo collection, verify full role/plugin details
+- [ ] T288 [REFACTOR] Add CLI --deep flag to collection parse command
+
+### T289-T295: Generate Docs for New Content (US9 Extension)
+
+- [ ] T289 [R] Write test_generate_playbooks_section.py: verify playbooks appear in generated docs
+- [ ] T290 [G] Add playbooks section to collection template (list with descriptions)
+- [ ] T291 [R] Write test_generate_existing_docs.py: verify README/CHANGELOG included in output
+- [ ] T292 [G] Add existing docs section to collection template (embedded or linked)
+- [ ] T293 [R] Write test for license badge generation based on license_type
+- [ ] T294 [G] Implement license badge in collection header (shields.io style)
+- [ ] T295 [R] Integration test: generate docs for demo collection with playbooks and existing docs
+
+---
+
 ## Dependency Graph
 
 **Story Completion Order** (based on priorities and dependencies):
@@ -483,11 +531,19 @@ US8: Parse Metadata (P1) ────────→  US9: Generate Docs (P1)
                                     US10: Dependency Analysis (P2)
                                             ↓
                                     Phase 6: Polish
+                                            ↓
+                                    Phase 7: Playbooks/ExistingDocs/Deep (NEW)
 ```
 
 **Independent Stories**: US8 and US9 can be partially parallelized (different files), but US9 depends on US8 models being complete.
 
-**Critical Path**: Setup → Foundation → US8 → US9 → US10 → Polish
+**Critical Path**: Setup → Foundation → US8 → US9 → US10 → Polish → Phase 7
+
+**Phase 7 Dependencies**:
+- T266-T272 (Playbooks): Depends on CollectionParser, Collection model
+- T273-T280 (ExistingDocs): Can be parallelized with Playbooks (separate module)
+- T281-T288 (Deep Parsing): Depends on Playbooks, ExistingDocs, and RoleParser
+- T289-T295 (Generate Docs): Depends on all above (models must exist first)
 
 ---
 
@@ -579,8 +635,8 @@ Every task follows RED-GREEN-REFACTOR:
 ## Success Metrics
 
 **Quantitative**:
-- 250 tasks completed (T001-T250)
-- 130+ tests passing
+- 280 tasks completed (T001-T295, excluding T251-T265)
+- 145+ tests passing
 - 80%+ code coverage
 - <5s collection parsing
 - 0 critical bugs
@@ -591,26 +647,28 @@ Every task follows RED-GREEN-REFACTOR:
 - Competitive advantage over ansible-doctor
 - Foundation for v0.6.0 (Project Documentation)
 - Positive user feedback on generated documentation
+- Full playbooks, existing docs, deep parsing support
 
 ---
 
 ## Task Summary
 
-**Total Tasks**: 250
+**Total Tasks**: 280 (was 250, +30 new for Phase 7)
 - **Setup**: 4 tasks (T001-T004)
 - **Foundational**: 4 tasks (T005-T008)
 - **User Story 8**: 85 tasks (T009-T085) - Parse collection metadata
 - **User Story 9**: 87 tasks (T086-T172) - Generate documentation
 - **User Story 10**: 32 tasks (T173-T204) - Dependency analysis
 - **Polish**: 46 tasks (T205-T250) - Performance, demo, docs, testing
+- **Playbooks/ExistingDocs/Deep Parsing**: 30 tasks (T266-T295) - NEW PHASE 7
 
 **By Type**:
-- Tests (RED): ~80 tasks
-- Implementation (GREEN): ~140 tasks
-- Refactoring (REFACTOR): ~15 tasks
+- Tests (RED): ~95 tasks (+15)
+- Implementation (GREEN): ~150 tasks (+10)
+- Refactoring (REFACTOR): ~20 tasks (+5)
 - Documentation: ~15 tasks
 
-**Estimated Duration**: 60-80 hours (2-3 weeks)
+**Estimated Duration**: 70-90 hours (3-4 weeks)
 
 ---
 
