@@ -116,7 +116,9 @@ ansibledoctor/
 │   ├── metadata.py      # RoleMetadata, ArgumentSpec
 │   ├── variable.py      # Variable model
 │   ├── annotation.py    # Annotation, TodoItem, Example
-│   └── tag.py           # Tag model
+│   ├── tag.py           # Tag model
+│   ├── handler.py       # Handler model (NEW)
+│   └── existing_docs.py # ExistingDocs model (NEW)
 ├── parser/              # Core parsing logic
 │   ├── __init__.py
 │   ├── role_parser.py   # Main RoleParser implementation
@@ -125,6 +127,8 @@ ansibledoctor/
 │   ├── variable_parser.py  # defaults/vars parsing
 │   ├── annotation_parser.py  # Comment annotation extraction
 │   ├── task_parser.py   # tasks/*.yml parsing for tags
+│   ├── handler_parser.py   # handlers/*.yml parsing (NEW)
+│   ├── docs_extractor.py   # Existing docs extraction (NEW)
 │   └── protocols.py     # Protocol definitions (interfaces)
 ├── cli/                 # Command-line interface
 │   ├── __init__.py
@@ -141,12 +145,15 @@ tests/
 │   ├── test_metadata_parser.py
 │   ├── test_variable_parser.py
 │   ├── test_annotation_parser.py
-│   └── test_task_parser.py
+│   ├── test_task_parser.py
+│   ├── test_handler_parser.py    # NEW
+│   └── test_docs_extractor.py    # NEW
 ├── integration/         # End-to-end with fixtures
 │   ├── fixtures/        # Real Ansible role examples
 │   │   ├── minimal_role/
 │   │   ├── complex_role/
-│   │   └── invalid_role/
+│   │   ├── invalid_role/
+│   │   └── role_with_docs/       # NEW: Role with existing docs
 │   └── test_role_parser.py
 ├── contract/            # Protocol contract tests
 │   └── test_protocols.py

@@ -165,6 +165,54 @@ description: "Task breakdown for Feature 001: Ansible Role Parser"
 
 ---
 
+## Phase 5B: User Story 5 - Handlers and Existing Documentation (Priority: P2)
+
+**Goal**: Extract handler definitions from handlers/*.yml and collect existing documentation (README, CHANGELOG, LICENSE, templates/, files/)
+
+**Independent Test**: Provide role with handlers/ directory and existing docs → verify JSON output contains handler names, tags, and existing documentation content with format detection
+
+### Tests for User Story 5 (TDD RED Phase)
+
+- [ ] T105 [P] [US5] Test: HandlerParser parses handlers/main.yml in tests/unit/test_handler_parser.py
+- [ ] T106 [P] [US5] Test: HandlerParser extracts handler name, tags, listen directive in tests/unit/test_handler_parser.py
+- [ ] T107 [P] [US5] Test: HandlerParser follows includes (include_tasks in handlers) in tests/unit/test_handler_parser.py
+- [ ] T108 [P] [US5] Test: DocsExtractor extracts README.md content in tests/unit/test_docs_extractor.py
+- [ ] T109 [P] [US5] Test: DocsExtractor detects markdown vs rst format in tests/unit/test_docs_extractor.py
+- [ ] T110 [P] [US5] Test: DocsExtractor extracts CHANGELOG.md content in tests/unit/test_docs_extractor.py
+- [ ] T111 [P] [US5] Test: DocsExtractor extracts LICENSE and detects license type in tests/unit/test_docs_extractor.py
+- [ ] T112 [P] [US5] Test: DocsExtractor lists templates/ directory files in tests/unit/test_docs_extractor.py
+- [ ] T113 [P] [US5] Test: DocsExtractor lists files/ directory files in tests/unit/test_docs_extractor.py
+- [ ] T114 [P] [US5] Test: DocsExtractor returns None for missing docs in tests/unit/test_docs_extractor.py
+
+### Implementation for User Story 5 (TDD GREEN Phase)
+
+- [ ] T115 [US5] Create Handler Pydantic model in ansibledoctor/models/handler.py (name, tags, listen, file_path, line_number)
+- [ ] T116 [US5] Create ExistingDocs Pydantic model in ansibledoctor/models/existing_docs.py (readme, readme_format, changelog, license_text, license_type, templates_list, files_list)
+- [ ] T117 [US5] Implement HandlerParser in ansibledoctor/parser/handler_parser.py (reuse TaskParser patterns)
+- [ ] T118 [US5] Implement handler tag extraction (same regex as task tags)
+- [ ] T119 [US5] Implement handler include following (include_tasks, import_tasks)
+- [ ] T120 [US5] Implement DocsExtractor in ansibledoctor/parser/docs_extractor.py
+- [ ] T121 [US5] Implement README extraction with format detection (check for RST markers like `===`, `---`)
+- [ ] T122 [US5] Implement CHANGELOG extraction (read file content)
+- [ ] T123 [US5] Implement LICENSE extraction with type detection (scan for MIT, Apache, GPL patterns)
+- [ ] T124 [US5] Implement templates/ directory listing (os.listdir, filter files only)
+- [ ] T125 [US5] Implement files/ directory listing
+- [ ] T126 [US5] Integrate HandlerParser and DocsExtractor into main RoleParser
+- [ ] T127 [US5] Add handlers and existing_docs fields to AnsibleRole model
+- [ ] T128 [US5] Add structured logging for handler and docs extraction
+- [ ] T129 [US5] Write integration tests for role_with_docs fixture in tests/integration/test_role_parser.py
+
+### Refactoring for User Story 5
+
+- [ ] T130 [US5] Refactor: Extract common tag parsing logic shared between TaskParser and HandlerParser
+- [ ] T131 [US5] Update CHANGELOG.md [Unreleased] → Added: "Handler extraction from handlers/*.yml"
+- [ ] T132 [US5] Update CHANGELOG.md [Unreleased] → Added: "Existing documentation extraction (README, CHANGELOG, LICENSE)"
+- [ ] T133 [US5] Update README.md Usage section with handler and existing docs examples
+
+**Checkpoint**: User Story 5 complete - handlers and existing documentation extractable
+
+---
+
 ## Phase 6: CLI Interface (Constitution Article II)
 
 **Purpose**: Implement command-line interface per CLI Interface Mandate
@@ -296,9 +344,10 @@ With multiple developers after Foundation (Phase 1):
 - **Developer B**: US2 (T032-T047) - Variables and annotations
 - **Developer C**: US3 (T048-T060) - Task tags
 - **Developer D**: US4 (T061-T071) - TODO/Examples
+- **Developer E**: US5 (T105-T133) - Handlers and Existing Docs (NEW)
 
 Once P1 stories (US1, US2) complete:
-- **Developer E**: CLI Interface (T072-T082)
+- **Developer F**: CLI Interface (T072-T082)
 
 Finally all team:
 - **All**: Polish and quality (T083-T100)
@@ -327,14 +376,15 @@ Finally all team:
 - **Phase 2 (US1 - Metadata)**: 11 tasks
 - **Phase 3 (US2 - Variables)**: 16 tasks
 - **Phase 4 (US3 - Tags)**: 13 tasks
-- **Phase 5 (US4 - TODO/Examples)**: 11 tasks
+- **Phase 5A (US4 - TODO/Examples)**: 11 tasks
+- **Phase 5B (US5 - Handlers/Existing Docs)**: 29 tasks (NEW)
 - **Phase 6 (CLI)**: 11 tasks
 - **Phase 7 (Polish)**: 18 tasks
 
-**Total**: 104 tasks
+**Total**: 133 tasks
 
 **MVP Tasks** (Setup + Foundation + US1 + US2 + CLI): 58 tasks
-**Full Feature**: 100 tasks
+**Full Feature**: 129 tasks (including US5)
 
 ---
 

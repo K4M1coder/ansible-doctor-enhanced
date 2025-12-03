@@ -3,7 +3,7 @@
 **Feature Branch**: `013-links-cross-references`
 **Created**: 2025-12-02
 **Milestone**: v0.11.0
-**Prerequisites**: v0.10.0 (Schema Documentation) COMPLETE ✅
+**Prerequisites**: v0.10.0 (Schema Documentation) PLANNED
 **Status**: Draft
 
 ## Objective

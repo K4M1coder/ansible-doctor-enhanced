@@ -46,3 +46,83 @@ This plan outlines the phases and tasks required to implement Project Documentat
 - Enforce TDD across phases (tests must be red before implementing; minimal code permitted to pass tests)
 - Use KISS: avoid adding optional features unless required by user stories or acceptance criteria
 - Use Keep a Changelog and SemVer policy (update `CHANGELOG.md` on T305)
+
+---
+
+## Existing Documentation Extraction (NEW)
+
+**Purpose**: Extract and include existing project documentation (README, CHANGELOG, CONTRIBUTING, LICENSE) in generated output.
+
+### Architecture
+
+**Shared ExistingDocs Model** (from `ansibledoctor/models/existing_docs.py`):
+```
+ExistingDocs
+├── readme_content: Optional[str]
+├── changelog_content: Optional[str]
+├── contributing_content: Optional[str]
+├── license_content: Optional[str]
+└── license_type: Optional[str]  # Detected: MIT, Apache-2.0, GPL-3.0, etc.
+```
+
+**DocsExtractor Parser** (from `ansibledoctor/parser/docs_extractor.py`):
+- Shared module used by RoleParser, CollectionParser, and ProjectParser
+- Case-insensitive file discovery (README.md, readme.md, Readme.MD, etc.)
+- License type detection using keyword patterns
+- Returns ExistingDocs dataclass
+
+### Integration with Project Parser
+
+```
+ProjectParser.parse()
+├── parse_ansible_cfg()
+├── discover_roles()
+├── discover_collections()
+├── discover_playbooks()
+├── extract_existing_docs()  # NEW - uses DocsExtractor
+└── build_project_model()
+```
+
+### Template Integration
+
+Add template sections for existing docs:
+- `{{ project.existing_docs.readme_content }}` - embed README
+- `{{ project.existing_docs.license_type }}` - show license badge
+- Link to CHANGELOG, CONTRIBUTING if present
+
+---
+
+## Deep Recursive Parsing (NEW)
+
+**Purpose**: Option to fully parse roles/collections within project instead of shallow discovery.
+
+### CLI Flag
+
+`--deep` flag triggers full parsing:
+```bash
+ansible-doctor generate-project ./ --deep
+```
+
+### Behavior
+
+| Mode | Roles | Collections | Output |
+|------|-------|-------------|--------|
+| Shallow (default) | name, path only | name, path only | Fast, index-style |
+| Deep (`--deep`) | Full RoleModel | Full Collection | Comprehensive, detailed |
+
+### Implementation
+
+```python
+class ProjectParser:
+    def parse(self, path: Path, deep: bool = False) -> ProjectModel:
+        roles = self.discover_roles(path)
+        if deep:
+            roles = [RoleParser().parse(r.path) for r in roles]
+        # Similar for collections
+```
+
+### Performance Considerations
+
+- Shallow parsing: <5s for 20 roles, 5 collections
+- Deep parsing: <30s for same project
+- Add progress indicator for deep mode

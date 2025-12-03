@@ -76,6 +76,28 @@ As an Ansible role developer, I want the parser to extract `@todo` annotations a
 
 ---
 
+### User Story 5 - Extract Handlers and Existing Documentation (Priority: P2)
+
+As an Ansible role developer, I need the parser to extract handler definitions from `handlers/*.yml` and collect existing documentation files (README, CHANGELOG, LICENSE) so that generated documentation includes handler information and preserves existing content.
+
+**Why this priority**: Handlers are core Ansible functionality triggered by task notifications. Existing documentation should be preserved and referenced rather than replaced. This completes the role parsing picture.
+
+**Independent Test**: Provide role with handlers/ and README.md → verify JSON output contains handler names, tags, and existing documentation content with format detection.
+
+**Acceptance Scenarios**:
+
+1. **Given** `handlers/main.yml` with handler definitions, **When** parser executes, **Then** output includes list of handlers with names, tags, listen directives, and file locations
+2. **Given** handlers with `@tag` annotations, **When** parser executes, **Then** output associates tag descriptions with handler tags (same as tasks)
+3. **Given** role with `README.md` file, **When** parser executes, **Then** output includes readme content and format detection (markdown)
+4. **Given** role with `README.rst` file, **When** parser executes, **Then** output includes readme content and format detection (rst)
+5. **Given** role with `CHANGELOG.md` file, **When** parser executes, **Then** output includes changelog content
+6. **Given** role with `LICENSE` file, **When** parser executes, **Then** output includes license text and detected license type (if recognizable)
+7. **Given** role with `templates/` directory, **When** parser executes, **Then** output includes list of template filenames
+8. **Given** role with `files/` directory, **When** parser executes, **Then** output includes list of static file names
+9. **Given** role without existing documentation, **When** parser executes, **Then** parser continues with null/empty existing_docs section
+
+---
+
 ### Edge Cases
 
 - What happens when YAML files contain syntax errors?
@@ -98,7 +120,7 @@ As an Ansible role developer, I want the parser to extract `@todo` annotations a
 ### Functional Requirements
 
 - **FR-001**: Parser MUST accept role directory path as input (absolute or relative path)
-- **FR-002**: Parser MUST discover and load all relevant YAML files: `meta/main.yml`, `meta/argument_specs.yml`, `defaults/main.yml`, `vars/main.yml`, `tasks/*.yml`
+- **FR-002**: Parser MUST discover and load all relevant YAML files: `meta/main.yml`, `meta/argument_specs.yml`, `defaults/main.yml`, `vars/main.yml`, `tasks/*.yml`, `handlers/*.yml`
 - **FR-003**: Parser MUST extract galaxy metadata including author, description, license, company, min_ansible_version, platforms, and dependencies from `meta/main.yml`
 - **FR-004**: Parser MUST parse argument specifications from `meta/argument_specs.yml` when present (Ansible 2.11+)
 - **FR-005**: Parser MUST extract all variables from `defaults/main.yml` and `vars/main.yml` with names, values, and inferred types
@@ -121,6 +143,12 @@ As an Ansible role developer, I want the parser to extract `@todo` annotations a
 - **FR-022**: Parser MUST respect `.ansibledoctor-ignore` patterns for excluding files
 - **FR-023**: Parser MUST infer variable types from values: string, number, boolean, list, dictionary, null
 - **FR-024**: Parser MUST preserve variable structure for complex nested types
+- **FR-025**: Parser MUST discover and parse handler files from `handlers/*.yml`, extracting handler names, tags, and annotations (same patterns as tasks)
+- **FR-026**: Parser MUST extract existing documentation from `README.md` (or `README.rst`) if present, preserving content and detecting format (markdown/rst)
+- **FR-027**: Parser MUST extract existing `CHANGELOG.md` content if present, preserving version history
+- **FR-028**: Parser MUST extract `LICENSE` file content if present, detecting license type (MIT, Apache-2.0, GPL, etc.) when possible
+- **FR-029**: Parser MUST list files in `templates/` directory (names and extensions only, no content parsing)
+- **FR-030**: Parser MUST list files in `files/` directory (names and extensions only, no content parsing)
 
 ### Key Entities
 
@@ -156,6 +184,14 @@ As an Ansible role developer, I want the parser to extract `@todo` annotations a
   - Attributes: title, code, description, language (yaml/jinja2)
   - Relationships: Belongs to one AnsibleRole
 
+- **Handler**: Ansible handler definition (similar to Task but triggered by notify)
+  - Attributes: name, tags (list), file_path, line_number, listen (optional)
+  - Relationships: Belongs to one AnsibleRole, may have annotations
+
+- **ExistingDocs**: Pre-existing documentation files in the role
+  - Attributes: readme (content), readme_format (markdown/rst/text), changelog (content), license_text (content), license_type (MIT/Apache/GPL/etc.), templates_list (list of filenames), files_list (list of filenames)
+  - Relationships: Belongs to one AnsibleRole (optional - may be None if no docs exist)
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
@@ -170,6 +206,9 @@ As an Ansible role developer, I want the parser to extract `@todo` annotations a
 - **SC-008**: Parser CLI provides clear error messages that enable users to resolve issues without reading source code in 90%+ of error scenarios
 - **SC-009**: Parser handles malformed annotations by logging warning and continuing without crash in 100% of cases
 - **SC-010**: Parser output JSON schema is consistent and documented, enabling third-party tool integration
+- **SC-011**: Parser extracts handler names and tags from handlers/*.yml with same accuracy as task tags (100% for valid YAML)
+- **SC-012**: Parser extracts existing README.md content and correctly detects format (markdown vs rst) in 95%+ of test cases
+- **SC-013**: Parser lists templates/ and files/ directory contents correctly in 100% of test cases
 
 ## Assumptions
 

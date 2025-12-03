@@ -27,14 +27,20 @@ This artifact maps the `CHK` checklist items (quality/acceptance checks) to the 
 | CHK021 | CLI flags & commands implemented & tested | T308-T313 | Cross-check presence of unit/integration tests for each CLI command |
 | CHK022 | Checklist mapping completeness | T321 | This artifact (T321) is the traceability matrix — mapping CHKs to tasks |
 | CHK023 | Variable precedence captured & documented | T316 | Tests for precedence & documentation output |
+| CHK024 | Existing docs extraction (README, CHANGELOG, CONTRIBUTING, LICENSE) | T325-T330 | DocsExtractor integration, ExistingDocs model (NEW) |
+| CHK025 | License type detection algorithm | T327, T339, T340 | Keyword patterns for MIT, Apache-2.0, GPL-3.0; license badge generation (NEW) |
+| CHK026 | Deep recursive parsing option (--deep flag) | T331-T336 | Full role/collection parsing vs shallow discovery (NEW) |
+| CHK027 | Generated documentation sections for existing docs | T337-T342 | Template slots, section order, license badge placement (NEW) |
+| CHK028 | ExistingDocs model shared across Role/Collection/Project | T328 | Verify model consistency in models/existing_docs.py (NEW) |
 
 ---
 
 Notes:
 - This map reflects the current tasks in `tasks.md`. When tasks or CHKs change, update this file accordingly.
 - Any CHK mapped only to documentation tasks (e.g., T303) should also be validated via unit tests (preferred) to satisfy Constitution Article IV (Integration & Contract Testing).
+- **NEW**: CHK024-CHK028 added for Phase 7 (Existing Docs & Deep Parsing) requirements.
 
 ## Checklist Completion
 
-All project checklist items in `checklists/project.md` have been reviewed and are now marked as complete. Each CHK maps to at least one task (T###) in this file. Update this matrix if task IDs or mappings change.
+All project checklist items in `checklists/project.md` have been reviewed. CHK001-CHK023 are complete; CHK024-CHK028 are new items for Phase 7 implementation. Each CHK maps to at least one task (T###) in this file. Update this matrix if task IDs or mappings change.
 

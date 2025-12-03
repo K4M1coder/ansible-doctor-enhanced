@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Specs: Recursive Parsing & Existing Docs Coverage
+
+- **Spec 001**: US5 (Handlers and Existing Documentation extraction), FR-025 to FR-030, SC-011 to SC-013, Phase 5B tasks (T105-T133)
+- **Spec 004**: Playbooks discovery, existing docs extraction, deep parsing support (FR-006 to FR-011, SC-009 to SC-011), Phase 7 tasks (T266-T295), CHK021-CHK025
+- **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
+- **Shared**: ExistingDocs model (README, CHANGELOG, CONTRIBUTING, LICENSE) with license type detection
+- **Shared**: `--deep` CLI flag for recursive role/collection parsing
+
 ## [0.9.1] - 2025-12-02
 
 ### Fixed

@@ -52,6 +52,9 @@ As a collection maintainer, I want to parse my collection's `galaxy.yml` so that
 1. **Given** a collection with galaxy.yml, **When** parsing, **Then** extract required fields (namespace, name, version, authors, dependencies); optional fields (tags, license, repository) deferred to v0.6.0
 2. **Given** collection dependencies in galaxy.yml, **When** parsing, **Then** resolve and list dependent collections with version constraints
 3. **Given** collection with multiple roles, **When** parsing, **Then** discover and list all roles with their paths
+4. **Given** collection with playbooks/ directory, **When** parsing, **Then** discover and list all playbooks with filenames and descriptions (from top-level comment or first play name)
+5. **Given** collection with existing README.md, **When** parsing, **Then** extract existing documentation content and detect format
+6. **Given** collection with existing CHANGELOG.md, **When** parsing, **Then** extract changelog content for reference in generated docs
 
 ---
 
@@ -64,7 +67,11 @@ As a collection maintainer, I want to generate comprehensive collection document
 **Acceptance Scenarios**:
 1. **Given** a parsed collection, **When** generating docs, **Then** create collection README with overview, installation, role index
 2. **Given** collection with plugins, **When** generating docs, **Then** list plugins by type (modules, filters, inventory)
-3. **Given** collection with example playbooks, **When** generating docs, **Then** include playbook examples with descriptions (Note: playbooks discovered and listed by filename with top-level comment description if present; full task parsing deferred to Feature 005 Project Documentation)
+3. **Given** collection with playbooks/ directory, **When** generating docs, **Then** include playbook index with names, descriptions, and links to playbook documentation
+4. **Given** collection with existing README.md, **When** generating docs, **Then** include "Original Documentation" section with extracted content or link
+5. **Given** collection with existing CHANGELOG.md, **When** generating docs, **Then** include "Changelog" section with extracted content or link
+6. **Given** `--deep` flag, **When** generating docs, **Then** recursively parse all roles using full AnsibleRole parser (not just names)
+7. **Given** no `--deep` flag (default), **When** generating docs, **Then** use shallow parsing (role names and paths only) for performance
 
 ---
 
@@ -85,12 +92,15 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 
 **SC-001**: Parse galaxy.yml and extract all required collection metadata fields (namespace, name, version, authors, dependencies); optional fields deferred to v0.6.0  
 **SC-002**: Discover all roles within collection automatically  
-**SC-003**: Generate collection-level README with explicit sections: Overview (from galaxy.yml), Installation (with version constraints), Roles (index with descriptions), Plugins (by type with signatures), Dependencies (with version constraints), Examples (usage samples), License  
+**SC-003**: Generate collection-level README with explicit sections: Overview (from galaxy.yml), Installation (with version constraints), Roles (index with descriptions), Plugins (by type with signatures), Dependencies (with version constraints), Playbooks (index with descriptions), Examples (usage samples), License  
 **SC-004**: Document collection dependencies with version constraints  
 **SC-005**: Cross-role dependency analysis detects circular references  
 **SC-006**: Collection documentation generation completes in <5s for typical collection (5 roles, 10 plugins, ~50 files total: 5 roles × 5 files each = 25 + 10 plugin .py files + 5 playbooks + 10 docs/meta files)  
 **SC-007**: Reuse template system from v0.3.0 (no new template engine)  
-**SC-008**: CLI commands: `collection parse`, `collection generate`, `collection analyze`
+**SC-008**: CLI commands: `collection parse`, `collection generate`, `collection analyze`  
+**SC-009**: Discover and list playbooks from playbooks/ directory with filename and description extraction  
+**SC-010**: Extract existing documentation (README.md, CHANGELOG.md) content for reference in generated docs  
+**SC-011**: Support `--deep` flag for recursive role parsing (full AnsibleRole content vs. shallow name/path only)
 
 ## Technical Constraints
 
@@ -98,6 +108,10 @@ As a collection maintainer, I want to visualize role dependencies within my coll
 **TC-002**: Must discover roles, plugins, modules automatically from collection structure (no file exclusions; parse all Python files, let validation filter)  
 **TC-003**: Must reuse TemplateEngine and renderers from Feature 002  
 **TC-004**: Must support collections from ansible-galaxy, local filesystem, git repos  
+**TC-005**: Must handle namespace/name format (e.g., community.general)  
+**TC-006**: Must discover playbooks/ directory and extract playbook metadata (filename, description from first play or top comment)  
+**TC-007**: Must reuse DocsExtractor from Feature 001 for existing documentation extraction (README.md, CHANGELOG.md)  
+**TC-008**: Must support `--deep` flag for recursive role parsing using RoleParser from Feature 001  
 **TC-005**: Must handle namespace/name format (e.g., community.general)
 
 ## Out of Scope
