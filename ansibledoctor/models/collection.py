@@ -8,12 +8,33 @@ Following Constitution Article X (DDD): Aggregate Root pattern with
 GalaxyMetadata, roles, and plugins as children.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field, field_validator
 
 from ansibledoctor.models.galaxy import GalaxyMetadata
-from ansibledoctor.models.plugin import PluginType
+from ansibledoctor.models.plugin import PluginType, Plugin
+from ansibledoctor.models.existing_docs import ExistingDocs
+from ansibledoctor.models.role import AnsibleRole
+
+
+class PlaybookInfo(BaseModel):
+    """
+    Playbook metadata.
+
+    Represents a discovered playbook within the collection.
+
+    Attributes:
+        name: Playbook name (derived from filename or content)
+        path: Absolute path to the playbook file
+        description: Optional description extracted from playbook
+        tags: List of tags found in the playbook
+    """
+
+    name: str = Field(..., description="Playbook name")
+    path: str = Field(..., description="Absolute path to playbook file")
+    description: str | None = Field(None, description="Optional description")
+    tags: List[str] = Field(default_factory=list, description="Tags found in playbook")
 
 
 class AnsibleCollection(BaseModel):
@@ -49,11 +70,17 @@ class AnsibleCollection(BaseModel):
     metadata: GalaxyMetadata = Field(
         ..., description="Galaxy metadata (namespace, name, version, authors, dependencies)"
     )
-    roles: List[str] = Field(
-        default_factory=list, description="List of role names within collection"
+    roles: List[Union[str, AnsibleRole]] = Field(
+        default_factory=list, description="List of role names or full role objects"
     )
-    plugins: Dict[PluginType, List[str]] = Field(
-        default_factory=dict, description="Dictionary mapping plugin types to plugin file paths"
+    plugins: Dict[PluginType, List[Union[str, Plugin]]] = Field(
+        default_factory=dict, description="Dictionary mapping plugin types to plugin file paths or objects"
+    )
+    playbooks: List[PlaybookInfo] = Field(
+        default_factory=list, description="List of discovered playbooks"
+    )
+    existing_docs: ExistingDocs | None = Field(
+        None, description="Existing documentation files (README, CHANGELOG, etc.)"
     )
 
     @field_validator("metadata")
@@ -96,11 +123,11 @@ class AnsibleCollection(BaseModel):
         Returns:
             List of role names
         """
-        return self.roles
+        return [r.name if isinstance(r, AnsibleRole) else r for r in self.roles]
 
     def list_plugins_by_type(self, plugin_type: PluginType) -> List[str]:
         """
-        Get list of plugins for a specific type.
+        Get list of plugin names for a specific type.
 
         Args:
             plugin_type: Type of plugin to list
@@ -108,7 +135,8 @@ class AnsibleCollection(BaseModel):
         Returns:
             List of plugin names for the given type, empty list if none
         """
-        return self.plugins.get(plugin_type, [])
+        plugins = self.plugins.get(plugin_type, [])
+        return [p.name if isinstance(p, Plugin) else p for p in plugins]
 
     def __str__(self) -> str:
         """Return human-readable representation."""

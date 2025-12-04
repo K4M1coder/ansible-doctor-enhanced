@@ -8,7 +8,7 @@ Following Constitution Article X (Domain-Driven Design):
 
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Platform(BaseModel):
@@ -82,6 +82,14 @@ class RoleMetadata(BaseModel):
     min_ansible_version: Optional[str] = Field(
         None, description="Minimum Ansible version required (e.g., '2.9')"
     )
+
+    @field_validator("min_ansible_version", mode="before")
+    @classmethod
+    def convert_version_to_string(cls, v: Any) -> Optional[str]:
+        """Convert version to string if it's a number."""
+        if v is None:
+            return None
+        return str(v)
 
     platforms: list[Platform] = Field(
         default_factory=list, description="Supported platforms and versions"
