@@ -56,7 +56,15 @@ def collection() -> None:
     is_flag=True,
     help="Validate collection structure only (no output).",
 )
-def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bool) -> None:
+@click.option(
+    "--deep",
+    "-d",
+    is_flag=True,
+    help="Enable deep parsing (full role/plugin details).",
+)
+def parse(
+    collection_path: Path, output: Path | None, pretty: bool, validate: bool, deep: bool
+) -> None:
     """
     Parse an Ansible collection and extract metadata.
 
@@ -76,6 +84,9 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         # Validate collection structure only
         ansible-doctor-enhanced collection parse ./my_collection --validate
 
+        # Deep parse (full role/plugin details)
+        ansible-doctor-enhanced collection parse ./my_collection --deep
+
     Arguments:
         COLLECTION_PATH: Path to the collection directory
     """
@@ -83,7 +94,7 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         # Parse the collection
         parser = CollectionParser()
         logger.debug(f"Parsing collection at {collection_path}")
-        ansible_collection = parser.parse(collection_path)
+        ansible_collection = parser.parse(collection_path, deep_parse=deep)
 
         # Validation-only mode: exit with success
         if validate:
@@ -107,7 +118,17 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         }
 
         # Format JSON
-        json_output = json.dumps(output_data, indent=2 if pretty else None)
+        def json_serial(obj):
+            """JSON serializer for objects not serializable by default json code"""
+            if hasattr(obj, "model_dump"):
+                return obj.model_dump()
+            if hasattr(obj, "dict"):
+                return obj.dict()
+            if isinstance(obj, Path):
+                return str(obj)
+            raise TypeError(f"Type {type(obj)} not serializable")
+
+        json_output = json.dumps(output_data, indent=2 if pretty else None, default=json_serial)
 
         # Write to file or stdout
         if output:
