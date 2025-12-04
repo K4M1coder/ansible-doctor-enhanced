@@ -83,12 +83,12 @@ description: "Task breakdown for Feature 006: Project Documentation"
 
 ### T325-T330: Existing Docs Extraction (US14 Extension)
 
-- [ ] T325 [R] Write test_project_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE at project root
-- [ ] T326 [G] Integrate DocsExtractor into ProjectParser.parse() - populate Project.existing_docs field
-- [ ] T327 [R] Write test for license type detection in project context (MIT, Apache-2.0, GPL-3.0)
-- [ ] T328 [G] Add existing_docs: ExistingDocs field to Project model in models/project.py
-- [ ] T329 [R] Write test for partial docs (only README exists, other files missing)
-- [ ] T330 [R] Integration test: extract demo project existing docs, verify in Project model
+- [x] T325 [R] Write test_project_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE at project root
+- [x] T326 [G] Integrate DocsExtractor into ProjectParser.parse() - populate Project.existing_docs field
+- [x] T327 [R] Write test for license type detection in project context (MIT, Apache-2.0, GPL-3.0)
+- [x] T328 [G] Add existing_docs: ExistingDocs field to Project model in models/project.py
+- [x] T329 [R] Write test for partial docs (only README exists, other files missing)
+- [x] T330 [R] Integration test: extract demo project existing docs, verify in Project model
 
 ### T331-T336: Deep Recursive Parsing (US14 Extension)
 

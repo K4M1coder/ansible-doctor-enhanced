@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.6] - 2025-12-04
+
+### Added - Project Existing Docs Extraction (Spec 006 Phase 7 Part 1)
+
+- **Project Model**: Added `existing_docs: Optional[ExistingDocs]` field to `Project` model
+- **DocsExtractor Integration**: ProjectParser.parse() now calls DocsExtractor to populate existing_docs
+- **License Detection**: Project-level license type detection (MIT, Apache-2.0, GPL-3.0, BSD-3-Clause)
+- **Demo Project**: Added README.md, LICENSE, CHANGELOG.md files to demo project
+
+### Tests
+
+- **Unit Tests**: Added `test_project_existing_docs.py` with comprehensive tests for:
+  - DocsExtractor finding README, CHANGELOG, CONTRIBUTING, LICENSE at project root
+  - License type detection for MIT, Apache-2.0, GPL-3.0
+  - Partial docs scenarios (only some files exist)
+  - Project model accepting existing_docs field
+  - ProjectParser integration with DocsExtractor
+  - Demo project integration test
+
 ## [0.9.5] - 2025-12-04
 
 ### Added - Collection Documentation Enhancements (Spec 004 Phase 8)
