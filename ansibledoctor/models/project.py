@@ -11,6 +11,8 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
+from ansibledoctor.models.existing_docs import ExistingDocs
+
 
 class Playbook(BaseModel):
     name: str
@@ -47,3 +49,5 @@ class Project(BaseModel):
     host_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)
     # computed effective variables per host (applies precedence)
     effective_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    # Extracted documentation files (README, CHANGELOG, LICENSE, CONTRIBUTING)
+    existing_docs: Optional[ExistingDocs] = None

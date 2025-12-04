@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Optional
 
 from ansibledoctor.models.project import CollectionInfo, Playbook, Project, RoleInfo
+from ansibledoctor.parser.docs_extractor import DocsExtractor
 from ansibledoctor.parser.inventory_parser import (
     parse_ini_inventory,
     parse_inventory_dir,
@@ -398,4 +399,9 @@ class ProjectParser:
                 project.effective_vars[host] = _redact_keys(merged)
             else:
                 project.effective_vars[host] = merged
+
+        # Extract existing documentation files (README, CHANGELOG, LICENSE, CONTRIBUTING)
+        docs_extractor = DocsExtractor(str(path_obj))
+        project.existing_docs = docs_extractor.extract()
+
         return project
