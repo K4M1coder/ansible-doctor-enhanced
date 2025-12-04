@@ -6,11 +6,12 @@
 </head>
 <body>
   <h1>project_demo_namespace.demo_project</h1>
+  <p><img src="https://img.shields.io/badge/license-MIT-yellow" alt="License Badge"/></p>
   <h2>Architecture</h2>
   <pre><code class="language-mermaid">
 graph TD
     A[project_demo_namespace.demo_project] --> B[Roles (1)]
-    A --> C[Collections (0)]
+    A --> C[Collections (1)]
     A --> D[Playbooks (0)]
     A --> E[Inventory (0)]
   </code></pre>
@@ -18,5 +19,56 @@ graph TD
   <ul>
     <li>role_demo_namespace.demo_demo_role</li>
   </ul>
+  <h2>Collections</h2>
+  <ul>
+    <li>collection_demo_namespace.demo_collection</li>
+  </ul>
+  <h2>Existing Documentation</h2>
+  <div id="existing-docs">
+    <pre style="white-space: pre-wrap;"># Demo Project
+
+This is a demonstration Ansible project for testing ansible-doctor-enhanced&#39;s
+project documentation generation capabilities.
+
+## Overview
+
+The demo project showcases:
+
+- Multi-role project structure
+- Collection integration
+- Inventory management
+- Variable precedence demonstration
+
+## Project Structure
+
+```
+demo_project/
+├── ansible.cfg          # Project configuration
+├── collections/         # Embedded collections
+├── roles/              # Project roles
+├── group_vars/         # Group variables
+└── host_vars/          # Host variables
+```
+
+## Requirements
+
+- Ansible &gt;= 2.9
+- Python &gt;= 3.8
+
+## Usage
+
+```bash
+ansible-playbook -i inventory site.yml
+```
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Author
+
+Demo Namespace Team
+</pre>
+  </div>
 </body>
 </html>

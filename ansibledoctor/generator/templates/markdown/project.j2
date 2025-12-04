@@ -4,6 +4,11 @@
 # {{ project.name or title }}
 {% endif %}
 
+{# License badge #}
+{% if license_badge_url %}
+![License]({{ license_badge_url }})
+{% endif %}
+
 ## {{ t('architecture.header') if t is defined else 'Architecture' }}
 
 ```mermaid
@@ -25,3 +30,26 @@ graph TD
 {% for collection in collections %}
 - {{ collection.name }}
 {% endfor %}
+
+{% if project.existing_docs and project.existing_docs.readme_content %}
+## Existing Documentation
+
+### Project README
+
+{{ project.existing_docs.readme_content }}
+
+{% endif %}
+
+{% if project.existing_docs and project.existing_docs.changelog_content %}
+### Changelog
+
+{{ project.existing_docs.changelog_content.split('\n', 2)[0] }}
+
+{% endif %}
+
+{% if project.existing_docs and project.existing_docs.contributing_content %}
+### Contributing
+
+See `CONTRIBUTING.md` for contribution guidelines.
+
+{% endif %}

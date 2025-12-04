@@ -37,3 +37,18 @@
 - {{ collection.name }}
 {% endfor %}
 {% endif %}
+{% if license_badge_url %}
+.. image:: {{ license_badge_url }}
+
+{% endif %}
+
+{% if project.existing_docs and project.existing_docs.readme_content %}
+{% set docs_header = 'Existing Documentation' %}
+{{ docs_header | rst_escape }}
+{{ '-' * (docs_header | rst_escape | length) }}
+
+::
+
+    {{ project.existing_docs.readme_content | rst_escape | indent(3, True) }}
+
+{% endif %}

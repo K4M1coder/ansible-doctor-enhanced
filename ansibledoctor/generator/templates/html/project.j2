@@ -6,6 +6,9 @@
 </head>
 <body>
   <h1>{{ t('project.title') if t is defined else project.name or title }}</h1>
+  {% if license_badge_url %}
+  <p><img src="{{ license_badge_url }}" alt="License Badge"/></p>
+  {% endif %}
   <h2>{{ t('architecture.header') if t is defined else 'Architecture' }}</h2>
   <pre><code class="language-mermaid">
 graph TD
@@ -29,6 +32,12 @@ graph TD
     <li>{{ collection.name }}</li>
     {% endfor %}
   </ul>
+  {% endif %}
+  {% if project.existing_docs and project.existing_docs.readme_content %}
+  <h2>Existing Documentation</h2>
+  <div id="existing-docs">
+    <pre style="white-space: pre-wrap;">{{ project.existing_docs.readme_content | html_escape }}</pre>
+  </div>
   {% endif %}
 </body>
 </html>

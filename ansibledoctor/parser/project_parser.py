@@ -19,6 +19,8 @@ from ansibledoctor.parser.inventory_parser import (
     parse_yaml_inventory,
 )
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
+from ansibledoctor.parser.role_parser import RoleParser
+from ansibledoctor.parser.collection_parser import CollectionParser
 
 
 class ProjectParser:
@@ -31,7 +33,7 @@ class ProjectParser:
     def __init__(self, redact_sensitive: bool = True):
         self.redact_sensitive = redact_sensitive
 
-    def parse(self, path: str) -> Project:
+    def parse(self, path: str, deep_parse: bool = False) -> Project:
         # Minimal implementation: set name from directory name and path
         # Project name comes from ansible.cfg if present
         # Determine if an ansible.cfg exists in given path or any parent (monorepo root detection)
@@ -81,6 +83,14 @@ class ProjectParser:
                         role_path = os.path.join(str(rp), entry)
                         if os.path.isdir(role_path):
                             project.roles.append(RoleInfo(name=entry, path=role_path))
+                            if deep_parse:
+                                try:
+                                    rp_parser = RoleParser()
+                                    r = rp_parser.parse(Path(role_path))
+                                    project.parsed_roles.append(r)
+                                except Exception:
+                                    # non-fatal; keep simple role info
+                                    continue
         else:
             roles_dir = os.path.join(str(path_obj), "roles")
             if os.path.isdir(roles_dir):
@@ -88,6 +98,13 @@ class ProjectParser:
                     role_path = os.path.join(roles_dir, entry)
                     if os.path.isdir(role_path):
                         project.roles.append(RoleInfo(name=entry, path=role_path))
+                        if deep_parse:
+                            try:
+                                rp_parser = RoleParser()
+                                r = rp_parser.parse(Path(role_path))
+                                project.parsed_roles.append(r)
+                            except Exception:
+                                continue
 
         # Collections discovery: support both 'collections/ansible_collections/<ns>/<coll>'
         # and 'collections/<ns>/<coll>' layouts as well as custom collections_path in ansible.cfg
@@ -129,6 +146,13 @@ class ProjectParser:
                                     project.collections.append(
                                         CollectionInfo(name=f"{ns}.{coll}", path=coll_path)
                                     )
+                                    if deep_parse:
+                                        try:
+                                            cp = CollectionParser()
+                                            c = cp.parse(Path(coll_path), deep_parse=True)
+                                            project.parsed_collections.append(c)
+                                        except Exception:
+                                            continue
                 # Variant B: collections/<namespace>/<collection>
                 # We should parse this even if ansible_collections exists alongside other layout
                 for ns in os.listdir(collections_dir):
@@ -143,6 +167,27 @@ class ProjectParser:
                                 project.collections.append(
                                     CollectionInfo(name=f"{ns}.{coll}", path=coll_path)
                                 )
+                                if deep_parse:
+                                    try:
+                                        cp = CollectionParser()
+                                        c = cp.parse(Path(coll_path), deep_parse=True)
+                                        project.parsed_collections.append(c)
+                                    except Exception:
+                                        continue
+                # Variant C: single-level collections/<collection_name>
+                # Some projects place collection directories directly under collections/
+                for item in os.listdir(collections_dir):
+                    item_path = os.path.join(collections_dir, item)
+                    # If the item contains a galaxy.yml, treat it as a 1-level collection folder
+                    if os.path.isdir(item_path) and os.path.isfile(os.path.join(item_path, "galaxy.yml")):
+                        project.collections.append(CollectionInfo(name=item, path=item_path))
+                        if deep_parse:
+                            try:
+                                cp = CollectionParser()
+                                c = cp.parse(Path(item_path), deep_parse=True)
+                                project.parsed_collections.append(c)
+                            except Exception:
+                                continue
 
         # Inventory discovery: support parsing of inventory files under 'inventory' dir
         # Also respect 'inventory' path set in ansible.cfg under [defaults]
