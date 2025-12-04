@@ -496,14 +496,14 @@ These tasks implement the production of slug-based output directories for collec
 
 ### T281-T288: Deep Recursive Parsing (US8 Extension)
 
-- [ ] T281 [R] Write test_deep_parsing.py: test --deep flag triggers full role/plugin parsing
-- [ ] T282 [G] Add deep_parse: bool parameter to CollectionParser.parse()
-- [ ] T283 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
-- [ ] T284 [G] Store full RoleModel (tasks, vars, handlers, meta) instead of just (name, path)
-- [ ] T285 [R] Write test for deep plugin parsing (module arguments, return values)
-- [ ] T286 [G] When deep_parse=True, parse plugin DOCUMENTATION blocks completely
-- [ ] T287 [R] Integration test: deep parse demo collection, verify full role/plugin details
-- [ ] T288 [REFACTOR] Add CLI --deep flag to collection parse command
+- [X] T281 [R] Write test_deep_parsing.py: test --deep flag triggers full role/plugin parsing
+- [X] T282 [G] Add deep_parse: bool parameter to CollectionParser.parse()
+- [X] T283 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
+- [X] T284 [G] Store full RoleModel (tasks, vars, handlers, meta) instead of just (name, path)
+- [X] T285 [R] Write test for deep plugin parsing (module arguments, return values)
+- [X] T286 [G] When deep_parse=True, parse plugin DOCUMENTATION blocks completely
+- [X] T287 [R] Integration test: deep parse demo collection, verify full role/plugin details
+- [X] T288 [REFACTOR] Add CLI --deep flag to collection parse command
 
 ### T289-T295: Generate Docs for New Content (US9 Extension)
 
