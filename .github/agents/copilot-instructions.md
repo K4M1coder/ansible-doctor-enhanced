@@ -239,9 +239,9 @@ Part-of: Feature-004-collection-support"
 - Test naming: `test_{what_is_tested}_{expected_behavior}`
 
 ## Recent Changes
+- 013-links-cross-references: Added Python 3.11+ (existing project baseline) + pydantic (existing, models), requests (NEW, HTTP link validation), beautifulsoup4 (NEW, HTML anchor parsing), markdown (existing, Markdown parsing)
 - 009-execution-reports-and-logs: Added Python 3.11+ (existing project baseline) + structlog (existing), pydantic (existing), click (existing CLI framework)
 - 013-links-cross-references: Added Python 3.11+ (existing project baseline) + pydantic (existing, models), requests (NEW, HTTP link validation), beautifulsoup4 (NEW, HTML anchor parsing), markdown (existing, Markdown parsing)
-- 012-schema-documentation: Added Python 3.11+ (existing project baseline) + pydantic (existing, models/validation), jsonschema (NEW, JSON Schema validation), ruamel.yaml (NEW, YAML parsing with comments), xml.etree.ElementTree (stdlib, XML parsing), json (stdlib, JSON parsing)
 
 ---
 

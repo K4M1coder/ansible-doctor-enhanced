@@ -16,6 +16,7 @@ from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
 from ansibledoctor.generator.models import OutputFormat
 from ansibledoctor.models.collection import AnsibleCollection
 from ansibledoctor.models.plugin import Plugin, PluginCatalog
+from ansibledoctor.utils.slug import collection_slug, role_slug
 
 
 class RoleInfo:
@@ -27,17 +28,20 @@ class RoleInfo:
 
     Attributes:
         name: Role name (required)
+        slug: Role slug for linking (required)
         description: Optional role description
     """
 
-    def __init__(self, name: str, description: Optional[str] = None):
+    def __init__(self, name: str, slug: str, description: Optional[str] = None):
         """Initialize role info.
 
         Args:
             name: Role name
+            slug: Role slug
             description: Optional role description
         """
         self.name = name
+        self.slug = slug
         self.description = description
 
 
@@ -99,12 +103,20 @@ class CollectionTemplateContext:
         plugins_by_type = catalog.group_by_type()
 
         # Build role data list
-        roles_data = [RoleInfo(name=role) for role in self.collection.roles]
+        roles_data = []
+        for role_name in self.collection.roles:
+            # Calculate role slug
+            r_slug = role_slug(self.collection.metadata.namespace, role_name)
+            roles_data.append(RoleInfo(name=role_name, slug=r_slug))
+
+        # Calculate slug
+        slug = collection_slug(self.collection.metadata.namespace, self.collection.metadata.name)
 
         return {
             "collection": self.collection,
             "metadata": self.collection.metadata,
             "fqcn": self.collection.fqcn,
+            "slug": slug,
             "roles": roles_data,
             "plugins_by_type": plugins_by_type,
             "generation_date": datetime.now(),

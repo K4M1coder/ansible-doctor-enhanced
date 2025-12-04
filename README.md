@@ -50,10 +50,14 @@ Create professional README.md for your collection:
 
 ```bash
 # Generate Markdown documentation (default)
+# Output: docs/lang/en/collection_namespace.name/README.md
 poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection
 
 # Generate HTML documentation
 poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection --format html
+
+# Use legacy output structure (docs/README.md)
+poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection --legacy-output
 
 # Use custom template
 poetry run ansible-doctor-enhanced collection generate ./my_namespace.my_collection --template custom.md.j2

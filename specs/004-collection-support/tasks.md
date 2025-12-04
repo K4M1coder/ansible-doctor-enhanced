@@ -185,10 +185,10 @@
 
 These tasks implement the production of slug-based output directories for collections and roles.
 
-- [ ] T224 [US9] Create `collection_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention.
-- [ ] T225 [US9] Update `CollectionDocumentationGenerator` to produce output directories using `collection_slug` and update templates/relative link generation to use slug paths; add integration test verifying `docs/lang/{code}/collection_{namespace}.{collection}/` paths.
-- [ ] T226 [US9] Update CLI help and README examples to display collection slug outputs in examples; add unit tests ensuring examples and help text reference new slug names.
-- [ ] T227 [US9] Add migration flag `--legacy-output` options and create E2E test verifying backward compatibility of old and new outputs when flag is used.
+- [X] T224 [US9] Create `collection_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention.
+- [X] T225 [US9] Update `CollectionDocumentationGenerator` to produce output directories using `collection_slug` and update templates/relative link generation to use slug paths; add integration test verifying `docs/lang/{code}/collection_{namespace}.{collection}/` paths.
+- [X] T226 [US9] Update CLI help and README examples to display collection slug outputs in examples; add unit tests ensuring examples and help text reference new slug names.
+- [X] T227 [US9] Add migration flag `--legacy-output` options and create E2E test verifying backward compatibility of old and new outputs when flag is used.
 
 **Checkpoint**: User Story 8 complete - can parse collection metadata and structure independently
 

@@ -75,12 +75,12 @@ This collection provides the following roles:
 | Role | Description |
 |------|-------------|
 {% for role in roles %}
-| `{{ role.name }}` | {{ role.description if role.description else 'No description available' }} |
+| [`{{ role.name }}`]({{ role.slug }}/README.md) | {{ role.description if role.description else 'No description available' }} |
 {% endfor %}
 {% else %}
 {# List format for role index #}
 {% for role in roles %}
-### {{ collection_fqcn }}.{{ role.name }}
+### [{{ collection_fqcn }}.{{ role.name }}]({{ role.slug }}/README.md)
 
 {% if role.description %}
 {{ role.description }}

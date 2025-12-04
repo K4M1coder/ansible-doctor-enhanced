@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
 - **Shared**: `--deep` CLI flag for recursive role/collection parsing
 
+## [0.9.4] - 2025-12-04
+
+### Added - Collection Slug Output and Legacy Support (Spec 004 T224-T227)
+
+- **Slug Utilities**: Added `collection_slug` and `role_slug` utilities for consistent naming
+- **Output Structure**: Implemented hierarchical output structure `docs/lang/{code}/collection_{namespace}.{collection}/`
+- **Legacy Support**: Added `--legacy-output` flag to `collection generate` command to support flat `docs/README.md` output
+- **Template Linking**: Updated collection template to use relative links to role documentation using slugs
+- **Integration Tests**: Added tests for slug-based output paths and legacy flag behavior
+
 ## [0.9.3] - 2025-12-04
 
 ### Added - Template Support for Handlers and Documentation (Spec 002 T219)
