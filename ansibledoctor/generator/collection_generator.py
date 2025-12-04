@@ -119,6 +119,7 @@ class CollectionTemplateContext:
             "slug": slug,
             "roles": roles_data,
             "plugins_by_type": plugins_by_type,
+            "playbooks": self.collection.playbooks,
             "generation_date": datetime.now(),
         }
 

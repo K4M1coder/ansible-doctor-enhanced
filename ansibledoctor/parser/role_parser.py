@@ -1,3 +1,8 @@
+"""
+Role parser module.
+
+This module provides the RoleParser class for parsing Ansible roles.
+"""
 from pathlib import Path
 from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.parser.metadata_parser import MetadataParser

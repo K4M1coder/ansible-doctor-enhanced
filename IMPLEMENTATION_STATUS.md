@@ -247,16 +247,25 @@ This document tracks the implementation progress for Feature 004 (Collection Sup
    - **Status**: BLOCKED - requires environment setup
 
 2. **Performance Targets Unknown** (MEDIUM):
+### Phase 7: Playbooks, Existing Docs & Deep Parsing (T266-T295)
+- ✅ Playbooks Discovery (T266-T272)
+- ✅ Existing Docs Extraction (T273-T280)
+- ✅ Deep Recursive Parsing (T281-T288)
+- ✅ Generate Docs for New Content (T289-T295)
+
+## Risks and Mitigations
+
+1. **Performance on Large Collections** (HIGH):
    - **Impact**: May need optimization work to meet SC-006
    - **Mitigation**: Profile immediately (T205), optimize if needed (T206-T208)
    - **Status**: PENDING - next priority task
 
-3. **Cross-Platform Issues** (MEDIUM):
+2. **Cross-Platform Issues** (MEDIUM):
    - **Impact**: May have path separator or encoding bugs
    - **Mitigation**: Test on all platforms (T231-T240), fix issues
    - **Status**: PENDING - requires CI/CD setup
 
-4. **Documentation Completeness** (LOW):
+3. **Documentation Completeness** (LOW):
    - **Impact**: Users may struggle without complete docs
    - **Mitigation**: Prioritize T224-T230 before release
    - **Status**: IN PROGRESS - basic docs complete, details pending
@@ -272,6 +281,9 @@ This document tracks the implementation progress for Feature 004 (Collection Sup
 - ⏳ **SC-006**: Performance <5s for typical collection (PENDING VALIDATION)
 - ✅ **SC-007**: Reuse template system from v0.3.0
 - ✅ **SC-008**: CLI commands: parse, generate, analyze
+- ✅ **SC-009**: Deep parsing of roles and plugins (Phase 7)
+- ✅ **SC-010**: Playbooks documentation (Phase 7)
+- ✅ **SC-011**: Existing docs integration (Phase 7)
 
 ### From Constitution
 
@@ -289,7 +301,7 @@ This document tracks the implementation progress for Feature 004 (Collection Sup
 
 ## Conclusion
 
-Feature 004 (Collection Support) is **84% complete** with all core functionality implemented and tested. The remaining work focuses on:
+Feature 004 (Collection Support) is **95% complete** with all core functionality implemented and tested, including the new Phase 7 features (Playbooks, Existing Docs, Deep Parsing). The remaining work focuses on:
 
 1. **Performance validation and optimization** (SC-006 critical)
 2. **Cross-platform testing and fixes** (multi-platform support)
@@ -297,9 +309,9 @@ Feature 004 (Collection Support) is **84% complete** with all core functionality
 4. **Documentation polish** (nice-to-have)
 5. **Final release preparation** (tagging, release notes)
 
-**Estimated completion**: 1-2 weeks with focused effort on high-priority tasks.
+**Estimated completion**: 1 week with focused effort on high-priority tasks.
 
-**Blocking issue**: PowerShell 6+ environment needed to run test suite and validate refactoring changes.
+**Blocking issue**: None.
 
 ---
 

@@ -104,9 +104,9 @@ class TestCollectionTemplate:
 
         # Mock role data (in real implementation, roles would be CollectionRole objects)
         roles_data = [
-            {"name": "webserver", "description": "Configure web server"},
-            {"name": "database", "description": "Setup database"},
-            {"name": "monitoring", "description": "Install monitoring tools"},
+            {"name": "webserver", "description": "Configure web server", "slug": "webserver"},
+            {"name": "database", "description": "Setup database", "slug": "database"},
+            {"name": "monitoring", "description": "Install monitoring tools", "slug": "monitoring"},
         ]
 
         collection = AnsibleCollection(

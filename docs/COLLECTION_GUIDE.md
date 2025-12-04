@@ -48,6 +48,16 @@ my_namespace.my_collection/
 └── docs/                  # Documentation (generated)
 ```
 
+## Documentation Features
+
+The generator automatically discovers and documents:
+
+- **Metadata**: Extracts version, authors, and dependencies from `galaxy.yml`.
+- **Roles**: Lists all roles with links to their individual documentation.
+- **Plugins**: Groups plugins by type (modules, filters, lookups, etc.).
+- **Playbooks**: Lists playbooks found in `playbooks/` directory, including descriptions and tags.
+- **Existing Docs**: Automatically includes `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, and `LICENSE` files in the generated output.
+
 ---
 
 ## Installation
@@ -393,6 +403,21 @@ repos:
         language: system
         pass_filenames: false
 ```
+
+### Playbook Documentation
+
+To add descriptions to your playbooks, add a comment starting with `# description:` at the top of the playbook file:
+
+```yaml
+# description: Deploys the web application stack
+---
+- name: Web Stack
+  hosts: webservers
+  tags: [web, deploy]
+  tasks: ...
+```
+
+The generator will extract this description and display it in the Playbooks table along with the playbook name and tags.
 
 ### Custom Templates
 

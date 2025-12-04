@@ -507,13 +507,13 @@ These tasks implement the production of slug-based output directories for collec
 
 ### T289-T295: Generate Docs for New Content (US9 Extension)
 
-- [ ] T289 [R] Write test_generate_playbooks_section.py: verify playbooks appear in generated docs
-- [ ] T290 [G] Add playbooks section to collection template (list with descriptions)
-- [ ] T291 [R] Write test_generate_existing_docs.py: verify README/CHANGELOG included in output
-- [ ] T292 [G] Add existing docs section to collection template (embedded or linked)
-- [ ] T293 [R] Write test for license badge generation based on license_type
-- [ ] T294 [G] Implement license badge in collection header (shields.io style)
-- [ ] T295 [R] Integration test: generate docs for demo collection with playbooks and existing docs
+- [X] T289 [R] Write test_generate_playbooks_section.py: verify playbooks appear in generated docs
+- [X] T290 [G] Add playbooks section to collection template (list with descriptions)
+- [X] T291 [R] Write test_generate_existing_docs.py: verify README/CHANGELOG included in output
+- [X] T292 [G] Add existing docs section to collection template (embedded or linked)
+- [X] T293 [R] Write test for license badge generation based on license_type
+- [X] T294 [G] Implement license badge in collection header (shields.io style)
+- [X] T295 [R] Integration test: generate docs for demo collection with playbooks and existing docs
 
 ---
 

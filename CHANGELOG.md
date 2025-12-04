@@ -7,11 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added - Specs: Recursive Parsing & Existing Docs Coverage
+## [0.9.5] - 2025-12-04
 
-- **Spec 004**: Playbooks discovery, existing docs extraction, deep parsing support (FR-006 to FR-011, SC-009 to SC-011), Phase 7 tasks (T266-T295), CHK021-CHK025
-- **Spec 006**: Existing docs extraction and deep parsing for projects (FR-001 to FR-007, SC-011 to SC-013), Phase 7 tasks (T325-T342), CHK024-CHK028
-- **Shared**: `--deep` CLI flag for recursive role/collection parsing
+### Added - Collection Documentation Enhancements (Spec 004 Phase 8)
+
+- **License Badges**: Added support for rendering license badges in collection header (Shields.io style)
+- **Playbooks Section**: Added playbooks table to collection documentation (name, description, tags)
+- **Existing Docs**: Added integration of existing documentation files (README, CHANGELOG, CONTRIBUTING, LICENSE)
+- **Galaxy Metadata**: Updated model to support list of licenses
+
+### Changed
+
+- **Galaxy Metadata**: Updated `GalaxyMetadata` model to support `license` field as a list of strings
 
 ## [0.9.4] - 2025-12-04
 

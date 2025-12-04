@@ -4,6 +4,12 @@
 
 # {{ metadata.namespace }}.{{ metadata.name }}
 
+{% if metadata.license %}
+{% for license in metadata.license %}
+![License](https://img.shields.io/badge/license-{{ license | replace('-', '--') | replace(' ', '_') }}-blue.svg)
+{% endfor %}
+{% endif %}
+
 {% if description is defined and description %}
 {{ description }}
 {% endif %}
@@ -19,7 +25,14 @@
 {% if roles is defined and roles %}- [Roles](#roles){% endif %}
 {% if plugins_by_type is defined and plugins_by_type %}- [Plugins](#plugins){% endif %}
 {% if metadata.dependencies %}- [Dependencies](#dependencies){% endif %}
+{% if playbooks is defined and playbooks %}- [Playbooks](#playbooks){% endif %}
 {% if examples is defined and examples %}- [Examples](#examples){% endif %}
+{% if collection.existing_docs is defined and collection.existing_docs %}
+{% if collection.existing_docs.readme_content %}- [README](#readme){% endif %}
+{% if collection.existing_docs.changelog_content %}- [Changelog](#changelog){% endif %}
+{% if collection.existing_docs.contributing_content %}- [Contributing](#contributing){% endif %}
+{% if collection.existing_docs.license_content %}- [License](#license){% endif %}
+{% endif %}
 
 ---
 
@@ -135,6 +148,20 @@ ansible-galaxy collection install -r requirements.yml
 ---
 {% endif %}
 
+{% if playbooks is defined and playbooks and playbooks|length > 0 %}
+## Playbooks
+
+This collection includes the following playbooks:
+
+| Playbook | Description | Tags |
+|----------|-------------|------|
+{% for playbook in playbooks %}
+| `{{ playbook.name }}` | {{ playbook.description if playbook.description else 'No description available' }} | {{ playbook.tags | join(', ') if playbook.tags else '-' }} |
+{% endfor %}
+
+---
+{% endif %}
+
 {% if examples is defined and examples and examples|length > 0 %}
 ## Examples
 
@@ -156,9 +183,37 @@ ansible-galaxy collection install -r requirements.yml
 ---
 {% endif %}
 
+{% if collection.existing_docs is defined and collection.existing_docs %}
+{% if collection.existing_docs.readme_content %}
+## README
+
+{{ collection.existing_docs.readme_content }}
+
+---
+{% endif %}
+{% if collection.existing_docs.changelog_content %}
+## Changelog
+
+{{ collection.existing_docs.changelog_content }}
+
+---
+{% endif %}
+{% if collection.existing_docs.contributing_content %}
+## Contributing
+
+{{ collection.existing_docs.contributing_content }}
+
+---
+{% endif %}
+{% endif %}
+
 ## License
 
+{% if collection.existing_docs is defined and collection.existing_docs and collection.existing_docs.license_content %}
+{{ collection.existing_docs.license_content }}
+{% else %}
 See LICENSE file in the collection.
+{% endif %}
 
 {# Sibling navigation #}
 {% include '_siblings.j2' ignore missing %}
