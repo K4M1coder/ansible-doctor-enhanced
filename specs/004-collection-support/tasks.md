@@ -185,10 +185,10 @@
 
 These tasks implement the production of slug-based output directories for collections and roles.
 
-- [ ] T224 [US9] Create `collection_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention.
-- [ ] T225 [US9] Update `CollectionDocumentationGenerator` to produce output directories using `collection_slug` and update templates/relative link generation to use slug paths; add integration test verifying `docs/lang/{code}/collection_{namespace}.{collection}/` paths.
-- [ ] T226 [US9] Update CLI help and README examples to display collection slug outputs in examples; add unit tests ensuring examples and help text reference new slug names.
-- [ ] T227 [US9] Add migration flag `--legacy-output` options and create E2E test verifying backward compatibility of old and new outputs when flag is used.
+- [X] T224 [US9] Create `collection_slug(namespace, name) -> str` utility in `ansibledoctor/utils/slug.py` with unit tests in `tests/unit/test_slug.py` verifying sanitization rules and dot-notation retention.
+- [X] T225 [US9] Update `CollectionDocumentationGenerator` to produce output directories using `collection_slug` and update templates/relative link generation to use slug paths; add integration test verifying `docs/lang/{code}/collection_{namespace}.{collection}/` paths.
+- [X] T226 [US9] Update CLI help and README examples to display collection slug outputs in examples; add unit tests ensuring examples and help text reference new slug names.
+- [X] T227 [US9] Add migration flag `--legacy-output` options and create E2E test verifying backward compatibility of old and new outputs when flag is used.
 
 **Checkpoint**: User Story 8 complete - can parse collection metadata and structure independently
 
@@ -475,45 +475,45 @@ These tasks implement the production of slug-based output directories for collec
 
 ### T266-T272: Playbooks Discovery (US8 Extension)
 
-- [ ] T266 [R] Write test_collection_playbooks_discovery.py: test discover_playbooks() finds .yml/.yaml in playbooks/
-- [ ] T267 [G] Implement PlaybookInfo model (name, path, description, tags) in models/collection.py
-- [ ] T268 [G] Implement discover_playbooks() in collection_parser.py returning List[PlaybookInfo]
-- [ ] T269 [R] Write test for playbook metadata extraction (title from first comment, tags from plays)
-- [ ] T270 [G] Add playbooks parsing to CollectionParser.parse() - populate Collection.playbooks
-- [ ] T271 [REFACTOR] Add playbooks: List[PlaybookInfo] field to Collection model
-- [ ] T272 [R] Integration test: parse demo collection playbooks, verify in Collection model
+- [X] T266 [R] Write test_collection_playbooks_discovery.py: test discover_playbooks() finds .yml/.yaml in playbooks/
+- [X] T267 [G] Implement PlaybookInfo model (name, path, description, tags) in models/collection.py
+- [X] T268 [G] Implement discover_playbooks() in collection_parser.py returning List[PlaybookInfo]
+- [X] T269 [R] Write test for playbook metadata extraction (title from first comment, tags from plays)
+- [X] T270 [G] Add playbooks parsing to CollectionParser.parse() - populate Collection.playbooks
+- [X] T271 [REFACTOR] Add playbooks: List[PlaybookInfo] field to Collection model
+- [X] T272 [R] Integration test: parse demo collection playbooks, verify in Collection model
 
 ### T273-T280: Existing Docs Extraction (US8 Extension)
 
-- [ ] T273 [R] Write test_collection_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE
-- [ ] T274 [G] Implement ExistingDocs model (readme_content, changelog_content, contributing_content, license_content, license_type)
-- [ ] T275 [G] Implement DocsExtractor.extract(path) -> ExistingDocs in parser/docs_extractor.py
-- [ ] T276 [R] Write test for license type detection (MIT, Apache-2.0, GPL-3.0, etc.)
-- [ ] T277 [G] Implement license_type_from_content() helper using keyword patterns
-- [ ] T278 [G] Add existing_docs: ExistingDocs field to Collection model
-- [ ] T279 [R] Write test for partial docs (only README exists, no CHANGELOG)
-- [ ] T280 [R] Integration test: extract demo collection existing docs, verify in Collection model
+- [X] T273 [R] Write test_collection_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE
+- [X] T274 [G] Implement ExistingDocs model (readme_content, changelog_content, contributing_content, license_content, license_type)
+- [X] T275 [G] Implement DocsExtractor.extract(path) -> ExistingDocs in parser/docs_extractor.py
+- [X] T276 [R] Write test for license type detection (MIT, Apache-2.0, GPL-3.0, etc.)
+- [X] T277 [G] Implement license_type_from_content() helper using keyword patterns
+- [X] T278 [G] Add existing_docs: ExistingDocs field to Collection model
+- [X] T279 [R] Write test for partial docs (only README exists, no CHANGELOG)
+- [X] T280 [R] Integration test: extract demo collection existing docs, verify in Collection model
 
 ### T281-T288: Deep Recursive Parsing (US8 Extension)
 
-- [ ] T281 [R] Write test_deep_parsing.py: test --deep flag triggers full role/plugin parsing
-- [ ] T282 [G] Add deep_parse: bool parameter to CollectionParser.parse()
-- [ ] T283 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
-- [ ] T284 [G] Store full RoleModel (tasks, vars, handlers, meta) instead of just (name, path)
-- [ ] T285 [R] Write test for deep plugin parsing (module arguments, return values)
-- [ ] T286 [G] When deep_parse=True, parse plugin DOCUMENTATION blocks completely
-- [ ] T287 [R] Integration test: deep parse demo collection, verify full role/plugin details
-- [ ] T288 [REFACTOR] Add CLI --deep flag to collection parse command
+- [X] T281 [R] Write test_deep_parsing.py: test --deep flag triggers full role/plugin parsing
+- [X] T282 [G] Add deep_parse: bool parameter to CollectionParser.parse()
+- [X] T283 [G] When deep_parse=True, call RoleParser.parse() for each discovered role
+- [X] T284 [G] Store full RoleModel (tasks, vars, handlers, meta) instead of just (name, path)
+- [X] T285 [R] Write test for deep plugin parsing (module arguments, return values)
+- [X] T286 [G] When deep_parse=True, parse plugin DOCUMENTATION blocks completely
+- [X] T287 [R] Integration test: deep parse demo collection, verify full role/plugin details
+- [X] T288 [REFACTOR] Add CLI --deep flag to collection parse command
 
 ### T289-T295: Generate Docs for New Content (US9 Extension)
 
-- [ ] T289 [R] Write test_generate_playbooks_section.py: verify playbooks appear in generated docs
-- [ ] T290 [G] Add playbooks section to collection template (list with descriptions)
-- [ ] T291 [R] Write test_generate_existing_docs.py: verify README/CHANGELOG included in output
-- [ ] T292 [G] Add existing docs section to collection template (embedded or linked)
-- [ ] T293 [R] Write test for license badge generation based on license_type
-- [ ] T294 [G] Implement license badge in collection header (shields.io style)
-- [ ] T295 [R] Integration test: generate docs for demo collection with playbooks and existing docs
+- [X] T289 [R] Write test_generate_playbooks_section.py: verify playbooks appear in generated docs
+- [X] T290 [G] Add playbooks section to collection template (list with descriptions)
+- [X] T291 [R] Write test_generate_existing_docs.py: verify README/CHANGELOG included in output
+- [X] T292 [G] Add existing docs section to collection template (embedded or linked)
+- [X] T293 [R] Write test for license badge generation based on license_type
+- [X] T294 [G] Implement license badge in collection header (shields.io style)
+- [X] T295 [R] Integration test: generate docs for demo collection with playbooks and existing docs
 
 ---
 

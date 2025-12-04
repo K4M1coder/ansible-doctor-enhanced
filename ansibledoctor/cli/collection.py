@@ -14,6 +14,7 @@ import structlog
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError
 from ansibledoctor.parser.collection_parser import CollectionParser
 from ansibledoctor.utils.logging import get_logger
+from ansibledoctor.utils.slug import build_context_path, collection_slug
 
 logger = get_logger(__name__)
 
@@ -55,7 +56,15 @@ def collection() -> None:
     is_flag=True,
     help="Validate collection structure only (no output).",
 )
-def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bool) -> None:
+@click.option(
+    "--deep",
+    "-d",
+    is_flag=True,
+    help="Enable deep parsing (full role/plugin details).",
+)
+def parse(
+    collection_path: Path, output: Path | None, pretty: bool, validate: bool, deep: bool
+) -> None:
     """
     Parse an Ansible collection and extract metadata.
 
@@ -75,6 +84,9 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         # Validate collection structure only
         ansible-doctor-enhanced collection parse ./my_collection --validate
 
+        # Deep parse (full role/plugin details)
+        ansible-doctor-enhanced collection parse ./my_collection --deep
+
     Arguments:
         COLLECTION_PATH: Path to the collection directory
     """
@@ -82,7 +94,7 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         # Parse the collection
         parser = CollectionParser()
         logger.debug(f"Parsing collection at {collection_path}")
-        ansible_collection = parser.parse(collection_path)
+        ansible_collection = parser.parse(collection_path, deep_parse=deep)
 
         # Validation-only mode: exit with success
         if validate:
@@ -106,7 +118,17 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
         }
 
         # Format JSON
-        json_output = json.dumps(output_data, indent=2 if pretty else None)
+        def json_serial(obj):
+            """JSON serializer for objects not serializable by default json code"""
+            if hasattr(obj, "model_dump"):
+                return obj.model_dump()
+            if hasattr(obj, "dict"):
+                return obj.dict()
+            if isinstance(obj, Path):
+                return str(obj)
+            raise TypeError(f"Type {type(obj)} not serializable")
+
+        json_output = json.dumps(output_data, indent=2 if pretty else None, default=json_serial)
 
         # Write to file or stdout
         if output:
@@ -161,12 +183,18 @@ def parse(collection_path: Path, output: Path | None, pretty: bool, validate: bo
     type=click.Path(exists=True, path_type=Path),
     help="Configuration file path (future: template variables, output options).",
 )
+@click.option(
+    "--legacy-output",
+    is_flag=True,
+    help="Use legacy output path structure (docs/README.md) instead of slug-based hierarchy.",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
     format: str,
     template: Path | None,
     config: Path | None,
+    legacy_output: bool,
 ) -> None:
     """
     Generate documentation for an Ansible collection.
@@ -220,9 +248,44 @@ def generate(
 
         # Determine output file path
         output_dir_path = Path(output_dir)
-        # Ensure relative output_dir is relative to collection path
-        if not output_dir_path.is_absolute():
-            output_dir_path = Path(collection_path) / output_dir_path
+        
+        if not legacy_output:
+            # Use slug-based path hierarchy (T225)
+            slug = collection_slug(
+                ansible_collection.metadata.namespace, ansible_collection.metadata.name
+            )
+            # Default to 'en' for now as we don't have language support yet
+            # build_context_path returns "docs/lang/en/collection_slug"
+            rel_path = build_context_path("en", collection=slug)
+            
+            # If output_dir is default "docs", we use the full path from build_context_path
+            # If output_dir is custom, we treat it as the root instead of "docs"
+            if str(output_dir) == "docs":
+                output_dir_path = Path(collection_path) / rel_path
+            else:
+                # Strip "docs/" prefix from rel_path if custom output dir is used
+                # rel_path is like "docs/lang/en/..."
+                parts = Path(rel_path).parts
+                if parts[0] == "docs":
+                    rel_path_stripped = Path(*parts[1:])
+                    output_dir_path = output_dir_path / rel_path_stripped
+                else:
+                    output_dir_path = output_dir_path / rel_path
+                    
+            if not output_dir_path.is_absolute():
+                if str(output_dir) != "docs":
+                     # If custom output dir, it's relative to CWD or collection path?
+                     # Usually relative to CWD if run from CLI, but here we might want relative to collection
+                     output_dir_path = Path(collection_path) / output_dir_path
+                elif str(output_dir) == "docs" and not str(output_dir_path).startswith(str(collection_path)):
+                     # If we constructed it from collection_path above, it's absolute.
+                     pass
+        else:
+            # Legacy behavior
+            # Ensure relative output_dir is relative to collection path
+            if not output_dir_path.is_absolute():
+                output_dir_path = Path(collection_path) / output_dir_path
+        
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         extensions = {"markdown": "md", "html": "html", "rst": "rst"}
