@@ -475,24 +475,24 @@ These tasks implement the production of slug-based output directories for collec
 
 ### T266-T272: Playbooks Discovery (US8 Extension)
 
-- [ ] T266 [R] Write test_collection_playbooks_discovery.py: test discover_playbooks() finds .yml/.yaml in playbooks/
-- [ ] T267 [G] Implement PlaybookInfo model (name, path, description, tags) in models/collection.py
-- [ ] T268 [G] Implement discover_playbooks() in collection_parser.py returning List[PlaybookInfo]
-- [ ] T269 [R] Write test for playbook metadata extraction (title from first comment, tags from plays)
-- [ ] T270 [G] Add playbooks parsing to CollectionParser.parse() - populate Collection.playbooks
-- [ ] T271 [REFACTOR] Add playbooks: List[PlaybookInfo] field to Collection model
-- [ ] T272 [R] Integration test: parse demo collection playbooks, verify in Collection model
+- [X] T266 [R] Write test_collection_playbooks_discovery.py: test discover_playbooks() finds .yml/.yaml in playbooks/
+- [X] T267 [G] Implement PlaybookInfo model (name, path, description, tags) in models/collection.py
+- [X] T268 [G] Implement discover_playbooks() in collection_parser.py returning List[PlaybookInfo]
+- [X] T269 [R] Write test for playbook metadata extraction (title from first comment, tags from plays)
+- [X] T270 [G] Add playbooks parsing to CollectionParser.parse() - populate Collection.playbooks
+- [X] T271 [REFACTOR] Add playbooks: List[PlaybookInfo] field to Collection model
+- [X] T272 [R] Integration test: parse demo collection playbooks, verify in Collection model
 
 ### T273-T280: Existing Docs Extraction (US8 Extension)
 
-- [ ] T273 [R] Write test_collection_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE
-- [ ] T274 [G] Implement ExistingDocs model (readme_content, changelog_content, contributing_content, license_content, license_type)
-- [ ] T275 [G] Implement DocsExtractor.extract(path) -> ExistingDocs in parser/docs_extractor.py
-- [ ] T276 [R] Write test for license type detection (MIT, Apache-2.0, GPL-3.0, etc.)
-- [ ] T277 [G] Implement license_type_from_content() helper using keyword patterns
-- [ ] T278 [G] Add existing_docs: ExistingDocs field to Collection model
-- [ ] T279 [R] Write test for partial docs (only README exists, no CHANGELOG)
-- [ ] T280 [R] Integration test: extract demo collection existing docs, verify in Collection model
+- [X] T273 [R] Write test_collection_existing_docs.py: test DocsExtractor.extract() finds README, CHANGELOG, CONTRIBUTING, LICENSE
+- [X] T274 [G] Implement ExistingDocs model (readme_content, changelog_content, contributing_content, license_content, license_type)
+- [X] T275 [G] Implement DocsExtractor.extract(path) -> ExistingDocs in parser/docs_extractor.py
+- [X] T276 [R] Write test for license type detection (MIT, Apache-2.0, GPL-3.0, etc.)
+- [X] T277 [G] Implement license_type_from_content() helper using keyword patterns
+- [X] T278 [G] Add existing_docs: ExistingDocs field to Collection model
+- [X] T279 [R] Write test for partial docs (only README exists, no CHANGELOG)
+- [X] T280 [R] Integration test: extract demo collection existing docs, verify in Collection model
 
 ### T281-T288: Deep Recursive Parsing (US8 Extension)
 
