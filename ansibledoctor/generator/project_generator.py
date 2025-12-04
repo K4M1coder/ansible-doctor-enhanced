@@ -48,11 +48,29 @@ class ProjectDocumentationGenerator:
     def build_context(self) -> dict:
         """Build template context for project."""
         title = self.project.name or Path(self.project.path).name
+        # Compute license badge URL if license type is known
+        license_badge_url = None
+        try:
+            license_type = getattr(self.project.existing_docs, "license_type", None)
+            if license_type:
+                # Basic shields.io license badge using common colors
+                color_map = {
+                    "MIT": "yellow",
+                    "Apache-2.0": "blue",
+                    "GPL-3.0": "red",
+                    "BSD-3-Clause": "orange",
+                }
+                color = color_map.get(license_type, "lightgrey")
+                license_badge_url = f"https://img.shields.io/badge/license-{license_type}-{color}"
+        except Exception:
+            license_badge_url = None
+
         return {
             "project": self.project,
             "roles": self.project.roles,
             "collections": self.project.collections,
             "title": title,
+            "license_badge_url": license_badge_url,
         }
 
     def generate(

@@ -28,13 +28,14 @@ def project():
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
 @click.option(
     "--redact-values/--no-redact-values",
     "redact_values",
     default=True,
     help="Redact sensitive variable values in output (default: True)",
 )
-def parse(project_path: Path, redact_values: bool):
+def parse(project_path: Path, redact_values: bool, deep_parse: bool):
     """Parse a project and output JSON representation.
 
     Parses the project structure, inventory, roles, collections, and variables,
@@ -42,7 +43,7 @@ def parse(project_path: Path, redact_values: bool):
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path)
+        project = parser.parse(project_path, deep_parse=deep_parse)
         # Output as JSON
         output = project.model_dump_json(indent=2)
         click.echo(output)
@@ -54,6 +55,7 @@ def parse(project_path: Path, redact_values: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
 @click.option(
     "--playbook",
     "playbook",
@@ -70,7 +72,7 @@ def parse(project_path: Path, redact_values: bool):
     default=True,
     help="Redact sensitive variable values in output (default: True)",
 )
-def analyze(project_path: Path, playbook: str | None, output_format: str, redact_values: bool):
+def analyze(project_path: Path, playbook: str | None, output_format: str, redact_values: bool, deep_parse: bool):
     """Analyze a project and output analysis results.
 
     Performs analysis on the project structure, dependencies, and potential issues,
@@ -78,7 +80,7 @@ def analyze(project_path: Path, playbook: str | None, output_format: str, redact
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path)
+        project = parser.parse(project_path, deep_parse=deep_parse)
         # If playbook requested, run playbook analyzer
         if playbook:
             analyzer = PlaybookAnalyzer(project)
@@ -110,10 +112,11 @@ def analyze(project_path: Path, playbook: str | None, output_format: str, redact
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
 @click.option(
     "--format", "output_format", type=click.Choice(["mermaid", "json"]), default="mermaid"
 )
-def visualize(project_path: Path, output_format: str):
+def visualize(project_path: Path, output_format: str, deep_parse: bool):
     """Visualize a project architecture.
 
     Generates a visualization of the project architecture, such as Mermaid diagrams,
@@ -121,7 +124,7 @@ def visualize(project_path: Path, output_format: str):
     """
     try:
         parser = ProjectParser()
-        project = parser.parse(project_path)
+        project = parser.parse(project_path, deep_parse=deep_parse)
         if output_format == "mermaid":
             # Generate simple Mermaid diagram
             diagram = f"""graph TD
@@ -171,6 +174,7 @@ def visualize(project_path: Path, output_format: str):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option(
     "--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown"
@@ -211,6 +215,7 @@ def generate(
     redact_values: bool,
     language: str | None,
     languages: str | None,
+    deep_parse: bool,
 ):
     """Generate documentation for a project.
 
@@ -218,7 +223,7 @@ def generate(
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path)
+        project = parser.parse(project_path, deep_parse=deep_parse)
         # Load file config if present to check for language settings
         config_path = find_config_file(Path(project_path))
         file_config = load_config(config_path) if config_path else None

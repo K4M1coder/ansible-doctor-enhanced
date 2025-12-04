@@ -58,7 +58,7 @@ def test_cli_generate_handles_exception(tmp_path: Path, monkeypatch):
     proj_dir = make_project(tmp_path)
 
     # Force the parser to raise an exception
-    def fake_parse(self, path):
+    def fake_parse(self, path, deep_parse=False):
         raise RuntimeError("boom")
 
     monkeypatch.setattr("ansibledoctor.parser.project_parser.ProjectParser.parse", fake_parse)
@@ -134,6 +134,42 @@ def test_cli_parse_project_no_redact_flag(tmp_path: Path):
     assert "abcdef" in str(data)
 
 
+def test_cli_parse_with_deep_flag_parses_roles_and_collections(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # Add minimal role metadata and collection galaxy.yml
+    (proj_dir / "roles" / "webserver" / "meta").mkdir(parents=True, exist_ok=True)
+    (proj_dir / "roles" / "webserver" / "meta" / "main.yml").write_text(
+        """
+galaxy_info:
+  author: Web Author
+  description: Web server role
+  license: MIT
+  min_ansible_version: 2.9
+"""
+    )
+    (proj_dir / "collections" / "my_namespace" / "my_collection" / "galaxy.yml").write_text(
+                """
+namespace: my_namespace
+name: my_collection
+version: 1.0.0
+authors:
+    - Demo <demo@example.com>
+dependencies: {}
+"""
+        )
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["parse", str(proj_dir), "--deep"])
+    assert result.exit_code == 0
+    import json
+
+    data = json.loads(result.output)
+    # parsed_roles should be present and contain objects
+    assert "parsed_roles" in data
+    assert isinstance(data["parsed_roles"], list)
+    # parsed_collections should be present (may be empty if walker didn't find)
+    assert "parsed_collections" in data
+
+
 def test_cli_generate_uses_project_slug_for_default_path(tmp_path: Path):
     proj_dir = make_project(tmp_path)
     runner = CliRunner()
@@ -160,6 +196,27 @@ def test_cli_generate_legacy_output_uses_simple_path(tmp_path: Path):
     # Check that the new slug path doesn't exist
     slug_path = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
     assert not slug_path.exists()
+
+
+def test_cli_generate_with_deep_flag(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # Create minimal role metadata so deep parse will be valid
+    (proj_dir / "roles" / "webserver" / "meta").mkdir(parents=True, exist_ok=True)
+    (proj_dir / "roles" / "webserver" / "meta" / "main.yml").write_text(
+                """
+galaxy_info:
+    author: Web Author
+    description: Web server role
+    license: MIT
+    min_ansible_version: 2.9
+"""
+        )
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["generate", str(proj_dir), "--deep"])
+    assert result.exit_code == 0
+    # Output should be present
+    out = proj_dir / "docs" / "ansibleproject_myproj" / "README.md"
+    assert out.exists()
 
 
 def test_cli_generate_language_option_respects_translations(tmp_path: Path):
@@ -202,6 +259,27 @@ def test_cli_analyze_project_outputs_analysis(tmp_path: Path):
 
     data = json.loads(result.output)
     assert "project" in data
+    assert "analysis" in data
+
+
+def test_cli_analyze_with_deep_flag(tmp_path: Path):
+    proj_dir = make_project(tmp_path)
+    # create minimal role metadata to make deep parse work
+    (proj_dir / "roles" / "webserver" / "meta").mkdir(parents=True, exist_ok=True)
+    (proj_dir / "roles" / "webserver" / "meta" / "main.yml").write_text(
+                """
+galaxy_info:
+    author: Web Author
+    description: Web server role
+    license: MIT
+    min_ansible_version: 2.9
+"""
+        )
+    runner = CliRunner()
+    result = runner.invoke(project_cli, ["analyze", str(proj_dir), "--deep"])
+    assert result.exit_code == 0
+    import json
+    data = json.loads(result.output)
     assert "analysis" in data
 
 

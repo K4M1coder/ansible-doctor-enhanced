@@ -12,6 +12,8 @@ from typing import Any, List, Optional
 from pydantic import BaseModel, Field
 
 from ansibledoctor.models.existing_docs import ExistingDocs
+from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.models.collection import AnsibleCollection
 
 
 class Playbook(BaseModel):
@@ -51,3 +53,6 @@ class Project(BaseModel):
     effective_vars: dict[str, dict[str, Any]] = Field(default_factory=dict)
     # Extracted documentation files (README, CHANGELOG, LICENSE, CONTRIBUTING)
     existing_docs: Optional[ExistingDocs] = None
+    # Parsed aggregates when deep_parse enabled
+    parsed_roles: List[AnsibleRole] = Field(default_factory=list)
+    parsed_collections: List[AnsibleCollection] = Field(default_factory=list)

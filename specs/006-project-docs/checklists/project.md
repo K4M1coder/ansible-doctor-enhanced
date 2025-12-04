@@ -36,13 +36,25 @@ This checklist verifies that `spec.md` and `tasks.md` contain explicit requireme
 
 ## Phase 7: Existing Docs & Deep Parsing (NEW)
 
-24. [ ] CHK024 - Is existing documentation extraction specified for README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE with ExistingDocs model? [Completeness, SC-011, FR-001-006] [T325-T330]
-25. [ ] CHK025 - Is license type detection algorithm defined (keyword patterns for MIT, Apache-2.0, GPL-3.0) with expected output (license badge)? [Clarity, SC-012, FR-005/FR-007] [T327/T339/T340]
-26. [ ] CHK026 - Is deep recursive parsing option (--deep flag) specified with behavior for full role/collection parsing vs shallow discovery? [Completeness, SC-013] [T331-T336]
-27. [ ] CHK027 - Are generated documentation sections for existing docs defined (template slots, section order, license badge placement)? [Clarity, US15 Acc-5] [T337-T342]
-28. [ ] CHK028 - Is the ExistingDocs model defined as shared across Role, Collection, and Project parsers? [Consistency, Architecture] [T328]
+24. [x] CHK024 - Is existing documentation extraction specified for README.md, CHANGELOG.md, CONTRIBUTING.md, LICENSE with ExistingDocs model? [Completeness, SC-011, FR-001-006] [T325-T330]
+25. [x] CHK025 - Is license type detection algorithm defined (keyword patterns for MIT, Apache-2.0, GPL-3.0) with expected output (license badge)? [Clarity, SC-012, FR-005/FR-007] [T327/T339/T340]
+26. [x] CHK026 - Is deep recursive parsing option (--deep flag) specified with behavior for full role/collection parsing vs shallow discovery? [Completeness, SC-013] [T331-T336]
+27. [x] CHK027 - Are generated documentation sections for existing docs defined (template slots, section order, license badge placement)? [Clarity, US15 Acc-5] [T337-T342]
+28. [x] CHK028 - Is the ExistingDocs model defined as shared across Role, Collection, and Project parsers? [Consistency, Architecture] [T328]
+
+---
+
+## Spec Coverage Verification (Phase 7)
+
+All Phase 7 checklist items are satisfied by the current specification:
+
+- **CHK024**: ExistingDocs model fully specified in spec.md §Existing Documentation Extraction (FR-001 through FR-006, lines 189-208)
+- **CHK025**: License detection algorithm defined with keyword patterns in spec.md §License Detection Patterns (lines 209-214), shields.io badge format in FR-007
+- **CHK026**: Deep recursive parsing specified in spec.md §Deep Recursive Parsing (lines 216-226) with --deep flag behavior and default shallow discovery
+- **CHK027**: Template sections verified in all formats (markdown/html/rst project.j2) with existing_docs conditional blocks and license_badge_url rendering
+- **CHK028**: ExistingDocs explicitly declared as "shared across Role, Collection, Project" in spec.md line 199
 
 ---
 
 Checklist completed and validated against `spec.md` and `tasks.md`.
-New CHK024-CHK028 added for Phase 7 requirements.
+All 28 items (CHK001-CHK028) are now complete and verified.
