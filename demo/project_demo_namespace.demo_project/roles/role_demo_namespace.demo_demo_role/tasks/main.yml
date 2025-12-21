@@ -1,5 +1,0 @@
----
-# In-project demo role tasks
-- name: In-project task for demo role
-  ansible.builtin.debug:
-    msg: "Demo role executed"
