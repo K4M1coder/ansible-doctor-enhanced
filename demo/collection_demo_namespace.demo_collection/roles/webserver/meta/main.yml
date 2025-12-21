@@ -1,7 +1,0 @@
----
-galaxy_info:
-  author: Demo Author
-  min_ansible_version: 2.9
-  supported_by: community
-  description: "Webserver role for demo collection"
-  license: MIT
