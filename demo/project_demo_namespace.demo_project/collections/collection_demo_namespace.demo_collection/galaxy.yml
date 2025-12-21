@@ -1,7 +1,0 @@
----
-namespace: demo_namespace
-name: demo_collection
-version: 0.1.0
-authors:
-  - Demo Project Author
-dependencies: {}

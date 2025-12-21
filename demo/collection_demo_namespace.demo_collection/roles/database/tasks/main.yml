@@ -1,3 +1,0 @@
-- name: Setup database
-  debug:
-    msg: "Setting up database"
