@@ -362,15 +362,15 @@ class TestSuppressedErrorCountReporting:
             # Create roles with various errors
             os.makedirs("test_role1/meta")
             with open("test_role1/meta/main.yml", "w") as f:
-                f.write("---\ndependencies: [invalid\n")  # E101 error
+                f.write("---\ndependencies: [invalid\n")  # Causes E100 YAML parsing error
             
             os.makedirs("test_role2/meta")
             with open("test_role2/meta/main.yml", "w") as f:
-                f.write("---\ndependencies:\n  - bad syntax\n")  # E102 error
+                f.write("---\ndependencies:\n  - bad syntax\n")  # Causes E102 error
             
-            # Create config to suppress E101
+            # Create config to suppress E100 (YAML parsing errors)
             with open(".ansibledoctor.yml", "w") as f:
-                f.write("ignore_errors:\n  - E101\n")
+                f.write("ignore_errors:\n  - E100\n")
             
             # Parse with continue-on-error to process both roles
             result = runner.invoke(cli, ["parse", "test_role1", "--continue-on-error"])
@@ -424,8 +424,10 @@ class TestSuppressedErrorCountReporting:
         assert aggregator.suppressed_count == 3
         
         # Generate report
-        report = aggregator.generate_report()
+        report = aggregator.get_report(correlation_id="test-123")
         
         # Report should have 1 error (E103) and suppressed_count metadata
         assert len(report.errors) == 1
+        assert report.error_count == 1
+        assert report.suppressed_count == 3
         assert report.errors[0].code == "E103"

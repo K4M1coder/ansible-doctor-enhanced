@@ -156,7 +156,7 @@ class ErrorAggregator:
             partial_success: True if some files processed successfully
         
         Returns:
-            ErrorReport instance with file tracking (T047)
+            ErrorReport instance with file tracking (T047) and suppressed count (T059)
         """
         return ErrorReport(
             correlation_id=correlation_id,
@@ -164,6 +164,7 @@ class ErrorAggregator:
             warnings=self.warnings,
             error_count=self._error_count,
             warning_count=self._warning_count,
+            suppressed_count=self.suppressed_count,  # Phase 6 T059
             max_errors_reached=self._max_errors_reached,
             partial_success=partial_success,
             total_files=self._total_files,
@@ -218,6 +219,7 @@ class ErrorAggregator:
         self._seen_hashes.clear()
         self._error_count = 0
         self._warning_count = 0
+        self.suppressed_count = 0  # Phase 6 T059
         self._max_errors_reached = False
         self._total_files = 0
         self._successful_files = 0

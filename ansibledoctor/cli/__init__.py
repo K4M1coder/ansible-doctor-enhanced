@@ -77,8 +77,8 @@ def _output_error_report(
     # Generate error report
     report = error_aggregator.get_report(correlation_id=correlation_id)
     
-    # Skip output if no errors or warnings
-    if report.error_count == 0 and report.warning_count == 0:
+    # Skip output if no errors, warnings, or suppressed errors (Phase 6 T059)
+    if report.error_count == 0 and report.warning_count == 0 and report.suppressed_count == 0:
         return
     
     # Format report based on requested format
@@ -183,6 +183,11 @@ def cli():
     help="Write error report to file (default: stderr)",
 )
 @click.option(
+    "--ignore",
+    type=str,
+    help="Comma-separated list of error codes to suppress (e.g., E101,W103)",
+)
+@click.option(
     "--continue-on-error",
     is_flag=True,
     default=False,
@@ -201,6 +206,7 @@ def parse(
     fail_on_warnings: bool,
     error_format: str,
     error_output: Path | None,
+    ignore: str | None,
     continue_on_error: bool,
 ):
     """
@@ -270,8 +276,29 @@ def parse(
     files_processed = 0
     roles_documented = 0
     
+    # T057: Load config file and merge ignore codes with CLI --ignore flag
+    ignore_codes = []
+    try:
+        config_file_path = find_config_file(role_path)
+        if config_file_path:
+            logger.debug(f"Found config file for ignore_errors: {config_file_path}")
+            file_config = load_config(config_file_path)
+            if file_config.ignore_errors:
+                ignore_codes.extend(file_config.ignore_errors)
+                logger.debug(f"Loaded ignore_errors from config: {file_config.ignore_errors}")
+    except Exception as e:
+        logger.warning(f"Could not load config for ignore_errors: {e}")
+    
+    # Add CLI --ignore codes (CLI extends config)
+    if ignore:
+        cli_codes = [code.strip() for code in ignore.split(",") if code.strip()]
+        ignore_codes.extend(cli_codes)
+        logger.debug(f"Added CLI ignore codes: {cli_codes}")
+    
+    logger.debug(f"Final ignore codes: {ignore_codes}")
+    
     # Initialize error aggregator for structured error collection
-    error_aggregator = ErrorAggregator()
+    error_aggregator = ErrorAggregator(ignore_codes=ignore_codes)
 
     try:
         # Start parsing phase
@@ -992,6 +1019,11 @@ def _parse_roles_recursive(
     help="Write error report to file (default: stderr)",
 )
 @click.option(
+    "--ignore",
+    type=str,
+    help="Comma-separated list of error codes to suppress (e.g., E101,W103)",
+)
+@click.option(
     "--continue-on-error",
     is_flag=True,
     default=False,
@@ -1019,6 +1051,7 @@ def generate(
     fail_on_warnings,
     error_format,
     error_output,
+    ignore,
     continue_on_error,
 ):
     """
@@ -1125,6 +1158,18 @@ def generate(
         recursive = merged_config.recursive
 
         logger.debug(f"Merged config - Format: {format}, Output: {output}, Recursive: {recursive}")
+
+        # T057: Merge ignore_errors from config file with CLI --ignore flag
+        ignore_codes = []
+        # Start with config file ignore_errors
+        if merged_config.ignore_errors:
+            ignore_codes.extend(merged_config.ignore_errors)
+        # Add CLI --ignore codes (CLI overrides/extends config)
+        if ignore:
+            cli_codes = [code.strip() for code in ignore.split(",") if code.strip()]
+            ignore_codes.extend(cli_codes)
+        
+        logger.debug(f"Merged ignore codes: {ignore_codes}")
 
     except Exception as e:
         completed_at = datetime.now(timezone.utc)

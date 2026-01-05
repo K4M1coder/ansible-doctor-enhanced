@@ -30,6 +30,7 @@ class ConfigModel(BaseModel):
         recursive: Enable recursive role discovery (default: False)
         output_dir: Output directory for batch generation (optional)
         exclude_patterns: Glob patterns to exclude from processing
+        ignore_errors: List of error codes to suppress (Phase 6 - T057)
 
     Example:
         >>> config = ConfigModel(output_format="html", output="docs/role.html")
@@ -66,6 +67,11 @@ class ConfigModel(BaseModel):
 
     theme: Optional[ThemeConfig] = Field(
         default=None, description="Theme configuration for documentation output"
+    )
+
+    ignore_errors: list[str] = Field(
+        default_factory=list,
+        description="List of error codes to suppress (e.g., ['E101', 'W103'])",
     )
 
     @field_validator("output_format")

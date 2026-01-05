@@ -58,6 +58,7 @@ class ErrorReport(BaseModel):
         warnings: All collected warnings
         error_count: Total error count (including suppressed)
         warning_count: Total warning count
+        suppressed_count: Number of errors suppressed via ignore codes (Phase 6 T059)
         max_errors_reached: True if error cap (1000) was reached
         partial_success: True if some files processed successfully despite errors
         total_files: Total number of files attempted to process
@@ -71,6 +72,7 @@ class ErrorReport(BaseModel):
     warnings: List[ErrorEntry] = Field(default_factory=list, description="Collected warnings")
     error_count: int = Field(default=0, ge=0, description="Total error count")
     warning_count: int = Field(default=0, ge=0, description="Total warning count")
+    suppressed_count: int = Field(default=0, ge=0, description="Suppressed error count (Phase 6)")
     max_errors_reached: bool = Field(default=False, description="Error cap reached flag")
     partial_success: bool = Field(default=False, description="Partial success flag")
     total_files: int = Field(default=0, ge=0, description="Total files attempted")
@@ -114,6 +116,10 @@ class ErrorReport(BaseModel):
         lines.append(f"Correlation ID: {self.correlation_id}")
         lines.append(f"Timestamp: {self.timestamp.isoformat()}")
         lines.append(f"Errors: {self.error_count} | Warnings: {self.warning_count}")
+        
+        # Phase 6 T059: Show suppressed error count
+        if self.suppressed_count > 0:
+            lines.append(f"Suppressed: {self.suppressed_count} error(s) via ignore codes")
         
         # Show file processing summary if tracking files (T048)
         if self.total_files > 0:
