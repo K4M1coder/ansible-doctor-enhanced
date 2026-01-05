@@ -119,6 +119,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Correlation ID present in logs and reports
   - Nested operations share parent correlation_id
 - **User Story 3**: Complete - Correlation ID tracing across operations, custom IDs via CLI, structlog binding ✅
+
+**Phase 6: User Story 4 Tests (T058-T062) - RED Phase ✅**
+- **Unit Tests**: `tests/unit/reporting/test_error_aggregation.py` with 7 comprehensive tests:
+  - `TestErrorAggregationByFile` (2 tests): Errors grouped by file in summary, multiple errors show count
+  - `TestWarningAggregationByFile` (2 tests): Warnings grouped by file, mixed warnings/errors both displayed
+  - `TestSummaryTextFormatting` (3 tests): File paths in summary, error types shown, table format for readability
+- **Integration Tests**: `tests/integration/test_report_generation_cli.py` with 2 CLI tests:
+  - `TestAggregatedSummaryDisplay` (2 tests): Console shows error counts, file paths and error types included
+- **Test Status**: 8/9 tests FAILING (7 unit + 1 integration) ✅
+  - 1 test passing (verifies existing report structure)
+  - Failures confirm need for aggregated summary with file grouping
+  - Current summary: "✗ Failed in 1.0s\n3 files processed, 1 roles documented\n0 warnings, 3 errors"
+  - Expected summary: Grouped errors/warnings by file with line numbers and types
+- **User Story 4**: Tests define requirements for aggregated error/warning summaries at command completion ✅
   - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
   - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
   - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role

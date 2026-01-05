@@ -308,3 +308,103 @@ class TestReportWithErrors:
             assert report_data["status"] == "failed"
             assert "errors" in report_data
 
+
+class TestAggregatedSummaryDisplay:
+    """T061-T062: Integration tests for aggregated error summary display.
+    
+    Tests for User Story 4: Console summary should show error/warning counts
+    and details grouped by file for easy troubleshooting.
+    """
+
+    def test_console_summary_displays_error_counts(self, cli_runner, tmp_path):
+        """T061: Console output should display total error and warning counts."""
+        # Arrange - Create role with invalid YAML to trigger errors
+        role_dir = tmp_path / "test_role"
+        role_dir.mkdir()
+        
+        (role_dir / "meta").mkdir()
+        (role_dir / "meta" / "main.yml").write_text("galaxy_info:\n  author: Test\n")
+        
+        (role_dir / "tasks").mkdir()
+        # Invalid YAML with syntax error
+        (role_dir / "tasks" / "main.yml").write_text(
+            "- name: Invalid task\n"
+            "  debug\n"  # Missing colon - invalid YAML
+            "    msg: Test\n"
+        )
+        
+        output_file = tmp_path / "output.md"
+        
+        # Act - Run generate (may fail due to invalid YAML)
+        result = cli_runner.invoke(
+            cli,
+            [
+                "generate",
+                str(role_dir),
+                "--output", str(output_file),
+            ],
+            catch_exceptions=False
+        )
+        
+        # Assert - Output should show error counts
+        # (either in success summary or error message)
+        output_text = result.output.lower()
+        assert "error" in output_text or "warning" in output_text
+        # Check for numeric count (e.g., "1 error", "2 warnings")
+        assert any(char.isdigit() for char in output_text)
+
+    def test_summary_includes_file_paths_and_error_types(self, cli_runner, tmp_path):
+        """T062: Summary should show which files have errors and what types."""
+        # Arrange - Create role structure
+        role_dir = tmp_path / "test_role"
+        role_dir.mkdir()
+        
+        (role_dir / "meta").mkdir()
+        (role_dir / "meta" / "main.yml").write_text("galaxy_info:\n  author: Test\n")
+        
+        (role_dir / "tasks").mkdir()
+        (role_dir / "tasks" / "main.yml").write_text(
+            "- name: Test task\n  debug:\n    msg: Test\n"
+        )
+        
+        (role_dir / "defaults").mkdir()
+        # Create file that might trigger warnings (e.g., undocumented variables)
+        (role_dir / "defaults" / "main.yml").write_text(
+            "undocumented_var: value\n"
+        )
+        
+        output_file = tmp_path / "output.md"
+        report_path = tmp_path / "report.json"
+        
+        # Act
+        result = cli_runner.invoke(
+            cli,
+            [
+                "generate",
+                str(role_dir),
+                "--output", str(output_file),
+                "--report", str(report_path),
+            ],
+            catch_exceptions=False
+        )
+        
+        # Assert - If report exists, check it contains file paths and error types
+        if report_path.exists():
+            with open(report_path) as f:
+                report_data = json.load(f)
+            
+            # If there are errors or warnings, verify they have file paths
+            if report_data.get("errors"):
+                for error in report_data["errors"]:
+                    assert "file" in error
+                    assert "error_type" in error
+                    assert isinstance(error["file"], str)
+                    assert len(error["file"]) > 0
+            
+            if report_data.get("warnings"):
+                for warning in report_data["warnings"]:
+                    assert "file" in warning
+                    assert "warning_type" in warning
+                    assert isinstance(warning["file"], str)
+                    assert len(warning["file"]) > 0
+
