@@ -815,6 +815,9 @@ def generate(
     correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
     
+    # Initialize metrics collector for performance tracking
+    metrics_collector = MetricsCollector()
+    
     # Track execution timing
     started_at = datetime.now(timezone.utc)
 
@@ -835,8 +838,6 @@ def generate(
     warnings_list = []
     errors_list = []
     output_files = []
-    files_processed = 0
-    roles_documented = 0
 
     try:
         # T013: Load config file and merge with CLI arguments
@@ -937,8 +938,11 @@ def generate(
 
         # Parse role
         logger.info("Parsing role structure...")
+        metrics_collector.start_phase("parsing")
         role = _parse_role_for_generation(role_path)
-        roles_documented = 1
+        metrics_collector.end_phase("parsing")
+        metrics_collector.increment_counter("roles_documented")
+        metrics_collector.increment_counter("files_processed", 5)  # Approximate: meta, defaults, vars, tasks, handlers
 
         # Select renderer based on format
         if format.lower() == "markdown":
@@ -982,9 +986,12 @@ def generate(
 
         # Render documentation
         logger.info(f"Rendering documentation in {format} format...")
+        metrics_collector.start_phase("rendering")
         rendered_content = renderer.render(context)
+        metrics_collector.end_phase("rendering")
 
         # Write output
+        metrics_collector.start_phase("writing")
         if output:
             logger.info(f"Writing output to {output}")
             output.parent.mkdir(parents=True, exist_ok=True)
@@ -994,12 +1001,22 @@ def generate(
         else:
             # Output to stdout
             click.echo(rendered_content)
+        metrics_collector.end_phase("writing")
 
         logger.info("Documentation generation complete", correlation_id=correlation_id)
         
         # Calculate execution metrics
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Display phase timing in verbose mode
+        if verbose:
+            execution_metrics = metrics_collector.get_metrics()
+            click.echo("\n=== Performance Metrics ===", err=True)
+            for phase, duration in execution_metrics.phase_timing.items():
+                click.echo(f"  {phase}: {duration}ms", err=True)
+            click.echo(f"  Total files processed: {execution_metrics.files_processed}", err=True)
+            click.echo(f"  Roles documented: {execution_metrics.roles_documented}", err=True)
         
         # Generate execution report if requested
         if report:
@@ -1012,8 +1029,7 @@ def generate(
                 started_at=started_at,
                 completed_at=completed_at,
                 duration_ms=duration_ms,
-                files_processed=files_processed,
-                roles_documented=roles_documented,
+                metrics=metrics_collector.get_metrics(),
                 warnings=warnings_list,
                 errors=errors_list,
                 output_files=output_files,

@@ -67,6 +67,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Stub Implementation**: `ansibledoctor/reporting/metrics_collector.py` placeholder with NotImplementedError
 - **Test Status**: 13/14 tests FAILING with NotImplementedError (expected RED phase) ✅
 
+**Phase 4: User Story 2 Implementation (T035-T043) - GREEN Phase ✅**
+- **MetricsCollector Core**: `ansibledoctor/reporting/metrics_collector.py` complete implementation:
+  - High-precision timing with `time.perf_counter()` (<5% accuracy requirement)
+  - Phase tracking: `start_phase()`, `end_phase()` with ValueError on invalid operations
+  - Duration conversion: seconds → milliseconds (int) matching ExecutionMetrics schema
+  - Counter tracking: `increment_counter()` for files/roles/collections/projects/warnings/errors
+  - Nested phase support: "parent.child" notation for hierarchical timing
+  - Metrics export: `get_metrics()` returns ExecutionMetrics Pydantic model
+  - Thread-safe dict operations for concurrent access
+- **CLI Integration - parse command**: `ansibledoctor/cli/__init__.py`
+  - MetricsCollector instantiated at command start
+  - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
+  - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
+  - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role
+  - Counter increments: files_processed (estimated 1-5 per role), roles_documented (1 per role)
+- **CLI Integration - generate command**: `ansibledoctor/cli/__init__.py`
+  - MetricsCollector instantiated at command start
+  - Phase tracking: "parsing" (role structure), "rendering" (template processing), "writing" (file output)
+  - Counter increments: roles_documented (1), files_processed (5 estimated: meta/defaults/vars/tasks/handlers)
+  - Verbose mode: `--verbose` displays phase timing and counters in stderr after completion
+- **Backward Compatibility**: `_generate_execution_report()` accepts both new (metrics) and legacy (files_processed, roles_documented) parameters
+- **Test Status**: All 14 tests PASSING (10 unit + 4 integration tests) ✅
+- **User Story 2**: Complete - Performance metrics with <5% timing accuracy, throughput counts, verbose mode display ✅
+
 
   - Correlation ID generation and propagation (UUID4, contextvars)
   - Execution timing tracking (started_at, completed_at, duration_ms)
