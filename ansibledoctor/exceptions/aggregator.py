@@ -22,13 +22,15 @@ class ErrorAggregator:
     - Groups errors by file for organized reporting
     - Tracks warnings separately from errors
     - Tracks file processing for partial success reporting (Phase 5)
+    - Error code suppression with ignore_codes (Phase 6, T058)
     """
     
-    def __init__(self, max_errors: int = 1000):
+    def __init__(self, max_errors: int = 1000, ignore_codes: Optional[List[str]] = None):
         """Initialize error aggregator.
         
         Args:
             max_errors: Maximum number of errors to store (default: 1000)
+            ignore_codes: List of error codes to suppress (e.g., ["E101", "W103"])
         """
         self.max_errors = max_errors
         self.errors: List[ErrorEntry] = []
@@ -38,6 +40,10 @@ class ErrorAggregator:
         self._warning_count = 0
         self._max_errors_reached = False
         self._recovery_provider = RecoverySuggestionProvider()
+        
+        # Phase 6: Error suppression (T058)
+        self._ignore_codes = set(code.upper() for code in (ignore_codes or []))
+        self.suppressed_count = 0
         
         # Phase 5: File tracking for partial success reporting (T046)
         self._total_files = 0
@@ -54,6 +60,7 @@ class ErrorAggregator:
         column: Optional[int] = None,
         recovery_suggestion: Optional[str] = None,
         doc_url: Optional[str] = None,
+        severity: Optional[str] = None,
     ) -> None:
         """Add an error to the aggregator.
         
@@ -65,8 +72,15 @@ class ErrorAggregator:
             column: Column number where error occurred
             recovery_suggestion: Suggested fix (auto-fetched if None)
             doc_url: Documentation URL (auto-fetched if None)
+            severity: Override severity ("error" or "warning"), auto-detected if None
         """
-        severity = get_severity(code)
+        # Phase 6 T058: Check if error code should be suppressed
+        if code.upper() in self._ignore_codes:
+            self.suppressed_count += 1
+            return  # Suppress this error
+        
+        if severity is None:
+            severity = get_severity(code)
         category = get_category(code).value
         
         # Auto-fetch recovery suggestion if not provided

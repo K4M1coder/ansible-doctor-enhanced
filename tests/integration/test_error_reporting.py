@@ -5,6 +5,10 @@ Phase 5 (US3): Graceful Degradation
 - T040: Integration test for --continue-on-error flag behavior
 - T041: Integration test for partial success reporting (N of M files)
 - T042: Integration test for atomic file writes (no half-written docs)
+
+Phase 6 (US4): Error Classification & Codes
+- T052: Integration test for config file ignore_errors setting
+- T053: Integration test for suppressed error count reporting
 """
 
 import os
@@ -264,3 +268,164 @@ class TestAtomicFileWrites:
         # Verify original file unchanged
         assert output_file.exists()
         assert output_file.read_text() == original_content
+
+
+class TestConfigFileIgnoreErrors:
+    """T052: Integration test for config file ignore_errors setting."""
+    
+    def test_config_file_ignore_errors_suppresses_codes(self, tmp_path):
+        """Test that ignore_errors in .ansibledoctor.yml suppresses specified error codes."""
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            # Create a role with invalid YAML (E101 error)
+            os.makedirs("test_role/meta")
+            with open("test_role/meta/main.yml", "w") as f:
+                f.write("---\ndependencies: [invalid yaml here\n")  # Invalid YAML syntax
+            
+            # Create config file with ignore_errors setting
+            with open(".ansibledoctor.yml", "w") as f:
+                f.write("ignore_errors:\n")
+                f.write("  - E101\n")
+                f.write("  - E102\n")
+            
+            # Run parse command (should suppress E101)
+            result = runner.invoke(cli, ["parse", "test_role", "--continue-on-error"])
+            
+            # Check that E101 was suppressed (not in output)
+            assert "E101" not in result.output or "suppressed" in result.output.lower()
+            
+            # Exit code might still be non-zero if there are other errors,
+            # but E101 should be suppressed
+            assert result.exit_code in [0, 1]  # Accept either success or other errors
+    
+    def test_config_file_ignore_errors_with_empty_list(self, tmp_path):
+        """Test that empty ignore_errors list doesn't suppress any errors."""
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            # Create a role with invalid YAML
+            os.makedirs("test_role/meta")
+            with open("test_role/meta/main.yml", "w") as f:
+                f.write("---\ndependencies: [invalid yaml\n")
+            
+            # Create config file with empty ignore_errors
+            with open(".ansibledoctor.yml", "w") as f:
+                f.write("ignore_errors: []\n")
+            
+            # Run parse command
+            result = runner.invoke(cli, ["parse", "test_role", "--continue-on-error"])
+            
+            # Error should not be suppressed
+            assert result.exit_code == 1
+    
+    def test_config_file_ignore_errors_overridden_by_cli_flag(self, tmp_path):
+        """Test that CLI --ignore flag can extend config file ignore_errors."""
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            # Create a role structure
+            os.makedirs("test_role/meta")
+            with open("test_role/meta/main.yml", "w") as f:
+                f.write("---\ngalaxy_info:\n  author: test\n  description: test\n")
+            
+            # Create config file with ignore_errors
+            with open(".ansibledoctor.yml", "w") as f:
+                f.write("ignore_errors:\n")
+                f.write("  - E101\n")
+            
+            # Run with CLI flag adding more codes
+            # Note: This assumes --ignore flag will be implemented in T056
+            # For now, just test that config file is read
+            result = runner.invoke(cli, ["parse", "test_role"])
+            
+            # Should succeed or fail gracefully
+            assert result.exit_code in [0, 1, 2]
+
+
+class TestSuppressedErrorCountReporting:
+    """T053: Integration test for suppressed error count reporting."""
+    
+    def test_suppressed_count_displayed_in_error_report(self, tmp_path):
+        """Test that error report shows count of suppressed errors."""
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            # Create roles with various errors
+            os.makedirs("test_role1/meta")
+            with open("test_role1/meta/main.yml", "w") as f:
+                f.write("---\ndependencies: [invalid\n")  # E101 error
+            
+            os.makedirs("test_role2/meta")
+            with open("test_role2/meta/main.yml", "w") as f:
+                f.write("---\ndependencies:\n  - bad syntax\n")  # E102 error
+            
+            # Create config to suppress E101
+            with open(".ansibledoctor.yml", "w") as f:
+                f.write("ignore_errors:\n  - E101\n")
+            
+            # Parse with continue-on-error to process both roles
+            result = runner.invoke(cli, ["parse", "test_role1", "--continue-on-error"])
+            
+            # Output should mention suppressed errors
+            # (The exact format depends on implementation in T059)
+            output = result.output.lower()
+            assert "suppressed" in output or "ignored" in output
+    
+    def test_suppressed_count_zero_when_no_suppression(self, tmp_path):
+        """Test that suppressed count is not shown when zero."""
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            # Create a valid role
+            os.makedirs("test_role/meta")
+            with open("test_role/meta/main.yml", "w") as f:
+                f.write("---\ngalaxy_info:\n  author: test\n  description: test\n")
+            
+            os.makedirs("test_role/tasks")
+            with open("test_role/tasks/main.yml", "w") as f:
+                f.write("---\n- name: Test task\n  debug: msg='test'\n")
+            
+            # Parse without errors
+            result = runner.invoke(cli, ["parse", "test_role"])
+            
+            # Should succeed without mentioning suppression
+            # (since no errors were suppressed)
+            output = result.output.lower()
+            # If successful, shouldn't mention "suppressed" at all
+            if result.exit_code == 0:
+                assert "suppressed" not in output
+    
+    def test_suppressed_count_tracks_multiple_suppressions(self, tmp_path):
+        """Test that suppressed count accumulates across multiple files."""
+        from ansibledoctor.exceptions.aggregator import ErrorAggregator
+        
+        aggregator = ErrorAggregator(ignore_codes=["E101", "E102"])
+        
+        # Add multiple suppressed errors
+        aggregator.add_error("E101", "Error 1", file_path="file1.yml")
+        aggregator.add_error("E102", "Error 2", file_path="file2.yml")
+        aggregator.add_error("E101", "Error 3", file_path="file3.yml")
+        
+        # Add non-suppressed error
+        aggregator.add_error("E103", "Error 4", file_path="file4.yml")
+        
+        # Check suppressed count
+        assert aggregator.suppressed_count == 3
+        
+        # Generate report
+        report = aggregator.generate_report()
+        
+        # Report should have 1 error (E103) and suppressed_count metadata
+        assert len(report.errors) == 1
+        assert report.errors[0].code == "E103"

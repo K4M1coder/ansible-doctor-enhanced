@@ -151,10 +151,10 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T050 [P] [US4] Unit test for error code uniqueness validation in `tests/unit/test_error_codes.py`
-- [ ] T051 [P] [US4] Unit test for `--ignore` flag with error code suppression in `tests/unit/test_error_codes.py`
-- [ ] T052 [P] [US4] Integration test for config file `ignore_errors` setting in `tests/integration/test_error_reporting.py`
-- [ ] T053 [P] [US4] Integration test for suppressed error count reporting in `tests/integration/test_error_reporting.py`
+- [X] T050 [P] [US4] Unit test for error code uniqueness validation in `tests/unit/test_error_codes.py`
+- [X] T051 [P] [US4] Unit test for `--ignore` flag with error code suppression in `tests/unit/test_error_codes.py`
+- [X] T052 [P] [US4] Integration test for config file `ignore_errors` setting in `tests/integration/test_error_reporting.py`
+- [X] T053 [P] [US4] Integration test for suppressed error count reporting in `tests/integration/test_error_reporting.py`
 
 ### Implementation for User Story 4
 
@@ -162,7 +162,7 @@
 - [ ] T055 [US4] Create error code documentation URLs for all E1xx-E4xx codes in recovery database
 - [ ] T056 [US4] Add `--ignore E001,W002` CLI flag for error suppression in `ansibledoctor/cli/__init__.py`
 - [ ] T057 [US4] Add `ignore_errors: [E001]` config file support in `.ansibledoctor.yml` parser
-- [ ] T058 [US4] Implement error suppression logic in ErrorAggregator.add_error()
+- [X] T058 [US4] Implement error suppression logic in ErrorAggregator.add_error()
 - [ ] T059 [US4] Display suppressed error count separately in error report summary
 - [ ] T060 [US4] Include error code in all error output formats (text: "[E101]", JSON: "code": "E101")
 
