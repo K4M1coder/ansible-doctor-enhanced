@@ -59,14 +59,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Unit test for ExecutionReport serialization to JSON in `tests/unit/models/test_execution_report.py`
-- [ ] T013 [P] [US1] Unit test for ExecutionReport model validation (required fields, status enum) in `tests/unit/models/test_execution_report.py`
-- [ ] T014 [P] [US1] Unit test for report with warnings (status="completed_with_warnings") in `tests/unit/models/test_execution_report.py`
-- [ ] T015 [P] [US1] Unit test for report with errors (status="failed") in `tests/unit/models/test_execution_report.py`
-- [ ] T016 [P] [US1] Integration test for CLI `--report report.json` flag creates file in `tests/integration/test_report_generation_cli.py`
-- [ ] T017 [P] [US1] Integration test for report contains correct status after successful run in `tests/integration/test_report_generation_cli.py`
-- [ ] T018 [P] [US1] Integration test for report contains warnings array when warnings occur in `tests/integration/test_report_generation_cli.py`
-- [ ] T019 [P] [US1] Integration test for report contains errors array when errors occur in `tests/integration/test_report_generation_cli.py`
+- [X] T012 [P] [US1] Unit test for ExecutionReport serialization to JSON in `tests/unit/models/test_execution_report.py`
+- [X] T013 [P] [US1] Unit test for ExecutionReport model validation (required fields, status enum) in `tests/unit/models/test_execution_report.py`
+- [X] T014 [P] [US1] Unit test for report with warnings (status="completed_with_warnings") in `tests/unit/models/test_execution_report.py`
+- [X] T015 [P] [US1] Unit test for report with errors (status="failed") in `tests/unit/models/test_execution_report.py`
+- [X] T016 [P] [US1] Integration test for CLI `--report report.json` flag creates file in `tests/integration/test_report_generation_cli.py`
+- [X] T017 [P] [US1] Integration test for report contains correct status after successful run in `tests/integration/test_report_generation_cli.py`
+- [X] T018 [P] [US1] Integration test for report contains warnings array when warnings occur in `tests/integration/test_report_generation_cli.py`
+- [X] T019 [P] [US1] Integration test for report contains errors array when errors occur in `tests/integration/test_report_generation_cli.py`
 
 ### Implementation for User Story 1
 

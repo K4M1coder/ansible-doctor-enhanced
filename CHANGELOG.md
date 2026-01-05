@@ -24,6 +24,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Correlation ID Utilities**: UUID4 generation, contextvars-based propagation (thread-safe)
 - **Exit Code Property**: Added `exit_code` property to `AnsibleDoctorError` base class (default: 1, ConfigError: 3)
 
+**Phase 3: User Story 1 Tests (T012-T019) - RED Phase ✅**
+- **Unit Tests**: `test_execution_report.py` with 8 comprehensive tests:
+  - Serialization to JSON (ISO 8601 datetime, all fields)
+  - Model validation (required fields, status enum, non-negative duration)
+  - Reports with warnings (status="completed_with_warnings")
+  - Reports with errors (status="failed", suggestions included)
+- **Integration Tests**: `test_report_generation_cli.py` with 7 CLI tests:
+  - `--report` flag creates JSON file
+  - Report contains correct status and metrics
+  - Warnings and errors arrays populated correctly
+  - Failed execution creates report with status="failed"
+- **Test Status**: ALL TESTS FAIL (as expected in TDD RED phase) - ready for implementation
+
 ### Technical Details
 
 - **Models**: All models use Pydantic with validation, Field constraints, and JSON schema examples
