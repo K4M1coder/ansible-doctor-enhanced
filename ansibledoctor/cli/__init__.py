@@ -39,6 +39,7 @@ from ansibledoctor.parser.task_parser import TaskParser
 from ansibledoctor.parser.todo_parser import TodoParser
 from ansibledoctor.parser.variable_parser import VariableParser
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
+from ansibledoctor.reporting.metrics_collector import MetricsCollector
 from ansibledoctor.reporting.report_generator import ReportGenerator
 from ansibledoctor.utils.correlation import generate_correlation_id, set_correlation_id
 from ansibledoctor.utils.logging import get_logger, setup_logging
@@ -145,6 +146,9 @@ def parse(
     correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
     
+    # Initialize metrics collector for performance tracking
+    metrics_collector = MetricsCollector()
+    
     # Track execution timing
     started_at = datetime.now(timezone.utc)
     
@@ -163,19 +167,23 @@ def parse(
     warnings_list = []
     errors_list = []
     output_files = []
-    files_processed = 0
-    roles_documented = 0
 
     try:
+        # Start parsing phase
+        metrics_collector.start_phase("parsing")
+        
         if recursive:
-            result = _parse_roles_recursive(role_path, validate)
-            roles_documented = len(result.get("roles", []))
-            files_processed = sum(r.get("files_parsed", 0) for r in result.get("roles", []))
+            result = _parse_roles_recursive(role_path, validate, metrics_collector)
         else:
-            result = _parse_single_role(role_path, validate)
-            roles_documented = 1
-            files_processed = result.get("files_parsed", 0)
+            result = _parse_single_role(role_path, validate, metrics_collector)
+            metrics_collector.increment_counter("roles_documented")
+        
+        # End parsing phase
+        metrics_collector.end_phase("parsing")
 
+        # Start output phase
+        metrics_collector.start_phase("output")
+        
         # Output result
         if json_output:
             output_data = json.dumps(result, indent=2, default=str)
@@ -189,10 +197,16 @@ def parse(
             click.echo(f"Documentation written to {output}", err=True)
         else:
             click.echo(output_data)
+        
+        # End output phase
+        metrics_collector.end_phase("output")
 
         # Calculate execution metrics
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Get metrics from collector
+        execution_metrics = metrics_collector.get_metrics()
         
         # Generate execution report if requested
         if report:
@@ -205,8 +219,7 @@ def parse(
                 started_at=started_at,
                 completed_at=completed_at,
                 duration_ms=duration_ms,
-                files_processed=files_processed,
-                roles_documented=roles_documented,
+                metrics=execution_metrics,
                 warnings=warnings_list,
                 errors=errors_list,
                 output_files=output_files,
@@ -402,12 +415,13 @@ def parse(
     """
 
 
-def _parse_single_role(role_path: Path, validate: bool) -> dict:
+def _parse_single_role(role_path: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
     """Parse a single role (CLI `parse` command) and return a serializable dict.
 
     Args:
         role_path: Path to the role directory
         validate: Whether to validate role structure
+        metrics_collector: Optional MetricsCollector for tracking performance metrics
 
     Returns:
         A dict with parsed metadata, variables, tags, todos, and examples
@@ -603,16 +617,32 @@ def _parse_single_role(role_path: Path, validate: bool) -> dict:
         }
 
     logger.info("role_parsed_successfully", role_name=result["name"])
+    
+    # Update metrics if collector provided
+    if metrics_collector:
+        # Count files processed (rough estimate based on sections parsed)
+        files_count = 0
+        if result.get("metadata"):
+            files_count += 1  # meta/main.yml
+        if result.get("variables"):
+            files_count += 2  # defaults/main.yml + vars/main.yml
+        if result.get("tasks"):
+            files_count += len(result["tasks"])  # task files
+        if result.get("handlers"):
+            files_count += 1  # handlers/main.yml
+        metrics_collector.increment_counter("files_processed", files_count)
+    
     return result
 
 
-def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
+def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
     """
     Parse multiple roles recursively.
 
     Args:
         roles_dir: Directory containing multiple roles
         validate: Whether to validate role structures
+        metrics_collector: Optional MetricsCollector for tracking performance metrics
 
     Returns:
         dict: Dictionary of parsed roles by name
@@ -637,8 +667,10 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
             continue
 
         try:
-            role_data = _parse_single_role(potential_role, validate)
+            role_data = _parse_single_role(potential_role, validate, metrics_collector)
             results["roles"][potential_role.name] = role_data
+            if metrics_collector:
+                metrics_collector.increment_counter("roles_documented")
             logger.info("role_parsed_in_recursive", role_name=potential_role.name)
         except Exception as e:
             logger.warning(
@@ -1698,11 +1730,12 @@ def _generate_execution_report(
     started_at: datetime,
     completed_at: datetime,
     duration_ms: int,
-    files_processed: int,
-    roles_documented: int,
     warnings: list,
     errors: list,
     output_files: list,
+    metrics: ExecutionMetrics | None = None,
+    files_processed: int | None = None,
+    roles_documented: int | None = None,
 ) -> None:
     """Generate and write execution report.
     
@@ -1718,13 +1751,27 @@ def _generate_execution_report(
         started_at: Execution start timestamp
         completed_at: Execution completion timestamp
         duration_ms: Total execution duration in milliseconds
-        files_processed: Number of files processed
-        roles_documented: Number of roles documented
         warnings: List of warning dictionaries
         errors: List of error dictionaries
         output_files: List of output file paths
+        metrics: ExecutionMetrics from MetricsCollector (new interface)
+        files_processed: Legacy parameter (deprecated, use metrics instead)
+        roles_documented: Legacy parameter (deprecated, use metrics instead)
     """
     try:
+        # Build metrics - support both new and legacy interfaces
+        if metrics is None:
+            # Legacy interface - construct ExecutionMetrics from individual counters
+            metrics = ExecutionMetrics(
+                files_processed=files_processed or 0,
+                roles_documented=roles_documented or 0,
+                collections_documented=0,
+                projects_documented=0,
+                warnings_count=len(warnings),
+                errors_count=len(errors),
+                phase_timing={},
+            )
+        
         # Build execution context
         context = {
             "correlation_id": correlation_id,
@@ -1733,15 +1780,7 @@ def _generate_execution_report(
             "started_at": started_at,
             "completed_at": completed_at,
             "duration_ms": duration_ms,
-            "metrics": ExecutionMetrics(
-                files_processed=files_processed,
-                roles_documented=roles_documented,
-                collections_documented=0,
-                projects_documented=0,
-                warnings_count=len(warnings),
-                errors_count=len(errors),
-                phase_timing={},
-            ),
+            "metrics": metrics,
             "warnings": warnings,
             "errors": errors,
             "output_files": output_files,

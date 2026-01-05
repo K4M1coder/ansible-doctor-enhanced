@@ -168,7 +168,7 @@ class TestNestedPhaseTiming:
 class TestMetricsTimingAccuracy:
     """T032: Unit test for metrics timing accuracy (<5% error) using mocked time."""
 
-    @patch('ansibledoctor.reporting.metrics_collector.perf_counter')
+    @patch('time.perf_counter')
     def test_timing_accuracy_with_mocked_time(self, mock_perf_counter):
         """Verify timing calculations are accurate when using mocked time."""
         # Arrange
