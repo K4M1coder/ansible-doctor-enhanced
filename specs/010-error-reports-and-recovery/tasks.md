@@ -41,8 +41,8 @@
 - [ ] T006 [P] Create ErrorEntry model in `ansibledoctor/models/error_report.py` with code, severity, file, line, column, message
 - [ ] T007 [P] Create ErrorReport aggregate model in `ansibledoctor/models/error_report.py`
 - [ ] T008 Create RecoverySuggestion database structure (JSON/YAML) with error code mappings
-- [ ] T009 Add error_code property to base AnsibleDoctorError class in `ansibledoctor/exceptions/__init__.py`
-- [ ] T010 Map existing exceptions to error codes (ParsingError→E1xx, ValidationError→E2xx, TemplateError→E3xx)
+- [X] T009 Add error_code property to base AnsibleDoctorError class in `ansibledoctor/exceptions/__init__.py`
+- [X] T010 Map existing exceptions to error codes (ParsingError→E1xx, ValidationError→E2xx, TemplateError→E3xx)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,24 +58,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for ErrorAggregator.add_error() with deduplication in `tests/unit/test_aggregator.py`
-- [ ] T012 [P] [US1] Unit test for ErrorAggregator bounded memory (cap at 1000 errors) in `tests/unit/test_aggregator.py`
-- [ ] T013 [P] [US1] Unit test for ErrorReport.to_text() formatting in `tests/unit/test_error_report.py`
-- [ ] T014 [P] [US1] Unit test for ErrorReport.to_json() serialization in `tests/unit/test_error_report.py`
+- [X] T011 [P] [US1] Unit test for ErrorAggregator.add_error() with deduplication in `tests/unit/test_aggregator.py`
+- [X] T012 [P] [US1] Unit test for ErrorAggregator bounded memory (cap at 1000 errors) in `tests/unit/test_aggregator.py`
+- [X] T013 [P] [US1] Unit test for ErrorReport.to_text() formatting in `tests/unit/test_error_report.py`
+- [X] T014 [P] [US1] Unit test for ErrorReport.to_json() serialization in `tests/unit/test_error_report.py`
 - [ ] T015 [P] [US1] Integration test for multi-file error collection in `tests/integration/test_error_reporting.py`
 - [ ] T016 [P] [US1] Integration test for error grouping by file in `tests/integration/test_error_reporting.py`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement ErrorAggregator class with add_error/add_warning methods in `ansibledoctor/exceptions/aggregator.py`
-- [ ] T018 [US1] Implement deduplication logic using ErrorEntry.hash in `ansibledoctor/exceptions/aggregator.py`
-- [ ] T019 [US1] Implement memory-bounded collection (max 1000 errors) with overflow handling in `ansibledoctor/exceptions/aggregator.py`
-- [ ] T020 [US1] Implement ErrorReport.to_text() for human-readable terminal output in `ansibledoctor/models/error_report.py`
-- [ ] T021 [US1] Implement ErrorReport.to_json() with Pydantic serialization in `ansibledoctor/models/error_report.py`
-- [ ] T022 [US1] Add `--error-format {text,json,sarif}` CLI flag in `ansibledoctor/cli/__init__.py`
-- [ ] T023 [US1] Add `--error-output FILE` CLI flag for report file output in `ansibledoctor/cli/__init__.py`
-- [ ] T024 [US1] Integrate ErrorAggregator into CLI command lifecycle in `ansibledoctor/cli/__init__.py`
-- [ ] T025 [US1] Display aggregated error report at command completion in CLI in `ansibledoctor/cli/__init__.py`
+- [X] T017 [P] [US1] Implement ErrorAggregator class with add_error/add_warning methods in `ansibledoctor/exceptions/aggregator.py`
+- [X] T018 [US1] Implement deduplication logic using ErrorEntry.hash in `ansibledoctor/exceptions/aggregator.py`
+- [X] T019 [US1] Implement memory-bounded collection (max 1000 errors) with overflow handling in `ansibledoctor/exceptions/aggregator.py`
+- [X] T020 [US1] Implement ErrorReport.to_text() for human-readable terminal output in `ansibledoctor/models/error_report.py`
+- [X] T021 [US1] Implement ErrorReport.to_json() with Pydantic serialization in `ansibledoctor/models/error_report.py`
+- [X] T022 [US1] Add `--error-format {text,json,sarif}` CLI flag in `ansibledoctor/cli/__init__.py`
+- [X] T023 [US1] Add `--error-output FILE` CLI flag for report file output in `ansibledoctor/cli/__init__.py`
+- [X] T024 [US1] Integrate ErrorAggregator into CLI command lifecycle in `ansibledoctor/cli/__init__.py`
+- [X] T025 [US1] Display aggregated error report at command completion in CLI in `ansibledoctor/cli/__init__.py`
 
 **Checkpoint**: User Story 1 complete - aggregated error reports with text/JSON output
 
