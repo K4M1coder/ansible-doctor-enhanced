@@ -5,10 +5,11 @@ during multi-file processing.
 """
 
 from collections import defaultdict
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 import hashlib
 
 from ansibledoctor.exceptions.codes import ErrorCode, get_category, get_severity
+from ansibledoctor.exceptions.recovery import RecoverySuggestionProvider
 from ansibledoctor.models.error_report import ErrorEntry, ErrorReport
 
 
@@ -35,15 +36,17 @@ class ErrorAggregator:
         self._error_count = 0
         self._warning_count = 0
         self._max_errors_reached = False
+        self._recovery_provider = RecoverySuggestionProvider()
     
     def add_error(
         self,
         code: str,
         message: str,
-        file_path: str = None,
-        line: int = None,
-        column: int = None,
-        recovery_suggestion: str = None,
+        file_path: Optional[str] = None,
+        line: Optional[int] = None,
+        column: Optional[int] = None,
+        recovery_suggestion: Optional[str] = None,
+        doc_url: Optional[str] = None,
     ) -> None:
         """Add an error to the aggregator.
         
@@ -53,10 +56,19 @@ class ErrorAggregator:
             file_path: Path to file where error occurred
             line: Line number where error occurred
             column: Column number where error occurred
-            recovery_suggestion: Suggested fix for the error
+            recovery_suggestion: Suggested fix (auto-fetched if None)
+            doc_url: Documentation URL (auto-fetched if None)
         """
         severity = get_severity(code)
         category = get_category(code).value
+        
+        # Auto-fetch recovery suggestion if not provided
+        if recovery_suggestion is None:
+            recovery_suggestion = self._recovery_provider.get_suggestion(code)
+        
+        # Auto-fetch documentation URL if not provided
+        if doc_url is None:
+            doc_url = self._recovery_provider.get_doc_url(code)
         
         entry = ErrorEntry(
             code=code,
@@ -67,6 +79,7 @@ class ErrorAggregator:
             line=line,
             column=column,
             recovery_suggestion=recovery_suggestion,
+            doc_url=doc_url,
         )
         
         # Deduplicate using hash

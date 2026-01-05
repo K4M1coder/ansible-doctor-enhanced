@@ -223,3 +223,55 @@ class TestErrorAggregatorReporting:
         assert aggregator._warning_count == 0
         assert len(aggregator.errors) == 0
         assert len(aggregator.warnings) == 0
+
+
+class TestErrorAggregatorRecoverySuggestions:
+    """Test automatic recovery suggestion integration."""
+
+    def test_auto_fetches_recovery_suggestion(self):
+        """Should automatically fetch recovery suggestion when not provided."""
+        aggregator = ErrorAggregator()
+        
+        # Add error without recovery suggestion - should auto-fetch
+        aggregator.add_error("E101", "YAML syntax error", file_path="test.yml")
+        
+        report = aggregator.get_report(correlation_id="test-auto-fetch")
+        assert len(report.errors) == 1
+        entry = report.errors[0]
+        
+        # Verify recovery suggestion was auto-fetched
+        assert entry.recovery_suggestion is not None
+        assert len(entry.recovery_suggestion) > 0
+        assert "yaml" in entry.recovery_suggestion.lower() or "syntax" in entry.recovery_suggestion.lower()
+        
+        # Verify doc URL was also auto-fetched
+        assert entry.doc_url is not None
+        assert entry.doc_url.startswith("https://")
+
+    def test_respects_provided_recovery_suggestion(self):
+        """Should use provided recovery suggestion instead of auto-fetching."""
+        aggregator = ErrorAggregator()
+        custom_suggestion = "Custom fix for this specific error"
+        
+        aggregator.add_error("E101", "YAML syntax error", recovery_suggestion=custom_suggestion)
+        
+        report = aggregator.get_report(correlation_id="test-custom")
+        entry = report.errors[0]
+        
+        # Should use custom suggestion, not auto-fetched one
+        assert entry.recovery_suggestion == custom_suggestion
+
+    def test_auto_fetches_for_multiple_errors(self):
+        """Should auto-fetch suggestions for multiple errors."""
+        aggregator = ErrorAggregator()
+        
+        aggregator.add_error("E101", "YAML error")
+        aggregator.add_error("E201", "Missing meta")
+        aggregator.add_error("E301", "Role dependency issue")
+        
+        report = aggregator.get_report(correlation_id="test-multi")
+        
+        # All should have auto-fetched suggestions
+        for entry in report.errors:
+            assert entry.recovery_suggestion is not None
+            assert len(entry.recovery_suggestion) > 0
