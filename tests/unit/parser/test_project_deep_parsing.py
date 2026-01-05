@@ -5,12 +5,10 @@ using RoleParser and CollectionParser and populates project.parsed_roles and pro
 """
 
 from pathlib import Path
-import pytest
 
-from ansibledoctor.parser.project_parser import ProjectParser
-from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.models.collection import AnsibleCollection
-
+from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.parser.project_parser import ProjectParser
 
 ROLE_META_YML = """
 ---

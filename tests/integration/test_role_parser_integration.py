@@ -26,7 +26,8 @@ def role_with_docs(tmp_path: Path) -> Path:
 
     # Create meta/main.yml
     (role_path / "meta").mkdir()
-    (role_path / "meta" / "main.yml").write_text("""---
+    (role_path / "meta" / "main.yml").write_text(
+        """---
 galaxy_info:
   author: Test Author
   description: A test role with comprehensive documentation
@@ -46,29 +47,35 @@ dependencies:
   - role: common
     vars:
       common_var: value
-""")
+"""
+    )
 
     # Create defaults/main.yml
     (role_path / "defaults").mkdir()
-    (role_path / "defaults" / "main.yml").write_text("""---
+    (role_path / "defaults" / "main.yml").write_text(
+        """---
 # @var test_port:description: Port for test service
 # @var test_port:type: int
 test_port: 8080
 
 # @var test_enabled:description: Enable test service
 test_enabled: true
-""")
+"""
+    )
 
     # Create vars/main.yml
     (role_path / "vars").mkdir()
-    (role_path / "vars" / "main.yml").write_text("""---
+    (role_path / "vars" / "main.yml").write_text(
+        """---
 # @var internal_var:description: Internal configuration
 internal_var: "internal_value"
-""")
+"""
+    )
 
     # Create tasks/main.yml
     (role_path / "tasks").mkdir()
-    (role_path / "tasks" / "main.yml").write_text("""---
+    (role_path / "tasks" / "main.yml").write_text(
+        """---
 - name: Install test package
   apt:
     name: test-package
@@ -84,11 +91,13 @@ internal_var: "internal_value"
   notify: restart test service
   tags:
     - configuration
-""")
+"""
+    )
 
     # Create handlers/main.yml
     (role_path / "handlers").mkdir()
-    (role_path / "handlers" / "main.yml").write_text("""---
+    (role_path / "handlers" / "main.yml").write_text(
+        """---
 - name: restart test service
   systemd:
     name: test
@@ -104,10 +113,12 @@ internal_var: "internal_value"
     state: reloaded
   tags:
     - reload
-""")
+"""
+    )
 
     # Create README.md
-    (role_path / "README.md").write_text("""# Test Role
+    (role_path / "README.md").write_text(
+        """# Test Role
 
 A comprehensive test role for ansible-doctor-enhanced.
 
@@ -121,10 +132,12 @@ A comprehensive test role for ansible-doctor-enhanced.
 
 - Ansible 2.9+
 - Ubuntu 20.04 or 22.04
-""")
+"""
+    )
 
     # Create CHANGELOG.md
-    (role_path / "CHANGELOG.md").write_text("""# Changelog
+    (role_path / "CHANGELOG.md").write_text(
+        """# Changelog
 
 ## [1.0.0] - 2025-01-01
 
@@ -132,20 +145,24 @@ A comprehensive test role for ansible-doctor-enhanced.
 - Initial release
 - Package installation
 - Service configuration
-""")
+"""
+    )
 
     # Create CONTRIBUTING.md
-    (role_path / "CONTRIBUTING.md").write_text("""# Contributing Guide
+    (role_path / "CONTRIBUTING.md").write_text(
+        """# Contributing Guide
 
 Please follow these guidelines:
 
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
-""")
+"""
+    )
 
     # Create LICENSE
-    (role_path / "LICENSE").write_text("""MIT License
+    (role_path / "LICENSE").write_text(
+        """MIT License
 
 Copyright (c) 2025 Test Author
 
@@ -166,14 +183,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-""")
+"""
+    )
 
     # Create templates directory with sample template
     (role_path / "templates").mkdir()
-    (role_path / "templates" / "test.conf.j2").write_text("""# Test configuration
+    (role_path / "templates" / "test.conf.j2").write_text(
+        """# Test configuration
 port={{ test_port }}
 enabled={{ test_enabled }}
-""")
+"""
+    )
 
     # Create files directory with static files
     (role_path / "files").mkdir()
@@ -274,19 +294,23 @@ def test_role_with_missing_handlers(tmp_path: Path) -> None:
 
     # Create minimal role structure
     (role_path / "meta").mkdir()
-    (role_path / "meta" / "main.yml").write_text("""---
+    (role_path / "meta" / "main.yml").write_text(
+        """---
 galaxy_info:
   author: Test
   description: Minimal role
   license: MIT
-""")
+"""
+    )
 
     (role_path / "tasks").mkdir()
-    (role_path / "tasks" / "main.yml").write_text("""---
+    (role_path / "tasks" / "main.yml").write_text(
+        """---
 - name: Test task
   debug:
     msg: test
-""")
+"""
+    )
 
     yaml_loader = RuamelYAMLLoader()
     result = _parse_single_role(role_path, yaml_loader)
@@ -303,12 +327,14 @@ def test_role_with_missing_docs(tmp_path: Path) -> None:
 
     # Create minimal role structure
     (role_path / "meta").mkdir()
-    (role_path / "meta" / "main.yml").write_text("""---
+    (role_path / "meta" / "main.yml").write_text(
+        """---
 galaxy_info:
   author: Test
   description: Minimal role
   license: MIT
-""")
+"""
+    )
 
     yaml_loader = RuamelYAMLLoader()
     result = _parse_single_role(role_path, yaml_loader)
@@ -331,30 +357,36 @@ def test_handler_with_include(tmp_path: Path) -> None:
 
     # Create meta
     (role_path / "meta").mkdir()
-    (role_path / "meta" / "main.yml").write_text("""---
+    (role_path / "meta" / "main.yml").write_text(
+        """---
 galaxy_info:
   author: Test
   description: Handler include test
   license: MIT
-""")
+"""
+    )
 
     # Create handlers with include
     (role_path / "handlers").mkdir()
-    (role_path / "handlers" / "main.yml").write_text("""---
+    (role_path / "handlers" / "main.yml").write_text(
+        """---
 - name: main handler
   debug:
     msg: main
   tags: [main]
 
 - include_tasks: extra.yml
-""")
+"""
+    )
 
-    (role_path / "handlers" / "extra.yml").write_text("""---
+    (role_path / "handlers" / "extra.yml").write_text(
+        """---
 - name: included handler
   debug:
     msg: included
   tags: [included]
-""")
+"""
+    )
 
     yaml_loader = RuamelYAMLLoader()
     result = _parse_single_role(role_path, yaml_loader)
@@ -381,12 +413,14 @@ def test_license_type_detection(tmp_path: Path) -> None:
 
         # Create minimal role
         (role_path / "meta").mkdir()
-        (role_path / "meta" / "main.yml").write_text("""---
+        (role_path / "meta" / "main.yml").write_text(
+            """---
 galaxy_info:
   author: Test
   description: License test
   license: MIT
-""")
+"""
+        )
 
         # Create LICENSE with specific text
         (role_path / "LICENSE").write_text(license_text)

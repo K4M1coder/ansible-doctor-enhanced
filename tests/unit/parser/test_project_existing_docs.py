@@ -4,12 +4,13 @@ Tests that DocsExtractor correctly extracts README, CHANGELOG, CONTRIBUTING, LIC
 files from the project root directory.
 """
 
-import pytest
 from pathlib import Path
 
-from ansibledoctor.parser.docs_extractor import DocsExtractor
+import pytest
+
 from ansibledoctor.models.existing_docs import ExistingDocs
 from ansibledoctor.models.project import Project
+from ansibledoctor.parser.docs_extractor import DocsExtractor
 
 
 class TestProjectExistingDocs:
@@ -31,13 +32,13 @@ class TestProjectExistingDocs:
         assert docs.readme_content is not None
         assert "My Project" in docs.readme_content
         assert docs.readme_format == "markdown"
-        
+
         assert docs.changelog_content is not None
         assert "[1.0.0]" in docs.changelog_content
-        
+
         assert docs.contributing_content is not None
         assert "Contributing" in docs.contributing_content
-        
+
         assert docs.license_content is not None
         assert docs.license_type == "MIT"
 
@@ -48,23 +49,21 @@ class TestProjectExistingDocs:
             "Copyright (c) 2025 Author\n\n"
             "Permission is hereby granted, free of charge..."
         )
-        
+
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         assert docs.license_type == "MIT"
 
     def test_license_type_detection_apache(self, tmp_path: Path) -> None:
         """T327: License type detection for Apache-2.0."""
         (tmp_path / "LICENSE").write_text(
-            "Apache License\n"
-            "Version 2.0, January 2004\n"
-            "http://www.apache.org/licenses/"
+            "Apache License\n" "Version 2.0, January 2004\n" "http://www.apache.org/licenses/"
         )
-        
+
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         assert docs.license_type == "Apache-2.0"
 
     def test_license_type_detection_gpl3(self, tmp_path: Path) -> None:
@@ -74,21 +73,21 @@ class TestProjectExistingDocs:
             "Version 3, 29 June 2007\n"
             "Copyright (C) 2007 Free Software Foundation, Inc."
         )
-        
+
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         assert docs.license_type == "GPL-3.0"
 
     def test_partial_docs_only_readme(self, tmp_path: Path) -> None:
         """T329: DocsExtractor handles partial docs (only README exists)."""
         # Arrange - Only README exists
         (tmp_path / "README.md").write_text("# Project\n\nMinimal project.")
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_content is not None
         assert docs.changelog_content is None
@@ -101,11 +100,11 @@ class TestProjectExistingDocs:
         # Arrange
         (tmp_path / "README.md").write_text("# Project\n\nWith license.")
         (tmp_path / "LICENSE").write_text("BSD 3-Clause License\n\nRedistribution allowed...")
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_content is not None
         assert docs.license_content is not None
@@ -115,11 +114,11 @@ class TestProjectExistingDocs:
     def test_no_docs_present(self, tmp_path: Path) -> None:
         """T329: DocsExtractor handles directories with no docs."""
         # Arrange - Empty directory
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_content is None
         assert docs.changelog_content is None
@@ -130,14 +129,12 @@ class TestProjectExistingDocs:
     def test_readme_rst_format(self, tmp_path: Path) -> None:
         """T325: DocsExtractor detects RST format for README.rst."""
         (tmp_path / "README.rst").write_text(
-            "My Project\n"
-            "==========\n\n"
-            "Project using reStructuredText."
+            "My Project\n" "==========\n\n" "Project using reStructuredText."
         )
-        
+
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         assert docs.readme_content is not None
         assert docs.readme_format == "rst"
 
@@ -153,16 +150,12 @@ class TestProjectModelExistingDocs:
             readme_format="markdown",
             changelog_content="## [1.0.0]",
             license_content="MIT License",
-            license_type="MIT"
+            license_type="MIT",
         )
-        
+
         # Act
-        project = Project(
-            name="test-project",
-            path=str(tmp_path),
-            existing_docs=docs
-        )
-        
+        project = Project(name="test-project", path=str(tmp_path), existing_docs=docs)
+
         # Assert
         assert project.existing_docs is not None
         assert project.existing_docs.readme_content == "# My Project"
@@ -171,11 +164,8 @@ class TestProjectModelExistingDocs:
     def test_project_model_without_existing_docs(self, tmp_path: Path) -> None:
         """T328: Project model defaults existing_docs to None."""
         # Act
-        project = Project(
-            name="minimal-project",
-            path=str(tmp_path)
-        )
-        
+        project = Project(name="minimal-project", path=str(tmp_path))
+
         # Assert
         assert project.existing_docs is None
 
@@ -186,16 +176,16 @@ class TestProjectParserExistingDocsIntegration:
     def test_project_parser_populates_existing_docs(self, tmp_path: Path) -> None:
         """T326: ProjectParser.parse() populates project.existing_docs."""
         from ansibledoctor.parser.project_parser import ProjectParser
-        
+
         # Arrange - Create minimal project structure with docs
         (tmp_path / "README.md").write_text("# Test Project\n\nProject docs.")
         (tmp_path / "LICENSE").write_text("MIT License\n\nCopyright 2025")
         (tmp_path / "CHANGELOG.md").write_text("# Changelog\n\n## [1.0.0]")
-        
+
         # Act
         parser = ProjectParser()
         project = parser.parse(str(tmp_path))
-        
+
         # Assert
         assert project.existing_docs is not None
         assert project.existing_docs.readme_content is not None
@@ -206,13 +196,12 @@ class TestProjectParserExistingDocsIntegration:
     def test_project_parser_no_docs(self, tmp_path: Path) -> None:
         """T326: ProjectParser.parse() sets existing_docs even when no docs exist."""
         from ansibledoctor.parser.project_parser import ProjectParser
-        
+
         # Arrange - Empty project (no README/LICENSE)
-        
         # Act
         parser = ProjectParser()
         project = parser.parse(str(tmp_path))
-        
+
         # Assert
         assert project.existing_docs is not None  # ExistingDocs is created but empty
         assert project.existing_docs.readme_content is None
@@ -225,29 +214,33 @@ class TestDemoProjectExistingDocsIntegration:
     def test_demo_project_existing_docs(self) -> None:
         """T330: Demo project has README, LICENSE, CHANGELOG extracted."""
         from ansibledoctor.parser.project_parser import ProjectParser
-        
+
         # Arrange - Use actual demo project
-        demo_path = Path(__file__).parent.parent.parent.parent / "demo" / "project_demo_namespace.demo_project"
-        
+        demo_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "demo"
+            / "project_demo_namespace.demo_project"
+        )
+
         if not demo_path.exists():
             pytest.skip("Demo project not found")
-        
+
         # Act
         parser = ProjectParser()
         project = parser.parse(str(demo_path))
-        
+
         # Assert
         assert project.existing_docs is not None
-        
+
         # README
         assert project.existing_docs.readme_content is not None
         assert "Demo Project" in project.existing_docs.readme_content
         assert project.existing_docs.readme_format == "markdown"
-        
+
         # LICENSE
         assert project.existing_docs.license_content is not None
         assert project.existing_docs.license_type == "MIT"
-        
+
         # CHANGELOG
         assert project.existing_docs.changelog_content is not None
         assert "Keep a Changelog" in project.existing_docs.changelog_content

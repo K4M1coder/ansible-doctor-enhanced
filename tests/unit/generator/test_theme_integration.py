@@ -4,12 +4,10 @@ Feature 008 - Template Customization & Theming
 T340: Integration of css_tags/theme_config into context and HTML renderer
 """
 
-from datetime import datetime
-
 import pytest
 
 from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
-from ansibledoctor.generator.css_injector import CSSInjector, CSSTag, ThemeToggleGenerator
+from ansibledoctor.generator.css_injector import CSSTag
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.models import AnsibleRole, RoleMetadata
@@ -19,6 +17,7 @@ from ansibledoctor.models import AnsibleRole, RoleMetadata
 def sample_role() -> AnsibleRole:
     """Create a minimal sample role for testing."""
     import sys
+
     # Use proper absolute path format for the OS
     if sys.platform == "win32":
         path = "C:\\path\\to\\test_role"
@@ -398,8 +397,8 @@ class TestThemeToggleRendering:
             theme_config=default_theme_config,
         )
         html = context.theme_toggle_html
-        assert 'aria-label' in html
-        assert '<button' in html
+        assert "aria-label" in html
+        assert "<button" in html
 
     def test_toggle_js_handles_localStorage(self, sample_role, default_theme_config):
         """Test toggle JS uses localStorage for persistence."""

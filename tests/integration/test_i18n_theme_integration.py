@@ -13,8 +13,6 @@ Tests verify:
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
@@ -144,7 +142,7 @@ class TestThemeWithTemplateContext:
         """Create sample role for testing."""
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="test_role",
             path=role_path,
@@ -198,9 +196,7 @@ class TestThemeWithTemplateContext:
         }
         return TranslationProvider(translations=translations, lang="en")
 
-    def test_context_with_theme_and_translation(
-        self, sample_role, theme_config, english_provider
-    ):
+    def test_context_with_theme_and_translation(self, sample_role, theme_config, english_provider):
         """Test template context includes both theme and translations."""
         context = TemplateContext(
             role=sample_role,
@@ -287,7 +283,7 @@ class TestThemeColorSchemeWithTranslations:
         """Create sample role for testing."""
         role_path = tmp_path / "test_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="test_role",
             path=role_path,
@@ -361,7 +357,7 @@ Color scheme: {{ color_scheme }}
 
         assert "Examples" in result
         # Dark mode CSS should be included
-        assert "[data-theme=\"dark\"]" in result
+        assert '[data-theme="dark"]' in result
 
 
 class TestTranslationFallback:
@@ -372,7 +368,7 @@ class TestTranslationFallback:
         """Create sample role for testing."""
         role_path = tmp_path / "no_i18n_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="no_i18n_role",
             path=role_path,

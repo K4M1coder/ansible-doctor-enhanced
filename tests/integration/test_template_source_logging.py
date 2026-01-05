@@ -16,15 +16,10 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
-from ansibledoctor.generator.cascading_loader import (
-    CascadingTemplateLoader,
-    TemplateNotFoundError,
-    TemplateSource,
-)
+from ansibledoctor.generator.cascading_loader import CascadingTemplateLoader, TemplateNotFoundError
 
 
 class TestTemplateSourceDiscovery:
@@ -53,9 +48,11 @@ class TestTemplateSourceDiscovery:
         collection_path = tmp_path / "collections" / "namespace" / "collection"
         collection_templates = collection_path / ".ansibledoctor" / "templates"
         collection_templates.mkdir(parents=True)
-        
+
         # galaxy.yml is required for collection detection
-        (collection_path / "galaxy.yml").write_text("namespace: test\nname: collection\nversion: 1.0.0\n")
+        (collection_path / "galaxy.yml").write_text(
+            "namespace: test\nname: collection\nversion: 1.0.0\n"
+        )
 
         # Create role within collection
         role_path = collection_path / "roles" / "test_role"
@@ -244,7 +241,7 @@ class TestTemplateOverriding:
         collection_path = project_root / "collections" / "namespace" / "collection"
         collection_path.mkdir(parents=True)
         (collection_path / "galaxy.yml").write_text("namespace: ns\nname: coll\nversion: 1.0.0\n")
-        
+
         collection_templates = collection_path / ".ansibledoctor" / "templates"
         collection_templates.mkdir(parents=True)
 

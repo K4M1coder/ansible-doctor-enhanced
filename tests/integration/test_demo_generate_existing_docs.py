@@ -3,8 +3,11 @@
 Parses and generates documentation for the demo project and validates the
 generated README includes existing project README content and license badge.
 """
+
 from pathlib import Path
+
 from click.testing import CliRunner
+
 from ansibledoctor.cli.project import project as project_cli
 from ansibledoctor.utils.slug import project_slug
 

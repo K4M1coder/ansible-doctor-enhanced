@@ -40,7 +40,7 @@ class RolePathValidator:
 
         Raises:
             ValidationError: If path doesn't exist or isn't a directory
-            
+
         Note:
             Doesn't require specific subdirectories - roles can be minimal
             with just metadata, defaults, or other components.

@@ -6,11 +6,7 @@ T338: TDD unit tests for CSS injection and theme toggle generation
 
 import pytest
 
-from ansibledoctor.generator.css_injector import (
-    CSSInjector,
-    CSSTag,
-    ThemeToggleGenerator,
-)
+from ansibledoctor.generator.css_injector import CSSInjector, CSSTag, ThemeToggleGenerator
 
 
 class TestCSSTag:
@@ -239,8 +235,8 @@ class TestThemeToggleGenerator:
     def test_toggle_button_html_structure(self, generator):
         """Button HTML should have correct structure."""
         html = generator.TOGGLE_BUTTON_HTML
-        assert "id=\"ad-theme-toggle\"" in html
-        assert "type=\"button\"" in html
+        assert 'id="ad-theme-toggle"' in html
+        assert 'type="button"' in html
         assert "aria-pressed" in html
         assert "aria-label" in html
 
@@ -295,7 +291,7 @@ class TestCSSColorScheme:
         css = injector.BASE_CSS
         # Dark mode section
         dark_section_start = css.find('[data-theme="dark"]')
-        dark_section = css[dark_section_start:dark_section_start + 500]
+        dark_section = css[dark_section_start : dark_section_start + 500]
         assert "#0f172a" in dark_section or "#1e293b" in dark_section  # Dark backgrounds
 
     def test_auto_mode_media_query(self, injector):
@@ -311,16 +307,16 @@ class TestIntegration:
         """Complete head injection should include CSS and toggle."""
         injector = CSSInjector()
         toggle_gen = ThemeToggleGenerator()
-        
+
         css_html = injector.render_head_tags(
             css_url="https://example.com/custom.css",
             css_inline=".role-name { font-weight: bold; }",
             include_base=True,
         )
         toggle_html = toggle_gen.render_toggle()
-        
+
         full_head = f"{css_html}\n{toggle_html}"
-        
+
         # Should have all components
         assert "<style>" in full_head
         assert "<link" in full_head
@@ -330,10 +326,10 @@ class TestIntegration:
         """Minimal injection with just base CSS."""
         injector = CSSInjector()
         toggle_gen = ThemeToggleGenerator()
-        
+
         css_html = injector.render_head_tags(include_base=True)
         toggle_html = toggle_gen.render_toggle(enabled=False)
-        
+
         # Should have base CSS only
         assert "<style>" in css_html
         assert "--ad-color" in css_html

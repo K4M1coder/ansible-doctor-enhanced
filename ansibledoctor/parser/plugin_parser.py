@@ -4,10 +4,12 @@ Plugin parser module.
 This module provides functionality to parse Ansible plugin files and extract
 metadata such as DOCUMENTATION, EXAMPLES, and RETURN blocks.
 """
+
 import ast
 import logging
+from typing import Any, Dict, Optional
+
 import yaml
-from typing import Dict, Any, Optional, Union
 
 from ansibledoctor.models.plugin import Plugin
 
@@ -47,11 +49,15 @@ class PluginParser:
                             if target.id == "DOCUMENTATION":
                                 doc_yaml = self._extract_string_value(node.value)
                                 if doc_yaml:
-                                    doc_dict = self._parse_yaml(doc_yaml, plugin.name, "DOCUMENTATION")
+                                    doc_dict = self._parse_yaml(
+                                        doc_yaml, plugin.name, "DOCUMENTATION"
+                                    )
                                     if doc_dict:
                                         updates["documentation"] = doc_dict
                                         if "short_description" in doc_dict:
-                                            updates["short_description"] = doc_dict["short_description"]
+                                            updates["short_description"] = doc_dict[
+                                                "short_description"
+                                            ]
                             elif target.id == "EXAMPLES":
                                 examples_str = self._extract_string_value(node.value)
                                 if examples_str:
@@ -59,7 +65,9 @@ class PluginParser:
                             elif target.id == "RETURN":
                                 return_yaml = self._extract_string_value(node.value)
                                 if return_yaml:
-                                    return_dict = self._parse_yaml(return_yaml, plugin.name, "RETURN")
+                                    return_dict = self._parse_yaml(
+                                        return_yaml, plugin.name, "RETURN"
+                                    )
                                     if return_dict:
                                         updates["return_values"] = return_dict
 
@@ -80,7 +88,9 @@ class PluginParser:
             return node.s
         return None
 
-    def _parse_yaml(self, yaml_str: str, plugin_name: str, block_type: str) -> Optional[Dict[str, Any]]:
+    def _parse_yaml(
+        self, yaml_str: str, plugin_name: str, block_type: str
+    ) -> Optional[Dict[str, Any]]:
         """Parse YAML string with error handling."""
         try:
             return yaml.safe_load(yaml_str)

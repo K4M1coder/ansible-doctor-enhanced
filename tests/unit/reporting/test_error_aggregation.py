@@ -5,15 +5,14 @@ TDD Phase: RED - Tests written first, expect failures
 Spec: 009-execution-reports-and-logs.md Phase 6 (T058-T060)
 """
 
-import pytest
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
 from ansibledoctor.models.execution_report import (
-    ExecutionReport,
-    ExecutionMetrics,
-    ExecutionWarning,
     ExecutionError,
+    ExecutionMetrics,
+    ExecutionReport,
+    ExecutionWarning,
 )
 from ansibledoctor.reporting.serializers import serialize_to_summary
 
@@ -64,8 +63,12 @@ class TestErrorAggregationByFile:
         # Assert - Should show grouped errors by file
         assert "tasks/main.yml" in summary
         assert "defaults/main.yml" in summary
-        assert "2 errors" in summary or "tasks/main.yml (2)" in summary  # 2 errors in tasks/main.yml
-        assert "3 errors" in summary or "Total: 3" in summary or "Errors (3)" in summary  # Total count
+        assert (
+            "2 errors" in summary or "tasks/main.yml (2)" in summary
+        )  # 2 errors in tasks/main.yml
+        assert (
+            "3 errors" in summary or "Total: 3" in summary or "Errors (3)" in summary
+        )  # Total count
 
     def test_multiple_errors_same_file_shows_count(self):
         """Multiple errors in same file should show count in summary."""
@@ -101,7 +104,7 @@ class TestErrorAggregationByFile:
         # Assert
         assert "vars/main.yml" in summary
         assert "5" in summary  # Should show count of 5
-        
+
 
 class TestWarningAggregationByFile:
     """T059: Unit test for warning aggregation by file."""
@@ -306,4 +309,4 @@ class TestSummaryTextFormatting:
         assert "file2.yml" in summary
         assert "file3.yml" in summary
         # Check for alignment characters (table borders or list markers)
-        assert ("-" in summary or "*" in summary or "│" in summary or "\n  " in summary)
+        assert "-" in summary or "*" in summary or "│" in summary or "\n  " in summary

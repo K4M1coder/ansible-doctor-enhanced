@@ -6,11 +6,10 @@ are written BEFORE implementation (RED phase).
 """
 
 import time
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
-from ansibledoctor.models.execution_report import ExecutionMetrics
 from ansibledoctor.reporting.metrics_collector import MetricsCollector
 
 
@@ -21,32 +20,32 @@ class TestMetricsCollectorPhaseTiming:
         """Verify start_phase/end_phase records timing in phase_timing dict."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.start_phase("parsing")
         time.sleep(0.01)  # 10ms delay
         collector.end_phase("parsing")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert "parsing" in metrics.phase_timing
         assert metrics.phase_timing["parsing"] >= 10  # At least 10ms
-        assert metrics.phase_timing["parsing"] < 50   # Less than 50ms (sanity check)
+        assert metrics.phase_timing["parsing"] < 50  # Less than 50ms (sanity check)
 
     def test_multiple_phases_tracked_independently(self):
         """Verify multiple phases are tracked with separate timings."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.start_phase("parsing")
         time.sleep(0.01)  # 10ms
         collector.end_phase("parsing")
-        
+
         collector.start_phase("rendering")
         time.sleep(0.02)  # 20ms
         collector.end_phase("rendering")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert "parsing" in metrics.phase_timing
@@ -59,7 +58,7 @@ class TestMetricsCollectorPhaseTiming:
         """Verify ending a phase without starting it raises ValueError."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act & Assert
         with pytest.raises(ValueError, match="Phase 'parsing' was not started"):
             collector.end_phase("parsing")
@@ -72,12 +71,12 @@ class TestMetricsCollectorCounters:
         """Verify increment_counter adds 1 by default."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.increment_counter("files_processed")
         collector.increment_counter("files_processed")
         collector.increment_counter("files_processed")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert metrics.files_processed == 3
@@ -86,11 +85,11 @@ class TestMetricsCollectorCounters:
         """Verify increment_counter adds custom values."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.increment_counter("files_processed", 5)
         collector.increment_counter("files_processed", 3)
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert metrics.files_processed == 8
@@ -99,13 +98,13 @@ class TestMetricsCollectorCounters:
         """Verify different counters are tracked independently."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.increment_counter("files_processed", 10)
         collector.increment_counter("roles_documented", 3)
         collector.increment_counter("collections_documented", 2)
         collector.increment_counter("warnings_count", 5)
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert metrics.files_processed == 10
@@ -122,17 +121,17 @@ class TestNestedPhaseTiming:
         """Verify nested phases (parent.child) are tracked independently."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.start_phase("parsing")
         time.sleep(0.01)  # 10ms
-        
+
         collector.start_phase("parsing.file_parsing")
         time.sleep(0.01)  # 10ms
         collector.end_phase("parsing.file_parsing")
-        
+
         collector.end_phase("parsing")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert "parsing" in metrics.phase_timing
@@ -144,20 +143,20 @@ class TestNestedPhaseTiming:
         """Verify multiple nested phases within same parent are tracked."""
         # Arrange
         collector = MetricsCollector()
-        
+
         # Act
         collector.start_phase("generation")
-        
+
         collector.start_phase("generation.template_loading")
         time.sleep(0.01)
         collector.end_phase("generation.template_loading")
-        
+
         collector.start_phase("generation.rendering")
         time.sleep(0.01)
         collector.end_phase("generation.rendering")
-        
+
         collector.end_phase("generation")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert "generation" in metrics.phase_timing
@@ -168,21 +167,21 @@ class TestNestedPhaseTiming:
 class TestMetricsTimingAccuracy:
     """T032: Unit test for metrics timing accuracy (<5% error) using mocked time."""
 
-    @patch('time.perf_counter')
+    @patch("time.perf_counter")
     def test_timing_accuracy_with_mocked_time(self, mock_perf_counter):
         """Verify timing calculations are accurate when using mocked time."""
         # Arrange
         collector = MetricsCollector()
         # Mock time to return exact values: start=0.0, end=0.150 (150ms)
         mock_perf_counter.side_effect = [0.0, 0.150, 0.150, 0.250]  # Two phases
-        
+
         # Act
         collector.start_phase("parsing")
         collector.end_phase("parsing")
-        
+
         collector.start_phase("rendering")
         collector.end_phase("rendering")
-        
+
         # Assert
         metrics = collector.get_metrics()
         assert metrics.phase_timing["parsing"] == 150  # Exactly 150ms
@@ -193,12 +192,12 @@ class TestMetricsTimingAccuracy:
         # Arrange
         collector = MetricsCollector()
         expected_duration_ms = 100
-        
+
         # Act
         collector.start_phase("test_phase")
         time.sleep(expected_duration_ms / 1000.0)  # Convert to seconds
         collector.end_phase("test_phase")
-        
+
         # Assert
         metrics = collector.get_metrics()
         actual_duration = metrics.phase_timing["test_phase"]

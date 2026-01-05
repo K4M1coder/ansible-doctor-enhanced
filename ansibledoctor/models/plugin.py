@@ -10,7 +10,7 @@ grouping plugins by type.
 
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -106,12 +106,8 @@ class Plugin(BaseModel):
     documentation: Dict[str, Any] = Field(
         default_factory=dict, description="Parsed DOCUMENTATION block"
     )
-    examples: Optional[str] = Field(
-        None, description="Parsed EXAMPLES block"
-    )
-    return_values: Dict[str, Any] = Field(
-        default_factory=dict, description="Parsed RETURN block"
-    )
+    examples: Optional[str] = Field(None, description="Parsed EXAMPLES block")
+    return_values: Dict[str, Any] = Field(default_factory=dict, description="Parsed RETURN block")
 
     model_config = {"frozen": True}  # Immutable value object
 

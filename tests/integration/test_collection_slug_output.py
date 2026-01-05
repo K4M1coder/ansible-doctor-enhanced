@@ -4,7 +4,6 @@ Verifies that the CLI correctly generates output paths using collection slugs
 and respects the --legacy-output flag.
 """
 
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -70,7 +69,7 @@ def test_generate_default_slug_output(
     # Expected: collection_dir / docs / lang / en / collection_my-namespace.my-collection / README.md
     expected_slug = "collection_my-namespace.my-collection"
     expected_path = collection_dir / "docs" / "lang" / "en" / expected_slug / "README.md"
-    
+
     mock_generator_instance.generate.assert_called_once()
     call_args = mock_generator_instance.generate.call_args
     assert call_args.kwargs["output_path"] == expected_path
@@ -107,7 +106,7 @@ def test_generate_legacy_output(
     # Verify generator was called with legacy output path
     # Expected: collection_dir / docs / README.md
     expected_path = collection_dir / "docs" / "README.md"
-    
+
     mock_generator_instance.generate.assert_called_once()
     call_args = mock_generator_instance.generate.call_args
     assert call_args.kwargs["output_path"] == expected_path
@@ -135,12 +134,14 @@ def test_generate_custom_output_dir_slug(
     # Create dummy collection dir
     collection_dir = tmp_path / "my_collection"
     collection_dir.mkdir()
-    
+
     # Custom output dir
     output_dir = "build/docs"
 
     # Run command
-    result = runner.invoke(collection, ["generate", str(collection_dir), "--output-dir", output_dir])
+    result = runner.invoke(
+        collection, ["generate", str(collection_dir), "--output-dir", output_dir]
+    )
 
     assert result.exit_code == 0
 
@@ -149,7 +150,7 @@ def test_generate_custom_output_dir_slug(
     # Note: "docs" prefix from build_context_path is stripped because output_dir is custom
     expected_slug = "collection_my-namespace.my-collection"
     expected_path = collection_dir / "build" / "docs" / "lang" / "en" / expected_slug / "README.md"
-    
+
     mock_generator_instance.generate.assert_called_once()
     call_args = mock_generator_instance.generate.call_args
     assert call_args.kwargs["output_path"] == expected_path

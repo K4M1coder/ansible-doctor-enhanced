@@ -9,8 +9,7 @@ from pathlib import Path
 import pytest
 
 from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
-from ansibledoctor.generator.css_injector import CSSInjector, CSSTag, ThemeToggleGenerator
-
+from ansibledoctor.generator.css_injector import CSSInjector, ThemeToggleGenerator
 
 # Path to demo directory
 DEMO_DIR = Path(__file__).parent.parent.parent / "demo"

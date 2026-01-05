@@ -69,7 +69,7 @@ class AnsibleRole(BaseModel):
 
     existing_docs: ExistingDocs = Field(
         default_factory=ExistingDocs,
-        description="Existing documentation (README, CHANGELOG, LICENSE, etc.)"
+        description="Existing documentation (README, CHANGELOG, LICENSE, etc.)",
     )
 
     # Parsing metadata

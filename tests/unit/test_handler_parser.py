@@ -1,9 +1,6 @@
 """Unit tests for handler parser (Spec 001, User Story 5)."""
 
-import pytest
-from pathlib import Path
 from ansibledoctor.parser.handler_parser import HandlerParser
-from ansibledoctor.models.handler import Handler
 
 
 class TestHandlerParser:
@@ -15,7 +12,8 @@ class TestHandlerParser:
         handlers_dir = tmp_path / "handlers"
         handlers_dir.mkdir()
         handlers_file = handlers_dir / "main.yml"
-        handlers_file.write_text("""---
+        handlers_file.write_text(
+            """---
 - name: restart apache
   service:
     name: apache2
@@ -26,12 +24,13 @@ class TestHandlerParser:
     name: nginx
     state: reloaded
   tags: [web, reload]
-""")
-        
+"""
+        )
+
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert len(handlers) == 2
         assert handlers[0].name == "restart apache"
@@ -43,19 +42,21 @@ class TestHandlerParser:
         handlers_dir = tmp_path / "handlers"
         handlers_dir.mkdir()
         handlers_file = handlers_dir / "main.yml"
-        handlers_file.write_text("""---
+        handlers_file.write_text(
+            """---
 - name: restart service
   service:
     name: myservice
     state: restarted
   listen: "restart myservice"
   tags: [critical, restart]
-""")
-        
+"""
+        )
+
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert len(handlers) == 1
         handler = handlers[0]
@@ -69,29 +70,33 @@ class TestHandlerParser:
         # Arrange
         handlers_dir = tmp_path / "handlers"
         handlers_dir.mkdir()
-        
+
         # Main handlers file with include
         main_file = handlers_dir / "main.yml"
-        main_file.write_text("""---
+        main_file.write_text(
+            """---
 - name: main handler
   debug:
     msg: "main"
 
 - include_tasks: web.yml
-""")
-        
+"""
+        )
+
         # Included file
         web_file = handlers_dir / "web.yml"
-        web_file.write_text("""---
+        web_file.write_text(
+            """---
 - name: included handler
   debug:
     msg: "included"
-""")
-        
+"""
+        )
+
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert len(handlers) == 2
         assert handlers[0].name == "main handler"
@@ -103,16 +108,18 @@ class TestHandlerParser:
         handlers_dir = tmp_path / "handlers"
         handlers_dir.mkdir()
         handlers_file = handlers_dir / "main.yml"
-        handlers_file.write_text("""---
+        handlers_file.write_text(
+            """---
 - name: simple handler
   debug:
     msg: "no tags"
-""")
-        
+"""
+        )
+
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert len(handlers) == 1
         assert handlers[0].tags == []
@@ -122,7 +129,7 @@ class TestHandlerParser:
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert handlers == []
 
@@ -133,10 +140,10 @@ class TestHandlerParser:
         handlers_dir.mkdir()
         handlers_file = handlers_dir / "main.yml"
         handlers_file.write_text("---\n")
-        
+
         # Act
         parser = HandlerParser(str(tmp_path))
         handlers = parser.parse()
-        
+
         # Assert
         assert handlers == []

@@ -19,12 +19,11 @@ Error Codes (Spec 010):
 
 from typing import Any, Optional
 
-
 # Exit code constants for CI/CD integration (User Story 5)
-EXIT_SUCCESS = 0      # Operation completed successfully
-EXIT_ERROR = 1        # Fatal error occurred (parsing, validation, exceptions)
-EXIT_WARNING = 2      # Warnings treated as errors (with --fail-on-warnings)
-EXIT_INVALID = 3      # Invalid command-line usage
+EXIT_SUCCESS = 0  # Operation completed successfully
+EXIT_ERROR = 1  # Fatal error occurred (parsing, validation, exceptions)
+EXIT_WARNING = 2  # Warnings treated as errors (with --fail-on-warnings)
+EXIT_INVALID = 3  # Invalid command-line usage
 
 
 class AnsibleDoctorError(Exception):
@@ -86,7 +85,7 @@ class ParsingError(AnsibleDoctorError):
         - Malformed annotation syntax
         - Invalid role directory structure
         - Circular dependency detection
-    
+
     Default error code: E100 (Parsing generic)
     """
 
@@ -109,7 +108,7 @@ class ValidationError(AnsibleDoctorError):
         - Missing required metadata fields
         - Invalid variable types
         - Constraint violations in Pydantic models
-    
+
     Default error code: E200 (Validation generic)
     """
 
@@ -132,11 +131,11 @@ class ConfigError(AnsibleDoctorError):
         - Missing required configuration options
         - Invalid configuration file syntax
         - Conflicting configuration values
-    
+
     Exit code: 3 (invalid usage)
     Default error code: E203 (Invalid field value)
     """
-    
+
     def __init__(
         self,
         message: str,
@@ -156,7 +155,7 @@ class TemplateError(AnsibleDoctorError):
         - Template syntax errors
         - Missing template variables
         - Template file not found
-    
+
     Default error code: E300 (Generation generic)
     """
 

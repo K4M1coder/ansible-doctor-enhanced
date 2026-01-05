@@ -108,7 +108,19 @@ def test_generate_all_formats_for_demo_project(tmp_path):
     for fmt in FORMATS:
         ext = "md" if fmt == "markdown" else ("html" if fmt == "html" else "rst")
         out_file = demo_project / "doc" / f"README.{ext}"
-        result = runner.invoke(cli, ["project", "generate", str(demo_project), "--format", fmt, "--legacy-output", "--output-dir", str(demo_project / "doc")])
+        result = runner.invoke(
+            cli,
+            [
+                "project",
+                "generate",
+                str(demo_project),
+                "--format",
+                fmt,
+                "--legacy-output",
+                "--output-dir",
+                str(demo_project / "doc"),
+            ],
+        )
         assert result.exit_code == 0, f"Failed to generate project {fmt}: {result.output}"
         assert out_file.exists(), f"Project output missing: {out_file}"
         content = out_file.read_text(encoding="utf-8")

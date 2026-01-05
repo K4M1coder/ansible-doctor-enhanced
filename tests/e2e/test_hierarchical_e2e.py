@@ -101,9 +101,7 @@ class TestHierarchicalE2E:
         cache = coll_roles / "cache"
         cache.mkdir()
         (cache / "tasks").mkdir()
-        (cache / "tasks" / "main.yml").write_text(
-            "---\n- name: Cache task\n  debug: msg=cache\n"
-        )
+        (cache / "tasks" / "main.yml").write_text("---\n- name: Cache task\n  debug: msg=cache\n")
 
         return project
 
@@ -127,9 +125,7 @@ class TestHierarchicalE2E:
         assert role_ctx.parent.component_type == ComponentType.PROJECT
 
         # Test collection detection
-        collection = (
-            full_project_structure / "collections" / "myns" / "infra"
-        )
+        collection = full_project_structure / "collections" / "myns" / "infra"
         coll_ctx = detector.detect(collection)
         assert coll_ctx is not None
         assert coll_ctx.component_type == ComponentType.COLLECTION
@@ -154,9 +150,7 @@ class TestHierarchicalE2E:
         detector = ContextDetector()
 
         # Get context for deeply nested role
-        collection = (
-            full_project_structure / "collections" / "myns" / "infra"
-        )
+        collection = full_project_structure / "collections" / "myns" / "infra"
         db_role = collection / "roles" / "database"
         db_ctx = detector.detect(db_role)
 
@@ -187,9 +181,7 @@ class TestHierarchicalE2E:
         assert "webserver" in sibling_names
 
         # Test collection role siblings
-        collection = (
-            full_project_structure / "collections" / "myns" / "infra"
-        )
+        collection = full_project_structure / "collections" / "myns" / "infra"
         db_role = collection / "roles" / "database"
         db_ctx = detector.detect(db_role)
         db_siblings = db_ctx.get_siblings()
@@ -233,9 +225,7 @@ class TestHierarchicalE2E:
         """Test: Navigation links work bidirectionally between levels."""
         # Build paths
         project_path = "docs/lang/en/ansibleproject_my_project"
-        collection_path = (
-            "docs/lang/en/ansibleproject_my_project/collections/collection_myns.infra"
-        )
+        collection_path = "docs/lang/en/ansibleproject_my_project/collections/collection_myns.infra"
         role_path = (
             "docs/lang/en/ansibleproject_my_project/collections/"
             "collection_myns.infra/roles/role_database"
@@ -267,9 +257,7 @@ class TestHierarchicalE2E:
         detector = ContextDetector()
 
         # Get context for collection role
-        collection = (
-            full_project_structure / "collections" / "myns" / "infra"
-        )
+        collection = full_project_structure / "collections" / "myns" / "infra"
         db_role_path = collection / "roles" / "database"
         hier_ctx = detector.detect(db_role_path)
 
@@ -340,8 +328,7 @@ class TestHierarchicalE2E:
         coll_dir = tmp_path / "my_collection"
         coll_dir.mkdir()
         (coll_dir / "galaxy.yml").write_text(
-            "---\nnamespace: testns\nname: testcoll\nversion: 1.0.0\n"
-            "authors: [test]\n"
+            "---\nnamespace: testns\nname: testcoll\nversion: 1.0.0\n" "authors: [test]\n"
         )
 
         # Add a role to the collection

@@ -10,16 +10,8 @@ Task T309: Write unit tests for context detector
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
-from unittest.mock import MagicMock, patch
 
-import pytest
-
-from ansibledoctor.context.detector import (
-    ComponentType,
-    ContextDetector,
-    HierarchicalContext,
-)
+from ansibledoctor.context.detector import ComponentType, ContextDetector, HierarchicalContext
 
 
 class TestComponentType:
@@ -138,7 +130,9 @@ class TestContextDetector:
         (role_dir / "tasks").mkdir()
         (role_dir / "tasks" / "main.yml").write_text("---\n- name: Test\n  debug: msg=test\n")
         (role_dir / "meta").mkdir()
-        (role_dir / "meta" / "main.yml").write_text("---\ngalaxy_info:\n  role_name: standalone_role\n")
+        (role_dir / "meta" / "main.yml").write_text(
+            "---\ngalaxy_info:\n  role_name: standalone_role\n"
+        )
 
         detector = ContextDetector()
         ctx = detector.detect(role_dir)
@@ -169,7 +163,10 @@ class TestContextDetector:
         assert not ctx.is_standalone
         assert ctx.parent is not None
         assert ctx.parent.component_type == ComponentType.COLLECTION
-        assert "my_namespace" in ctx.parent.component_name or "my_collection" in ctx.parent.component_name
+        assert (
+            "my_namespace" in ctx.parent.component_name
+            or "my_collection" in ctx.parent.component_name
+        )
 
     def test_detect_collection_in_project(self, tmp_path: Path):
         """Collection inside a project should have project as parent."""

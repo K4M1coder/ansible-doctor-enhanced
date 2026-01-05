@@ -14,7 +14,7 @@ from typing import Dict
 
 class ErrorCode(str, Enum):
     """Hierarchical error codes for ansible-doctor-enhanced."""
-    
+
     # Parsing Errors (E1xx)
     E100_PARSING_GENERIC = "E100"
     E101_YAML_SYNTAX = "E101"
@@ -26,7 +26,7 @@ class ErrorCode(str, Enum):
     E107_VARIABLE_PARSE = "E107"
     E108_ANNOTATION_PARSE = "E108"
     E109_PLAYBOOK_SYNTAX = "E109"
-    
+
     # Validation Errors (E2xx)
     E200_VALIDATION_GENERIC = "E200"
     E201_REQUIRED_FILE_MISSING = "E201"
@@ -38,7 +38,7 @@ class ErrorCode(str, Enum):
     E207_INVALID_TAG = "E207"
     E208_INVALID_VARIABLE_NAME = "E208"
     E209_INVALID_PLATFORM = "E209"
-    
+
     # Generation Errors (E3xx)
     E300_GENERATION_GENERIC = "E300"
     E301_TEMPLATE_NOT_FOUND = "E301"
@@ -50,7 +50,7 @@ class ErrorCode(str, Enum):
     E307_RST_CONVERSION = "E307"
     E308_HTML_GENERATION = "E308"
     E309_VARIANT_RESOLUTION = "E309"
-    
+
     # I/O Errors (E4xx)
     E400_IO_GENERIC = "E400"
     E401_FILE_NOT_FOUND = "E401"
@@ -62,7 +62,7 @@ class ErrorCode(str, Enum):
     E407_WRITE_FAILED = "E407"
     E408_READ_FAILED = "E408"
     E409_SYMLINK_LOOP = "E409"
-    
+
     # Warnings (W1xx-W4xx)
     W100_WARNING_GENERIC = "W100"
     W101_DEPRECATED_SYNTAX = "W101"
@@ -78,7 +78,7 @@ class ErrorCode(str, Enum):
 
 class ErrorCategory(str, Enum):
     """Error categories for grouping."""
-    
+
     PARSING = "parsing"
     VALIDATION = "validation"
     GENERATION = "generation"
@@ -88,19 +88,31 @@ class ErrorCategory(str, Enum):
 
 # Error code to category mapping
 ERROR_CATEGORY_MAP: Dict[str, ErrorCategory] = {
-    **{code.value: ErrorCategory.PARSING for code in ErrorCode if code.value.startswith(('E1', 'W1'))},
-    **{code.value: ErrorCategory.VALIDATION for code in ErrorCode if code.value.startswith(('E2', 'W2'))},
-    **{code.value: ErrorCategory.GENERATION for code in ErrorCode if code.value.startswith(('E3', 'W3'))},
-    **{code.value: ErrorCategory.IO for code in ErrorCode if code.value.startswith(('E4', 'W4'))},
+    **{
+        code.value: ErrorCategory.PARSING
+        for code in ErrorCode
+        if code.value.startswith(("E1", "W1"))
+    },
+    **{
+        code.value: ErrorCategory.VALIDATION
+        for code in ErrorCode
+        if code.value.startswith(("E2", "W2"))
+    },
+    **{
+        code.value: ErrorCategory.GENERATION
+        for code in ErrorCode
+        if code.value.startswith(("E3", "W3"))
+    },
+    **{code.value: ErrorCategory.IO for code in ErrorCode if code.value.startswith(("E4", "W4"))},
 }
 
 
 def get_category(error_code: str) -> ErrorCategory:
     """Get category for an error code.
-    
+
     Args:
         error_code: Error code string (e.g., "E101")
-    
+
     Returns:
         ErrorCategory enum value
     """
@@ -109,22 +121,22 @@ def get_category(error_code: str) -> ErrorCategory:
 
 def is_warning(error_code: str) -> bool:
     """Check if error code is a warning.
-    
+
     Args:
         error_code: Error code string
-    
+
     Returns:
         True if code starts with 'W', False otherwise
     """
-    return error_code.startswith('W')
+    return error_code.startswith("W")
 
 
 def get_severity(error_code: str) -> str:
     """Get severity level for an error code.
-    
+
     Args:
         error_code: Error code string
-    
+
     Returns:
         "warning" or "error"
     """
