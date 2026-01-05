@@ -32,6 +32,9 @@ from ansibledoctor.exceptions import (
     ParsingError,
     ValidationError,
 )
+from ansibledoctor.exceptions.aggregator import ErrorAggregator
+from ansibledoctor.models.error_report import ErrorReport
+from ansibledoctor.utils.sarif import SARIFFormatter
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
@@ -55,6 +58,44 @@ from ansibledoctor.utils.paths import RolePathValidator
 from ansibledoctor.utils.slug import role_slug
 
 logger = get_logger(__name__)
+
+
+def _output_error_report(
+    error_aggregator: ErrorAggregator,
+    correlation_id: str,
+    error_format: str,
+    error_output: Path | None,
+) -> None:
+    """Output error report to stderr or file.
+    
+    Args:
+        error_aggregator: ErrorAggregator with collected errors/warnings
+        correlation_id: Request correlation ID for tracking
+        error_format: Output format (text, json, sarif)
+        error_output: Optional file path for report output
+    """
+    # Generate error report
+    report = error_aggregator.get_report(correlation_id=correlation_id)
+    
+    # Skip output if no errors or warnings
+    if report.error_count == 0 and report.warning_count == 0:
+        return
+    
+    # Format report based on requested format
+    if error_format == "json":
+        output_data = report.to_json()
+    elif error_format == "sarif":
+        formatter = SARIFFormatter()
+        output_data = json.dumps(formatter.format(report), indent=2)
+    else:  # text (default)
+        output_data = report.to_text()
+    
+    # Write to file or stderr
+    if error_output:
+        error_output.write_text(output_data, encoding="utf-8")
+        click.echo(f"Error report written to {error_output}", err=True)
+    else:
+        click.echo(output_data, err=True)
 
 
 @click.group()
@@ -130,6 +171,17 @@ def cli():
     default=False,
     help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
 )
+@click.option(
+    "--error-format",
+    type=click.Choice(["text", "json", "sarif"], case_sensitive=False),
+    default="text",
+    help="Error report output format (default: text)",
+)
+@click.option(
+    "--error-output",
+    type=click.Path(path_type=Path),
+    help="Write error report to file (default: stderr)",
+)
 def parse(
     role_path: Path,
     output: Path | None,
@@ -141,6 +193,8 @@ def parse(
     report: Path | None,
     report_format: str,
     fail_on_warnings: bool,
+    error_format: str,
+    error_output: Path | None,
 ):
     """
     Parse Ansible role and extract documentation.
@@ -208,6 +262,9 @@ def parse(
     output_files = []
     files_processed = 0
     roles_documented = 0
+    
+    # Initialize error aggregator for structured error collection
+    error_aggregator = ErrorAggregator()
 
     try:
         # Start parsing phase
@@ -268,6 +325,9 @@ def parse(
         
         logger.info("cli_parse_completed", correlation_id=correlation_id, success=True)
         
+        # Output error report if any errors/warnings were collected
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+        
         # Determine exit code based on warnings
         if fail_on_warnings and len(warnings_list) > 0:
             sys.exit(EXIT_WARNING)
@@ -277,6 +337,13 @@ def parse(
     except ValidationError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E200",
+            message=e.message,
+            file_path=str(role_path),
+        )
         
         # Track error
         errors_list.append({
@@ -311,11 +378,21 @@ def parse(
                 output_files=output_files,
             )
         
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+        
         sys.exit(EXIT_INVALID)
 
     except ParsingError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E100",
+            message=e.message,
+            file_path=str(role_path),
+        )
         
         # Track error
         errors_list.append({
@@ -350,11 +427,21 @@ def parse(
                 output_files=output_files,
             )
         
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+        
         sys.exit(EXIT_ERROR)
 
     except AnsibleDoctorError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E000",
+            message=e.message,
+            file_path=str(role_path),
+        )
         
         # Track error
         errors_list.append({
@@ -386,6 +473,9 @@ def parse(
                 errors=errors_list,
                 output_files=output_files,
             )
+        
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
         
         sys.exit(EXIT_ERROR)
 
@@ -853,6 +943,17 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
     default=False,
     help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
 )
+@click.option(
+    "--error-format",
+    type=click.Choice(["text", "json", "sarif"], case_sensitive=False),
+    default="text",
+    help="Error report output format (default: text)",
+)
+@click.option(
+    "--error-output",
+    type=click.Path(path_type=Path),
+    help="Write error report to file (default: stderr)",
+)
 def generate(
     role_path,
     format,
@@ -873,6 +974,8 @@ def generate(
     report,
     report_format,
     fail_on_warnings,
+    error_format,
+    error_output,
 ):
     """
     Generate documentation from Ansible role.
