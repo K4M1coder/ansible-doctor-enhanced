@@ -182,6 +182,12 @@ def cli():
     type=click.Path(path_type=Path),
     help="Write error report to file (default: stderr)",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def parse(
     role_path: Path,
     output: Path | None,
@@ -195,6 +201,7 @@ def parse(
     fail_on_warnings: bool,
     error_format: str,
     error_output: Path | None,
+    continue_on_error: bool,
 ):
     """
     Parse Ansible role and extract documentation.
@@ -954,6 +961,12 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
     type=click.Path(path_type=Path),
     help="Write error report to file (default: stderr)",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
     role_path,
     format,
@@ -976,6 +989,7 @@ def generate(
     fail_on_warnings,
     error_format,
     error_output,
+    continue_on_error,
 ):
     """
     Generate documentation from Ansible role.

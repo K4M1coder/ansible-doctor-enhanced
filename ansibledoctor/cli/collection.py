@@ -188,6 +188,12 @@ def parse(
     is_flag=True,
     help="Use legacy output path structure (docs/README.md) instead of slug-based hierarchy.",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
@@ -195,6 +201,7 @@ def generate(
     template: Path | None,
     config: Path | None,
     legacy_output: bool,
+    continue_on_error: bool,
 ) -> None:
     """
     Generate documentation for an Ansible collection.

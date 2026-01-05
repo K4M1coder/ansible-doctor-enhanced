@@ -206,6 +206,12 @@ def visualize(project_path: Path, output_format: str, deep_parse: bool):
     default=True,
     help="Redact sensitive variable values in generated docs (default: True)",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
     project_path: Path,
     output_dir: Path | None,
@@ -216,6 +222,7 @@ def generate(
     language: str | None,
     languages: str | None,
     deep_parse: bool,
+    continue_on_error: bool,
 ):
     """Generate documentation for a project.
 
