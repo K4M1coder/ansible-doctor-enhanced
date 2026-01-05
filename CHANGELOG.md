@@ -48,6 +48,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Integration**: `ansibledoctor/cli/__init__.py` enhanced commands:
   - `parse` command: Added `--report PATH` and `--report-format {json,text,summary}` flags
   - `generate` command: Added `--report PATH` and `--report-format {json,text,summary}` flags
+  - Correlation ID generation: Set at command start using `set_correlation_id(generate_correlation_id())`
+  - Execution timing: Tracks `started_at`, `completed_at`, `duration_ms` for accurate performance metrics
+  - Error/warning collection: Aggregates warnings/errors in lists for report inclusion
+  - Report generation: Uses `_generate_execution_report()` helper on all exit paths (success, validation error, parsing error, unexpected error)
+- **Test Status**: All 15 tests PASSING (8 unit + 7 integration tests) ✅
+- **User Story 1**: Complete MVP - JSON/text/summary reports with metrics, warnings, errors ✅
+
+**Phase 4: User Story 2 Tests (T029-T034) - RED Phase ✅**
+- **Unit Tests**: `test_metrics_collector.py` with 10 comprehensive tests:
+  - `TestMetricsCollectorPhaseTiming` (3 tests): start/end_phase duration tracking, multiple phases independently, error on end without start
+  - `TestMetricsCollectorCounters` (3 tests): increment by default (1), custom values, multiple counters independently
+  - `TestNestedPhaseTiming` (2 tests): "parent.child" notation for nested phases, multiple nested phases in same parent
+  - `TestMetricsTimingAccuracy` (2 tests): mocked perf_counter for exact values, real timing within 10% variance (<5% requirement)
+- **Integration Tests**: `test_metrics_collection_e2e.py` with 4 CLI tests:
+  - `TestMetricsInReportJSON` (2 tests): phase_timing dict in report JSON, files_processed counter validation
+  - `TestVerboseModePhasing` (2 tests): --verbose displays timing info in stderr, works with --report flag
+- **Stub Implementation**: `ansibledoctor/reporting/metrics_collector.py` placeholder with NotImplementedError
+- **Test Status**: 13/14 tests FAILING with NotImplementedError (expected RED phase) ✅
+
+
   - Correlation ID generation and propagation (UUID4, contextvars)
   - Execution timing tracking (started_at, completed_at, duration_ms)
   - Error/warning collection and aggregation
