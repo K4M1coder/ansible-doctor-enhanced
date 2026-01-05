@@ -9,6 +9,12 @@ Exit Codes (for CLI integration):
 - 1: Fatal error (parsing failure, validation error, exception)
 - 2: Warnings present (only with --fail-on-warnings flag)
 - 3: Invalid usage (bad arguments, missing required flags)
+
+Error Codes (Spec 010):
+- E1xx: Parsing errors (YAML, annotations, etc.)
+- E2xx: Validation errors (schema, requirements, etc.)
+- E3xx: Generation errors (template rendering, output writing, etc.)
+- E4xx: I/O errors (file system, permissions, etc.)
 """
 
 from typing import Any, Optional
@@ -33,6 +39,7 @@ class AnsibleDoctorError(Exception):
         context: Dict containing contextual information (file_path, line_number, etc.)
         suggestion: Actionable recovery suggestion for the user
         exit_code: Exit code for CLI (default: 1 for errors)
+        error_code: Error code for categorization (Spec 010)
     """
 
     def __init__(
@@ -41,6 +48,7 @@ class AnsibleDoctorError(Exception):
         context: Optional[dict[str, Any]] = None,
         suggestion: Optional[str] = None,
         exit_code: int = 1,
+        error_code: str = "E000",
     ) -> None:
         """
         Initialize base exception with message, context, and recovery suggestion.
@@ -50,17 +58,19 @@ class AnsibleDoctorError(Exception):
             context: Contextual information (e.g., {"file_path": "...", "line_number": 42})
             suggestion: Actionable suggestion (e.g., "Check YAML syntax in defaults/main.yml")
             exit_code: Exit code for CLI (default: 1)
+            error_code: Error code for categorization (default: E000)
         """
         self.message = message
         self.context = context or {}
         self.suggestion = suggestion
         self.exit_code = exit_code
+        self.error_code = error_code
 
         # Build full error message with context
-        full_message = message
+        full_message = f"[{error_code}] {message}"
         if context:
             context_str = ", ".join(f"{k}={v}" for k, v in context.items())
-            full_message = f"{message} (context: {context_str})"
+            full_message = f"{full_message} (context: {context_str})"
         if suggestion:
             full_message = f"{full_message}\nSuggestion: {suggestion}"
 
@@ -76,9 +86,19 @@ class ParsingError(AnsibleDoctorError):
         - Malformed annotation syntax
         - Invalid role directory structure
         - Circular dependency detection
+    
+    Default error code: E100 (Parsing generic)
     """
 
-    pass
+    def __init__(
+        self,
+        message: str,
+        context: Optional[dict[str, Any]] = None,
+        suggestion: Optional[str] = None,
+        error_code: str = "E100",
+    ) -> None:
+        """Initialize with default parsing error code."""
+        super().__init__(message, context, suggestion, exit_code=1, error_code=error_code)
 
 
 class ValidationError(AnsibleDoctorError):
@@ -89,9 +109,19 @@ class ValidationError(AnsibleDoctorError):
         - Missing required metadata fields
         - Invalid variable types
         - Constraint violations in Pydantic models
+    
+    Default error code: E200 (Validation generic)
     """
 
-    pass
+    def __init__(
+        self,
+        message: str,
+        context: Optional[dict[str, Any]] = None,
+        suggestion: Optional[str] = None,
+        error_code: str = "E200",
+    ) -> None:
+        """Initialize with default validation error code."""
+        super().__init__(message, context, suggestion, exit_code=1, error_code=error_code)
 
 
 class ConfigError(AnsibleDoctorError):
@@ -104,6 +134,7 @@ class ConfigError(AnsibleDoctorError):
         - Conflicting configuration values
     
     Exit code: 3 (invalid usage)
+    Default error code: E203 (Invalid field value)
     """
     
     def __init__(
@@ -111,9 +142,10 @@ class ConfigError(AnsibleDoctorError):
         message: str,
         context: Optional[dict[str, Any]] = None,
         suggestion: Optional[str] = None,
+        error_code: str = "E203",
     ) -> None:
         """Initialize with exit code 3 for configuration errors."""
-        super().__init__(message, context, suggestion, exit_code=3)
+        super().__init__(message, context, suggestion, exit_code=3, error_code=error_code)
 
 
 class TemplateError(AnsibleDoctorError):
@@ -124,6 +156,16 @@ class TemplateError(AnsibleDoctorError):
         - Template syntax errors
         - Missing template variables
         - Template file not found
+    
+    Default error code: E300 (Generation generic)
     """
 
-    pass
+    def __init__(
+        self,
+        message: str,
+        context: Optional[dict[str, Any]] = None,
+        suggestion: Optional[str] = None,
+        error_code: str = "E300",
+    ) -> None:
+        """Initialize with default generation error code."""
+        super().__init__(message, context, suggestion, exit_code=1, error_code=error_code)
