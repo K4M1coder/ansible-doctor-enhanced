@@ -146,6 +146,13 @@ class SARIFFormatter:
                 if not file_path.is_absolute():
                     file_path = working_dir / file_path
                 
+                # Resolve to absolute path for URI conversion
+                try:
+                    file_path = file_path.resolve()
+                except (OSError, ValueError):
+                    # If resolution fails, use as-is
+                    pass
+                
                 location = {
                     "physicalLocation": {
                         "artifactLocation": {
