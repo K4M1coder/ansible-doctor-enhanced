@@ -42,7 +42,7 @@ class ErrorAggregator:
         self._recovery_provider = RecoverySuggestionProvider()
 
         # Phase 6: Error suppression (T058)
-        self._ignore_codes = set(code.upper() for code in (ignore_codes or []))
+        self._ignore_codes = {code.upper() for code in (ignore_codes or [])}
         self.suppressed_count = 0
 
         # Phase 5: File tracking for partial success reporting (T046)
@@ -61,6 +61,8 @@ class ErrorAggregator:
         recovery_suggestion: Optional[str] = None,
         doc_url: Optional[str] = None,
         severity: Optional[str] = None,
+        stack_trace: Optional[str] = None,
+        capture_context: bool = False,
     ) -> None:
         """Add an error to the aggregator.
 
@@ -73,6 +75,8 @@ class ErrorAggregator:
             recovery_suggestion: Suggested fix (auto-fetched if None)
             doc_url: Documentation URL (auto-fetched if None)
             severity: Override severity ("error" or "warning"), auto-detected if None
+            stack_trace: Full stack trace for debugging (optional)
+            capture_context: Whether to extract source lines around error (default: False)
         """
         # Phase 6 T058: Check if error code should be suppressed
         if code.upper() in self._ignore_codes:
@@ -91,6 +95,11 @@ class ErrorAggregator:
         if doc_url is None:
             doc_url = self._recovery_provider.get_doc_url(code)
 
+        # T077: Extract source context if requested and file/line available
+        source_context = None
+        if capture_context and file_path and line:
+            source_context = self._extract_source_context(file_path, line)
+
         entry = ErrorEntry(
             code=code,
             severity=severity,
@@ -101,6 +110,8 @@ class ErrorAggregator:
             column=column,
             recovery_suggestion=recovery_suggestion,
             doc_url=doc_url,
+            stack_trace=stack_trace,
+            source_context=source_context,
         )
 
         # Deduplicate using hash
@@ -282,6 +293,43 @@ class ErrorAggregator:
         """
         self.mark_file_start(file_path)  # Ensure file is counted
         self._failed_files += 1
+
+    @staticmethod
+    def _extract_source_context(
+        file_path: str, error_line: int, context_lines: int = 3
+    ) -> Optional[List[str]]:
+        """Extract source lines around error for context (T077).
+
+        Args:
+            file_path: Path to source file
+            error_line: Line number where error occurred (1-indexed)
+            context_lines: Number of lines to include before and after error (default: 3)
+
+        Returns:
+            List of source lines (typically 7 lines: 3 before + error line + 3 after), or None if file not readable
+        """
+        try:
+            from pathlib import Path
+
+            source_file = Path(file_path)
+            if not source_file.exists() or not source_file.is_file():
+                return None
+
+            with source_file.open("r", encoding="utf-8", errors="replace") as f:
+                all_lines = f.readlines()
+
+            # Calculate line range (1-indexed to 0-indexed conversion)
+            start_idx = max(0, error_line - context_lines - 1)
+            end_idx = min(len(all_lines), error_line + context_lines)
+
+            # Extract lines and preserve line endings
+            context = [line.rstrip("\n\r") for line in all_lines[start_idx:end_idx]]
+
+            return context if context else None
+
+        except (OSError, UnicodeDecodeError, PermissionError):
+            # File read error - return None to indicate context unavailable
+            return None
 
     @staticmethod
     def _hash_entry(entry: ErrorEntry) -> str:

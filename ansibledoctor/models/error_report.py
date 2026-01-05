@@ -19,6 +19,8 @@ class ErrorEntry(BaseModel):
         column: Column number where error occurred (optional)
         recovery_suggestion: Suggested fix for the error (optional)
         doc_url: URL to error documentation (optional)
+        stack_trace: Full stack trace for verbose debugging (optional)
+        source_context: Source code lines around error (optional)
     """
 
     code: str = Field(pattern=r"^[EW]\d{3}$", description="Error code")
@@ -30,6 +32,10 @@ class ErrorEntry(BaseModel):
     column: Optional[int] = Field(default=None, ge=1, description="Column number")
     recovery_suggestion: Optional[str] = Field(default=None, description="Recovery suggestion")
     doc_url: Optional[str] = Field(default=None, description="Documentation URL")
+    stack_trace: Optional[str] = Field(default=None, description="Full stack trace for debugging")
+    source_context: Optional[List[str]] = Field(
+        default=None, description="Source lines around error (3 before + error line + 3 after)"
+    )
 
     class Config:
         """Pydantic model configuration."""
@@ -107,8 +113,11 @@ class ErrorReport(BaseModel):
             }
         }
 
-    def to_text(self) -> str:
+    def to_text(self, verbose: bool = False) -> str:
         """Format report as human-readable text for terminal.
+
+        Args:
+            verbose: Include stack traces and source context (T078)
 
         Returns:
             Formatted text report
@@ -166,6 +175,24 @@ class ErrorReport(BaseModel):
                     if error.doc_url:
                         lines.append(f"      📖 {error.doc_url}")
 
+                    # T078: Display source context in verbose mode
+                    if verbose and error.source_context:
+                        lines.append("")
+                        lines.append("      Source Context:")
+                        for i, line_content in enumerate(error.source_context):
+                            # Highlight the error line if we can determine it
+                            prefix = "      > " if (error.line and i == 3) else "        "
+                            lines.append(f"{prefix}{line_content}")
+                        lines.append("")
+
+                    # T078: Display stack trace in verbose mode
+                    if verbose and error.stack_trace:
+                        lines.append("")
+                        lines.append("      Stack Trace:")
+                        for trace_line in error.stack_trace.splitlines():
+                            lines.append(f"        {trace_line}")
+                        lines.append("")
+
         # Group warnings by file
         if self.warnings:
             lines.append("")
@@ -191,6 +218,23 @@ class ErrorReport(BaseModel):
                     lines.append(f"  [{warning.code}] {warning.message}{location}")
                     if warning.recovery_suggestion:
                         lines.append(f"      💡 {warning.recovery_suggestion}")
+
+                    # T078: Display source context in verbose mode for warnings too
+                    if verbose and warning.source_context:
+                        lines.append("")
+                        lines.append("      Source Context:")
+                        for i, line_content in enumerate(warning.source_context):
+                            prefix = "      > " if (warning.line and i == 3) else "        "
+                            lines.append(f"{prefix}{line_content}")
+                        lines.append("")
+
+                    # T078: Display stack trace in verbose mode for warnings
+                    if verbose and warning.stack_trace:
+                        lines.append("")
+                        lines.append("      Stack Trace:")
+                        for trace_line in warning.stack_trace.splitlines():
+                            lines.append(f"        {trace_line}")
+                        lines.append("")
 
         lines.append("")
         lines.append("=" * 80)

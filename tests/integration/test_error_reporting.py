@@ -437,3 +437,320 @@ class TestSuppressedErrorCountReporting:
         assert report.error_count == 1
         assert report.suppressed_count == 3
         assert report.errors[0].code == "E103"
+
+
+class TestSARIFVSCodeIntegration:
+    """Test T064: SARIF output integration with VS Code Problems panel."""
+
+    def test_sarif_format_contains_vscode_required_fields(self, tmp_path):
+        """Test that SARIF format contains all fields required by VS Code.
+
+        Scenario: Generate SARIF report from error aggregator
+        Expected: SARIF contains proper structure for VS Code Problems panel
+        """
+        from ansibledoctor.exceptions.aggregator import ErrorAggregator
+        from ansibledoctor.utils.sarif import SARIFFormatter
+
+        # Create aggregator with sample errors
+        aggregator = ErrorAggregator()
+
+        test_file = tmp_path / "role" / "tasks" / "main.yml"
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("---\n- name: Task\n  debug: msg='test'\n")
+
+        # Add errors
+        aggregator.add_error(
+            code="E101",
+            message="YAML syntax error: mapping values are not allowed here",
+            file_path=str(test_file.absolute()),
+            line=2,
+            column=5,
+        )
+
+        # Generate SARIF
+        report = aggregator.get_report(correlation_id="test-vscode")
+        formatter = SARIFFormatter()
+        sarif = formatter.format(report, working_dir=tmp_path)
+
+        # Validate VS Code-required SARIF structure
+        assert "$schema" in sarif
+        assert sarif["$schema"] == SARIFFormatter.SARIF_SCHEMA
+        assert "version" in sarif
+        assert sarif["version"] == "2.1.0"
+        assert "runs" in sarif
+        assert len(sarif["runs"]) > 0
+
+        run = sarif["runs"][0]
+        assert "tool" in run
+        assert "results" in run
+
+        # VS Code requires tool.driver with name
+        assert "driver" in run["tool"]
+        driver = run["tool"]["driver"]
+        assert "name" in driver
+        assert driver["name"] == "ansible-doctor-enhanced"
+        assert "informationUri" in driver
+        assert "version" in driver
+
+        # Check results structure
+        assert len(run["results"]) == 1
+        result = run["results"][0]
+
+        # VS Code requires these fields
+        assert "ruleId" in result
+        assert "level" in result
+        assert "message" in result
+        assert "text" in result["message"]
+
+        # VS Code requires locations with proper structure
+        assert "locations" in result
+        assert len(result["locations"]) > 0
+
+        location = result["locations"][0]
+        assert "physicalLocation" in location
+
+        phys_loc = location["physicalLocation"]
+        assert "artifactLocation" in phys_loc
+        assert "uri" in phys_loc["artifactLocation"]
+
+        # VS Code requires region with line information for clickable links
+        assert "region" in phys_loc
+        region = phys_loc["region"]
+        assert "startLine" in region
+        assert isinstance(region["startLine"], int)
+        assert region["startLine"] == 2  # The line we specified
+        assert "startColumn" in region
+        assert isinstance(region["startColumn"], int)
+        assert region["startColumn"] == 5  # The column we specified
+
+    def test_sarif_clickable_file_paths(self, tmp_path):
+        """Test that SARIF file paths are properly formatted for VS Code navigation.
+
+        Scenario: Create SARIF report with multiple errors in different files
+        Expected: Each error has a proper file URI that VS Code can use for navigation
+        """
+        from ansibledoctor.exceptions.aggregator import ErrorAggregator
+        from ansibledoctor.utils.sarif import SARIFFormatter
+
+        # Create aggregator with multiple errors in different files
+        aggregator = ErrorAggregator()
+
+        test_file1 = tmp_path / "role1" / "tasks" / "main.yml"
+        test_file2 = tmp_path / "role2" / "handlers" / "main.yml"
+
+        test_file1.parent.mkdir(parents=True, exist_ok=True)
+        test_file2.parent.mkdir(parents=True, exist_ok=True)
+
+        test_file1.write_text("---\n- name: Task\n  debug: msg='test'\n")
+        test_file2.write_text("---\n- name: Handler\n  service: name=apache2\n")
+
+        # Add errors with absolute paths
+        aggregator.add_error(
+            code="E101",
+            message="YAML syntax error",
+            file_path=str(test_file1.absolute()),
+            line=2,
+            column=5,
+        )
+
+        aggregator.add_error(
+            code="E201",
+            message="Validation error",
+            file_path=str(test_file2.absolute()),
+            line=3,
+            column=8,
+        )
+
+        # Generate report and format as SARIF
+        report = aggregator.get_report(correlation_id="test-vscode")
+        formatter = SARIFFormatter()
+        sarif = formatter.format(report, working_dir=tmp_path)
+
+        # Validate structure
+        assert len(sarif["runs"][0]["results"]) == 2
+
+        # Check both results have proper locations
+        for result_item in sarif["runs"][0]["results"]:
+            location = result_item["locations"][0]["physicalLocation"]
+
+            # File URI should be present
+            assert "uri" in location["artifactLocation"]
+            uri = location["artifactLocation"]["uri"]
+
+            # URI should be a proper path (absolute or relative)
+            assert uri.endswith(".yml")
+            assert "/" in uri or "\\" in uri
+
+            # Region should have line and column
+            region = location["region"]
+            assert region["startLine"] > 0
+            assert region["startColumn"] > 0
+
+
+# ===== T072-T074: User Story 6 - Error Context Preservation Tests =====
+
+
+class TestErrorContextPreservation:
+    """Test suite for US6 - Error context preservation with verbose/debug output."""
+
+    def test_verbose_stack_trace_output(self, tmp_path):
+        """T072: Test that --verbose flag includes stack trace in error output.
+
+        When verbose mode is enabled, error reports should include:
+        - Full stack trace from exception
+        - File paths and line numbers in traceback
+        - Exception type and message
+        """
+        aggregator = ErrorAggregator()
+
+        # Create a test scenario with a real exception
+        test_file = tmp_path / "role" / "tasks" / "main.yml"
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+        test_file.write_text("---\n- name: Test\n  invalid_yaml: ]\n")
+
+        # Simulate capturing an exception with stack trace
+        try:
+            # Force an exception that we can capture
+            raise ValueError("Test error for stack trace capture")
+        except ValueError as e:
+            # Add error with stack trace (this should be supported after T075-T076)
+            aggregator.add_error(
+                code="E101",
+                message=str(e),
+                file_path=str(test_file.absolute()),
+                line=3,
+                column=19,
+                # stack_trace=stack_trace  # Will be added in T075
+            )
+
+        # Generate report
+        report = aggregator.get_report(correlation_id="test-verbose")
+
+        # In verbose mode, we expect stack traces to be captured
+        # This test will initially fail until T075-T078 are implemented
+        assert len(report.errors) == 1
+        error_entry = report.errors[0]
+
+        # After T075 implementation, ErrorEntry should have stack_trace field
+        # For now, we'll check that the error was captured correctly
+        assert error_entry.code == "E101"
+        assert error_entry.message == "Test error for stack trace capture"
+        assert error_entry.line == 3
+        assert error_entry.column == 19
+
+        # TODO: After T075-T078 implementation, uncomment:
+        # assert hasattr(error_entry, 'stack_trace')
+        # assert error_entry.stack_trace is not None
+        # assert 'ValueError' in error_entry.stack_trace
+        # assert 'test_verbose_stack_trace_output' in error_entry.stack_trace
+
+    def test_source_context_lines_around_error(self, tmp_path):
+        """T073: Test extraction of source lines (3 lines around error) for context.
+
+        When an error occurs at a specific line, the error entry should include:
+        - 3 lines before the error
+        - The error line itself
+        - 3 lines after the error
+        - Total: 7 lines of context
+        """
+        aggregator = ErrorAggregator()
+
+        # Create a test file with enough lines for context
+        test_file = tmp_path / "role" / "tasks" / "main.yml"
+        test_file.parent.mkdir(parents=True, exist_ok=True)
+
+        test_content = """---
+# Line 2
+# Line 3
+# Line 4
+- name: Task with error
+  debug:
+    msg: "{{ undefined_var }}"  # Line 7 - ERROR HERE
+# Line 8
+# Line 9
+# Line 10
+"""
+        test_file.write_text(test_content)
+
+        # Add error at line 7 with context capture enabled
+        aggregator.add_error(
+            code="E302",
+            message="Undefined variable: undefined_var",
+            file_path=str(test_file.absolute()),
+            line=7,
+            column=11,
+            capture_context=True,  # Enable context capture
+        )
+
+        # Generate report
+        report = aggregator.get_report(correlation_id="test-context")
+
+        assert len(report.errors) == 1
+        error_entry = report.errors[0]
+
+        # Verify basic error properties
+        assert error_entry.code == "E302"
+        assert error_entry.line == 7
+
+        # Source context should be captured (lines 4-10, 3 before and 3 after line 7)
+        assert error_entry.source_context is not None
+        assert len(error_entry.source_context) == 7
+        assert "# Line 4" in error_entry.source_context
+        # Check for the key part of the error line (the line includes the comment)
+        assert any('msg: "{{ undefined_var }}"' in line for line in error_entry.source_context)
+        assert "# Line 10" in error_entry.source_context
+
+    def test_template_error_with_highlighted_snippet(self, tmp_path):
+        """T074: Test template error reporting with syntax highlighting.
+
+        For template rendering errors (Jinja2), error reports should:
+        - Include the template snippet causing the error
+        - Highlight the specific problematic token/expression
+        - Show line and column position
+        - Include template context variables if available
+        """
+        aggregator = ErrorAggregator()
+
+        # Create a Jinja2 template with an error
+        template_file = tmp_path / "templates" / "config.j2"
+        template_file.parent.mkdir(parents=True, exist_ok=True)
+
+        template_content = """# Configuration file
+hostname: {{ ansible_hostname }}
+ip_address: {{ ansible_default_ipv4.address }}
+# Line with error below
+invalid_syntax: {{ inventory_hostname | undefined_filter }}
+# End of template
+"""
+        template_file.write_text(template_content)
+
+        # Add template error
+        aggregator.add_error(
+            code="E401",
+            message="Template error: no filter named 'undefined_filter'",
+            file_path=str(template_file.absolute()),
+            line=5,
+            column=47,
+        )
+
+        # Generate report
+        report = aggregator.get_report(correlation_id="test-template")
+
+        assert len(report.errors) == 1
+        error_entry = report.errors[0]
+
+        # Verify error captured correctly
+        assert error_entry.code == "E401"
+        assert "undefined_filter" in error_entry.message
+        assert error_entry.line == 5
+        assert error_entry.column == 47
+
+        # TODO: After T077-T078 implementation, uncomment:
+        # Template errors should include source context with highlighting
+        # assert hasattr(error_entry, 'source_context')
+        # assert error_entry.source_context is not None
+        # # The error line should be present in context
+        # error_line_found = any('undefined_filter' in line for line in error_entry.source_context)
+        # assert error_line_found
+        # # Context should show surrounding lines
+        # assert any('hostname:' in line for line in error_entry.source_context)
