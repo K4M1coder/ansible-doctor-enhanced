@@ -78,6 +78,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Thread-safe dict operations for concurrent access
 - **CLI Integration - parse command**: `ansibledoctor/cli/__init__.py`
   - MetricsCollector instantiated at command start
+  - Phase tracking: parsing phase (doc.parse()), output phase (serialization/write)
+  - Counter tracking: files_processed incremented after successful parse
+  - Verbose mode: `--verbose` displays phase timing and counters in stderr
+- **CLI Integration - generate command**: `ansibledoctor/cli/__init__.py`
+  - MetricsCollector instantiated at command start
+  - Phase tracking: parsing (doc.parse()), rendering (doc.render()), writing (output file creation)
+  - Counter tracking: files_processed incremented after successful generation
+  - Verbose mode: `--verbose` displays phase timing and counters in stderr
+- **Report Integration**: ExecutionMetrics from MetricsCollector passed to `_generate_execution_report()`
+- **Test Status**: All 14 tests PASSING (10 unit + 4 integration tests) ✅
+- **User Story 2**: Complete - Performance metrics with <5% timing accuracy, verbose mode display ✅
+
+**Phase 5: User Story 3 Tests (T044-T049) - RED/GREEN Hybrid ✅**
+- **Unit Tests**: `tests/unit/utils/test_correlation.py` with 10 comprehensive tests:
+  - `TestCorrelationIDGeneration` (3 tests): UUID4 format validation, uniqueness across calls, parseability as UUID object
+  - `TestCorrelationIDPropagation` (4 tests): set/get operations, None when unset, clear functionality, context isolation between operations
+  - `TestCustomCorrelationID` (3 tests): custom format acceptance, UUID string handling, overwrite previous value
+- **Integration Tests**: `tests/integration/test_correlation_propagation.py` with 4 CLI tests:
+  - `TestCorrelationIDInLogEntries` (1 test): Verify correlation_id present in log output during execution
+  - `TestCorrelationIDInReport` (2 tests): correlation_id field in report JSON, custom --correlation-id flag support
+  - `TestNestedOperationsCorrelationID` (1 test): Nested operations share parent correlation_id
+- **Test Status**: 13/14 tests PASSING (10 unit + 3 integration) ✅
+  - 1 test failing (custom --correlation-id flag) because flag not yet implemented (expected for T053)
+- **Note**: Tests pass because correlation ID implementation already exists from Phase 2 (ansibledoctor/utils/correlation.py)
+- **User Story 3**: Tests validate existing functionality - correlation IDs in reports, log propagation, nested operations ✅
   - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
   - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
   - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role
