@@ -368,3 +368,84 @@ class TestErrorAggregatorFileTracking:
         assert report.total_files == 0
         assert report.successful_files == 0
         assert report.failed_files == 0
+
+
+class TestErrorSorting:
+    """Test error sorting by file path and line number (T063 - Phase 7)."""
+    
+    def test_errors_sorted_by_file_path(self):
+        """Test that errors are sorted by file path alphabetically."""
+        aggregator = ErrorAggregator()
+        
+        # Add errors in random file order
+        aggregator.add_error(code="E101", message="Error in main", file_path="roles/web/tasks/main.yml", line=10)
+        aggregator.add_error(code="E102", message="Error in handlers", file_path="roles/web/handlers/main.yml", line=5)
+        aggregator.add_error(code="E103", message="Error in defaults", file_path="roles/web/defaults/main.yml", line=1)
+        
+        report = aggregator.get_report(correlation_id="test-sort")
+        
+        # Should be sorted: defaults < handlers < tasks
+        assert report.errors[0].file_path == "roles/web/defaults/main.yml"
+        assert report.errors[1].file_path == "roles/web/handlers/main.yml"
+        assert report.errors[2].file_path == "roles/web/tasks/main.yml"
+    
+    def test_errors_sorted_by_line_within_same_file(self):
+        """Test that errors in same file are sorted by line number."""
+        aggregator = ErrorAggregator()
+        
+        # Add errors in same file, random line order
+        aggregator.add_error(code="E101", message="Error at line 50", file_path="test.yml", line=50)
+        aggregator.add_error(code="E102", message="Error at line 10", file_path="test.yml", line=10)
+        aggregator.add_error(code="E103", message="Error at line 30", file_path="test.yml", line=30)
+        
+        report = aggregator.get_report(correlation_id="test-sort")
+        
+        # Should be sorted by line: 10 < 30 < 50
+        assert report.errors[0].line == 10
+        assert report.errors[1].line == 30
+        assert report.errors[2].line == 50
+    
+    def test_errors_without_file_path_at_end(self):
+        """Test that errors without file path are sorted to the end."""
+        aggregator = ErrorAggregator()
+        
+        aggregator.add_error(code="E101", message="Error with file", file_path="test.yml", line=10)
+        aggregator.add_error(code="E102", message="Error without file")
+        aggregator.add_error(code="E103", message="Another with file", file_path="other.yml", line=5)
+        
+        report = aggregator.get_report(correlation_id="test-sort")
+        
+        # Errors with file paths should come first, sorted
+        assert report.errors[0].file_path == "other.yml"
+        assert report.errors[1].file_path == "test.yml"
+        assert report.errors[2].file_path is None
+    
+    def test_errors_without_line_number_sorted_by_file_only(self):
+        """Test that errors without line numbers are sorted by file path only."""
+        aggregator = ErrorAggregator()
+        
+        aggregator.add_error(code="E101", message="With line", file_path="test.yml", line=20)
+        aggregator.add_error(code="E102", message="Without line", file_path="test.yml")
+        aggregator.add_error(code="E103", message="Another with line", file_path="test.yml", line=10)
+        
+        report = aggregator.get_report(correlation_id="test-sort")
+        
+        # All in same file, those with line numbers sorted first
+        assert report.errors[0].line == 10
+        assert report.errors[1].line == 20
+        # Error without line number should be last
+        assert report.errors[2].line is None
+    
+    def test_warnings_sorted_separately(self):
+        """Test that warnings are sorted independently from errors."""
+        aggregator = ErrorAggregator()
+        
+        # Add warnings in random order
+        aggregator.add_warning(code="W101", message="Warning B", file_path="b.yml", line=10)
+        aggregator.add_warning(code="W102", message="Warning A", file_path="a.yml", line=5)
+        
+        report = aggregator.get_report(correlation_id="test-sort")
+        
+        # Warnings should be sorted by file
+        assert report.warnings[0].file_path == "a.yml"
+        assert report.warnings[1].file_path == "b.yml"

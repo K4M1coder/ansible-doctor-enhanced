@@ -205,3 +205,73 @@ class ErrorReport(BaseModel):
             Dictionary representation
         """
         return self.model_dump()
+    
+    def to_ide_format(self) -> str:
+        """Format errors for IDE terminal parsing (Phase 7 T071).
+        
+        Outputs errors in format: file:line:column: error[CODE]: message
+        This format is recognized by VS Code, IntelliJ, and other IDEs for
+        clickable navigation to error locations.
+        
+        Returns:
+            IDE-friendly formatted error report
+        """
+        lines = []
+        
+        # Process errors
+        for error in self.errors:
+            line_str = self._format_ide_line(error, "error")
+            lines.append(line_str)
+            
+            # Add recovery suggestion as hint on next line
+            if error.recovery_suggestion:
+                lines.append(f"  hint: {error.recovery_suggestion}")
+        
+        # Process warnings
+        for warning in self.warnings:
+            line_str = self._format_ide_line(warning, "warning")
+            lines.append(line_str)
+            
+            # Add recovery suggestion as hint
+            if warning.recovery_suggestion:
+                lines.append(f"  hint: {warning.recovery_suggestion}")
+        
+        # Add summary at end
+        if lines:
+            lines.append("")
+            summary = f"Found {self.error_count} error(s), {self.warning_count} warning(s)"
+            if self.suppressed_count > 0:
+                summary += f", {self.suppressed_count} suppressed"
+            lines.append(summary)
+        
+        return "\n".join(lines)
+    
+    @staticmethod
+    def _format_ide_line(entry: ErrorEntry, level: str) -> str:
+        """Format a single error/warning for IDE parsing.
+        
+        Format: file:line:column: error[CODE]: message
+        
+        Args:
+            entry: Error entry to format
+            level: "error" or "warning"
+        
+        Returns:
+            Formatted line string
+        """
+        # Build location prefix
+        location_parts = []
+        if entry.file_path:
+            location_parts.append(entry.file_path)
+            if entry.line:
+                location_parts.append(str(entry.line))
+                if entry.column:
+                    location_parts.append(str(entry.column))
+        
+        if location_parts:
+            location = ":".join(location_parts)
+        else:
+            location = "(unknown)"
+        
+        # Format: file:line:column: error[CODE]: message
+        return f"{location}: {level}[{entry.code}]: {entry.message}"

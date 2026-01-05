@@ -156,12 +156,16 @@ class ErrorAggregator:
             partial_success: True if some files processed successfully
         
         Returns:
-            ErrorReport instance with file tracking (T047) and suppressed count (T059)
+            ErrorReport instance with file tracking (T047), suppressed count (T059), and sorted errors (T070)
         """
+        # Phase 7 T070: Sort errors and warnings by file path then line number
+        sorted_errors = self._sort_error_entries(self.errors)
+        sorted_warnings = self._sort_error_entries(self.warnings)
+        
         return ErrorReport(
             correlation_id=correlation_id,
-            errors=self.errors,
-            warnings=self.warnings,
+            errors=sorted_errors,
+            warnings=sorted_warnings,
             error_count=self._error_count,
             warning_count=self._warning_count,
             suppressed_count=self.suppressed_count,  # Phase 6 T059
@@ -171,6 +175,30 @@ class ErrorAggregator:
             successful_files=self._successful_files,
             failed_files=self._failed_files,
         )
+    
+    @staticmethod
+    def _sort_error_entries(entries: List[ErrorEntry]) -> List[ErrorEntry]:
+        """Sort error entries by file path then line number (Phase 7 T070).
+        
+        Sorting rules:
+        1. Entries with file paths come before entries without
+        2. Within same file, sort by line number (entries without line come last)
+        3. Entries without file paths are sorted to the end
+        
+        Args:
+            entries: List of error entries to sort
+        
+        Returns:
+            Sorted list of error entries
+        """
+        def sort_key(entry: ErrorEntry) -> tuple:
+            # Entries without file path go to end (use empty string sorts before None)
+            file_sort = entry.file_path if entry.file_path else "\uffff"  # Unicode max char
+            # Entries without line number go to end within same file
+            line_sort = entry.line if entry.line else float('inf')
+            return (file_sort, line_sort)
+        
+        return sorted(entries, key=sort_key)
     
     def has_errors(self) -> bool:
         """Check if any errors were collected.

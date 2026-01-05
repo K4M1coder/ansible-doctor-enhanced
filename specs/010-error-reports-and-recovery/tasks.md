@@ -180,20 +180,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T061 [P] [US5] Unit test for SARIF 2.1.0 schema validation in `tests/unit/test_sarif.py`
-- [ ] T062 [P] [US5] Unit test for file:line:column format generation in `tests/unit/test_sarif.py`
-- [ ] T063 [P] [US5] Unit test for error sorting by file then line in `tests/unit/test_aggregator.py`
+- [X] T061 [P] [US5] Unit test for SARIF 2.1.0 schema validation in `tests/unit/test_sarif.py`
+- [X] T062 [P] [US5] Unit test for file:line:column format generation in `tests/unit/test_sarif.py`
+- [X] T063 [P] [US5] Unit test for error sorting by file then line in `tests/unit/test_aggregator.py`
 - [ ] T064 [P] [US5] Integration test for SARIF output with VS Code Problems panel in `tests/integration/test_error_reporting.py`
 
-### Implementation for User Story 5
+### Implementation for User Story 5 ✅
 
-- [ ] T065 [P] [US5] Implement SARIFFormatter.format() with SARIF 2.1.0 structure in `ansibledoctor/utils/sarif.py`
-- [ ] T066 [US5] Implement SARIFFormatter._create_result() for ErrorEntry conversion in `ansibledoctor/utils/sarif.py`
-- [ ] T067 [US5] Implement SARIFFormatter._create_location() with physicalLocation in `ansibledoctor/utils/sarif.py`
-- [ ] T068 [US5] Add SARIF tool driver metadata (name, version, informationUri) in `ansibledoctor/utils/sarif.py`
-- [ ] T069 [US5] Implement ErrorReport.to_sarif() using SARIFFormatter in `ansibledoctor/models/error_report.py`
-- [ ] T070 [US5] Implement error sorting by file, then line number in ErrorAggregator.generate_report()
-- [ ] T071 [US5] Format text errors as `file:line:column: error[CODE]: message` for IDE terminal parsing
+- [X] T065 [P] [US5] Implement SARIFFormatter.format() with SARIF 2.1.0 structure in `ansibledoctor/utils/sarif.py` *(Verified existing)*
+- [X] T066 [US5] Implement SARIFFormatter._create_result() for ErrorEntry conversion in `ansibledoctor/utils/sarif.py` *(Verified existing)*
+- [X] T067 [US5] Implement SARIFFormatter._create_location() with physicalLocation in `ansibledoctor/utils/sarif.py` *(Verified existing + fixed path resolution)*
+- [X] T068 [US5] Add SARIF tool driver metadata (name, version, informationUri) in `ansibledoctor/utils/sarif.py` *(Verified existing)*
+- [X] T069 [US5] Implement ErrorReport.to_sarif() using SARIFFormatter in `ansibledoctor/models/error_report.py` *(via CLI __init__.py)*
+- [X] T070 [US5] Implement error sorting by file, then line number in ErrorAggregator.get_report()
+- [X] T071 [US5] Format text errors as `file:line:column: error[CODE]: message` for IDE terminal parsing
+
+**Checkpoint**: User Story 5 nearly complete - SARIF output, sorting, and IDE-friendly format implemented ✅
 
 **Checkpoint**: User Story 5 complete - IDE-friendly SARIF output with clickable references
 
