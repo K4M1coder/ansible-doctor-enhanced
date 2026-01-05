@@ -25,7 +25,7 @@ class RolePathValidator:
     """
 
     EXPECTED_DIRS = ["tasks", "defaults", "vars", "meta", "handlers", "templates", "files"]
-    REQUIRED_DIRS = ["tasks"]  # At minimum, role must have tasks/
+    REQUIRED_DIRS: list[str] = []  # No directories are strictly required
 
     @staticmethod
     def validate_role_structure(role_path: Path) -> bool:
@@ -39,7 +39,11 @@ class RolePathValidator:
             True if valid role structure
 
         Raises:
-            ValidationError: If path doesn't exist or isn't a valid role
+            ValidationError: If path doesn't exist or isn't a directory
+            
+        Note:
+            Doesn't require specific subdirectories - roles can be minimal
+            with just metadata, defaults, or other components.
         """
         if not role_path.exists():
             raise ValidationError(
@@ -55,21 +59,16 @@ class RolePathValidator:
                 suggestion="Provide a path to a directory, not a file",
             )
 
-        # Check for at least one required directory
-        has_required = any(
-            (role_path / req_dir).exists() for req_dir in RolePathValidator.REQUIRED_DIRS
+        # Check if role has any expected directories (optional check)
+        has_any_subdir = any(
+            (role_path / exp_dir).exists() for exp_dir in RolePathValidator.EXPECTED_DIRS
         )
 
-        if not has_required:
+        if not has_any_subdir:
             logger.warning(
-                "role_missing_required_directories",
+                "role_has_no_standard_directories",
                 role_path=str(role_path),
-                required=RolePathValidator.REQUIRED_DIRS,
-            )
-            raise ValidationError(
-                f"Role directory missing required subdirectories: {RolePathValidator.REQUIRED_DIRS}",
-                context={"role_path": str(role_path)},
-                suggestion="Ensure role has at least a 'tasks/' directory with task definitions",
+                expected=RolePathValidator.EXPECTED_DIRS,
             )
 
         logger.info("role_structure_valid", role_path=str(role_path))
