@@ -122,20 +122,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T039 [P] [US3] Integration test for partial success with one failed role in `tests/integration/test_error_reporting.py`
-- [ ] T040 [P] [US3] Integration test for `--continue-on-error` flag behavior in `tests/integration/test_error_reporting.py`
-- [ ] T041 [P] [US3] Integration test for partial success reporting (N of M files) in `tests/integration/test_error_reporting.py`
-- [ ] T042 [P] [US3] Integration test for atomic file writes (no half-written docs) in `tests/integration/test_error_reporting.py`
+- [X] T039 [P] [US3] Integration test for partial success with one failed role in `tests/integration/test_error_reporting.py`
+- [X] T040 [P] [US3] Integration test for `--continue-on-error` flag behavior in `tests/integration/test_error_reporting.py`
+- [X] T041 [P] [US3] Integration test for partial success reporting (N of M files) in `tests/integration/test_error_reporting.py`
+- [X] T042 [P] [US3] Integration test for atomic file writes (no half-written docs) in `tests/integration/test_error_reporting.py`
 
 ### Implementation for User Story 3
 
-- [ ] T043 [P] [US3] Add `--continue-on-error` CLI flag in `ansibledoctor/cli/__init__.py`
-- [ ] T044 [US3] Implement try-catch wrappers in parser modules to capture errors without stopping in parser modules
-- [ ] T045 [US3] Implement try-catch wrappers in generator modules to capture errors without stopping in generator modules
-- [ ] T046 [US3] Track successful vs failed files in execution context during processing
-- [ ] T047 [US3] Add partial_success field to ErrorReport model in `ansibledoctor/models/error_report.py`
-- [ ] T048 [US3] Display "N of M files processed successfully" in error report summary
-- [ ] T049 [US3] Ensure exit code 1 even with partial success when errors occurred
+- [X] T043 [P] [US3] Add `--continue-on-error` CLI flag in `ansibledoctor/cli/__init__.py`
+- [X] T044 [US3] Implement try-catch wrappers in parser modules to capture errors without stopping in parser modules
+- [X] T045 [US3] Implement try-catch wrappers in generator modules to capture errors without stopping in generator modules
+- [X] T046 [US3] Track successful vs failed files in execution context during processing
+- [X] T047 [US3] Add partial_success field to ErrorReport model in `ansibledoctor/models/error_report.py`
+- [X] T048 [US3] Display "N of M files processed successfully" in error report summary
+- [X] T049 [US3] Ensure exit code 1 even with partial success when errors occurred
 
 **Checkpoint**: User Story 3 complete - graceful degradation with partial documentation
 

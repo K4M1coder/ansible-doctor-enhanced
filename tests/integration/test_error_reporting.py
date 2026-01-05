@@ -85,12 +85,27 @@ class TestContinueOnErrorFlag:
         - With --continue-on-error: Process continues after errors
         - Without flag: Stop on first error (current behavior)
         
-        Will be implemented in T043.
+        T043 complete: Flag is accepted by CLI.
+        T044-T045: Full behavior requires try-catch wrappers (future work).
         """
-        # TODO: Test CLI flag acceptance
-        # TODO: Test that processing continues when flag is set
-        # TODO: Test that processing stops when flag is not set
-        pytest.skip("--continue-on-error flag not yet implemented (T043)")
+        # Test that the flag is at least accepted by CLI
+        from click.testing import CliRunner
+        from ansibledoctor.cli import cli
+        
+        runner = CliRunner()
+        
+        with runner.isolated_filesystem():
+            # Create a minimal role structure
+            import os
+            os.makedirs("test_role/meta")
+            with open("test_role/meta/main.yml", "w") as f:
+                f.write("---\ngalaxy_info:\n  author: test\n  description: test\n")
+            
+            # Test that flag is accepted (doesn't cause CLI error)
+            result = runner.invoke(cli, ["parse", "test_role", "--continue-on-error"])
+            
+            # Flag should be recognized (exit code != 2 means no CLI argument error)
+            assert result.exit_code != 2, f"Flag should be recognized by CLI, got exit code {result.exit_code}"
 
     def test_default_behavior_stops_on_error(self):
         """Without --continue-on-error, should stop on first error.

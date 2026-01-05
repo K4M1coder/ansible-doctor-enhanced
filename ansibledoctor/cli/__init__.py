@@ -278,9 +278,11 @@ def parse(
         metrics_collector.start_phase("parsing")
         
         if recursive:
-            result = _parse_roles_recursive(role_path, validate, metrics_collector)
+            result = _parse_roles_recursive(role_path, validate, metrics_collector, 
+                                           continue_on_error, error_aggregator)
         else:
-            result = _parse_single_role(role_path, validate, metrics_collector)
+            result = _parse_single_role(role_path, validate, metrics_collector,
+                                        continue_on_error, error_aggregator)
             metrics_collector.increment_counter("roles_documented")
         
         # End parsing phase
@@ -335,8 +337,10 @@ def parse(
         # Output error report if any errors/warnings were collected
         _output_error_report(error_aggregator, correlation_id, error_format, error_output)
         
-        # Determine exit code based on warnings
-        if fail_on_warnings and len(warnings_list) > 0:
+        # Determine exit code (T049: Exit 1 even with partial success if errors occurred)
+        if error_aggregator.has_errors():
+            sys.exit(EXIT_ERROR)
+        elif fail_on_warnings and len(warnings_list) > 0:
             sys.exit(EXIT_WARNING)
         else:
             sys.exit(EXIT_SUCCESS)
@@ -558,13 +562,21 @@ def parse(
     """
 
 
-def _parse_single_role(role_path: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
+def _parse_single_role(
+    role_path: Path, 
+    validate: bool, 
+    metrics_collector: MetricsCollector | None = None,
+    continue_on_error: bool = False,
+    error_aggregator: ErrorAggregator | None = None
+) -> dict:
     """Parse a single role (CLI `parse` command) and return a serializable dict.
 
     Args:
         role_path: Path to the role directory
         validate: Whether to validate role structure
         metrics_collector: Optional MetricsCollector for tracking performance metrics
+        continue_on_error: If True, continue processing even if errors occur
+        error_aggregator: Optional ErrorAggregator for tracking errors
 
     Returns:
         A dict with parsed metadata, variables, tags, todos, and examples
@@ -782,7 +794,13 @@ def _parse_single_role(role_path: Path, validate: bool, metrics_collector: Metri
     return result
 
 
-def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
+def _parse_roles_recursive(
+    roles_dir: Path, 
+    validate: bool, 
+    metrics_collector: MetricsCollector | None = None,
+    continue_on_error: bool = False,
+    error_aggregator: ErrorAggregator | None = None
+) -> dict:
     """
     Parse multiple roles recursively.
 
@@ -790,6 +808,8 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
         roles_dir: Directory containing multiple roles
         validate: Whether to validate role structures
         metrics_collector: Optional MetricsCollector for tracking performance metrics
+        continue_on_error: If True, continue processing even if errors occur
+        error_aggregator: Optional ErrorAggregator for tracking errors
 
     Returns:
         dict: Dictionary of parsed roles by name
@@ -814,17 +834,27 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
             continue
 
         try:
-            role_data = _parse_single_role(potential_role, validate, metrics_collector)
+            if error_aggregator:
+                error_aggregator.mark_file_start(str(potential_role))
+            role_data = _parse_single_role(potential_role, validate, metrics_collector,
+                                          continue_on_error, error_aggregator)
             results["roles"][potential_role.name] = role_data
             if metrics_collector:
                 metrics_collector.increment_counter("roles_documented")
+            if error_aggregator:
+                error_aggregator.mark_file_success(str(potential_role))
             logger.info("role_parsed_in_recursive", role_name=potential_role.name)
         except Exception as e:
+            if error_aggregator:
+                error_aggregator.add_error("E100", str(e), file_path=str(potential_role))
+                error_aggregator.mark_file_failure(str(potential_role))
             logger.warning(
                 "role_parse_failed_in_recursive",
                 role_name=potential_role.name,
                 error=str(e),
             )
+            if not continue_on_error:
+                raise
             results["roles"][potential_role.name] = {
                 "error": str(e),
                 "path": str(potential_role),
