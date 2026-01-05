@@ -500,7 +500,11 @@ def _parse_single_role(role_path: Path, validate: bool, metrics_collector: Metri
         result["metadata"]["slug"] = slug
         result["slug"] = slug
         logger.debug("metadata_parsed", author=metadata.author)
+    except ParsingError:
+        # Re-raise parsing errors (YAML syntax errors, etc.) - these should fail the command
+        raise
     except Exception as e:
+        # Other errors (missing fields, validation) are non-fatal - role can still be documented
         logger.warning("metadata_parse_failed", error=str(e))
         result["metadata"] = None
         # Still add slug even if metadata fails
