@@ -275,3 +275,96 @@ class TestErrorAggregatorRecoverySuggestions:
         for entry in report.errors:
             assert entry.recovery_suggestion is not None
             assert len(entry.recovery_suggestion) > 0
+
+
+class TestErrorAggregatorFileTracking:
+    """Test file processing tracking for partial success (Phase 5 - T046)."""
+
+    def test_track_file_processing(self):
+        """Should track total, successful, and failed file counts."""
+        aggregator = ErrorAggregator()
+        
+        # Mark files being processed
+        aggregator.mark_file_start("file1.yml")
+        aggregator.mark_file_start("file2.yml")
+        aggregator.mark_file_start("file3.yml")
+        
+        # Mark outcomes
+        aggregator.mark_file_success("file1.yml")
+        aggregator.mark_file_failure("file2.yml")
+        aggregator.mark_file_success("file3.yml")
+        
+        report = aggregator.get_report(correlation_id="test-file-tracking")
+        
+        assert report.total_files == 3
+        assert report.successful_files == 2
+        assert report.failed_files == 1
+
+    def test_mark_file_success_implies_start(self):
+        """Marking success should automatically count as start."""
+        aggregator = ErrorAggregator()
+        
+        # Directly mark as success without calling mark_file_start
+        aggregator.mark_file_success("file1.yml")
+        
+        report = aggregator.get_report(correlation_id="test-implicit-start")
+        
+        assert report.total_files == 1
+        assert report.successful_files == 1
+
+    def test_mark_file_failure_implies_start(self):
+        """Marking failure should automatically count as start."""
+        aggregator = ErrorAggregator()
+        
+        # Directly mark as failure without calling mark_file_start
+        aggregator.mark_file_failure("file1.yml")
+        
+        report = aggregator.get_report(correlation_id="test-implicit-start-fail")
+        
+        assert report.total_files == 1
+        assert report.failed_files == 1
+
+    def test_duplicate_file_start_only_counted_once(self):
+        """Same file marked multiple times should only count once."""
+        aggregator = ErrorAggregator()
+        
+        # Mark same file multiple times
+        aggregator.mark_file_start("file1.yml")
+        aggregator.mark_file_start("file1.yml")
+        aggregator.mark_file_start("file1.yml")
+        
+        report = aggregator.get_report(correlation_id="test-dedupe")
+        
+        assert report.total_files == 1
+
+    def test_file_tracking_in_text_output(self):
+        """File counts should appear in text output (T048)."""
+        aggregator = ErrorAggregator()
+        
+        aggregator.mark_file_start("file1.yml")
+        aggregator.mark_file_start("file2.yml")
+        aggregator.mark_file_start("file3.yml")
+        aggregator.mark_file_success("file1.yml")
+        aggregator.mark_file_failure("file2.yml")
+        aggregator.mark_file_success("file3.yml")
+        
+        report = aggregator.get_report(correlation_id="test-text-output", partial_success=True)
+        text = report.to_text()
+        
+        # Should include file count in output
+        assert "Files Processed: 2 of 3 successful" in text
+
+    def test_clear_resets_file_tracking(self):
+        """Clearing aggregator should reset file counts."""
+        aggregator = ErrorAggregator()
+        
+        aggregator.mark_file_success("file1.yml")
+        aggregator.mark_file_failure("file2.yml")
+        
+        aggregator.clear()
+        
+        report = aggregator.get_report(correlation_id="test-clear")
+        
+        assert report.total_files == 0
+        assert report.successful_files == 0
+        assert report.failed_files == 0

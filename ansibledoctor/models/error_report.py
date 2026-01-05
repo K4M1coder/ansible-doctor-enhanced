@@ -60,6 +60,9 @@ class ErrorReport(BaseModel):
         warning_count: Total warning count
         max_errors_reached: True if error cap (1000) was reached
         partial_success: True if some files processed successfully despite errors
+        total_files: Total number of files attempted to process
+        successful_files: Number of files processed successfully
+        failed_files: Number of files that failed processing
     """
     
     correlation_id: str = Field(description="Correlation ID linking to ExecutionReport")
@@ -70,6 +73,9 @@ class ErrorReport(BaseModel):
     warning_count: int = Field(default=0, ge=0, description="Total warning count")
     max_errors_reached: bool = Field(default=False, description="Error cap reached flag")
     partial_success: bool = Field(default=False, description="Partial success flag")
+    total_files: int = Field(default=0, ge=0, description="Total files attempted")
+    successful_files: int = Field(default=0, ge=0, description="Files processed successfully")
+    failed_files: int = Field(default=0, ge=0, description="Files that failed processing")
     
     class Config:
         """Pydantic model configuration."""
@@ -108,6 +114,10 @@ class ErrorReport(BaseModel):
         lines.append(f"Correlation ID: {self.correlation_id}")
         lines.append(f"Timestamp: {self.timestamp.isoformat()}")
         lines.append(f"Errors: {self.error_count} | Warnings: {self.warning_count}")
+        
+        # Show file processing summary if tracking files (T048)
+        if self.total_files > 0:
+            lines.append(f"Files Processed: {self.successful_files} of {self.total_files} successful")
         
         if self.max_errors_reached:
             lines.append("⚠️  Error limit reached (1000). Some errors may not be shown.")

@@ -21,6 +21,7 @@ class ErrorAggregator:
     - Enforces memory bounds (max 1000 errors)
     - Groups errors by file for organized reporting
     - Tracks warnings separately from errors
+    - Tracks file processing for partial success reporting (Phase 5)
     """
     
     def __init__(self, max_errors: int = 1000):
@@ -37,6 +38,12 @@ class ErrorAggregator:
         self._warning_count = 0
         self._max_errors_reached = False
         self._recovery_provider = RecoverySuggestionProvider()
+        
+        # Phase 5: File tracking for partial success reporting (T046)
+        self._total_files = 0
+        self._successful_files = 0
+        self._failed_files = 0
+        self._processed_files: Set[str] = set()  # Track which files have been processed
     
     def add_error(
         self,
@@ -135,7 +142,7 @@ class ErrorAggregator:
             partial_success: True if some files processed successfully
         
         Returns:
-            ErrorReport instance
+            ErrorReport instance with file tracking (T047)
         """
         return ErrorReport(
             correlation_id=correlation_id,
@@ -145,6 +152,9 @@ class ErrorAggregator:
             warning_count=self._warning_count,
             max_errors_reached=self._max_errors_reached,
             partial_success=partial_success,
+            total_files=self._total_files,
+            successful_files=self._successful_files,
+            failed_files=self._failed_files,
         )
     
     def has_errors(self) -> bool:
@@ -195,6 +205,38 @@ class ErrorAggregator:
         self._error_count = 0
         self._warning_count = 0
         self._max_errors_reached = False
+        self._total_files = 0
+        self._successful_files = 0
+        self._failed_files = 0
+        self._processed_files.clear()
+    
+    def mark_file_start(self, file_path: str) -> None:
+        """Mark the start of processing a file (Phase 5 - T046).
+        
+        Args:
+            file_path: Path to file being processed
+        """
+        if file_path not in self._processed_files:
+            self._total_files += 1
+            self._processed_files.add(file_path)
+    
+    def mark_file_success(self, file_path: str) -> None:
+        """Mark a file as successfully processed (Phase 5 - T046).
+        
+        Args:
+            file_path: Path to file that succeeded
+        """
+        self.mark_file_start(file_path)  # Ensure file is counted
+        self._successful_files += 1
+    
+    def mark_file_failure(self, file_path: str) -> None:
+        """Mark a file as failed during processing (Phase 5 - T046).
+        
+        Args:
+            file_path: Path to file that failed
+        """
+        self.mark_file_start(file_path)  # Ensure file is counted
+        self._failed_files += 1
     
     @staticmethod
     def _hash_entry(entry: ErrorEntry) -> str:
