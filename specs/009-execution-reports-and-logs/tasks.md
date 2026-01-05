@@ -70,15 +70,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T020 [P] [US1] Implement JSON serializer in `ansibledoctor/reporting/serializers.py` with ISO 8601 datetime formatting
-- [ ] T021 [P] [US1] Implement text serializer for human-readable reports in `ansibledoctor/reporting/serializers.py`
-- [ ] T022 [US1] Implement ReportGenerator class in `ansibledoctor/reporting/report_generator.py` (depends on T020, T021)
-- [ ] T023 [US1] Implement `generate()` method to create ExecutionReport from context in `ansibledoctor/reporting/report_generator.py`
-- [ ] T024 [US1] Implement `write_report()` method with atomic file write (temp + rename) in `ansibledoctor/reporting/report_generator.py`
-- [ ] T025 [US1] Add `--report PATH` flag to CLI in `ansibledoctor/cli/__init__.py`
-- [ ] T026 [US1] Add `--report-format {json,text,summary}` flag to CLI in `ansibledoctor/cli/__init__.py`
-- [ ] T027 [US1] Integrate report generation at command completion in CLI entry points in `ansibledoctor/cli/__init__.py`
-- [ ] T028 [US1] Add report file path validation and error handling in `ansibledoctor/cli/__init__.py`
+- [X] T020 [P] [US1] Implement JSON serializer in `ansibledoctor/reporting/serializers.py` with ISO 8601 datetime formatting
+- [X] T021 [P] [US1] Implement text serializer for human-readable reports in `ansibledoctor/reporting/serializers.py`
+- [X] T022 [US1] Implement ReportGenerator class in `ansibledoctor/reporting/report_generator.py` (depends on T020, T021)
+- [X] T023 [US1] Implement `generate()` method to create ExecutionReport from context in `ansibledoctor/reporting/report_generator.py`
+- [X] T024 [US1] Implement `write_report()` method with atomic file write (temp + rename) in `ansibledoctor/reporting/report_generator.py`
+- [X] T025 [US1] Add `--report PATH` flag to CLI in `ansibledoctor/cli/__init__.py`
+- [X] T026 [US1] Add `--report-format {json,text,summary}` flag to CLI in `ansibledoctor/cli/__init__.py`
+- [X] T027 [US1] Integrate report generation at command completion in CLI entry points in `ansibledoctor/cli/__init__.py`
+- [X] T028 [US1] Add report file path validation and error handling in `ansibledoctor/cli/__init__.py`
 
 **Checkpoint**: User Story 1 complete - structured JSON/text reports can be generated with `--report` flag
 

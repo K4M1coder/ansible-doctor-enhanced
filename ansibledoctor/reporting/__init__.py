@@ -11,11 +11,10 @@ machine-readable reports for CI/CD integration and human-readable summaries
 for documentation maintainers.
 """
 
+from ansibledoctor.reporting import serializers
+from ansibledoctor.reporting.report_generator import ReportGenerator
+
 __all__ = [
     "ReportGenerator",
-    "MetricsCollector",
+    "serializers",
 ]
-
-# Import will be available after implementation
-# from .report_generator import ReportGenerator
-# from .metrics_collector import MetricsCollector

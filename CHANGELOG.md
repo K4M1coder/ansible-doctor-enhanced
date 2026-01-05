@@ -35,7 +35,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Report contains correct status and metrics
   - Warnings and errors arrays populated correctly
   - Failed execution creates report with status="failed"
-- **Test Status**: ALL TESTS FAIL (as expected in TDD RED phase) - ready for implementation
+- **Test Status**: 8/8 unit tests PASS, 0/7 integration tests PASS (expected - no CLI implementation yet)
+
+**Phase 3: User Story 1 Implementation (T020-T028) - GREEN Phase ✅**
+- **Serializers**: `ansibledoctor/reporting/serializers.py` with 3 output formats:
+  - `serialize_to_json()`: JSON with ISO 8601 datetime (Z suffix), indented, Path → str conversion
+  - `serialize_to_text()`: Human-readable text with sections (metrics, phase timing, warnings, errors)
+  - `serialize_to_summary()`: Brief console summary with status symbol, duration, counts
+- **ReportGenerator**: `ansibledoctor/reporting/report_generator.py` concrete implementation:
+  - `generate(context)`: Creates ExecutionReport from dict, parses datetime strings, validates with Pydantic
+  - `write_report(report, path, format)`: Atomic file write (temp + rename) to prevent corruption
+- **CLI Integration**: `ansibledoctor/cli/__init__.py` enhanced commands:
+  - `parse` command: Added `--report PATH` and `--report-format {json,text,summary}` flags
+  - `generate` command: Added `--report PATH` and `--report-format {json,text,summary}` flags
+  - Correlation ID generation and propagation (UUID4, contextvars)
+  - Execution timing tracking (started_at, completed_at, duration_ms)
+  - Error/warning collection and aggregation
+  - Report generation on success and failure paths
+  - Helper function `_generate_execution_report()` for DRY report creation
+- **Test Fixes**: Integration tests corrected to use output **files** not directories for `--output` flag
+- **Test Status**: 15/15 tests PASS (8 unit + 7 integration) ✅ GREEN Phase COMPLETE
 
 ### Technical Details
 

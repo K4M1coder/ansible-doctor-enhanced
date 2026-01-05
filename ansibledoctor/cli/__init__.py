@@ -11,6 +11,7 @@ Following Constitution Article IV (CLI Interface Mandate) and Article III (TDD).
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import click
@@ -28,6 +29,7 @@ from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.generator.renderers.rst import RstRenderer
 from ansibledoctor.models import AnsibleRole
+from ansibledoctor.models.execution_report import ExecutionMetrics
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.docs_extractor import DocsExtractor
 from ansibledoctor.parser.example_parser import ExampleParser
@@ -37,6 +39,8 @@ from ansibledoctor.parser.task_parser import TaskParser
 from ansibledoctor.parser.todo_parser import TodoParser
 from ansibledoctor.parser.variable_parser import VariableParser
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
+from ansibledoctor.reporting.report_generator import ReportGenerator
+from ansibledoctor.utils.correlation import generate_correlation_id, set_correlation_id
 from ansibledoctor.utils.logging import get_logger, setup_logging
 from ansibledoctor.utils.paths import RolePathValidator
 from ansibledoctor.utils.slug import role_slug
@@ -94,6 +98,17 @@ def cli():
     default=True,
     help="Output in JSON format (default: True)",
 )
+@click.option(
+    "--report",
+    type=click.Path(path_type=Path),
+    help="Generate execution report to specified path",
+)
+@click.option(
+    "--report-format",
+    type=click.Choice(["json", "text", "summary"], case_sensitive=False),
+    default="json",
+    help="Report output format (default: json)",
+)
 def parse(
     role_path: Path,
     output: Path | None,
@@ -101,6 +116,8 @@ def parse(
     validate: bool,
     log_level: str,
     json_output: bool,
+    report: Path | None,
+    report_format: str,
 ):
     """
     Parse Ansible role and extract documentation.
@@ -120,22 +137,44 @@ def parse(
 
         # Validate role structure
         ansible-doctor-enhanced parse /path/to/role --validate
+        
+        # Generate execution report
+        ansible-doctor-enhanced parse /path/to/role --report execution-report.json
     """
+    # Generate and set correlation ID for request tracing
+    correlation_id = generate_correlation_id()
+    set_correlation_id(correlation_id)
+    
+    # Track execution timing
+    started_at = datetime.now(timezone.utc)
+    
     # Setup logging
     setup_logging(level=log_level, json_output=False)
 
     logger.info(
         "cli_parse_started",
+        correlation_id=correlation_id,
         role_path=str(role_path),
         recursive=recursive,
         validate=validate,
     )
+    
+    # Initialize execution tracking
+    warnings_list = []
+    errors_list = []
+    output_files = []
+    files_processed = 0
+    roles_documented = 0
 
     try:
         if recursive:
             result = _parse_roles_recursive(role_path, validate)
+            roles_documented = len(result.get("roles", []))
+            files_processed = sum(r.get("files_parsed", 0) for r in result.get("roles", []))
         else:
             result = _parse_single_role(role_path, validate)
+            roles_documented = 1
+            files_processed = result.get("files_parsed", 0)
 
         # Output result
         if json_output:
@@ -145,31 +184,150 @@ def parse(
 
         if output:
             output.write_text(output_data, encoding="utf-8")
+            output_files.append(output)
             logger.info("output_written", output_file=str(output))
             click.echo(f"Documentation written to {output}", err=True)
         else:
             click.echo(output_data)
 
-        logger.info("cli_parse_completed", success=True)
+        # Calculate execution metrics
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"parse {role_path}",
+                status="completed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
+        logger.info("cli_parse_completed", correlation_id=correlation_id, success=True)
         sys.exit(0)
 
     except ValidationError as e:
-        logger.error("validation_failed", error=str(e), context=e.context)
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error
+        errors_list.append({
+            "file": str(role_path),
+            "line": None,
+            "error_type": "ValidationError",
+            "message": e.message,
+            "suggestion": e.suggestion,
+            "stack_trace": None,
+        })
+        
+        logger.error("validation_failed", correlation_id=correlation_id, error=str(e), context=e.context)
         click.echo(f"Validation Error: {e.message}", err=True)
         if e.suggestion:
             click.echo(f"Suggestion: {e.suggestion}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"parse {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(2)
 
     except ParsingError as e:
-        logger.error("parsing_failed", error=str(e), context=e.context)
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error
+        errors_list.append({
+            "file": str(role_path),
+            "line": None,
+            "error_type": "ParsingError",
+            "message": e.message,
+            "suggestion": e.suggestion,
+            "stack_trace": None,
+        })
+        
+        logger.error("parsing_failed", correlation_id=correlation_id, error=str(e), context=e.context)
         click.echo(f"Parsing Error: {e.message}", err=True)
         if e.suggestion:
             click.echo(f"Suggestion: {e.suggestion}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"parse {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(1)
 
     except AnsibleDoctorError as e:
-        logger.error("ansible_doctor_error", error=str(e))
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error
+        errors_list.append({
+            "file": str(role_path),
+            "line": None,
+            "error_type": type(e).__name__,
+            "message": e.message,
+            "suggestion": None,
+            "stack_trace": None,
+        })
+        
+        logger.error("ansible_doctor_error", correlation_id=correlation_id, error=str(e))
         click.echo(f"Error: {e.message}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"parse {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(1)
 
     """
@@ -590,6 +748,17 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool) -> dict:
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     help="Custom template directory path",
 )
+@click.option(
+    "--report",
+    type=click.Path(path_type=Path),
+    help="Generate execution report to specified path",
+)
+@click.option(
+    "--report-format",
+    type=click.Choice(["json", "text", "summary"], case_sensitive=False),
+    default="json",
+    help="Report output format (default: json)",
+)
 def generate(
     role_path,
     format,
@@ -606,17 +775,36 @@ def generate(
     color_scheme,
     theme_toggle,
     template_dir,
+    report,
+    report_format,
 ):
+
+    # Generate and set correlation ID for request tracing
+    correlation_id = generate_correlation_id()
+    set_correlation_id(correlation_id)
+    
+    # Track execution timing
+    started_at = datetime.now(timezone.utc)
 
     # Setup logging
     if verbose:
         log_level = "DEBUG"
     setup_logging(log_level)
 
-    logger.info(f"Generating documentation for role: {role_path}")
+    logger.info(
+        f"Generating documentation for role: {role_path}",
+        correlation_id=correlation_id
+    )
     logger.debug(
         f"Format: {format}, Output: {output}, Template: {template}, Recursive: {recursive}"
     )
+
+    # Initialize execution tracking
+    warnings_list = []
+    errors_list = []
+    output_files = []
+    files_processed = 0
+    roles_documented = 0
 
     try:
         # T013: Load config file and merge with CLI arguments
@@ -654,8 +842,30 @@ def generate(
         logger.debug(f"Merged config - Format: {format}, Output: {output}, Recursive: {recursive}")
 
     except Exception as e:
-        logger.error(f"Error loading config: {e}")
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        logger.error(f"Error loading config: {e}", correlation_id=correlation_id)
         click.echo(f"Config error: {e}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"generate {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(1)
 
     try:
@@ -664,6 +874,30 @@ def generate(
             _generate_recursive(
                 role_path, format, output_dir, template, embed_css, generate_toc, sphinx_compat
             )
+            roles_documented = sum(1 for _ in (output_dir or Path()).glob("*" + (".md" if format == "markdown" else ".html" if format == "html" else ".rst")))
+            
+            # Calculate execution metrics
+            completed_at = datetime.now(timezone.utc)
+            duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+            
+            # Generate execution report if requested
+            if report:
+                _generate_execution_report(
+                    report_path=report,
+                    report_format=report_format,
+                    correlation_id=correlation_id,
+                    command=f"generate {role_path} --recursive",
+                    status="completed",
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    duration_ms=duration_ms,
+                    files_processed=files_processed,
+                    roles_documented=roles_documented,
+                    warnings=warnings_list,
+                    errors=errors_list,
+                    output_files=output_files,
+                )
+            
             return
 
         # Validate role path - raises ValidationError if invalid
@@ -672,6 +906,7 @@ def generate(
         # Parse role
         logger.info("Parsing role structure...")
         role = _parse_role_for_generation(role_path)
+        roles_documented = 1
 
         # Select renderer based on format
         if format.lower() == "markdown":
@@ -722,20 +957,108 @@ def generate(
             logger.info(f"Writing output to {output}")
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text(rendered_content, encoding="utf-8")
+            output_files.append(output)
             click.echo(f"Documentation generated: {output}", err=True)
         else:
             # Output to stdout
             click.echo(rendered_content)
 
-        logger.info("Documentation generation complete")
+        logger.info("Documentation generation complete", correlation_id=correlation_id)
+        
+        # Calculate execution metrics
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"generate {role_path}",
+                status="completed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
 
     except (ParsingError, ValidationError, AnsibleDoctorError) as e:
-        logger.error(f"Error generating documentation: {e}")
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error
+        errors_list.append({
+            "file": str(role_path),
+            "line": None,
+            "error_type": type(e).__name__,
+            "message": str(e),
+            "suggestion": getattr(e, "suggestion", None),
+            "stack_trace": None,
+        })
+        
+        logger.error(f"Error generating documentation: {e}", correlation_id=correlation_id)
         click.echo(f"Error: {e}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"generate {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(1)
+        
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
+        completed_at = datetime.now(timezone.utc)
+        duration_ms = int((completed_at - started_at).total_seconds() * 1000)
+        
+        # Track error
+        errors_list.append({
+            "file": str(role_path),
+            "line": None,
+            "error_type": "UnexpectedError",
+            "message": str(e),
+            "suggestion": None,
+            "stack_trace": None,
+        })
+        
+        logger.error(f"Unexpected error: {e}", correlation_id=correlation_id, exc_info=True)
         click.echo(f"Unexpected error: {e}", err=True)
+        
+        # Generate execution report if requested
+        if report:
+            _generate_execution_report(
+                report_path=report,
+                report_format=report_format,
+                correlation_id=correlation_id,
+                command=f"generate {role_path}",
+                status="failed",
+                started_at=started_at,
+                completed_at=completed_at,
+                duration_ms=duration_ms,
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                warnings=warnings_list,
+                errors=errors_list,
+                output_files=output_files,
+            )
+        
         sys.exit(1)
 
 
@@ -1364,6 +1687,86 @@ def watch(role_path: str, format: str, output: str | None):
 # Register collection and project command groups
 cli.add_command(collection)
 cli.add_command(project)
+
+
+def _generate_execution_report(
+    report_path: Path,
+    report_format: str,
+    correlation_id: str,
+    command: str,
+    status: str,
+    started_at: datetime,
+    completed_at: datetime,
+    duration_ms: int,
+    files_processed: int,
+    roles_documented: int,
+    warnings: list,
+    errors: list,
+    output_files: list,
+) -> None:
+    """Generate and write execution report.
+    
+    Helper function to create ExecutionReport from command execution context
+    and write it to the specified path in the requested format.
+    
+    Args:
+        report_path: Path where report will be written
+        report_format: Output format ("json", "text", or "summary")
+        correlation_id: Request correlation ID for tracing
+        command: Command that was executed
+        status: Execution status ("completed", "completed_with_warnings", "failed", "interrupted")
+        started_at: Execution start timestamp
+        completed_at: Execution completion timestamp
+        duration_ms: Total execution duration in milliseconds
+        files_processed: Number of files processed
+        roles_documented: Number of roles documented
+        warnings: List of warning dictionaries
+        errors: List of error dictionaries
+        output_files: List of output file paths
+    """
+    try:
+        # Build execution context
+        context = {
+            "correlation_id": correlation_id,
+            "command": command,
+            "status": status,
+            "started_at": started_at,
+            "completed_at": completed_at,
+            "duration_ms": duration_ms,
+            "metrics": ExecutionMetrics(
+                files_processed=files_processed,
+                roles_documented=roles_documented,
+                collections_documented=0,
+                projects_documented=0,
+                warnings_count=len(warnings),
+                errors_count=len(errors),
+                phase_timing={},
+            ),
+            "warnings": warnings,
+            "errors": errors,
+            "output_files": output_files,
+        }
+        
+        # Generate and write report
+        generator = ReportGenerator()
+        report = generator.generate(context)
+        generator.write_report(report, report_path, report_format)
+        
+        logger.info(
+            "execution_report_generated",
+            correlation_id=correlation_id,
+            report_path=str(report_path),
+            format=report_format,
+        )
+        click.echo(f"Execution report written to {report_path}", err=True)
+    
+    except Exception as e:
+        logger.error(
+            "execution_report_generation_failed",
+            correlation_id=correlation_id,
+            error=str(e),
+        )
+        click.echo(f"Warning: Failed to generate execution report: {e}", err=True)
 
 
 def main():
