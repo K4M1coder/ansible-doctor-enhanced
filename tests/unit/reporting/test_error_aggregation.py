@@ -65,7 +65,7 @@ class TestErrorAggregationByFile:
         assert "tasks/main.yml" in summary
         assert "defaults/main.yml" in summary
         assert "2 errors" in summary or "tasks/main.yml (2)" in summary  # 2 errors in tasks/main.yml
-        assert "3 errors" in summary or "Total: 3" in summary  # Total count
+        assert "3 errors" in summary or "Total: 3" in summary or "Errors (3)" in summary  # Total count
 
     def test_multiple_errors_same_file_shows_count(self):
         """Multiple errors in same file should show count in summary."""
@@ -150,7 +150,7 @@ class TestWarningAggregationByFile:
         assert "tasks/install.yml" in summary
         assert "handlers/main.yml" in summary
         assert "2 warnings" in summary or "tasks/install.yml (2)" in summary
-        assert "3 warnings" in summary or "Total: 3" in summary
+        assert "3 warnings" in summary or "Total: 3" in summary or "Warnings (3)" in summary
 
     def test_mixed_warnings_and_errors_both_displayed(self):
         """Summary should show both warnings and errors when present."""
@@ -189,8 +189,8 @@ class TestWarningAggregationByFile:
         summary = serialize_to_summary(report)
 
         # Assert
-        assert "1 warning" in summary or "warnings: 1" in summary
-        assert "1 error" in summary or "errors: 1" in summary
+        assert "1 warning" in summary or "warnings: 1" in summary or "Warnings (1)" in summary
+        assert "1 error" in summary or "errors: 1" in summary or "Errors (1)" in summary
         assert "meta/main.yml" in summary
         assert "tasks/main.yml" in summary
 

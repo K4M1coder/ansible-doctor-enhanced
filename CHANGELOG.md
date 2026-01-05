@@ -133,6 +133,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Current summary: "✗ Failed in 1.0s\n3 files processed, 1 roles documented\n0 warnings, 3 errors"
   - Expected summary: Grouped errors/warnings by file with line numbers and types
 - **User Story 4**: Tests define requirements for aggregated error/warning summaries at command completion ✅
+
+**Phase 6: User Story 4 Implementation (T063-T070b) - GREEN Phase ✅**
+- **Summary Formatter Enhancement**: `ansibledoctor/reporting/serializers.py` `serialize_to_summary()`:
+  - Groups errors by file path with count per file (e.g., "tasks/main.yml (2):")
+  - Groups warnings by file path with count per file
+  - Displays line numbers for each error/warning (e.g., "Line 42: yaml_error - Invalid YAML")
+  - Shows error/warning type and message for troubleshooting
+  - Structured indented format for readability
+  - Path normalization: Windows backslashes → forward slashes for consistency
+- **Example Enhanced Summary**:
+  ```
+  ✗ Failed in 1.0s
+  3 files processed, 1 roles documented
+  
+  Errors (3):
+    defaults/main.yml (1):
+      - Line 5: validation_error - Invalid variable name
+    tasks/main.yml (2):
+      - Line 10: yaml_error - Invalid YAML syntax
+      - Line 25: parsing_error - Missing required field
+  ```
+- **Test Status**: All 9 tests PASSING (7 unit + 2 integration tests) ✅
+  - Error aggregation by file validated
+  - Warning aggregation by file validated
+  - Summary text formatting with file paths and error types validated
+- **User Story 4**: Complete - Aggregated error/warning summaries grouped by file for easy troubleshooting ✅
   - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
   - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
   - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role

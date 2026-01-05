@@ -146,23 +146,27 @@ def serialize_to_text(report: ExecutionReport) -> str:
 
 
 def serialize_to_summary(report: ExecutionReport) -> str:
-    """Serialize ExecutionReport to brief summary format.
+    """Serialize ExecutionReport to brief summary format with aggregated errors/warnings.
     
     Creates a concise summary suitable for console output at command completion.
-    Focuses on key metrics and status without detailed listings.
+    Groups errors and warnings by file for easy troubleshooting.
     
     Args:
         report: ExecutionReport instance to serialize
     
     Returns:
-        Brief multi-line summary string
+        Multi-line summary string with aggregated error/warning details
     
     Example:
         >>> report = ExecutionReport(...)
         >>> print(serialize_to_summary(report))
         ✓ Completed in 5.2s
         15 files processed, 3 roles documented
-        2 warnings, 0 errors
+        
+        Errors (2):
+          tasks/main.yml (2):
+            - Line 10: yaml_parsing_error - Invalid YAML syntax
+            - Line 25: parsing_error - Missing required field
     """
     duration_s = report.duration_ms / 1000
     
@@ -180,11 +184,52 @@ def serialize_to_summary(report: ExecutionReport) -> str:
         f"{report.metrics.roles_documented} roles documented",
     ]
     
-    # Add warnings/errors summary
-    if report.metrics.warnings_count or report.metrics.errors_count:
-        lines.append(
-            f"{report.metrics.warnings_count} warnings, "
-            f"{report.metrics.errors_count} errors"
-        )
+    # Aggregate warnings by file
+    if report.warnings:
+        lines.append("")  # Empty line for separation
+        lines.append(f"Warnings ({len(report.warnings)}):")
+        
+        # Group warnings by file
+        from collections import defaultdict
+        warnings_by_file = defaultdict(list)
+        for warning in report.warnings:
+            # Normalize path to use forward slashes for consistency
+            file_path = str(warning.file).replace("\\", "/")
+            warnings_by_file[file_path].append(warning)
+        
+        # Format grouped warnings
+        for file_path, file_warnings in sorted(warnings_by_file.items()):
+            lines.append(f"  {file_path} ({len(file_warnings)}):")
+            for warning in file_warnings:
+                line_info = f"Line {warning.line}: " if warning.line else ""
+                lines.append(f"    - {line_info}{warning.warning_type} - {warning.message}")
+    
+    # Aggregate errors by file
+    if report.errors:
+        lines.append("")  # Empty line for separation
+        lines.append(f"Errors ({len(report.errors)}):")
+        
+        # Group errors by file
+        from collections import defaultdict
+        errors_by_file = defaultdict(list)
+        for error in report.errors:
+            # Normalize path to use forward slashes for consistency
+            file_path = str(error.file).replace("\\", "/")
+            errors_by_file[file_path].append(error)
+        
+        # Format grouped errors
+        for file_path, file_errors in sorted(errors_by_file.items()):
+            lines.append(f"  {file_path} ({len(file_errors)}):")
+            for error in file_errors:
+                line_info = f"Line {error.line}: " if error.line else ""
+                lines.append(f"    - {line_info}{error.error_type} - {error.message}")
+    
+    # Add summary counts if no detailed errors/warnings
+    if not report.warnings and not report.errors:
+        if report.metrics.warnings_count or report.metrics.errors_count:
+            lines.append(
+                f"{report.metrics.warnings_count} warnings, "
+                f"{report.metrics.errors_count} errors"
+            )
     
     return "\n".join(lines)
