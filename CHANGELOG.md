@@ -103,6 +103,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 1 test failing (custom --correlation-id flag) because flag not yet implemented (expected for T053)
 - **Note**: Tests pass because correlation ID implementation already exists from Phase 2 (ansibledoctor/utils/correlation.py)
 - **User Story 3**: Tests validate existing functionality - correlation IDs in reports, log propagation, nested operations ✅
+
+**Phase 5: User Story 3 Implementation (T050-T057) - GREEN Phase ✅**
+- **CLI Enhancement**: `ansibledoctor/cli/__init__.py` parse and generate commands:
+  - Added `--correlation-id ID` optional flag to both commands
+  - If not provided, auto-generates UUID4 via `generate_correlation_id()`
+  - If provided, uses custom correlation ID from user
+  - Sets correlation ID at command start via `set_correlation_id()`
+- **Structlog Integration**: `ansibledoctor/utils/correlation.py` enhanced `set_correlation_id()`:
+  - Now binds correlation_id to structlog's contextvars automatically
+  - Ensures correlation_id appears in ALL log entries (DEBUG, INFO, WARNING, ERROR)
+  - Graceful fallback if structlog not available (try/except ImportError)
+- **Test Status**: All 14 tests PASSING (10 unit + 4 integration tests) ✅
+  - All correlation ID tests pass, including custom --correlation-id flag test
+  - Correlation ID present in logs and reports
+  - Nested operations share parent correlation_id
+- **User Story 3**: Complete - Correlation ID tracing across operations, custom IDs via CLI, structlog binding ✅
   - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
   - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
   - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role

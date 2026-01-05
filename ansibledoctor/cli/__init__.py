@@ -100,6 +100,12 @@ def cli():
     help="Output in JSON format (default: True)",
 )
 @click.option(
+    "--correlation-id",
+    type=str,
+    default=None,
+    help="Custom correlation ID for tracing (default: auto-generated UUID4)",
+)
+@click.option(
     "--report",
     type=click.Path(path_type=Path),
     help="Generate execution report to specified path",
@@ -117,6 +123,7 @@ def parse(
     validate: bool,
     log_level: str,
     json_output: bool,
+    correlation_id: str | None,
     report: Path | None,
     report_format: str,
 ):
@@ -142,8 +149,9 @@ def parse(
         # Generate execution report
         ansible-doctor-enhanced parse /path/to/role --report execution-report.json
     """
-    # Generate and set correlation ID for request tracing
-    correlation_id = generate_correlation_id()
+    # Generate or use provided correlation ID for request tracing
+    if correlation_id is None:
+        correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
     
     # Initialize metrics collector for performance tracking
@@ -781,6 +789,12 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
     help="Custom template directory path",
 )
 @click.option(
+    "--correlation-id",
+    type=str,
+    default=None,
+    help="Custom correlation ID for tracing (default: auto-generated UUID4)",
+)
+@click.option(
     "--report",
     type=click.Path(path_type=Path),
     help="Generate execution report to specified path",
@@ -807,12 +821,14 @@ def generate(
     color_scheme,
     theme_toggle,
     template_dir,
+    correlation_id,
     report,
     report_format,
 ):
 
-    # Generate and set correlation ID for request tracing
-    correlation_id = generate_correlation_id()
+    # Generate or use provided correlation ID for request tracing
+    if correlation_id is None:
+        correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
     
     # Initialize metrics collector for performance tracking
