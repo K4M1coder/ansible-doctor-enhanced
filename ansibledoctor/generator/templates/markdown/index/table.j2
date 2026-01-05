@@ -1,0 +1,31 @@
+{# Table format for index pages - displays items in a table with columns #}
+# {{ title }}
+
+{% if filters_applied %}
+**Filters Applied:**
+{% for filter_desc in filters_applied %}
+- {{ filter_desc }}
+{% endfor %}
+
+---
+{% endif %}
+
+{% if items %}
+| Name | Description | Tags | Dependencies |
+|------|-------------|------|--------------|
+{% for item in items %}
+| [{{ item.name }}]({{ item.doc_link }}) | {{ item.description | default('') | truncate(80) | replace('\n', ' ') }} | {% if item.tags %}{% for tag in item.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} | {% if item.dependencies %}{% for dep in item.dependencies %}{{ dep }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} |
+{% endfor %}
+{% else %}
+*No {{ component_type }} found.*
+{% endif %}
+
+{% if has_pagination %}
+
+---
+
+## Navigation
+
+{% if has_previous %}[← Previous]({{ previous_page_link }}) | {% endif %}Page {{ page_number }} of {{ total_pages }}{% if has_next %} | [Next →]({{ next_page_link }}){% endif %}
+
+{% endif %}

@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Indexes & Navigation (Spec 011) - IN PROGRESS
+
+**Phase 1-2: Foundation Infrastructure ✅ COMPLETE**
+
+This work-in-progress feature introduces comprehensive index generation and navigation structures for Ansible documentation.
+
+**Core Index Models (T001-T010)**:
+- **IndexItem Model** (`ansibledoctor/models/index.py`):
+  - Hierarchical component representation with parent-child relationships
+  - Properties: name, type, description, path, doc_link, tags, namespace, metadata
+  - Tree navigation: depth calculation, find_child(), find_descendant()
+  - Supports types: collection, role, plugin, module, playbook
+
+- **IndexPage Model** (`ansibledoctor/models/index.py`):
+  - Standalone index pages with pagination support
+  - Multiple visualization formats: list, table, tree, nested-table, diagram
+  - Pagination properties: has_previous, has_next, page links
+  - Filter tracking and render() method for template integration
+
+- **SectionIndex Model** (`ansibledoctor/models/index.py`):
+  - Embedded index sections for `{{ index() }}` template markers
+  - Limit support with "and X more..." hidden item counts
+  - Group-by and filter-expression capabilities
+  - render_inline() method for document embedding
+
+- **IndexFilter Model** (`ansibledoctor/models/index.py`):
+  - Filter criteria: field, operator (equals/contains/startswith/in), value
+  - matches() method for IndexItem testing
+  - parse() classmethod for "field:value" string conversion
+
+**Index Generator Implementation (T002, T017-T021)**:
+- **IndexGenerator Protocol** (`ansibledoctor/generator/indexes.py`):
+  - generate_index_page(): Create standalone index pages with pagination
+  - generate_section_index(): Create embedded sections
+  - build_hierarchy(): Convert flat list to tree structure with path-based matching
+  - extract_component_metadata(): Parse Role/Collection/Plugin/Playbook to IndexItem
+  - resolve_dependency_links(): Link dependencies to documentation
+
+- **DefaultIndexGenerator** (`ansibledoctor/generator/indexes.py`):
+  - Template engine integration for rendering
+  - Filter application and pagination calculation (default 50 items/page)
+  - Hierarchical building with correct path-based parent-child associations
+  - Component metadata extraction supporting all Ansible component types
+  - Dependency link resolution with markdown link generation
+
+**Templates (T018-T019)**:
+- **List Format** (`ansibledoctor/generator/templates/markdown/index/list.j2`):
+  - Bulleted list with links, descriptions, tags, dependencies
+  - Filter display and pagination navigation
+
+- **Table Format** (`ansibledoctor/generator/templates/markdown/index/table.j2`):
+  - Markdown table with Name|Description|Tags|Dependencies columns
+  - Truncated descriptions for readability
+
+**Test Coverage (T012-T016)**:
+- 40 unit tests (100% passing) with 94% coverage on index models
+- 11 integration tests (100% passing) for role index generation, hierarchy building, embedded indexes
+- Test fixtures: simple_project structure with 3 roles and dependencies
+
+### Changed
+
+- Path-based hierarchy building in `build_hierarchy()` to correctly associate roles with collections by file location rather than namespace matching
+
 ## [0.10.0] - 2026-01-05
 
 ### Added - Error Reports & Recovery (Spec 010)

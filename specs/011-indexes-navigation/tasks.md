@@ -17,9 +17,9 @@
 
 **Goal**: Initialize module structure, models, and test infrastructure.
 
-- [ ] T001 Create index models module at ansibledoctor/models/index.py with IndexItem, IndexPage, SectionIndex models
-- [ ] T002 [P] Create index generator module skeleton at ansibledoctor/generator/indexes.py with IndexGenerator protocol
-- [ ] T003 [P] Create test fixtures directory at tests/fixtures/project_structures/ with simple_project/, hierarchical_project/, large_project/ subdirectories
+- [X] T001 Create index models module at ansibledoctor/models/index.py with IndexItem, IndexPage, SectionIndex models
+- [X] T002 [P] Create index generator module skeleton at ansibledoctor/generator/indexes.py with IndexGenerator protocol
+- [X] T003 [P] Create test fixtures directory at tests/fixtures/project_structures/ with simple_project/, hierarchical_project/, large_project/ subdirectories
 
 ---
 
@@ -29,13 +29,13 @@
 
 **Note**: These tasks MUST complete before any user story work begins.
 
-- [ ] T004 Write tests for IndexItem model in tests/unit/test_index_models.py (depth calculation, find_child, find_descendant)
-- [ ] T005 Implement IndexItem model in ansibledoctor/models/index.py with properties (depth, total_descendants, find_child, find_descendant)
-- [ ] T006 [P] Write tests for IndexPage model in tests/unit/test_index_models.py (pagination logic, filter tracking)
-- [ ] T007 [P] Implement IndexPage model in ansibledoctor/models/index.py with render() method
-- [ ] T008 [P] Write tests for SectionIndex model in tests/unit/test_index_models.py (inline rendering, limit behavior)
-- [ ] T009 [P] Implement SectionIndex model in ansibledoctor/models/index.py with render_inline() method
-- [ ] T010 Create test fixture projects in tests/fixtures/project_structures/ (simple: 1 collection/3 roles, hierarchical: 3 collections/15 roles, large: 500+ components)
+- [X] T004 Write tests for IndexItem model in tests/unit/test_index_models.py (depth calculation, find_child, find_descendant)
+- [X] T005 Implement IndexItem model in ansibledoctor/models/index.py with properties (depth, total_descendants, find_child, find_descendant)
+- [X] T006 [P] Write tests for IndexPage model in tests/unit/test_index_models.py (pagination logic, filter tracking)
+- [X] T007 [P] Implement IndexPage model in ansibledoctor/models/index.py with render() method
+- [X] T008 [P] Write tests for SectionIndex model in tests/unit/test_index_models.py (inline rendering, limit behavior)
+- [X] T009 [P] Implement SectionIndex model in ansibledoctor/models/index.py with render_inline() method
+- [X] T010 Create test fixture projects in tests/fixtures/project_structures/ (simple: 1 collection/3 roles, hierarchical: 3 collections/15 roles, large: 500+ components)
 
 ---
 
@@ -47,19 +47,19 @@
 
 ### Tests First
 
-- [ ] T012 [P] [US1] Write test for basic role index generation in tests/integration/test_index_generation.py (5 roles → roles/index.md created)
-- [ ] T013 [P] [US1] Write test for role index with tags in tests/integration/test_index_generation.py (tags displayed correctly)
-- [ ] T014 [P] [US1] Write test for role index with dependencies in tests/integration/test_index_generation.py (dependency links rendered)
-- [ ] T015 [P] [US1] Write test for empty role collection in tests/integration/test_index_generation.py (empty message shown)
-- [ ] T016 [P] [US1] Write test for multiple index formats in tests/integration/test_index_generation.py (list, table, tree formats)
+- [X] T012 [P] [US1] Write test for basic role index generation in tests/integration/test_index_generation.py (5 roles → roles/index.md created)
+- [X] T013 [P] [US1] Write test for role index with tags in tests/integration/test_index_generation.py (tags displayed correctly)
+- [X] T014 [P] [US1] Write test for role index with dependencies in tests/integration/test_index_generation.py (dependency links rendered)
+- [X] T015 [P] [US1] Write test for empty role collection in tests/integration/test_index_generation.py (empty message shown)
+- [X] T016 [P] [US1] Write test for multiple index formats in tests/integration/test_index_generation.py (list, table, tree formats)
 
 ### Implementation
 
-- [ ] T017 [US1] Implement IndexGenerator.generate_index_page() in ansibledoctor/generator/indexes.py (basic page generation)
-- [ ] T018 [P] [US1] Create list format template at ansibledoctor/templates/index/list.j2 (role list with links)
-- [ ] T019 [P] [US1] Create table format template at ansibledoctor/templates/index/table.j2 (table with Name|Description|Tags|Dependencies columns)
-- [ ] T020 [US1] Implement component metadata extraction in IndexGenerator (extract name, description, tags from parsed roles)
-- [ ] T021 [US1] Implement dependency link generation in IndexGenerator (resolve dependency names to doc links)
+- [X] T017 [US1] Implement IndexGenerator.generate_index_page() in ansibledoctor/generator/indexes.py (basic page generation)
+- [X] T018 [P] [US1] Create list format template at ansibledoctor/templates/index/list.j2 (role list with links)
+- [X] T019 [P] [US1] Create table format template at ansibledoctor/templates/index/table.j2 (table with Name|Description|Tags|Dependencies columns)
+- [X] T020 [US1] Implement component metadata extraction in IndexGenerator (extract name, description, tags from parsed roles)
+- [X] T021 [US1] Implement dependency link generation in IndexGenerator (resolve dependency names to doc links)
 - [ ] T022 [US1] Add CLI flags to ansibledoctor/cli/__init__.py (--include-index, --index-style, --index-format)
 - [ ] T023 [US1] Integrate index generation into main generation flow in ansibledoctor/generator/engine.py (call after main docs)
 - [ ] T024 [US1] Implement empty collection handling in IndexGenerator (detect empty, show message)

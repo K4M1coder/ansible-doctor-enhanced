@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  author: Test Author
+  description: Test role 2 for index generation
+  company: Test Company
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - database
+    - postgres
+
+dependencies:
+  - role: role1

@@ -1,0 +1,7 @@
+---
+namespace: test_namespace
+name: test_collection
+version: 1.0.0
+description: Test collection for index generation testing
+authors:
+  - Test Author
