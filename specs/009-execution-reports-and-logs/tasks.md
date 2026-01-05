@@ -36,14 +36,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create ExecutionMetrics model in `ansibledoctor/models/execution_report.py` with Pydantic schema
-- [ ] T005 [P] Create ExecutionWarning model in `ansibledoctor/models/execution_warning.py`
-- [ ] T006 [P] Create ExecutionError model in `ansibledoctor/models/execution_error.py` with suggestion field
-- [ ] T007 Create ExecutionReport aggregate model in `ansibledoctor/models/execution_report.py`
-- [ ] T008 [P] Define ReportGenerator protocol in `ansibledoctor/reporting/protocols.py`
-- [ ] T009 [P] Define MetricsCollector protocol in `ansibledoctor/reporting/protocols.py`
-- [ ] T010 Create correlation ID utilities in `ansibledoctor/utils/correlation.py` with UUID4 generation
-- [ ] T011 Add exit code property to exception classes in `ansibledoctor/exceptions.py`
+- [X] T004 Create ExecutionMetrics model in `ansibledoctor/models/execution_report.py` with Pydantic schema
+- [X] T005 [P] Create ExecutionWarning model in `ansibledoctor/models/execution_warning.py`
+- [X] T006 [P] Create ExecutionError model in `ansibledoctor/models/execution_error.py` with suggestion field
+- [X] T007 Create ExecutionReport aggregate model in `ansibledoctor/models/execution_report.py`
+- [X] T008 [P] Define ReportGenerator protocol in `ansibledoctor/reporting/protocols.py`
+- [X] T009 [P] Define MetricsCollector protocol in `ansibledoctor/reporting/protocols.py`
+- [X] T010 Create correlation ID utilities in `ansibledoctor/utils/correlation.py` with UUID4 generation
+- [X] T011 Add exit code property to exception classes in `ansibledoctor/exceptions.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

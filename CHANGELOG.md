@@ -7,13 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added - Execution Reports & Structured Logging (Spec 009 Phase 1)
+### Added - Execution Reports & Structured Logging (Spec 009 Phase 1-2)
 
+**Phase 1: Setup (T001-T003)**
 - **Reporting Module**: Created `ansibledoctor/reporting/__init__.py` with module documentation
 - **Models Structure**: Created `ansibledoctor/models/execution_report.py` placeholder for execution models
 - **Test Structure**: Created test directories for `tests/unit/models/`, `tests/unit/reporting/`, `tests/integration/`
 
-**Tasks Completed**: T001-T003 (Phase 1: Setup)
+**Phase 2: Foundation (T004-T011)**
+- **ExecutionMetrics Model**: Pydantic model for performance metrics (files, roles, collections, projects counts, phase timing)
+- **ExecutionWarning Model**: Pydantic model for warnings with file location and line number
+- **ExecutionError Model**: Pydantic model for errors with suggestions and stack traces
+- **ExecutionReport Model**: Primary aggregate model combining status, timing, metrics, warnings, errors, output files
+- **ReportGenerator Protocol**: Interface for report generation and writing (JSON/text/summary formats)
+- **MetricsCollector Protocol**: Interface for metrics collection (phase timing, counters)
+- **Correlation ID Utilities**: UUID4 generation, contextvars-based propagation (thread-safe)
+- **Exit Code Property**: Added `exit_code` property to `AnsibleDoctorError` base class (default: 1, ConfigError: 3)
+
+### Technical Details
+
+- **Models**: All models use Pydantic with validation, Field constraints, and JSON schema examples
+- **Protocols**: Following SOLID Dependency Inversion Principle for loose coupling
+- **Thread Safety**: Correlation IDs use contextvars for async/concurrent operations
+- **Exit Codes**: 0=success, 1=error, 2=warning (with flag), 3=invalid usage
 
 ## [0.9.6] - 2025-12-04
 
