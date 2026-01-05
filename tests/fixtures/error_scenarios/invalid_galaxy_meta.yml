@@ -1,0 +1,5 @@
+---
+# Missing required fields in galaxy metadata
+galaxy_info:
+  author: "Test Author"
+  # Missing: description, license, min_ansible_version
