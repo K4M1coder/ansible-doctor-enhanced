@@ -194,28 +194,30 @@ If Spec 010 is not yet implemented, use a simplified local implementation that c
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T071 [P] [US5] Integration test for exit code 0 on success in `tests/integration/test_exit_codes.py`
-- [ ] T072 [P] [US5] Integration test for exit code 1 on fatal error in `tests/integration/test_exit_codes.py`
-- [ ] T073 [P] [US5] Integration test for exit code 2 with `--fail-on-warnings` in `tests/integration/test_exit_codes.py`
-- [ ] T074 [P] [US5] Integration test for exit code 3 on invalid usage in `tests/integration/test_exit_codes.py`
-- [ ] T075 [P] [US5] Integration test for warnings without `--fail-on-warnings` exit code 0 in `tests/integration/test_exit_codes.py`
+- [X] T071 [P] [US5] Integration test for exit code 0 on success in `tests/integration/test_exit_codes.py`
+- [X] T072 [P] [US5] Integration test for exit code 1 on fatal error in `tests/integration/test_exit_codes.py`
+- [X] T073 [P] [US5] Integration test for exit code 2 with `--fail-on-warnings` in `tests/integration/test_exit_codes.py`
+- [X] T074 [P] [US5] Integration test for exit code 3 on invalid usage in `tests/integration/test_exit_codes.py`
+- [X] T075 [P] [US5] Integration test for warnings without `--fail-on-warnings` exit code 0 in `tests/integration/test_exit_codes.py`
 
 ### Implementation for User Story 5
 
-- [ ] T076 [P] [US5] Define exit code constants in `ansibledoctor/exceptions.py` (SUCCESS=0, ERROR=1, WARNING=2, INVALID=3)
-- [ ] T077 [US5] Implement exit code logic based on execution status in CLI in `ansibledoctor/cli/__init__.py`
-- [ ] T078 [US5] Handle `--fail-on-warnings` flag to set exit code 2 in `ansibledoctor/cli/__init__.py`
-- [ ] T079 [US5] Set exit code 1 on fatal errors in exception handling in `ansibledoctor/cli/__init__.py`
-- [ ] T080 [US5] Set exit code 3 on invalid arguments (click validation) in `ansibledoctor/cli/__init__.py`
-- [ ] T081 [US5] Document exit codes in CLI help text and README
+- [X] T076 [P] [US5] Define exit code constants in `ansibledoctor/exceptions.py` (SUCCESS=0, ERROR=1, WARNING=2, INVALID=3)
+- [X] T077 [US5] Implement exit code logic based on execution status in CLI in `ansibledoctor/cli/__init__.py`
+- [X] T078 [US5] Handle `--fail-on-warnings` flag to set exit code 2 in `ansibledoctor/cli/__init__.py`
+- [X] T079 [US5] Set exit code 1 on fatal errors in exception handling in `ansibledoctor/cli/__init__.py`
+- [X] T080 [US5] Set exit code 3 on invalid arguments (click validation) in `ansibledoctor/cli/__init__.py`
+- [X] T081 [US5] Document exit codes in CLI help text and README
 
-**Checkpoint**: User Story 5 complete - predictable exit codes enable CI/CD pipeline automation
+**Checkpoint**: User Story 5 complete ✅ - predictable exit codes enable CI/CD pipeline automation
 
 ---
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Documentation, performance optimization, and final integration
+
+**Status**: Ready to begin (Phase 1-7 complete)
 
 - [ ] T082 Update CLI `--help` output with all new flags and exit code documentation
 - [ ] T083 [P] Add docstrings to all reporting module classes and functions

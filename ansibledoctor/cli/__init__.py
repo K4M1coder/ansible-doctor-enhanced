@@ -163,6 +163,13 @@ def parse(
         
         # Generate execution report
         ansible-doctor-enhanced parse /path/to/role --report execution-report.json
+    
+    Exit Codes:
+    
+        0 - Success: Role parsed without errors
+        1 - Error: Fatal error occurred (YAML parse error, file not found, etc.)
+        2 - Warning: Warnings present and --fail-on-warnings flag set
+        3 - Invalid: Invalid arguments or configuration
     """
     # Generate or use provided correlation ID for request tracing
     if correlation_id is None:
@@ -867,6 +874,35 @@ def generate(
     report_format,
     fail_on_warnings,
 ):
+    """
+    Generate documentation from Ansible role.
+
+    ROLE_PATH: Path to Ansible role directory or roles parent directory (with --recursive)
+
+    Examples:
+
+        # Generate markdown documentation
+        ansible-doctor-enhanced generate /path/to/role
+
+        # Generate HTML with custom output path
+        ansible-doctor-enhanced generate /path/to/role --format html --output docs/role.html
+
+        # Generate RST for Sphinx
+        ansible-doctor-enhanced generate /path/to/role --format rst --sphinx-compat
+
+        # Generate for multiple roles
+        ansible-doctor-enhanced generate /path/to/roles --recursive --output-dir docs/
+
+        # Use custom template
+        ansible-doctor-enhanced generate /path/to/role --template my-template.j2
+
+    Exit Codes:
+
+        0 - Success: Documentation generated without errors
+        1 - Error: Fatal error occurred (YAML parse error, file not found, etc.)
+        2 - Warning: Warnings present and --fail-on-warnings flag set
+        3 - Invalid: Invalid arguments or configuration
+    """
 
     # Generate or use provided correlation ID for request tracing
     if correlation_id is None:

@@ -929,7 +929,154 @@ Environment variables override config file settings:
 - `ANSIBLE_DOCTOR_OUTPUT`: Default output file path
 - `ANSIBLE_DOCTOR_TEMPLATE`: Default template name
 
-## 📚 Documentation
+## � CI/CD Integration
+
+Ansible Doctor Enhanced provides predictable exit codes and execution reports for seamless CI/CD pipeline integration.
+
+### Exit Codes
+
+All commands follow a consistent exit code convention for automation:
+
+| Exit Code | Status | Description | When to Expect |
+|-----------|--------|-------------|----------------|
+| `0` | ✅ Success | Command completed without errors | Normal execution with no issues |
+| `1` | ❌ Error | Fatal error occurred | YAML parse errors, file not found, permission denied |
+| `2` | ⚠️ Warning | Warnings present with `--fail-on-warnings` | Warnings found and flag set (CI/CD quality gates) |
+| `3` | 🚫 Invalid | Invalid arguments or configuration | Wrong command syntax, invalid paths, config errors |
+
+### Using in CI/CD Pipelines
+
+**GitHub Actions Example:**
+
+```yaml
+name: Documentation Quality Gate
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Ansible Doctor
+        run: pip install ansible-doctor-enhanced
+      
+      - name: Generate Documentation
+        run: |
+          ansible-doctor generate roles/my-role \
+            --output docs/role-doc.md \
+            --fail-on-warnings \
+            --report execution-report.json
+      
+      - name: Upload Execution Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: execution-report
+          path: execution-report.json
+```
+
+**GitLab CI Example:**
+
+```yaml
+validate-docs:
+  stage: test
+  script:
+    - pip install ansible-doctor-enhanced
+    - >
+      ansible-doctor generate roles/my-role
+      --output docs/role-doc.md
+      --fail-on-warnings
+      --report execution-report.json
+  artifacts:
+    when: always
+    reports:
+      dotenv: execution-report.json
+    paths:
+      - docs/
+```
+
+**Quality Gates:**
+
+```bash
+# Fail pipeline if ANY warnings are present (strict mode)
+ansible-doctor generate roles/my-role --fail-on-warnings
+
+# Exit code 0: No warnings → Pipeline continues
+# Exit code 2: Warnings found → Pipeline fails
+```
+
+### Execution Reports
+
+Generate structured reports for analysis and debugging:
+
+```bash
+# JSON report (machine-readable)
+ansible-doctor generate roles/my-role --report report.json
+
+# Text report (human-readable)
+ansible-doctor generate roles/my-role --report report.txt --report-format text
+
+# Summary format (concise overview)
+ansible-doctor generate roles/my-role --report report.txt --report-format summary
+```
+
+**Report Contents:**
+- ✅ Execution status (success, failed, completed_with_warnings)
+- ⏱️ Performance metrics (timing, file counts, throughput)
+- 🔍 Correlation ID for distributed tracing
+- ⚠️ Warnings and errors with file paths and suggestions
+- 📊 Processing statistics (roles documented, files processed)
+
+**Example Report (JSON):**
+
+```json
+{
+  "status": "completed_with_warnings",
+  "started_at": "2026-01-05T12:00:00Z",
+  "completed_at": "2026-01-05T12:00:05Z",
+  "duration_ms": 5000,
+  "correlation_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "command": "generate roles/my-role",
+  "metrics": {
+    "files_processed": 42,
+    "roles_documented": 1,
+    "total_duration_ms": 5000
+  },
+  "warnings": [
+    {
+      "file": "roles/my-role/defaults/main.yml",
+      "line": 15,
+      "message": "Variable 'example_var' lacks documentation"
+    }
+  ],
+  "output_files": ["docs/role-doc.md"]
+}
+```
+
+### Correlation IDs
+
+Use correlation IDs to trace execution across multiple commands:
+
+```bash
+# Auto-generated correlation ID
+ansible-doctor generate roles/my-role --report report.json
+
+# Custom correlation ID (for tracking in distributed systems)
+ansible-doctor generate roles/my-role \
+  --correlation-id "$CI_PIPELINE_ID" \
+  --report report.json
+```
+
+All log entries and reports include the correlation ID for easy troubleshooting.
+
+## �📚 Documentation
 
 - [Full Documentation](https://ansible-doctor-enhanced.readthedocs.io/) *(coming soon)*
 - [API Reference](docs/api.md) *(coming soon)*
