@@ -159,6 +159,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Warning aggregation by file validated
   - Summary text formatting with file paths and error types validated
 - **User Story 4**: Complete - Aggregated error/warning summaries grouped by file for easy troubleshooting ✅
+
+**Phase 7: User Story 5 Tests (T071-T075) - RED Phase ✅**
+- **Integration Tests**: `tests/integration/test_exit_codes.py` with 9 comprehensive tests:
+  - `TestExitCodeSuccess` (2 tests): Exit code 0 on successful parse/generate
+  - `TestExitCodeFatalError` (2 tests): Exit code 1 on nonexistent role, invalid YAML
+  - `TestExitCodeFailOnWarnings` (2 tests): Exit code 2 with --fail-on-warnings flag
+  - `TestExitCodeInvalidUsage` (2 tests): Exit code 2/3 on invalid flag, missing argument
+  - `TestExitCodeWarningsWithoutFlag` (1 test): Exit code 0 for warnings without --fail-on-warnings
+- **Test Status**: 6/9 tests PASSING, 3 FAILING (expected RED phase) ✅
+  - Passing: Success cases (0), invalid usage (2), some error cases
+  - Failing: Nonexistent role returns 2 instead of 1, invalid YAML returns 0 instead of 1, warnings return 1 instead of 0
+- **Exit Code Convention**:
+  - 0: SUCCESS - operation completed successfully
+  - 1: ERROR - fatal error occurred
+  - 2: WARNING - warnings treated as errors (with --fail-on-warnings)
+  - 3: INVALID - invalid command-line arguments (Note: Click uses 2 by default)
+- **User Story 5**: Tests define requirements for predictable CI/CD exit codes ✅
   - Phase tracking: "parsing" phase around role parsing, "output" phase around file writing
   - Modified `_parse_single_role()` to accept optional metrics_collector, increments counters
   - Modified `_parse_roles_recursive()` to accept optional metrics_collector, increments per role
