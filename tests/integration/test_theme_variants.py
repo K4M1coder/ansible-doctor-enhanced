@@ -4,8 +4,6 @@ Feature 008 - Template Customization & Theming
 T343: End-to-end tests for minimal/detailed/modern variants
 """
 
-from pathlib import Path
-
 import pytest
 
 from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
@@ -23,7 +21,7 @@ class TestThemeVariantsIntegration:
         # Create role directory
         role_path = tmp_path / "sample_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="sample_role",
             path=role_path,
@@ -108,9 +106,9 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=minimal_theme,
         )
-        
+
         result = renderer.render(context)
-        
+
         # Should produce valid HTML
         assert isinstance(result, str)
         assert len(result) > 0
@@ -127,9 +125,9 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=detailed_theme,
         )
-        
+
         result = renderer.render(context)
-        
+
         assert isinstance(result, str)
         assert len(result) > 0
         assert "<html" in result.lower()
@@ -144,9 +142,9 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=modern_theme,
         )
-        
+
         result = renderer.render(context)
-        
+
         assert isinstance(result, str)
         assert len(result) > 0
         assert "<html" in result.lower()
@@ -160,9 +158,9 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=detailed_theme,
         )
-        
+
         css_tags = context.css_tags
-        
+
         # Should have at least base CSS
         assert len(css_tags) >= 1
         # Should contain CSS variables
@@ -177,10 +175,10 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=detailed_theme,
         )
-        
+
         toggle_html = context.theme_toggle_html
         toggle_js = context.theme_toggle_js
-        
+
         # Toggle should be present when enabled
         assert "<button" in toggle_html
         assert "localStorage" in toggle_js
@@ -198,10 +196,10 @@ class TestThemeVariantsIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         toggle_html = context.theme_toggle_html
         toggle_js = context.theme_toggle_js
-        
+
         # Toggle should be empty when disabled
         assert toggle_html == ""
         assert toggle_js == ""
@@ -215,7 +213,7 @@ class TestColorSchemeIntegration:
         """Create minimal role for color scheme testing."""
         role_path = tmp_path / "color_test_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="color_test_role",
             path=role_path,
@@ -234,7 +232,7 @@ class TestColorSchemeIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
         assert len(css_tags) >= 1
         # Light scheme should have base variables
@@ -253,7 +251,7 @@ class TestColorSchemeIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
         assert len(css_tags) >= 1
         all_css = "".join(t.content for t in css_tags if t.tag_type == "style")
@@ -272,7 +270,7 @@ class TestColorSchemeIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
         all_css = "".join(t.content for t in css_tags if t.tag_type == "style")
         # Auto mode should include media query for system preference
@@ -287,7 +285,7 @@ class TestCustomCSSIntegration:
         """Create minimal role for CSS testing."""
         role_path = tmp_path / "css_test_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="css_test_role",
             path=role_path,
@@ -305,10 +303,10 @@ class TestCustomCSSIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
         link_tags = [t for t in css_tags if t.tag_type == "link"]
-        
+
         assert len(link_tags) >= 1
         assert any("https://example.com/custom-theme.css" in t.content for t in link_tags)
 
@@ -324,10 +322,10 @@ class TestCustomCSSIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
         inline_tags = [t for t in css_tags if t.tag_type == "style"]
-        
+
         assert any("font-family" in t.content for t in inline_tags)
 
     def test_css_order_base_url_inline(self, sample_role):
@@ -343,20 +341,20 @@ class TestCustomCSSIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         css_tags = context.css_tags
-        
+
         # Should have 3 tags: base (inline), URL (link), custom (inline)
         assert len(css_tags) >= 3
-        
+
         # First should be base CSS (inline)
         assert css_tags[0].tag_type == "style"
         assert "--ad-" in css_tags[0].content
-        
+
         # Second should be external URL (link)
         assert css_tags[1].tag_type == "link"
         assert "example.com" in css_tags[1].content
-        
+
         # Third should be custom inline CSS
         assert css_tags[2].tag_type == "style"
         assert ".custom" in css_tags[2].content
@@ -370,7 +368,7 @@ class TestThemeContextDictIntegration:
         """Create minimal role."""
         role_path = tmp_path / "dict_test_role"
         role_path.mkdir()
-        
+
         return AnsibleRole(
             name="dict_test_role",
             path=role_path,
@@ -390,16 +388,16 @@ class TestThemeContextDictIntegration:
             output_format=OutputFormat.HTML,
             theme_config=theme_config,
         )
-        
+
         data = context.to_dict()
-        
+
         # All theme properties should be present
         assert "theme_config" in data
         assert "css_tags" in data
         assert "theme_toggle_html" in data
         assert "theme_toggle_js" in data
         assert "color_scheme" in data
-        
+
         # Values should match
         assert data["theme_config"] == theme_config
         assert data["color_scheme"] == ColorScheme.DARK
@@ -413,9 +411,9 @@ class TestThemeContextDictIntegration:
             generator_version="0.5.0",
             output_format=OutputFormat.HTML,
         )
-        
+
         data = context.to_dict()
-        
+
         # Theme properties should be None or empty
         assert data["theme_config"] is None
         assert data["css_tags"] == []

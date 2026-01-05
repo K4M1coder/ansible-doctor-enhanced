@@ -5,7 +5,6 @@ is captured and displayed correctly. Following TDD methodology.
 """
 
 import json
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -24,23 +23,23 @@ def temp_role_dir(tmp_path):
     """Create a minimal valid Ansible role structure for testing."""
     role_dir = tmp_path / "test_role"
     role_dir.mkdir()
-    
+
     # Create minimal role structure
     (role_dir / "tasks").mkdir()
     (role_dir / "tasks" / "main.yml").write_text(
         "---\n- name: Test task\n  debug:\n    msg: 'test'\n"
     )
-    
+
     (role_dir / "meta").mkdir()
     (role_dir / "meta" / "main.yml").write_text(
         "galaxy_info:\n  author: Test Author\n  description: Test Role\n  license: MIT\n"
     )
-    
+
     (role_dir / "defaults").mkdir()
     (role_dir / "defaults" / "main.yml").write_text(
         "# @var test_var: Test variable\ntest_var: test_value\n"
     )
-    
+
     return role_dir
 
 
@@ -52,25 +51,27 @@ class TestMetricsInReportJSON:
         # Arrange
         report_path = tmp_path / "report.json"
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(temp_role_dir),
-                "--output", str(output_file),
-                "--report", str(report_path)
-            ]
+                "--output",
+                str(output_file),
+                "--report",
+                str(report_path),
+            ],
         )
-        
+
         # Assert
         assert result.exit_code == 0
         assert report_path.exists()
-        
+
         with open(report_path) as f:
             report_data = json.load(f)
-        
+
         assert "metrics" in report_data
         assert "phase_timing" in report_data["metrics"]
         assert isinstance(report_data["metrics"]["phase_timing"], dict)
@@ -86,24 +87,26 @@ class TestMetricsInReportJSON:
         # Arrange
         report_path = tmp_path / "report.json"
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(temp_role_dir),
-                "--output", str(output_file),
-                "--report", str(report_path)
-            ]
+                "--output",
+                str(output_file),
+                "--report",
+                str(report_path),
+            ],
         )
-        
+
         # Assert
         assert result.exit_code == 0
-        
+
         with open(report_path) as f:
             report_data = json.load(f)
-        
+
         metrics = report_data["metrics"]
         # Should have processed at least 3 files (tasks, meta, defaults)
         assert metrics["files_processed"] >= 3
@@ -117,18 +120,12 @@ class TestVerboseModePhasing:
         """Verify --verbose shows phase timing information."""
         # Arrange
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
-            cli,
-            [
-                "generate",
-                str(temp_role_dir),
-                "--output", str(output_file),
-                "--verbose"
-            ]
+            cli, ["generate", str(temp_role_dir), "--output", str(output_file), "--verbose"]
         )
-        
+
         # Assert
         assert result.exit_code == 0
         # Verbose output goes to stderr in Click
@@ -141,26 +138,28 @@ class TestVerboseModePhasing:
         # Arrange
         report_path = tmp_path / "report.json"
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(temp_role_dir),
-                "--output", str(output_file),
+                "--output",
+                str(output_file),
                 "--verbose",
-                "--report", str(report_path)
-            ]
+                "--report",
+                str(report_path),
+            ],
         )
-        
+
         # Assert
         assert result.exit_code == 0
         assert report_path.exists()
-        
+
         with open(report_path) as f:
             report_data = json.load(f)
-        
+
         # Both verbose output and report should contain timing
         output = result.output + (result.stderr or "")
         assert "phase_timing" in json.dumps(report_data["metrics"])

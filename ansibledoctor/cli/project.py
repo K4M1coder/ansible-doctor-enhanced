@@ -28,7 +28,12 @@ def project():
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
+@click.option(
+    "--deep/--no-deep",
+    "deep_parse",
+    default=False,
+    help="Recursively parse roles and collections (deep parse)",
+)
 @click.option(
     "--redact-values/--no-redact-values",
     "redact_values",
@@ -55,7 +60,12 @@ def parse(project_path: Path, redact_values: bool, deep_parse: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
+@click.option(
+    "--deep/--no-deep",
+    "deep_parse",
+    default=False,
+    help="Recursively parse roles and collections (deep parse)",
+)
 @click.option(
     "--playbook",
     "playbook",
@@ -72,7 +82,13 @@ def parse(project_path: Path, redact_values: bool, deep_parse: bool):
     default=True,
     help="Redact sensitive variable values in output (default: True)",
 )
-def analyze(project_path: Path, playbook: str | None, output_format: str, redact_values: bool, deep_parse: bool):
+def analyze(
+    project_path: Path,
+    playbook: str | None,
+    output_format: str,
+    redact_values: bool,
+    deep_parse: bool,
+):
     """Analyze a project and output analysis results.
 
     Performs analysis on the project structure, dependencies, and potential issues,
@@ -112,7 +128,12 @@ def analyze(project_path: Path, playbook: str | None, output_format: str, redact
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
+@click.option(
+    "--deep/--no-deep",
+    "deep_parse",
+    default=False,
+    help="Recursively parse roles and collections (deep parse)",
+)
 @click.option(
     "--format", "output_format", type=click.Choice(["mermaid", "json"]), default="mermaid"
 )
@@ -174,7 +195,12 @@ def visualize(project_path: Path, output_format: str, deep_parse: bool):
 
 @project.command()
 @click.argument("project_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--deep/--no-deep", "deep_parse", default=False, help="Recursively parse roles and collections (deep parse)")
+@click.option(
+    "--deep/--no-deep",
+    "deep_parse",
+    default=False,
+    help="Recursively parse roles and collections (deep parse)",
+)
 @click.option("--output-dir", "output_dir", type=click.Path(path_type=Path), default=None)
 @click.option(
     "--format", "format", type=click.Choice(["markdown", "html", "rst"]), default="markdown"
@@ -206,6 +232,12 @@ def visualize(project_path: Path, output_format: str, deep_parse: bool):
     default=True,
     help="Redact sensitive variable values in generated docs (default: True)",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
     project_path: Path,
     output_dir: Path | None,
@@ -216,6 +248,7 @@ def generate(
     language: str | None,
     languages: str | None,
     deep_parse: bool,
+    continue_on_error: bool,
 ):
     """Generate documentation for a project.
 

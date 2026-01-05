@@ -12,17 +12,16 @@ import uuid
 from contextvars import ContextVar
 from typing import Optional
 
-
 # Context variable for storing correlation ID in thread-local storage
 _correlation_id: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
 
 
 def generate_correlation_id() -> str:
     """Generate a unique correlation ID using UUID4.
-    
+
     Returns:
         UUID4 string in format: "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-    
+
     Example:
         >>> cid = generate_correlation_id()
         >>> len(cid)
@@ -35,27 +34,28 @@ def generate_correlation_id() -> str:
 
 def set_correlation_id(correlation_id: str) -> None:
     """Set the correlation ID for the current context.
-    
+
     Uses contextvars to store the ID in thread-local storage,
     ensuring proper propagation across async operations and
     nested function calls.
-    
+
     Also binds the correlation_id to structlog's context so it
     appears in all log entries automatically.
-    
+
     Args:
         correlation_id: Correlation ID to set (any string format)
-    
+
     Example:
         >>> set_correlation_id("test-123")
         >>> get_correlation_id()
         'test-123'
     """
     _correlation_id.set(correlation_id)
-    
+
     # Bind to structlog context for automatic inclusion in all log entries
     try:
         import structlog
+
         structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
     except ImportError:
         # structlog not available, skip binding (e.g., in minimal environments)
@@ -64,10 +64,10 @@ def set_correlation_id(correlation_id: str) -> None:
 
 def get_correlation_id() -> Optional[str]:
     """Get the correlation ID for the current context.
-    
+
     Returns:
         Current correlation ID or None if not set
-    
+
     Example:
         >>> set_correlation_id("abc-123")
         >>> get_correlation_id()
@@ -78,9 +78,9 @@ def get_correlation_id() -> Optional[str]:
 
 def clear_correlation_id() -> None:
     """Clear the correlation ID from the current context.
-    
+
     Useful for cleanup between operations or in test teardown.
-    
+
     Example:
         >>> set_correlation_id("test")
         >>> clear_correlation_id()

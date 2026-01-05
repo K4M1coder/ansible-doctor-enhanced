@@ -12,9 +12,9 @@ from typing import Dict, List, Union
 
 from pydantic import BaseModel, Field, field_validator
 
-from ansibledoctor.models.galaxy import GalaxyMetadata
-from ansibledoctor.models.plugin import PluginType, Plugin
 from ansibledoctor.models.existing_docs import ExistingDocs
+from ansibledoctor.models.galaxy import GalaxyMetadata
+from ansibledoctor.models.plugin import Plugin, PluginType
 from ansibledoctor.models.role import AnsibleRole
 
 
@@ -74,7 +74,8 @@ class AnsibleCollection(BaseModel):
         default_factory=list, description="List of role names or full role objects"
     )
     plugins: Dict[PluginType, List[Union[str, Plugin]]] = Field(
-        default_factory=dict, description="Dictionary mapping plugin types to plugin file paths or objects"
+        default_factory=dict,
+        description="Dictionary mapping plugin types to plugin file paths or objects",
     )
     playbooks: List[PlaybookInfo] = Field(
         default_factory=list, description="List of discovered playbooks"

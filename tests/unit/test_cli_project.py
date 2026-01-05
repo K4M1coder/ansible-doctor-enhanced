@@ -148,7 +148,7 @@ galaxy_info:
 """
     )
     (proj_dir / "collections" / "my_namespace" / "my_collection" / "galaxy.yml").write_text(
-                """
+        """
 namespace: my_namespace
 name: my_collection
 version: 1.0.0
@@ -156,7 +156,7 @@ authors:
     - Demo <demo@example.com>
 dependencies: {}
 """
-        )
+    )
     runner = CliRunner()
     result = runner.invoke(project_cli, ["parse", str(proj_dir), "--deep"])
     assert result.exit_code == 0
@@ -203,14 +203,14 @@ def test_cli_generate_with_deep_flag(tmp_path: Path):
     # Create minimal role metadata so deep parse will be valid
     (proj_dir / "roles" / "webserver" / "meta").mkdir(parents=True, exist_ok=True)
     (proj_dir / "roles" / "webserver" / "meta" / "main.yml").write_text(
-                """
+        """
 galaxy_info:
     author: Web Author
     description: Web server role
     license: MIT
     min_ansible_version: 2.9
 """
-        )
+    )
     runner = CliRunner()
     result = runner.invoke(project_cli, ["generate", str(proj_dir), "--deep"])
     assert result.exit_code == 0
@@ -267,18 +267,19 @@ def test_cli_analyze_with_deep_flag(tmp_path: Path):
     # create minimal role metadata to make deep parse work
     (proj_dir / "roles" / "webserver" / "meta").mkdir(parents=True, exist_ok=True)
     (proj_dir / "roles" / "webserver" / "meta" / "main.yml").write_text(
-                """
+        """
 galaxy_info:
     author: Web Author
     description: Web server role
     license: MIT
     min_ansible_version: 2.9
 """
-        )
+    )
     runner = CliRunner()
     result = runner.invoke(project_cli, ["analyze", str(proj_dir), "--deep"])
     assert result.exit_code == 0
     import json
+
     data = json.loads(result.output)
     assert "analysis" in data
 

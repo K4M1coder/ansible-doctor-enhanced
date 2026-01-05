@@ -15,14 +15,11 @@ Tests verify:
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
 from ansibledoctor.generator.css_injector import CSSInjector, CSSTag, ThemeToggleGenerator
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
-from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.generator.renderers.rst import RstRenderer
 from ansibledoctor.models import AnsibleRole, RoleMetadata
@@ -150,8 +147,8 @@ class TestThemeToggleGeneration:
         generator = ThemeToggleGenerator()
         result = generator.generate_toggle(enabled=True)
 
-        assert 'aria-pressed' in result.button_html
-        assert 'aria-label' in result.button_html
+        assert "aria-pressed" in result.button_html
+        assert "aria-label" in result.button_html
 
     def test_toggle_button_has_id(self):
         """Toggle button has correct ID for JS targeting."""
@@ -308,11 +305,11 @@ class TestHtmlOutputIncludesCSS:
         css_tags = context.css_tags
         assert len(css_tags) >= 1
         all_css = "".join(t.content for t in css_tags if t.tag_type == "style")
-        
+
         # Should contain CSS variables
         assert "--ad-color-primary" in all_css
         assert "--ad-color-bg" in all_css
-        
+
         # Verify tags can be converted to HTML
         for tag in css_tags:
             html = tag.to_html()
@@ -337,7 +334,7 @@ class TestHtmlOutputIncludesCSS:
         css_tags = context.css_tags
         assert len(css_tags) >= 1
         all_css = "".join(t.content for t in css_tags if t.tag_type == "style")
-        
+
         # Dark mode CSS should have data-theme selector
         assert '[data-theme="dark"]' in all_css or "prefers-color-scheme: dark" in all_css
 
@@ -359,7 +356,7 @@ class TestHtmlOutputIncludesCSS:
         # Toggle HTML should be available in context
         assert context.theme_toggle_html is not None
         assert "ad-theme-toggle" in context.theme_toggle_html
-        
+
         # Toggle JS should also be available
         assert context.theme_toggle_js is not None
         assert "localStorage" in context.theme_toggle_js
@@ -504,10 +501,7 @@ class TestExternalCSSUrl:
             include_base=False,
         )
 
-        assert any(
-            t.tag_type == "link" and "theme.css" in t.content
-            for t in tags
-        )
+        assert any(t.tag_type == "link" and "theme.css" in t.content for t in tags)
 
     def test_external_url_with_base_css(self):
         """External URL can be combined with base CSS."""

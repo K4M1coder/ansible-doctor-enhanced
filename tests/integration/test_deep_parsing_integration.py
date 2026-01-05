@@ -1,9 +1,9 @@
 """Integration tests for deep parsing of collections."""
-import pytest
-from pathlib import Path
-from ansibledoctor.parser.collection_parser import CollectionParser
+
 from ansibledoctor.models.plugin import Plugin, PluginType
 from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.parser.collection_parser import CollectionParser
+
 
 class TestDeepParsingIntegration:
     """Integration tests for deep parsing functionality."""
@@ -16,12 +16,16 @@ class TestDeepParsingIntegration:
         # Setup collection structure
         collection_dir = tmp_path / "test_ns" / "test_coll"
         collection_dir.mkdir(parents=True)
-        (collection_dir / "galaxy.yml").write_text("namespace: test_ns\nname: test_coll\nversion: 1.0.0")
+        (collection_dir / "galaxy.yml").write_text(
+            "namespace: test_ns\nname: test_coll\nversion: 1.0.0"
+        )
 
         # Setup Role
         role_dir = collection_dir / "roles" / "my_role"
         (role_dir / "tasks").mkdir(parents=True)
-        (role_dir / "tasks" / "main.yml").write_text("- name: Task 1\n  debug: msg='hello'\n  tags: [my_tag]")
+        (role_dir / "tasks" / "main.yml").write_text(
+            "- name: Task 1\n  debug: msg='hello'\n  tags: [my_tag]"
+        )
         (role_dir / "meta").mkdir(parents=True)
         (role_dir / "meta" / "main.yml").write_text("galaxy_info:\n  author: me")
 
@@ -45,10 +49,10 @@ short_description: My Module
         role = collection.roles[0]
         assert isinstance(role, AnsibleRole)
         assert role.name == "my_role"
-        
+
         # Verify metadata
         assert role.metadata.author == "me"
-        
+
         # Verify tags
         assert len(role.tags) == 1
         assert role.tags[0].name == "my_tag"

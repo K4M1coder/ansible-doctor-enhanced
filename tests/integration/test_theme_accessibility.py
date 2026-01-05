@@ -6,8 +6,6 @@ T349: Accessibility tests for theme toggle
 Ensures ARIA attributes in toggle controls and valid HTML structure.
 """
 
-import re
-
 import pytest
 
 from ansibledoctor.generator.css_injector import (
@@ -36,7 +34,7 @@ class TestToggleAriaAttributes:
         """Test toggle button has aria-label attribute."""
         result = toggle_generator.generate_toggle(enabled=True)
 
-        assert 'aria-label=' in result.button_html
+        assert "aria-label=" in result.button_html
         assert "Switch to dark mode" in result.button_html
 
     def test_toggle_has_title(self, toggle_generator: ThemeToggleGenerator):

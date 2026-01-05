@@ -24,19 +24,21 @@ from ansibledoctor.cli.project import project
 from ansibledoctor.config.loader import find_config_file, load_config, merge_config
 from ansibledoctor.config.models import ConfigModel
 from ansibledoctor.exceptions import (
-    AnsibleDoctorError,
     EXIT_ERROR,
     EXIT_INVALID,
     EXIT_SUCCESS,
     EXIT_WARNING,
+    AnsibleDoctorError,
     ParsingError,
     ValidationError,
 )
+from ansibledoctor.exceptions.aggregator import ErrorAggregator
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.generator.renderers.rst import RstRenderer
 from ansibledoctor.models import AnsibleRole
+from ansibledoctor.models.error_report import ErrorReport
 from ansibledoctor.models.execution_report import ExecutionMetrics
 from ansibledoctor.parser.annotation_extractor import AnnotationExtractor
 from ansibledoctor.parser.docs_extractor import DocsExtractor
@@ -52,9 +54,48 @@ from ansibledoctor.reporting.report_generator import ReportGenerator
 from ansibledoctor.utils.correlation import generate_correlation_id, set_correlation_id
 from ansibledoctor.utils.logging import get_logger, setup_logging
 from ansibledoctor.utils.paths import RolePathValidator
+from ansibledoctor.utils.sarif import SARIFFormatter
 from ansibledoctor.utils.slug import role_slug
 
 logger = get_logger(__name__)
+
+
+def _output_error_report(
+    error_aggregator: ErrorAggregator,
+    correlation_id: str,
+    error_format: str,
+    error_output: Path | None,
+) -> None:
+    """Output error report to stderr or file.
+
+    Args:
+        error_aggregator: ErrorAggregator with collected errors/warnings
+        correlation_id: Request correlation ID for tracking
+        error_format: Output format (text, json, sarif)
+        error_output: Optional file path for report output
+    """
+    # Generate error report
+    report = error_aggregator.get_report(correlation_id=correlation_id)
+
+    # Skip output if no errors, warnings, or suppressed errors (Phase 6 T059)
+    if report.error_count == 0 and report.warning_count == 0 and report.suppressed_count == 0:
+        return
+
+    # Format report based on requested format
+    if error_format == "json":
+        output_data = report.to_json()
+    elif error_format == "sarif":
+        formatter = SARIFFormatter()
+        output_data = json.dumps(formatter.format(report), indent=2)
+    else:  # text (default)
+        output_data = report.to_text()
+
+    # Write to file or stderr
+    if error_output:
+        error_output.write_text(output_data, encoding="utf-8")
+        click.echo(f"Error report written to {error_output}", err=True)
+    else:
+        click.echo(output_data, err=True)
 
 
 @click.group()
@@ -130,6 +171,28 @@ def cli():
     default=False,
     help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
 )
+@click.option(
+    "--error-format",
+    type=click.Choice(["text", "json", "sarif"], case_sensitive=False),
+    default="text",
+    help="Error report output format (default: text)",
+)
+@click.option(
+    "--error-output",
+    type=click.Path(path_type=Path),
+    help="Write error report to file (default: stderr)",
+)
+@click.option(
+    "--ignore",
+    type=str,
+    help="Comma-separated list of error codes to suppress (e.g., E101,W103)",
+)
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def parse(
     role_path: Path,
     output: Path | None,
@@ -141,6 +204,10 @@ def parse(
     report: Path | None,
     report_format: str,
     fail_on_warnings: bool,
+    error_format: str,
+    error_output: Path | None,
+    ignore: str | None,
+    continue_on_error: bool,
 ):
     """
     Parse Ansible role and extract documentation.
@@ -160,12 +227,12 @@ def parse(
 
         # Validate role structure
         ansible-doctor-enhanced parse /path/to/role --validate
-        
+
         # Generate execution report
         ansible-doctor-enhanced parse /path/to/role --report execution-report.json
-    
+
     Exit Codes:
-    
+
         0 - Success: Role parsed without errors
         1 - Error: Fatal error occurred (YAML parse error, file not found, etc.)
         2 - Warning: Warnings present and --fail-on-warnings flag set
@@ -175,22 +242,22 @@ def parse(
     if correlation_id is None:
         correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
-    
+
     # Validate path exists
     if not role_path.exists():
         click.echo(f"Error: Role path does not exist: {role_path}", err=True)
         sys.exit(EXIT_ERROR)
-    
+
     if not role_path.is_dir():
         click.echo(f"Error: Role path is not a directory: {role_path}", err=True)
         sys.exit(EXIT_ERROR)
-    
+
     # Initialize metrics collector for performance tracking
     metrics_collector = MetricsCollector()
-    
+
     # Track execution timing
     started_at = datetime.now(timezone.utc)
-    
+
     # Setup logging
     setup_logging(level=log_level, json_output=False)
 
@@ -201,7 +268,7 @@ def parse(
         recursive=recursive,
         validate=validate,
     )
-    
+
     # Initialize execution tracking
     warnings_list = []
     errors_list = []
@@ -209,22 +276,50 @@ def parse(
     files_processed = 0
     roles_documented = 0
 
+    # T057: Load config file and merge ignore codes with CLI --ignore flag
+    ignore_codes = []
+    try:
+        config_file_path = find_config_file(role_path)
+        if config_file_path:
+            logger.debug(f"Found config file for ignore_errors: {config_file_path}")
+            file_config = load_config(config_file_path)
+            if file_config.ignore_errors:
+                ignore_codes.extend(file_config.ignore_errors)
+                logger.debug(f"Loaded ignore_errors from config: {file_config.ignore_errors}")
+    except Exception as e:
+        logger.warning(f"Could not load config for ignore_errors: {e}")
+
+    # Add CLI --ignore codes (CLI extends config)
+    if ignore:
+        cli_codes = [code.strip() for code in ignore.split(",") if code.strip()]
+        ignore_codes.extend(cli_codes)
+        logger.debug(f"Added CLI ignore codes: {cli_codes}")
+
+    logger.debug(f"Final ignore codes: {ignore_codes}")
+
+    # Initialize error aggregator for structured error collection
+    error_aggregator = ErrorAggregator(ignore_codes=ignore_codes)
+
     try:
         # Start parsing phase
         metrics_collector.start_phase("parsing")
-        
+
         if recursive:
-            result = _parse_roles_recursive(role_path, validate, metrics_collector)
+            result = _parse_roles_recursive(
+                role_path, validate, metrics_collector, continue_on_error, error_aggregator
+            )
         else:
-            result = _parse_single_role(role_path, validate, metrics_collector)
+            result = _parse_single_role(
+                role_path, validate, metrics_collector, continue_on_error, error_aggregator
+            )
             metrics_collector.increment_counter("roles_documented")
-        
+
         # End parsing phase
         metrics_collector.end_phase("parsing")
 
         # Start output phase
         metrics_collector.start_phase("output")
-        
+
         # Output result
         if json_output:
             output_data = json.dumps(result, indent=2, default=str)
@@ -238,17 +333,17 @@ def parse(
             click.echo(f"Documentation written to {output}", err=True)
         else:
             click.echo(output_data)
-        
+
         # End output phase
         metrics_collector.end_phase("output")
 
         # Calculate execution metrics
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
         # Get metrics from collector
         execution_metrics = metrics_collector.get_metrics()
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -265,11 +360,16 @@ def parse(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
         logger.info("cli_parse_completed", correlation_id=correlation_id, success=True)
-        
-        # Determine exit code based on warnings
-        if fail_on_warnings and len(warnings_list) > 0:
+
+        # Output error report if any errors/warnings were collected
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+
+        # Determine exit code (T049: Exit 1 even with partial success if errors occurred)
+        if error_aggregator.has_errors():
+            sys.exit(EXIT_ERROR)
+        elif fail_on_warnings and len(warnings_list) > 0:
             sys.exit(EXIT_WARNING)
         else:
             sys.exit(EXIT_SUCCESS)
@@ -277,22 +377,33 @@ def parse(
     except ValidationError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E200",
+            message=e.message,
+            file_path=str(role_path),
+        )
+
         # Track error
-        errors_list.append({
-            "file": str(role_path),
-            "line": None,
-            "error_type": "ValidationError",
-            "message": e.message,
-            "suggestion": e.suggestion,
-            "stack_trace": None,
-        })
-        
-        logger.error("validation_failed", correlation_id=correlation_id, error=str(e), context=e.context)
+        errors_list.append(
+            {
+                "file": str(role_path),
+                "line": None,
+                "error_type": "ValidationError",
+                "message": e.message,
+                "suggestion": e.suggestion,
+                "stack_trace": None,
+            }
+        )
+
+        logger.error(
+            "validation_failed", correlation_id=correlation_id, error=str(e), context=e.context
+        )
         click.echo(f"Validation Error: {e.message}", err=True)
         if e.suggestion:
             click.echo(f"Suggestion: {e.suggestion}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -310,28 +421,42 @@ def parse(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+
         sys.exit(EXIT_INVALID)
 
     except ParsingError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E100",
+            message=e.message,
+            file_path=str(role_path),
+        )
+
         # Track error
-        errors_list.append({
-            "file": str(role_path),
-            "line": None,
-            "error_type": "ParsingError",
-            "message": e.message,
-            "suggestion": e.suggestion,
-            "stack_trace": None,
-        })
-        
-        logger.error("parsing_failed", correlation_id=correlation_id, error=str(e), context=e.context)
+        errors_list.append(
+            {
+                "file": str(role_path),
+                "line": None,
+                "error_type": "ParsingError",
+                "message": e.message,
+                "suggestion": e.suggestion,
+                "stack_trace": None,
+            }
+        )
+
+        logger.error(
+            "parsing_failed", correlation_id=correlation_id, error=str(e), context=e.context
+        )
         click.echo(f"Parsing Error: {e.message}", err=True)
         if e.suggestion:
             click.echo(f"Suggestion: {e.suggestion}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -349,26 +474,38 @@ def parse(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+
         sys.exit(EXIT_ERROR)
 
     except AnsibleDoctorError as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
+        # Track error in aggregator
+        error_aggregator.add_error(
+            code=e.error_code if hasattr(e, "error_code") else "E000",
+            message=e.message,
+            file_path=str(role_path),
+        )
+
         # Track error
-        errors_list.append({
-            "file": str(role_path),
-            "line": None,
-            "error_type": type(e).__name__,
-            "message": e.message,
-            "suggestion": None,
-            "stack_trace": None,
-        })
-        
+        errors_list.append(
+            {
+                "file": str(role_path),
+                "line": None,
+                "error_type": type(e).__name__,
+                "message": e.message,
+                "suggestion": None,
+                "stack_trace": None,
+            }
+        )
+
         logger.error("ansible_doctor_error", correlation_id=correlation_id, error=str(e))
         click.echo(f"Error: {e.message}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -386,7 +523,10 @@ def parse(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
+        # Output error report
+        _output_error_report(error_aggregator, correlation_id, error_format, error_output)
+
         sys.exit(EXIT_ERROR)
 
     """
@@ -461,13 +601,21 @@ def parse(
     """
 
 
-def _parse_single_role(role_path: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
+def _parse_single_role(
+    role_path: Path,
+    validate: bool,
+    metrics_collector: MetricsCollector | None = None,
+    continue_on_error: bool = False,
+    error_aggregator: ErrorAggregator | None = None,
+) -> dict:
     """Parse a single role (CLI `parse` command) and return a serializable dict.
 
     Args:
         role_path: Path to the role directory
         validate: Whether to validate role structure
         metrics_collector: Optional MetricsCollector for tracking performance metrics
+        continue_on_error: If True, continue processing even if errors occur
+        error_aggregator: Optional ErrorAggregator for tracking errors
 
     Returns:
         A dict with parsed metadata, variables, tags, todos, and examples
@@ -667,7 +815,7 @@ def _parse_single_role(role_path: Path, validate: bool, metrics_collector: Metri
         }
 
     logger.info("role_parsed_successfully", role_name=result["name"])
-    
+
     # Update metrics if collector provided
     if metrics_collector:
         # Count files processed (rough estimate based on sections parsed)
@@ -681,11 +829,17 @@ def _parse_single_role(role_path: Path, validate: bool, metrics_collector: Metri
         if result.get("handlers"):
             files_count += 1  # handlers/main.yml
         metrics_collector.increment_counter("files_processed", files_count)
-    
+
     return result
 
 
-def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: MetricsCollector | None = None) -> dict:
+def _parse_roles_recursive(
+    roles_dir: Path,
+    validate: bool,
+    metrics_collector: MetricsCollector | None = None,
+    continue_on_error: bool = False,
+    error_aggregator: ErrorAggregator | None = None,
+) -> dict:
     """
     Parse multiple roles recursively.
 
@@ -693,6 +847,8 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
         roles_dir: Directory containing multiple roles
         validate: Whether to validate role structures
         metrics_collector: Optional MetricsCollector for tracking performance metrics
+        continue_on_error: If True, continue processing even if errors occur
+        error_aggregator: Optional ErrorAggregator for tracking errors
 
     Returns:
         dict: Dictionary of parsed roles by name
@@ -717,17 +873,28 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
             continue
 
         try:
-            role_data = _parse_single_role(potential_role, validate, metrics_collector)
+            if error_aggregator:
+                error_aggregator.mark_file_start(str(potential_role))
+            role_data = _parse_single_role(
+                potential_role, validate, metrics_collector, continue_on_error, error_aggregator
+            )
             results["roles"][potential_role.name] = role_data
             if metrics_collector:
                 metrics_collector.increment_counter("roles_documented")
+            if error_aggregator:
+                error_aggregator.mark_file_success(str(potential_role))
             logger.info("role_parsed_in_recursive", role_name=potential_role.name)
         except Exception as e:
+            if error_aggregator:
+                error_aggregator.add_error("E100", str(e), file_path=str(potential_role))
+                error_aggregator.mark_file_failure(str(potential_role))
             logger.warning(
                 "role_parse_failed_in_recursive",
                 role_name=potential_role.name,
                 error=str(e),
             )
+            if not continue_on_error:
+                raise
             results["roles"][potential_role.name] = {
                 "error": str(e),
                 "path": str(potential_role),
@@ -853,27 +1020,53 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
     default=False,
     help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
 )
+@click.option(
+    "--error-format",
+    type=click.Choice(["text", "json", "sarif"], case_sensitive=False),
+    default="text",
+    help="Error report output format (default: text)",
+)
+@click.option(
+    "--error-output",
+    type=click.Path(path_type=Path),
+    help="Write error report to file (default: stderr)",
+)
+@click.option(
+    "--ignore",
+    type=str,
+    help="Comma-separated list of error codes to suppress (e.g., E101,W103)",
+)
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
-    role_path,
-    format,
-    output,
-    output_dir,
-    recursive,
-    template,
-    embed_css,
-    generate_toc,
-    sphinx_compat,
-    verbose,
-    log_level,
-    variant,
-    color_scheme,
-    theme_toggle,
-    template_dir,
-    correlation_id,
-    report,
-    report_format,
-    fail_on_warnings,
-):
+    role_path: Path,
+    format: str,
+    output: Path | None,
+    output_dir: Path | None,
+    recursive: bool,
+    template: Path | None,
+    embed_css: bool,
+    generate_toc: bool,
+    sphinx_compat: bool,
+    verbose: bool,
+    log_level: str,
+    variant: str,
+    color_scheme: str,
+    theme_toggle: bool,
+    template_dir: Path | None,
+    correlation_id: str | None,
+    report: Path | None,
+    report_format: str,
+    fail_on_warnings: bool,
+    error_format: str,
+    error_output: Path | None,
+    ignore: str | None,
+    continue_on_error: bool,
+) -> None:
     """
     Generate documentation from Ansible role.
 
@@ -908,19 +1101,19 @@ def generate(
     if correlation_id is None:
         correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
-    
+
     # Validate path exists
     if not role_path.exists():
         click.echo(f"Error: Role path does not exist: {role_path}", err=True)
         sys.exit(EXIT_ERROR)
-    
+
     if not role_path.is_dir():
         click.echo(f"Error: Role path is not a directory: {role_path}", err=True)
         sys.exit(EXIT_ERROR)
-    
+
     # Initialize metrics collector for performance tracking
     metrics_collector = MetricsCollector()
-    
+
     # Track execution timing
     started_at = datetime.now(timezone.utc)
 
@@ -929,10 +1122,7 @@ def generate(
         log_level = "DEBUG"
     setup_logging(log_level)
 
-    logger.info(
-        f"Generating documentation for role: {role_path}",
-        correlation_id=correlation_id
-    )
+    logger.info(f"Generating documentation for role: {role_path}", correlation_id=correlation_id)
     logger.debug(
         f"Format: {format}, Output: {output}, Template: {template}, Recursive: {recursive}"
     )
@@ -979,13 +1169,25 @@ def generate(
 
         logger.debug(f"Merged config - Format: {format}, Output: {output}, Recursive: {recursive}")
 
+        # T057: Merge ignore_errors from config file with CLI --ignore flag
+        ignore_codes = []
+        # Start with config file ignore_errors
+        if merged_config.ignore_errors:
+            ignore_codes.extend(merged_config.ignore_errors)
+        # Add CLI --ignore codes (CLI overrides/extends config)
+        if ignore:
+            cli_codes = [code.strip() for code in ignore.split(",") if code.strip()]
+            ignore_codes.extend(cli_codes)
+
+        logger.debug(f"Merged ignore codes: {ignore_codes}")
+
     except Exception as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
         logger.error(f"Error loading config: {e}", correlation_id=correlation_id)
         click.echo(f"Config error: {e}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -1003,7 +1205,7 @@ def generate(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
         sys.exit(1)
 
     try:
@@ -1012,12 +1214,18 @@ def generate(
             _generate_recursive(
                 role_path, format, output_dir, template, embed_css, generate_toc, sphinx_compat
             )
-            roles_documented = sum(1 for _ in (output_dir or Path()).glob("*" + (".md" if format == "markdown" else ".html" if format == "html" else ".rst")))
-            
+            roles_documented = sum(
+                1
+                for _ in (output_dir or Path()).glob(
+                    "*"
+                    + (".md" if format == "markdown" else ".html" if format == "html" else ".rst")
+                )
+            )
+
             # Calculate execution metrics
             completed_at = datetime.now(timezone.utc)
             duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-            
+
             # Generate execution report if requested
             if report:
                 _generate_execution_report(
@@ -1035,7 +1243,7 @@ def generate(
                     errors=errors_list,
                     output_files=output_files,
                 )
-            
+
             return
 
         # Validate role path - raises ValidationError if invalid
@@ -1047,7 +1255,9 @@ def generate(
         role = _parse_role_for_generation(role_path)
         metrics_collector.end_phase("parsing")
         metrics_collector.increment_counter("roles_documented")
-        metrics_collector.increment_counter("files_processed", 5)  # Approximate: meta, defaults, vars, tasks, handlers
+        metrics_collector.increment_counter(
+            "files_processed", 5
+        )  # Approximate: meta, defaults, vars, tasks, handlers
 
         # Select renderer based on format
         if format.lower() == "markdown":
@@ -1109,11 +1319,11 @@ def generate(
         metrics_collector.end_phase("writing")
 
         logger.info("Documentation generation complete", correlation_id=correlation_id)
-        
+
         # Calculate execution metrics
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
         # Display phase timing in verbose mode
         if verbose:
             execution_metrics = metrics_collector.get_metrics()
@@ -1122,7 +1332,7 @@ def generate(
                 click.echo(f"  {phase}: {duration}ms", err=True)
             click.echo(f"  Total files processed: {execution_metrics.files_processed}", err=True)
             click.echo(f"  Roles documented: {execution_metrics.roles_documented}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -1139,7 +1349,7 @@ def generate(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
         # Determine exit code based on warnings
         if fail_on_warnings and len(warnings_list) > 0:
             sys.exit(EXIT_WARNING)
@@ -1149,20 +1359,22 @@ def generate(
     except (ParsingError, ValidationError, AnsibleDoctorError) as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
         # Track error
-        errors_list.append({
-            "file": str(role_path),
-            "line": None,
-            "error_type": type(e).__name__,
-            "message": str(e),
-            "suggestion": getattr(e, "suggestion", None),
-            "stack_trace": None,
-        })
-        
+        errors_list.append(
+            {
+                "file": str(role_path),
+                "line": None,
+                "error_type": type(e).__name__,
+                "message": str(e),
+                "suggestion": getattr(e, "suggestion", None),
+                "stack_trace": None,
+            }
+        )
+
         logger.error(f"Error generating documentation: {e}", correlation_id=correlation_id)
         click.echo(f"Error: {e}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -1180,26 +1392,28 @@ def generate(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
         sys.exit(EXIT_ERROR)
-        
+
     except Exception as e:
         completed_at = datetime.now(timezone.utc)
         duration_ms = int((completed_at - started_at).total_seconds() * 1000)
-        
+
         # Track error
-        errors_list.append({
-            "file": str(role_path),
-            "line": None,
-            "error_type": "UnexpectedError",
-            "message": str(e),
-            "suggestion": None,
-            "stack_trace": None,
-        })
-        
+        errors_list.append(
+            {
+                "file": str(role_path),
+                "line": None,
+                "error_type": "UnexpectedError",
+                "message": str(e),
+                "suggestion": None,
+                "stack_trace": None,
+            }
+        )
+
         logger.error(f"Unexpected error: {e}", correlation_id=correlation_id, exc_info=True)
         click.echo(f"Unexpected error: {e}", err=True)
-        
+
         # Generate execution report if requested
         if report:
             _generate_execution_report(
@@ -1217,7 +1431,7 @@ def generate(
                 errors=errors_list,
                 output_files=output_files,
             )
-        
+
         sys.exit(EXIT_ERROR)
 
 
@@ -1865,10 +2079,10 @@ def _generate_execution_report(
     roles_documented: int | None = None,
 ) -> None:
     """Generate and write execution report.
-    
+
     Helper function to create ExecutionReport from command execution context
     and write it to the specified path in the requested format.
-    
+
     Args:
         report_path: Path where report will be written
         report_format: Output format ("json", "text", or "summary")
@@ -1898,7 +2112,7 @@ def _generate_execution_report(
                 errors_count=len(errors),
                 phase_timing={},
             )
-        
+
         # Build execution context
         context = {
             "correlation_id": correlation_id,
@@ -1912,12 +2126,12 @@ def _generate_execution_report(
             "errors": errors,
             "output_files": output_files,
         }
-        
+
         # Generate and write report
         generator = ReportGenerator()
         report = generator.generate(context)
         generator.write_report(report, report_path, report_format)
-        
+
         logger.info(
             "execution_report_generated",
             correlation_id=correlation_id,
@@ -1925,7 +2139,7 @@ def _generate_execution_report(
             format=report_format,
         )
         click.echo(f"Execution report written to {report_path}", err=True)
-    
+
     except Exception as e:
         logger.error(
             "execution_report_generation_failed",

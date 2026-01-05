@@ -4,8 +4,9 @@ Verifies that README, CHANGELOG, and license badge are included in generated REA
 """
 
 from pathlib import Path
-from ansibledoctor.parser.project_parser import ProjectParser
+
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
+from ansibledoctor.parser.project_parser import ProjectParser
 
 
 def test_generate_includes_existing_docs(tmp_path: Path):
@@ -22,7 +23,9 @@ def test_generate_includes_existing_docs(tmp_path: Path):
     gen = ProjectDocumentationGenerator(project)
 
     # Act
-    out_file = gen.generate(format="markdown", output_dir=None, template_path=None, legacy_output=False)
+    out_file = gen.generate(
+        format="markdown", output_dir=None, template_path=None, legacy_output=False
+    )
 
     # Assert
     assert out_file.exists()
@@ -39,14 +42,18 @@ def test_generate_license_badge_for_apache(tmp_path: Path):
     # Arrange: project with Apache license
     proj_dir = tmp_path / "proj2"
     proj_dir.mkdir(parents=True)
-    (proj_dir / "LICENSE").write_text("Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/")
+    (proj_dir / "LICENSE").write_text(
+        "Apache License\nVersion 2.0, January 2004\nhttp://www.apache.org/licenses/"
+    )
 
     parser = ProjectParser()
     project = parser.parse(str(proj_dir))
     gen = ProjectDocumentationGenerator(project)
 
     # Act
-    out_file = gen.generate(format="markdown", output_dir=None, template_path=None, legacy_output=False)
+    out_file = gen.generate(
+        format="markdown", output_dir=None, template_path=None, legacy_output=False
+    )
 
     # Assert
     content = out_file.read_text(encoding="utf-8")

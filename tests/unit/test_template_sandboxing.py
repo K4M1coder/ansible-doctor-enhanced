@@ -1,7 +1,6 @@
 """Tests for template sandboxing and security features."""
 
 import pytest
-from jinja2 import Environment
 from jinja2.exceptions import SecurityError, UndefinedError
 
 from ansibledoctor.generator.errors import TemplateValidationError
@@ -40,18 +39,14 @@ class TestSecureSandboxedEnvironment:
 
     def test_loops_work(self, sandbox_env):
         """Test loops work in sandboxed environment."""
-        template = sandbox_env.from_string(
-            "{% for item in items %}{{ item }} {% endfor %}"
-        )
+        template = sandbox_env.from_string("{% for item in items %}{{ item }} {% endfor %}")
         result = template.render(items=["a", "b", "c"])
 
         assert result == "a b c "
 
     def test_conditionals_work(self, sandbox_env):
         """Test conditionals work in sandboxed environment."""
-        template = sandbox_env.from_string(
-            "{% if active %}yes{% else %}no{% endif %}"
-        )
+        template = sandbox_env.from_string("{% if active %}yes{% else %}no{% endif %}")
         assert template.render(active=True) == "yes"
         assert template.render(active=False) == "no"
 
@@ -594,7 +589,7 @@ class TestTemplateInheritanceValidation:
 
     def test_validate_extends_multiple_layers(self, validator):
         """Test detecting extends with dynamic parent."""
-        template = '{% extends parent_template %}'
+        template = "{% extends parent_template %}"
 
         parents = validator.get_parent_templates(template)
 
@@ -603,11 +598,11 @@ class TestTemplateInheritanceValidation:
 
     def test_validate_includes_detects_partials(self, validator):
         """Test detecting included templates."""
-        template = '''
+        template = """
         {% extends "base.html.j2" %}
         {% include "_header.j2" %}
         {% include "_footer.j2" %}
-        '''
+        """
 
         includes = validator.get_included_templates(template)
 
@@ -616,13 +611,13 @@ class TestTemplateInheritanceValidation:
 
     def test_validate_inheritance_chain(self, validator):
         """Test getting all template dependencies."""
-        template = '''
+        template = """
         {% extends "layout.html.j2" %}
         {% include "_nav.j2" %}
         {% block content %}
             {% include "_sidebar.j2" %}
         {% endblock %}
-        '''
+        """
 
         deps = validator.get_template_dependencies(template)
 
@@ -694,9 +689,9 @@ class TestTemplateInheritanceValidation:
 
     def test_nested_includes_validation(self, validator, tmp_path):
         """Test validation of nested include dependencies."""
-        template = '''
+        template = """
         {% include "level1.j2" %}
-        '''
+        """
 
         deps = validator.get_template_dependencies(template)
 
@@ -704,11 +699,11 @@ class TestTemplateInheritanceValidation:
 
     def test_conditional_includes(self, validator):
         """Test conditional includes are detected."""
-        template = '''
+        template = """
         {% if show_header %}
             {% include "_header.j2" %}
         {% endif %}
-        '''
+        """
 
         includes = validator.get_included_templates(template)
 
@@ -716,13 +711,12 @@ class TestTemplateInheritanceValidation:
 
     def test_import_detection(self, validator):
         """Test import statements are detected."""
-        template = '''
+        template = """
         {% import "macros.j2" as macros %}
         {% from "helpers.j2" import format_date %}
-        '''
+        """
 
         deps = validator.get_template_dependencies(template)
 
         assert "macros.j2" in deps.get("imports", [])
         assert "helpers.j2" in deps.get("imports", [])
-

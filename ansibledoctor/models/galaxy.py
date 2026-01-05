@@ -55,7 +55,9 @@ class GalaxyMetadata(BaseModel):
     )
     version: str = Field(..., description="Semantic version (e.g., 1.0.0)")
     authors: List[str] = Field(default_factory=list, description="List of author names/emails")
-    license: List[str] = Field(default_factory=list, description="List of licenses (e.g. MIT, GPL-2.0)")
+    license: List[str] = Field(
+        default_factory=list, description="List of licenses (e.g. MIT, GPL-2.0)"
+    )
     dependencies: Dict[str, str] = Field(
         default_factory=dict, description="Collection dependencies with version constraints"
     )

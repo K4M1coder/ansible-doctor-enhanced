@@ -6,7 +6,7 @@ generation (Mermaid diagrams, node/edge lists).
 """
 
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 from ansibledoctor.models.project import Project
 from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader

@@ -34,22 +34,22 @@ class TestExecutionReportSerialization:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 5, tzinfo=timezone.utc)
-        
+
         metrics = ExecutionMetrics(
             files_processed=15,
             roles_documented=3,
             warnings_count=1,
             errors_count=0,
-            phase_timing={"parsing_ms": 1200, "rendering_ms": 800}
+            phase_timing={"parsing_ms": 1200, "rendering_ms": 800},
         )
-        
+
         warning = ExecutionWarning(
             file=Path("defaults/main.yml"),
             line=42,
             message="Variable missing @var annotation",
-            warning_type="missing_annotation"
+            warning_type="missing_annotation",
         )
-        
+
         report = ExecutionReport(
             correlation_id="abc-123-def",
             command="generate",
@@ -60,12 +60,12 @@ class TestExecutionReportSerialization:
             metrics=metrics,
             warnings=[warning],
             errors=[],
-            output_files=[Path("docs/README.md"), Path("docs/index.html")]
+            output_files=[Path("docs/README.md"), Path("docs/index.html")],
         )
-        
+
         # Act
-        json_data = report.model_dump(mode='json')
-        
+        json_data = report.model_dump(mode="json")
+
         # Assert
         assert json_data["correlation_id"] == "abc-123-def"
         assert json_data["command"] == "generate"
@@ -82,7 +82,7 @@ class TestExecutionReportSerialization:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 5, tzinfo=timezone.utc)
-        
+
         report = ExecutionReport(
             correlation_id="test-123",
             command="generate",
@@ -93,12 +93,12 @@ class TestExecutionReportSerialization:
             metrics=ExecutionMetrics(),
             warnings=[],
             errors=[],
-            output_files=[]
+            output_files=[],
         )
-        
+
         # Act
-        json_data = report.model_dump(mode='json')
-        
+        json_data = report.model_dump(mode="json")
+
         # Assert - ISO 8601 format with timezone
         assert json_data["started_at"] == "2025-12-02T10:30:00Z"
         assert json_data["completed_at"] == "2025-12-02T10:30:05Z"
@@ -115,7 +115,7 @@ class TestExecutionReportValidation:
                 correlation_id="test-123",
                 # Missing: command, status, started_at, completed_at, duration_ms, metrics
             )
-        
+
         # Verify multiple fields are reported as missing
         errors = exc_info.value.errors()
         missing_fields = {error["loc"][0] for error in errors if error["type"] == "missing"}
@@ -128,7 +128,7 @@ class TestExecutionReportValidation:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 5, tzinfo=timezone.utc)
-        
+
         # Act & Assert - invalid status should fail
         with pytest.raises(ValidationError) as exc_info:
             ExecutionReport(
@@ -138,9 +138,9 @@ class TestExecutionReportValidation:
                 started_at=started,
                 completed_at=completed,
                 duration_ms=5000,
-                metrics=ExecutionMetrics()
+                metrics=ExecutionMetrics(),
             )
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"][0] == "status" for error in errors)
 
@@ -149,7 +149,7 @@ class TestExecutionReportValidation:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 5, tzinfo=timezone.utc)
-        
+
         # Act & Assert
         with pytest.raises(ValidationError) as exc_info:
             ExecutionReport(
@@ -159,9 +159,9 @@ class TestExecutionReportValidation:
                 started_at=started,
                 completed_at=completed,
                 duration_ms=-100,  # Invalid: negative duration
-                metrics=ExecutionMetrics()
+                metrics=ExecutionMetrics(),
             )
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"][0] == "duration_ms" for error in errors)
 
@@ -174,24 +174,24 @@ class TestReportWithWarnings:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 5, tzinfo=timezone.utc)
-        
+
         warnings = [
             ExecutionWarning(
                 file=Path("defaults/main.yml"),
                 line=42,
                 message="Variable missing @var annotation",
-                warning_type="missing_annotation"
+                warning_type="missing_annotation",
             ),
             ExecutionWarning(
                 file=Path("tasks/main.yml"),
                 line=10,
                 message="Deprecated syntax",
-                warning_type="deprecated_syntax"
-            )
+                warning_type="deprecated_syntax",
+            ),
         ]
-        
+
         metrics = ExecutionMetrics(warnings_count=2)
-        
+
         # Act
         report = ExecutionReport(
             correlation_id="test-warnings",
@@ -203,9 +203,9 @@ class TestReportWithWarnings:
             metrics=metrics,
             warnings=warnings,
             errors=[],
-            output_files=[]
+            output_files=[],
         )
-        
+
         # Assert
         assert report.status == "completed_with_warnings"
         assert len(report.warnings) == 2
@@ -222,19 +222,19 @@ class TestReportWithErrors:
         # Arrange
         started = datetime(2025, 12, 2, 10, 30, 0, tzinfo=timezone.utc)
         completed = datetime(2025, 12, 2, 10, 30, 1, tzinfo=timezone.utc)
-        
+
         errors = [
             ExecutionError(
                 file=Path("tasks/main.yml"),
                 line=15,
                 error_type="yaml_parsing_error",
                 message="Invalid YAML syntax: expected <block end>",
-                suggestion="Check for proper indentation and closing brackets"
+                suggestion="Check for proper indentation and closing brackets",
             )
         ]
-        
+
         metrics = ExecutionMetrics(errors_count=1)
-        
+
         # Act
         report = ExecutionReport(
             correlation_id="test-errors",
@@ -246,9 +246,9 @@ class TestReportWithErrors:
             metrics=metrics,
             warnings=[],
             errors=errors,
-            output_files=[]
+            output_files=[],
         )
-        
+
         # Assert
         assert report.status == "failed"
         assert len(report.errors) == 1
@@ -265,9 +265,9 @@ class TestReportWithErrors:
             line=5,
             error_type="validation_error",
             message="Missing required field: galaxy_info.author",
-            suggestion="Add 'author' field to galaxy_info section in meta/main.yml"
+            suggestion="Add 'author' field to galaxy_info section in meta/main.yml",
         )
-        
+
         # Assert
         assert error.suggestion is not None
         assert "Add 'author' field" in error.suggestion

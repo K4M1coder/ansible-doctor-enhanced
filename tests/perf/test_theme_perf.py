@@ -130,10 +130,12 @@ class TestTemplateDiscoveryPerformance:
         # Create role-level template override (correct naming)
         templates_dir = role_path / ".ansibledoctor" / "templates"
         templates_dir.mkdir(parents=True)
-        (templates_dir / "role.html.j2").write_text("""<!DOCTYPE html>
+        (templates_dir / "role.html.j2").write_text(
+            """<!DOCTYPE html>
 <html><head><title>{{ role_name }}</title></head>
 <body><h1>{{ role_name }}</h1></body></html>
-""")
+"""
+        )
 
         return role_path
 
@@ -316,21 +318,25 @@ class TestEndToEndThemePerformance:
 
         # Tasks
         (role_path / "tasks").mkdir()
-        (role_path / "tasks" / "main.yml").write_text("""
+        (role_path / "tasks" / "main.yml").write_text(
+            """
 - name: Install packages
   package:
     name: "{{ item }}"
     state: present
   loop: "{{ packages }}"
-""")
+"""
+        )
 
         # Defaults
         (role_path / "defaults").mkdir()
-        (role_path / "defaults" / "main.yml").write_text("""
+        (role_path / "defaults" / "main.yml").write_text(
+            """
 packages:
   - nginx
   - python3
-""")
+"""
+        )
 
         return AnsibleRole(
             path=role_path,
@@ -418,9 +424,9 @@ packages:
 
         # Each subsequent should be reasonably fast
         avg_subsequent_ms = (subsequent_elapsed / 10) * 1000
-        assert avg_subsequent_ms < 50, (
-            f"Subsequent renders took {avg_subsequent_ms:.2f}ms on average (target: <50ms)"
-        )
+        assert (
+            avg_subsequent_ms < 50
+        ), f"Subsequent renders took {avg_subsequent_ms:.2f}ms on average (target: <50ms)"
 
 
 class TestCSSTagMemoryEfficiency:
@@ -443,11 +449,11 @@ class TestCSSTagMemoryEfficiency:
         result = generator.generate_toggle(enabled=True)
 
         # Toggle JS should be under 2KB
-        assert len(result.script_js) < 2 * 1024, (
-            f"Toggle JS is {len(result.script_js)} bytes (target: <2KB)"
-        )
+        assert (
+            len(result.script_js) < 2 * 1024
+        ), f"Toggle JS is {len(result.script_js)} bytes (target: <2KB)"
 
         # Button HTML should be under 500 bytes
-        assert len(result.button_html) < 500, (
-            f"Toggle HTML is {len(result.button_html)} bytes (target: <500 bytes)"
-        )
+        assert (
+            len(result.button_html) < 500
+        ), f"Toggle HTML is {len(result.button_html)} bytes (target: <500 bytes)"

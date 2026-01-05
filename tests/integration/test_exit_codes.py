@@ -20,7 +20,6 @@ Exit Code Convention:
 """
 
 import pytest
-from pathlib import Path
 from click.testing import CliRunner
 
 from ansibledoctor.cli import cli
@@ -37,23 +36,19 @@ def temp_role_dir(tmp_path):
     """Create a minimal valid Ansible role structure."""
     role_dir = tmp_path / "test_role"
     role_dir.mkdir()
-    
+
     # Create minimal valid structure
     (role_dir / "meta").mkdir()
     (role_dir / "meta" / "main.yml").write_text(
         "galaxy_info:\n  author: Test Author\n  description: Test role\n"
     )
-    
+
     (role_dir / "defaults").mkdir()
-    (role_dir / "defaults" / "main.yml").write_text(
-        "# Test variable\ntest_var: value\n"
-    )
-    
+    (role_dir / "defaults" / "main.yml").write_text("# Test variable\ntest_var: value\n")
+
     (role_dir / "tasks").mkdir()
-    (role_dir / "tasks" / "main.yml").write_text(
-        "- name: Test task\n  debug:\n    msg: Test\n"
-    )
-    
+    (role_dir / "tasks" / "main.yml").write_text("- name: Test task\n  debug:\n    msg: Test\n")
+
     return role_dir
 
 
@@ -64,17 +59,18 @@ class TestExitCodeSuccess:
         """Successful parse should return exit code 0."""
         # Arrange
         output_file = tmp_path / "output.json"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "parse",
                 str(temp_role_dir),
-                "--output", str(output_file),
-            ]
+                "--output",
+                str(output_file),
+            ],
         )
-        
+
         # Assert
         assert result.exit_code == 0
 
@@ -82,17 +78,18 @@ class TestExitCodeSuccess:
         """Successful generate should return exit code 0."""
         # Arrange
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(temp_role_dir),
-                "--output", str(output_file),
-            ]
+                "--output",
+                str(output_file),
+            ],
         )
-        
+
         # Assert
         assert result.exit_code == 0
 
@@ -105,17 +102,18 @@ class TestExitCodeFatalError:
         # Arrange
         nonexistent_role = tmp_path / "nonexistent_role"
         output_file = tmp_path / "output.md"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(nonexistent_role),
-                "--output", str(output_file),
-            ]
+                "--output",
+                str(output_file),
+            ],
         )
-        
+
         # Assert - Fatal error should return exit code 1
         assert result.exit_code == 1
 
@@ -127,19 +125,20 @@ class TestExitCodeFatalError:
         (role_dir / "meta").mkdir()
         # Completely invalid YAML that cannot be parsed
         (role_dir / "meta" / "main.yml").write_text("{ invalid yaml [[[")
-        
+
         output_file = tmp_path / "output.json"
-        
+
         # Act
         result = cli_runner.invoke(
             cli,
             [
                 "parse",
                 str(role_dir),
-                "--output", str(output_file),
-            ]
+                "--output",
+                str(output_file),
+            ],
         )
-        
+
         # Assert - Parsing error should return exit code 1
         assert result.exit_code == 1
 
@@ -152,27 +151,28 @@ class TestExitCodeFailOnWarnings:
         # Arrange - Create role that might generate warnings
         role_dir = tmp_path / "warning_role"
         role_dir.mkdir()
-        
+
         (role_dir / "meta").mkdir()
         (role_dir / "meta" / "main.yml").write_text("galaxy_info:\n  author: Test\n")
-        
+
         (role_dir / "defaults").mkdir()
         # Variable without annotation might generate warning
         (role_dir / "defaults" / "main.yml").write_text("undocumented_var: value\n")
-        
+
         output_file = tmp_path / "output.md"
-        
+
         # Act - Run with --fail-on-warnings flag
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(role_dir),
-                "--output", str(output_file),
+                "--output",
+                str(output_file),
                 "--fail-on-warnings",
-            ]
+            ],
         )
-        
+
         # Assert - Should return exit code 2 if warnings occurred
         # (may return 0 if no warnings, which is also valid)
         assert result.exit_code in [0, 2]  # 0 if no warnings, 2 if warnings present
@@ -181,7 +181,7 @@ class TestExitCodeFailOnWarnings:
         """Verify --fail-on-warnings flag is recognized by CLI."""
         # Act - Check help output includes flag
         result = cli_runner.invoke(cli, ["generate", "--help"])
-        
+
         # Assert
         assert result.exit_code == 0
         # Flag should be mentioned in help text (when implemented)
@@ -201,9 +201,9 @@ class TestExitCodeInvalidUsage:
                 "generate",
                 "/some/path",
                 "--invalid-flag-that-does-not-exist",
-            ]
+            ],
         )
-        
+
         # Assert - Click returns 2 for invalid options by default
         assert result.exit_code in [2, 3]  # Accept both Click's default (2) and our custom (3)
 
@@ -211,7 +211,7 @@ class TestExitCodeInvalidUsage:
         """Missing required argument should return exit code 2 or 3."""
         # Act - Generate without required role_path
         result = cli_runner.invoke(cli, ["generate"])
-        
+
         # Assert
         assert result.exit_code in [2, 3]
 
@@ -224,24 +224,25 @@ class TestExitCodeWarningsWithoutFlag:
         # Arrange - Create role that might generate warnings
         role_dir = tmp_path / "warning_role"
         role_dir.mkdir()
-        
+
         (role_dir / "meta").mkdir()
         (role_dir / "meta" / "main.yml").write_text("galaxy_info:\n  author: Test\n")
-        
+
         (role_dir / "defaults").mkdir()
         (role_dir / "defaults" / "main.yml").write_text("undocumented_var: value\n")
-        
+
         output_file = tmp_path / "output.md"
-        
+
         # Act - Run WITHOUT --fail-on-warnings flag
         result = cli_runner.invoke(
             cli,
             [
                 "generate",
                 str(role_dir),
-                "--output", str(output_file),
-            ]
+                "--output",
+                str(output_file),
+            ],
         )
-        
+
         # Assert - Should return exit code 0 even if warnings present
         assert result.exit_code == 0

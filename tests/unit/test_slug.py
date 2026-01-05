@@ -86,7 +86,10 @@ class TestBuildContextPath:
             collection="collection_ns.coll",
             role="role_ns.webserver",
         )
-        assert result == "docs/lang/fr/ansibleproject_my-project/collections/collection_ns.coll/role_ns.webserver"
+        assert (
+            result
+            == "docs/lang/fr/ansibleproject_my-project/collections/collection_ns.coll/role_ns.webserver"
+        )
 
     def test_standalone_collection(self):
         """Standalone collection (no parent project)."""
@@ -112,7 +115,7 @@ class TestBuildContextPath:
         en = build_context_path("en", project="ansibleproject_proj")
         fr = build_context_path("fr", project="ansibleproject_proj")
         de = build_context_path("de", project="ansibleproject_proj")
-        
+
         assert en == "docs/lang/en/ansibleproject_proj"
         assert fr == "docs/lang/fr/ansibleproject_proj"
         assert de == "docs/lang/de/ansibleproject_proj"
@@ -180,9 +183,9 @@ class TestHierarchyPathPreservation:
         proj = project_slug("My Great Project")
         coll = collection_slug("my_namespace", "awesome_collection")
         role = role_slug("my_namespace", "web_server")
-        
+
         path = build_context_path("en", project=proj, collection=coll, role=role)
-        
+
         assert "ansibleproject_my-great-project" in path
         assert "collection_my-namespace.awesome-collection" in path
         assert "role_my_namespace.web-server" in path
@@ -191,10 +194,9 @@ class TestHierarchyPathPreservation:
         """Special characters should be normalized in slugs."""
         proj = project_slug("Café Project ™")
         coll = collection_slug("über_ns", "collection_éè")
-        
+
         path = build_context_path("en", project=proj, collection=coll)
-        
+
         # Verify only valid slug characters
         assert "cafe" in path.lower()
         assert "uber" in path.lower() or "ber" in path.lower()
-

@@ -13,12 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from ansibledoctor.context.detector import (
-    BreadcrumbItem,
-    ComponentType,
-    ContextDetector,
-    HierarchicalContext,
-)
+from ansibledoctor.context.detector import ComponentType, ContextDetector, HierarchicalContext
 from ansibledoctor.generator.models import TemplateContext
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer

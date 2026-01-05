@@ -12,15 +12,15 @@ from pathlib import Path
 from typing import Optional
 
 from ansibledoctor.models.project import CollectionInfo, Playbook, Project, RoleInfo
+from ansibledoctor.parser.collection_parser import CollectionParser
 from ansibledoctor.parser.docs_extractor import DocsExtractor
 from ansibledoctor.parser.inventory_parser import (
     parse_ini_inventory,
     parse_inventory_dir,
     parse_yaml_inventory,
 )
-from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 from ansibledoctor.parser.role_parser import RoleParser
-from ansibledoctor.parser.collection_parser import CollectionParser
+from ansibledoctor.parser.yaml_loader import RuamelYAMLLoader
 
 
 class ProjectParser:
@@ -179,7 +179,9 @@ class ProjectParser:
                 for item in os.listdir(collections_dir):
                     item_path = os.path.join(collections_dir, item)
                     # If the item contains a galaxy.yml, treat it as a 1-level collection folder
-                    if os.path.isdir(item_path) and os.path.isfile(os.path.join(item_path, "galaxy.yml")):
+                    if os.path.isdir(item_path) and os.path.isfile(
+                        os.path.join(item_path, "galaxy.yml")
+                    ):
                         project.collections.append(CollectionInfo(name=item, path=item_path))
                         if deep_parse:
                             try:

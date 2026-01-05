@@ -4,22 +4,21 @@ Feature 008 - Template Customization & Theming
 T336: TDD unit tests for variant resolution and fallback chains
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from ansibledoctor.config.theme import ThemeVariant
+from ansibledoctor.generator.cascading_loader import (
+    CascadingTemplateLoader,
+    TemplateNotFoundError,
+    TemplateSource,
+)
 from ansibledoctor.generator.output_format import OutputFormat
 from ansibledoctor.generator.variant_resolver import (
     ResolvedTemplate,
     Variant,
     VariantTemplateResolver,
-)
-from ansibledoctor.generator.cascading_loader import (
-    CascadingTemplateLoader,
-    TemplateNotFoundError,
-    TemplateSource,
 )
 
 
@@ -147,7 +146,7 @@ class TestResolutionChain:
     def test_exact_variant_match(self, resolver, mock_loader, tmp_path):
         """Should return exact variant when available."""
         from datetime import datetime
-        
+
         # Mock loader to find the exact variant template
         mock_loader.find_template.return_value = (
             MagicMock(),  # Template
@@ -155,7 +154,7 @@ class TestResolutionChain:
                 path=tmp_path / "role.modern.html.j2",
                 level="role",
                 discovered_at=datetime.now(),
-            )
+            ),
         )
 
         result = resolver.resolve(
@@ -172,7 +171,7 @@ class TestResolutionChain:
     def test_fallback_to_format_default(self, resolver, mock_loader, tmp_path):
         """Should fall back to format-specific default when variant not found."""
         from datetime import datetime
-        
+
         # First call (variant-specific) fails, second call (default) succeeds
         mock_loader.find_template.side_effect = [
             TemplateNotFoundError("role.modern.html.j2"),
@@ -182,8 +181,8 @@ class TestResolutionChain:
                     path=tmp_path / "role.html.j2",
                     level="role",
                     discovered_at=datetime.now(),
-                )
-            )
+                ),
+            ),
         ]
 
         result = resolver.resolve(
@@ -199,7 +198,7 @@ class TestResolutionChain:
     def test_fallback_to_explicit_default(self, resolver, mock_loader, tmp_path):
         """Should fall back to role.default.html.j2."""
         from datetime import datetime
-        
+
         # First two calls fail, third succeeds
         mock_loader.find_template.side_effect = [
             TemplateNotFoundError("role.modern.html.j2"),
@@ -210,8 +209,8 @@ class TestResolutionChain:
                     path=tmp_path / "role.default.html.j2",
                     level="role",
                     discovered_at=datetime.now(),
-                )
-            )
+                ),
+            ),
         ]
 
         result = resolver.resolve(
@@ -227,7 +226,7 @@ class TestResolutionChain:
     def test_fallback_to_generic(self, resolver, mock_loader, tmp_path):
         """Should fall back to role.j2 as last resort."""
         from datetime import datetime
-        
+
         # First three calls fail, fourth succeeds
         mock_loader.find_template.side_effect = [
             TemplateNotFoundError("role.modern.html.j2"),
@@ -239,8 +238,8 @@ class TestResolutionChain:
                     path=tmp_path / "role.j2",
                     level="role",
                     discovered_at=datetime.now(),
-                )
-            )
+                ),
+            ),
         ]
 
         result = resolver.resolve(
@@ -334,7 +333,7 @@ class TestListVariants:
     def test_list_available_variants(self, resolver, mock_loader, tmp_path):
         """Should return list of variants that have templates."""
         from datetime import datetime
-        
+
         # Only minimal and detailed have templates
         def find_template_side_effect(name, path):
             if "minimal" in name or "detailed" in name:
@@ -344,7 +343,7 @@ class TestListVariants:
                         path=tmp_path / name,
                         level="embedded",
                         discovered_at=datetime.now(),
-                    )
+                    ),
                 )
             raise TemplateNotFoundError(name)
 
@@ -400,9 +399,7 @@ class TestIntegrationWithCascadingLoader:
         role_dir.mkdir()
         templates_dir = role_dir / ".ansibledoctor" / "templates"
         templates_dir.mkdir(parents=True)
-        (templates_dir / "role.modern.html.j2").write_text(
-            "<html>Modern template</html>"
-        )
+        (templates_dir / "role.modern.html.j2").write_text("<html>Modern template</html>")
 
         loader = CascadingTemplateLoader()
         resolver = VariantTemplateResolver(loader)
@@ -431,14 +428,14 @@ class TestDefaultVariantBehavior:
     def test_resolve_uses_default_variant(self, resolver, tmp_path):
         """resolve() should use DETAILED as default variant."""
         from datetime import datetime
-        
+
         resolver._loader.find_template.return_value = (
             MagicMock(),
             TemplateSource(
                 path=tmp_path / "role.detailed.html.j2",
                 level="role",
                 discovered_at=datetime.now(),
-            )
+            ),
         )
 
         result = resolver.resolve(

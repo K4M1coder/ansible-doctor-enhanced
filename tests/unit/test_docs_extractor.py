@@ -1,9 +1,6 @@
 """Unit tests for docs extractor (Spec 001, User Story 5)."""
 
-import pytest
-from pathlib import Path
 from ansibledoctor.parser.docs_extractor import DocsExtractor
-from ansibledoctor.models.existing_docs import ExistingDocs
 
 
 class TestDocsExtractor:
@@ -14,11 +11,11 @@ class TestDocsExtractor:
         # Arrange
         readme = tmp_path / "README.md"
         readme.write_text("# My Role\n\nThis is a test role.\n")
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_content == "# My Role\n\nThis is a test role.\n"
         assert docs.readme_format == "markdown"
@@ -27,16 +24,18 @@ class TestDocsExtractor:
         """T109: DocsExtractor detects markdown vs rst format."""
         # Arrange - RST file
         readme = tmp_path / "README.rst"
-        readme.write_text("""My Role
+        readme.write_text(
+            """My Role
 =======
 
 This is a test role.
-""")
-        
+"""
+        )
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_format == "rst"
         assert "My Role" in docs.readme_content
@@ -46,11 +45,11 @@ This is a test role.
         # Arrange
         changelog = tmp_path / "CHANGELOG.md"
         changelog.write_text("# Changelog\n\n## v1.0.0\n- Initial release\n")
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.changelog_content == "# Changelog\n\n## v1.0.0\n- Initial release\n"
 
@@ -58,7 +57,8 @@ This is a test role.
         """T111: DocsExtractor extracts LICENSE and detects license type."""
         # Arrange - MIT License
         license_file = tmp_path / "LICENSE"
-        license_file.write_text("""MIT License
+        license_file.write_text(
+            """MIT License
 
 Copyright (c) 2025 Test Author
 
@@ -79,12 +79,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-""")
-        
+"""
+        )
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert "MIT License" in docs.license_content
         assert docs.license_type == "MIT"
@@ -93,17 +94,19 @@ SOFTWARE.
         """Test Apache-2.0 license detection."""
         # Arrange
         license_file = tmp_path / "LICENSE"
-        license_file.write_text("""Apache License
+        license_file.write_text(
+            """Apache License
 Version 2.0, January 2004
 http://www.apache.org/licenses/
 
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-""")
-        
+"""
+        )
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.license_type == "Apache-2.0"
 
@@ -111,16 +114,18 @@ TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
         """Test GPL-3.0 license detection."""
         # Arrange
         license_file = tmp_path / "LICENSE"
-        license_file.write_text("""GNU GENERAL PUBLIC LICENSE
+        license_file.write_text(
+            """GNU GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
 Copyright (C) 2007 Free Software Foundation, Inc.
-""")
-        
+"""
+        )
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.license_type == "GPL-3.0"
 
@@ -132,11 +137,11 @@ Copyright (C) 2007 Free Software Foundation, Inc.
         (templates_dir / "config.j2").touch()
         (templates_dir / "service.j2").touch()
         (templates_dir / "subdir").mkdir()  # Should not be listed
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert len(docs.templates_list) == 2
         assert "config.j2" in docs.templates_list
@@ -149,11 +154,11 @@ Copyright (C) 2007 Free Software Foundation, Inc.
         files_dir.mkdir()
         (files_dir / "script.sh").touch()
         (files_dir / "config.txt").touch()
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert len(docs.files_list) == 2
         assert "script.sh" in docs.files_list
@@ -164,7 +169,7 @@ Copyright (C) 2007 Free Software Foundation, Inc.
         # Act - no docs in tmp_path
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.readme_content is None
         assert docs.readme_format is None
@@ -179,10 +184,10 @@ Copyright (C) 2007 Free Software Foundation, Inc.
         # Arrange
         contributing = tmp_path / "CONTRIBUTING.md"
         contributing.write_text("# Contributing\n\nPlease follow these guidelines.\n")
-        
+
         # Act
         extractor = DocsExtractor(str(tmp_path))
         docs = extractor.extract()
-        
+
         # Assert
         assert docs.contributing_content == "# Contributing\n\nPlease follow these guidelines.\n"

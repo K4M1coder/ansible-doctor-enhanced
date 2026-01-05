@@ -188,6 +188,12 @@ def parse(
     is_flag=True,
     help="Use legacy output path structure (docs/README.md) instead of slug-based hierarchy.",
 )
+@click.option(
+    "--continue-on-error",
+    is_flag=True,
+    default=False,
+    help="Continue processing remaining files if errors occur (for partial success)",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
@@ -195,6 +201,7 @@ def generate(
     template: Path | None,
     config: Path | None,
     legacy_output: bool,
+    continue_on_error: bool,
 ) -> None:
     """
     Generate documentation for an Ansible collection.
@@ -248,7 +255,7 @@ def generate(
 
         # Determine output file path
         output_dir_path = Path(output_dir)
-        
+
         if not legacy_output:
             # Use slug-based path hierarchy (T225)
             slug = collection_slug(
@@ -257,7 +264,7 @@ def generate(
             # Default to 'en' for now as we don't have language support yet
             # build_context_path returns "docs/lang/en/collection_slug"
             rel_path = build_context_path("en", collection=slug)
-            
+
             # If output_dir is default "docs", we use the full path from build_context_path
             # If output_dir is custom, we treat it as the root instead of "docs"
             if str(output_dir) == "docs":
@@ -271,21 +278,23 @@ def generate(
                     output_dir_path = output_dir_path / rel_path_stripped
                 else:
                     output_dir_path = output_dir_path / rel_path
-                    
+
             if not output_dir_path.is_absolute():
                 if str(output_dir) != "docs":
-                     # If custom output dir, it's relative to CWD or collection path?
-                     # Usually relative to CWD if run from CLI, but here we might want relative to collection
-                     output_dir_path = Path(collection_path) / output_dir_path
-                elif str(output_dir) == "docs" and not str(output_dir_path).startswith(str(collection_path)):
-                     # If we constructed it from collection_path above, it's absolute.
-                     pass
+                    # If custom output dir, it's relative to CWD or collection path?
+                    # Usually relative to CWD if run from CLI, but here we might want relative to collection
+                    output_dir_path = Path(collection_path) / output_dir_path
+                elif str(output_dir) == "docs" and not str(output_dir_path).startswith(
+                    str(collection_path)
+                ):
+                    # If we constructed it from collection_path above, it's absolute.
+                    pass
         else:
             # Legacy behavior
             # Ensure relative output_dir is relative to collection path
             if not output_dir_path.is_absolute():
                 output_dir_path = Path(collection_path) / output_dir_path
-        
+
         output_dir_path.mkdir(parents=True, exist_ok=True)
 
         extensions = {"markdown": "md", "html": "html", "rst": "rst"}

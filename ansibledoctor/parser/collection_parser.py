@@ -123,7 +123,9 @@ class CollectionParser:
                     )
         return sorted(playbooks, key=lambda p: p.name)
 
-    def parse(self, collection_path: Union[str, Path], deep_parse: bool = False) -> AnsibleCollection:
+    def parse(
+        self, collection_path: Union[str, Path], deep_parse: bool = False
+    ) -> AnsibleCollection:
         """Parse a collection directory and return AnsibleCollection model.
 
         This method:
@@ -174,7 +176,9 @@ class CollectionParser:
                                 role = role_parser.parse(role_path_item)
                                 roles.append(role)
                             except Exception as e:
-                                logger.warning(f"Failed to deep parse role {role_path_item.name}: {e}")
+                                logger.warning(
+                                    f"Failed to deep parse role {role_path_item.name}: {e}"
+                                )
                                 roles.append(role_path_item.name)
                 else:
                     roles = self._structure_walker.discover_roles(roles_dir)
@@ -188,13 +192,13 @@ class CollectionParser:
 
             # Group plugins by type for the collection model
             plugins: Dict[PluginType, List[Union[str, Plugin]]] = {}
-            
+
             plugin_parser = PluginParser() if deep_parse else None
 
             for plugin in discovered_plugins:
                 if plugin.type not in plugins:
                     plugins[plugin.type] = []
-                
+
                 if deep_parse and plugin_parser:
                     # Parse plugin metadata
                     parsed_plugin = plugin_parser.parse(plugin)

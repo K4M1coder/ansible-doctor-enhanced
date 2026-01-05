@@ -6,11 +6,7 @@ T332: TDD unit tests for ThemeConfig YAML parsing, defaulting, and validation
 
 import pytest
 
-from ansibledoctor.config.theme import (
-    ThemeConfig,
-    ThemeVariant,
-    ColorScheme,
-)
+from ansibledoctor.config.theme import ColorScheme, ThemeConfig, ThemeVariant
 
 
 class TestThemeVariantEnum:

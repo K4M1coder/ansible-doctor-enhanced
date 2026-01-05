@@ -1,0 +1,6 @@
+---
+# Invalid YAML - Bad indentation
+tasks:
+  - name: "Task one"
+  debug:
+      msg: "Indentation error"

@@ -3,10 +3,12 @@
 This integration test will parse the demo project with deep_parse=True and verify
 that parsed_roles and parsed_collections are populated with detailed models.
 """
+
 from pathlib import Path
-from ansibledoctor.parser.project_parser import ProjectParser
-from ansibledoctor.models.role import AnsibleRole
+
 from ansibledoctor.models.collection import AnsibleCollection
+from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.parser.project_parser import ProjectParser
 
 
 def test_demo_project_deep_parsing():

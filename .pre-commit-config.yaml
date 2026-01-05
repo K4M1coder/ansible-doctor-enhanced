@@ -42,6 +42,28 @@ repos:
         additional_dependencies: ["ruff>=0.1.0"]
         files: '\.py$'
 
+      - id: mypy
+        name: Type checking with mypy
+        entry: mypy
+        language: python
+        additional_dependencies: [
+          "mypy>=1.8.0",
+          "click>=8.1.0",
+          "jinja2>=3.1.0",
+          "pydantic>=2.0.0",
+          "ruamel.yaml>=0.18.0",
+          "structlog>=24.0.0",
+          "watchdog>=4.0.0",
+          "packaging>=24.0",
+          "pyyaml>=6.0",
+          "babel>=2.14.0",
+          "pathspec>=0.12.0",
+          "types-pyyaml",
+        ]
+        files: '\.py$'
+        pass_filenames: true
+        args: ["--config-file=pyproject.toml", "--no-error-summary"]
+
   - repo: local
     hooks:
       - id: validate-atomic-changelog
@@ -76,7 +98,7 @@ repos:
           "pathspec",
         ]
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
 
       - id: pytest-integration
         name: Run integration tests
@@ -97,7 +119,7 @@ repos:
           "pathspec",
         ]
         pass_filenames: false
-        stages: [commit, push]
+        stages: [pre-commit, pre-push]
 
       - id: pytest-performance
         name: Run performance tests
@@ -118,7 +140,7 @@ repos:
           "pathspec",
         ]
         pass_filenames: false
-        stages: [commit, push]
+        stages: [pre-commit, pre-push]
 
       - id: pytest-all
         name: Run full test suite (pre-push)
@@ -138,7 +160,7 @@ repos:
           "pathspec",
         ]
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
 
       - id: demo-run
         name: Run demo projects (non-fatal)
@@ -159,7 +181,7 @@ repos:
           "html5lib",
         ]
         pass_filenames: false
-        stages: [commit, push]
+        stages: [pre-commit, pre-push]
 
       - id: sync-version
         name: Sync version from pyproject to CHANGELOG and READMEs
@@ -168,4 +190,4 @@ repos:
         additional_dependencies: ["tomli"]
         files: ^(pyproject\.toml|CHANGELOG\.md|README.*)$
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]

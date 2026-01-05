@@ -1,0 +1,6 @@
+---
+# Invalid YAML - Missing colon
+tasks:
+  - name Test task with syntax error
+    debug:
+      msg: "This will fail"

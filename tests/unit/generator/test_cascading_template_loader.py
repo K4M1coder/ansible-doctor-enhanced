@@ -6,14 +6,14 @@ T334: TDD unit tests for template discovery order and caching behavior
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from ansibledoctor.generator.cascading_loader import (
     CascadingTemplateLoader,
-    TemplateSource,
     TemplateNotFoundError,
+    TemplateSource,
 )
 
 
@@ -122,12 +122,12 @@ class TestDiscoveryOrder:
         collection_dir = tmp_path / "my_collection"
         collection_dir.mkdir()
         (collection_dir / "galaxy.yml").write_text("namespace: test")
-        
+
         roles_dir = collection_dir / "roles"
         roles_dir.mkdir()
         role_dir = roles_dir / "my_role"
         role_dir.mkdir()
-        
+
         # Create collection template (not role template)
         coll_templates = collection_dir / ".ansibledoctor" / "templates"
         coll_templates.mkdir(parents=True)
@@ -143,12 +143,12 @@ class TestDiscoveryOrder:
         project_dir = tmp_path / "ansible_project"
         project_dir.mkdir()
         (project_dir / "ansible.cfg").write_text("[defaults]")
-        
+
         roles_dir = project_dir / "roles"
         roles_dir.mkdir()
         role_dir = roles_dir / "my_role"
         role_dir.mkdir()
-        
+
         # Create project template
         proj_templates = project_dir / ".ansibledoctor" / "templates"
         proj_templates.mkdir(parents=True)
@@ -165,11 +165,11 @@ class TestDiscoveryOrder:
         fake_home.mkdir()
         monkeypatch.setenv("HOME", str(fake_home))
         monkeypatch.setattr(Path, "home", lambda: fake_home)
-        
+
         user_templates = fake_home / ".ansibledoctor" / "templates"
         user_templates.mkdir(parents=True)
         (user_templates / "role.html.j2").write_text("<html>User</html>")
-        
+
         # Create a role without any local templates
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
@@ -195,17 +195,17 @@ class TestDiscoveryOrder:
         collection_dir = tmp_path / "my_collection"
         collection_dir.mkdir()
         (collection_dir / "galaxy.yml").write_text("namespace: test")
-        
+
         roles_dir = collection_dir / "roles"
         roles_dir.mkdir()
         role_dir = roles_dir / "my_role"
         role_dir.mkdir()
-        
+
         # Create BOTH role and collection templates
         role_templates = role_dir / ".ansibledoctor" / "templates"
         role_templates.mkdir(parents=True)
         (role_templates / "role.html.j2").write_text("<html>Role wins</html>")
-        
+
         coll_templates = collection_dir / ".ansibledoctor" / "templates"
         coll_templates.mkdir(parents=True)
         (coll_templates / "role.html.j2").write_text("<html>Collection loses</html>")
@@ -218,9 +218,9 @@ class TestDiscoveryOrder:
         custom_path = tmp_path / "custom_templates"
         custom_path.mkdir()
         (custom_path / "role.html.j2").write_text("<html>Custom</html>")
-        
+
         loader = CascadingTemplateLoader(search_paths=[custom_path])
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
 
@@ -235,7 +235,7 @@ class TestCaching:
     def test_template_is_cached(self, tmp_path):
         """Templates should be cached after first access."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
@@ -244,10 +244,10 @@ class TestCaching:
 
         # First access
         template1, source1 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Second access should return cached
         template2, source2 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Should be same objects (cached)
         assert template1 is template2
         assert source1 is source2
@@ -255,14 +255,14 @@ class TestCaching:
     def test_cache_key_includes_context_path(self, tmp_path):
         """Cache should be keyed by both template name and context path."""
         loader = CascadingTemplateLoader()
-        
+
         # Create two roles with different templates
         role1_dir = tmp_path / "role1"
         role1_dir.mkdir()
         role1_templates = role1_dir / ".ansibledoctor" / "templates"
         role1_templates.mkdir(parents=True)
         (role1_templates / "role.html.j2").write_text("<html>Role 1</html>")
-        
+
         role2_dir = tmp_path / "role2"
         role2_dir.mkdir()
         role2_templates = role2_dir / ".ansibledoctor" / "templates"
@@ -271,14 +271,14 @@ class TestCaching:
 
         template1, source1 = loader.find_template("role.html.j2", role1_dir)
         template2, source2 = loader.find_template("role.html.j2", role2_dir)
-        
+
         # Should be different templates
         assert source1.path != source2.path
 
     def test_cache_expires_after_ttl(self, tmp_path):
         """Cache should expire after TTL seconds."""
         loader = CascadingTemplateLoader(cache_ttl=1)  # 1 second TTL
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
@@ -287,17 +287,17 @@ class TestCaching:
 
         # First access
         template1, source1 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Modify template
         (role_templates / "role.html.j2").write_text("<html>Modified</html>")
-        
+
         # Mock time passing
         with patch("ansibledoctor.generator.cascading_loader.datetime") as mock_dt:
             mock_dt.now.return_value = datetime.now() + timedelta(seconds=2)
-            
+
             # Access again after TTL
             template2, source2 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Should have re-discovered (new template content)
         # Note: Discovery time should be different
         assert source1.discovered_at != source2.discovered_at
@@ -305,7 +305,7 @@ class TestCaching:
     def test_clear_cache(self, tmp_path):
         """clear_cache() should invalidate all cached templates."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
@@ -314,13 +314,13 @@ class TestCaching:
 
         # First access
         template1, source1 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Clear cache
         loader.clear_cache()
-        
+
         # Access again
         template2, source2 = loader.find_template("role.html.j2", role_dir)
-        
+
         # Should have re-discovered (different discovered_at)
         assert source1.discovered_at != source2.discovered_at
 
@@ -331,12 +331,12 @@ class TestEnvironment:
     def test_environment_includes_filters(self, tmp_path):
         """Jinja2 environment should include custom filters."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
-        
+
         env = loader.get_environment(role_dir)
-        
+
         # Should have our custom filters from FILTERS dict
         assert "markdown_escape" in env.filters
         assert "code_fence" in env.filters
@@ -344,28 +344,28 @@ class TestEnvironment:
     def test_environment_autoescape_enabled(self, tmp_path):
         """Jinja2 environment should have autoescape enabled for HTML."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
-        
+
         env = loader.get_environment(role_dir)
-        
+
         # Autoescape should be enabled
         assert env.autoescape is True
 
     def test_environment_uses_choice_loader(self, tmp_path):
         """Jinja2 environment should use ChoiceLoader."""
         from jinja2 import ChoiceLoader
-        
+
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
         role_templates.mkdir(parents=True)
-        
+
         env = loader.get_environment(role_dir)
-        
+
         assert isinstance(env.loader, ChoiceLoader)
 
 
@@ -375,25 +375,25 @@ class TestTemplateNotFoundError:
     def test_error_raised_when_template_not_found(self, tmp_path):
         """TemplateNotFoundError should be raised when template doesn't exist."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
-        
+
         with pytest.raises(TemplateNotFoundError) as exc_info:
             loader.find_template("nonexistent.html.j2", role_dir)
-        
+
         assert "nonexistent.html.j2" in str(exc_info.value)
 
     def test_error_includes_searched_paths(self, tmp_path):
         """TemplateNotFoundError should list searched paths."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
-        
+
         with pytest.raises(TemplateNotFoundError) as exc_info:
             loader.find_template("nonexistent.html.j2", role_dir)
-        
+
         error = exc_info.value
         assert hasattr(error, "searched_paths")
         assert len(error.searched_paths) > 0
@@ -405,17 +405,17 @@ class TestProjectRootDetection:
     def test_finds_project_root_with_ansible_cfg(self, tmp_path):
         """Should find project root by looking for ansible.cfg."""
         loader = CascadingTemplateLoader()
-        
+
         # Create project structure
         project_dir = tmp_path / "my_project"
         project_dir.mkdir()
         (project_dir / "ansible.cfg").write_text("[defaults]")
-        
+
         roles_dir = project_dir / "roles"
         roles_dir.mkdir()
         role_dir = roles_dir / "webserver"
         role_dir.mkdir()
-        
+
         # Internal method test
         root = loader._find_project_root(role_dir)
         assert root == project_dir
@@ -423,26 +423,26 @@ class TestProjectRootDetection:
     def test_finds_project_root_with_pyproject_toml(self, tmp_path):
         """Should find project root by looking for pyproject.toml."""
         loader = CascadingTemplateLoader()
-        
+
         project_dir = tmp_path / "my_project"
         project_dir.mkdir()
         (project_dir / "pyproject.toml").write_text("[tool.ansibledoctor]")
-        
+
         roles_dir = project_dir / "roles"
         roles_dir.mkdir()
         role_dir = roles_dir / "webserver"
         role_dir.mkdir()
-        
+
         root = loader._find_project_root(role_dir)
         assert root == project_dir
 
     def test_returns_none_when_no_project_root(self, tmp_path):
         """Should return None when no project markers found."""
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "orphan_role"
         role_dir.mkdir()
-        
+
         root = loader._find_project_root(role_dir)
         assert root is None
 
@@ -453,10 +453,10 @@ class TestLogging:
     def test_logs_template_discovery(self, tmp_path, caplog):
         """Should log when a template is discovered."""
         import logging
-        
+
         caplog.set_level(logging.DEBUG)
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
@@ -464,21 +464,20 @@ class TestLogging:
         (role_templates / "role.html.j2").write_text("<html>Role</html>")
 
         loader.find_template("role.html.j2", role_dir)
-        
+
         # Check log message contains key info
         assert any(
-            "Template discovered" in record.message or 
-            "role.html.j2" in record.message
+            "Template discovered" in record.message or "role.html.j2" in record.message
             for record in caplog.records
         )
 
     def test_logs_cache_hit(self, tmp_path, caplog):
         """Should log when template is served from cache."""
         import logging
-        
+
         caplog.set_level(logging.DEBUG)
         loader = CascadingTemplateLoader()
-        
+
         role_dir = tmp_path / "my_role"
         role_dir.mkdir()
         role_templates = role_dir / ".ansibledoctor" / "templates"
@@ -488,12 +487,9 @@ class TestLogging:
         # First access
         loader.find_template("role.html.j2", role_dir)
         caplog.clear()
-        
+
         # Second access (should be cached)
         loader.find_template("role.html.j2", role_dir)
-        
+
         # Should log cache hit
-        assert any(
-            "cache" in record.message.lower()
-            for record in caplog.records
-        )
+        assert any("cache" in record.message.lower() for record in caplog.records)

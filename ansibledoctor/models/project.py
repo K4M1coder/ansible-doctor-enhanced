@@ -11,9 +11,9 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
+from ansibledoctor.models.collection import AnsibleCollection
 from ansibledoctor.models.existing_docs import ExistingDocs
 from ansibledoctor.models.role import AnsibleRole
-from ansibledoctor.models.collection import AnsibleCollection
 
 
 class Playbook(BaseModel):
