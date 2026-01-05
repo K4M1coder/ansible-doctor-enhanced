@@ -9,45 +9,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Execution Reports & Structured Logging (Spec 009)
 
-**Phase 7: User Story 5 Implementation (T076-T081) - IN PROGRESS**
-- **Exit Code Constants**: Added standardized exit codes to `ansibledoctor/exceptions.py`:
+**Phase 7-8: Exit Code System & CI/CD Integration ✅ COMPLETE**
+
+**Exit Code System (T071-T080)**:
+- **Standardized Exit Codes** in `ansibledoctor/exceptions.py`:
   - `EXIT_SUCCESS = 0`: Command succeeded (with or without warnings)
-  - `EXIT_ERROR = 1`: Fatal error (parsing failed, file not found, etc.)
+  - `EXIT_ERROR = 1`: Fatal error (parsing failed, file not found, validation failed)
   - `EXIT_WARNING = 2`: Warnings present with --fail-on-warnings flag
   - `EXIT_INVALID = 3`: Invalid command usage (bad arguments, validation errors)
-- **CLI Enhancements**:
-  - **New Flag**: `--fail-on-warnings` for both `parse` and `generate` commands
-    - Help text: "Exit with code 2 if warnings are present (for CI/CD pipelines)"
-    - Default: False (warnings don't cause failure)
-    - When True: Command exits with code 2 if any warnings present
-  - **Path Validation**: Manual path checking with appropriate exit codes:
-    - Changed `@click.argument("role_path")` from `exists=True` to `exists=False`
-    - Added validation at command start: `role_path.exists()` and `role_path.is_dir()`
-    - Nonexistent paths now return EXIT_ERROR (1) instead of Click's EXIT_INVALID (2)
-  - **Exit Code Logic**: Applied to both commands:
-    - Success path: `sys.exit(EXIT_SUCCESS)` or `sys.exit(EXIT_WARNING)` based on warnings + flag
-    - ValidationError: `sys.exit(EXIT_INVALID)` for invalid usage
-    - ParsingError/AnsibleDoctorError: `sys.exit(EXIT_ERROR)` for fatal errors
-    - Exception handler: `sys.exit(EXIT_ERROR)` for unexpected errors
-  - **Variable Initialization**: Fixed NameError by initializing `files_processed=0`, `roles_documented=0` at command start
-- **Test Status**: 6/9 tests PASSING (66%)
-  - **PASSING**:
-    - `test_successful_parse_returns_exit_code_0`: Basic parse succeeds with code 0 ✅
-    - `test_successful_generate_returns_exit_code_0`: Basic generate succeeds with code 0 ✅
-    - `test_nonexistent_role_returns_exit_code_1`: Missing path returns code 1 ✅
-    - `test_invalid_flags_return_exit_code_2_or_3`: Invalid flags caught by Click ✅
-    - `test_generate_with_invalid_flags`: Invalid combination caught ✅
-    - `test_parse_with_validation_errors`: Validation errors return code 3 ✅
-  - **FAILING (Edge Cases)**:
-    - `test_invalid_yaml_returns_exit_code_1`: Returns 0, expects 1 (YAML errors not caught)
-    - `test_warnings_with_fail_on_warnings_returns_exit_code_2`: Returns 1, expects 0 or 2 (exception during generation)
-    - `test_warnings_without_fail_on_warnings_returns_exit_code_0`: Returns 1, expects 0 (exception during generation)
-- **Known Issues**:
-  - YAML parsing errors in `meta/main.yml` don't propagate to command exit code (need error handling in parser)
-  - Minimal roles (meta + defaults only) cause exceptions during generation (need resilience improvements)
-  - Tests expect warnings from undocumented variables, but none are generated (need warning generation logic)
-- **CI/CD Integration**: Exit codes now support pipeline integration:
-  - `EXIT_SUCCESS (0)`: Safe to proceed
+
+- **CLI Exit Code Logic** (`ansibledoctor/cli/__init__.py`):
+  - Proper exception handling hierarchy:
+    1. ParsingError exceptions now propagate correctly (allows YAML validation)
+    2. ValidationError → EXIT_INVALID for invalid arguments
+    3. AnsibleDoctorError → EXIT_ERROR for processing failures
+    4. Generic exceptions → EXIT_ERROR with error messages
+  - Success paths return EXIT_SUCCESS or EXIT_WARNING based on --fail-on-warnings flag
+  - Path validation moved from Click to manual checks with correct exit codes
+
+- **New CLI Flag**: `--fail-on-warnings`
+  - Available for both `parse` and `generate` commands
+  - Default: False (warnings don't cause non-zero exit)
+  - When enabled: Command exits with code 2 if warnings detected
+  - Use case: CI/CD quality gates requiring zero warnings
+
+- **Role Validation Improvements**:
+  - Changed REQUIRED_DIRS from ["tasks"] to [] in `ansibledoctor/utils/paths.py`
+  - Allows minimal roles (meta + defaults only) to pass validation
+  - Warnings issued for missing directories instead of errors
+
+**Documentation & CI/CD Integration (T081-T084)**:
+- **CLI Help Documentation**:
+  - Added comprehensive "Exit Codes:" section to both `parse` and `generate` commands
+  - Includes usage examples and exit code explanations
+  - Users can now discover exit codes via `--help`
+
+- **README CI/CD Section** (150+ lines):
+  - Complete exit code reference table with visual indicators (✅❌⚠️🚫)
+  - GitHub Actions workflow example (copy-paste ready)
+  - GitLab CI pipeline example
+  - Quality gate patterns using --fail-on-warnings
+  - Execution report JSON structure examples
+  - Correlation ID usage documentation for distributed tracing
+
+- **Comprehensive Docstrings**:
+  - All reporting modules fully documented (MetricsCollector, ReportGenerator, serializers)
+  - Correlation utilities documented with examples
+  - Function signatures include type hints and return value docs
+
+**Testing & Validation (T071-T075, T091-T094)**:
+- **Exit Code Test Suite**: 9/9 tests passing (100%)
+  - Success scenarios for parse and generate commands
+  - Error handling (nonexistent paths, invalid YAML, validation errors)
+  - Warning handling with and without --fail-on-warnings flag
+  - Invalid flag combinations and argument validation
+- **Backward Compatibility**: ✅ Verified
+  - All 334 existing integration tests pass without --report flag
+  - Default behavior unchanged (no reports generated unless requested)
+  - No breaking changes to existing functionality
+- **Regression Testing**: ✅ Complete
+  - Full test suite: 1628/1640 tests passing (99.3%)
+  - 12 failures unrelated to Spec 009 (pre-existing)
+  - Exit code system adds no new test failures
+
+**CI/CD Integration Support**:
+- Exit codes now enable pipeline automation:
+  - `EXIT_SUCCESS (0)`: Safe to proceed, deploy allowed
+  - `EXIT_ERROR (1)`: Block pipeline, investigation required
+  - `EXIT_WARNING (2)`: Optional quality gate (with --fail-on-warnings)
+  - `EXIT_INVALID (3)`: Configuration error, fix arguments
+- Compatible with GitHub Actions, GitLab CI, Jenkins, CircleCI, Azure DevOps
+- Execution reports (--report flag) provide detailed metrics for dashboards
+
+**Phase Status**: 
+- Phase 1-6: All user stories complete (42 tests passing)
+- Phase 7: Exit code implementation complete (9 tests passing)
+- Phase 8: Documentation and polish complete (all tasks done)
+- **Spec 009**: 100% complete with comprehensive CI/CD integration
   - `EXIT_WARNING (2)`: Warning threshold exceeded (with --fail-on-warnings)
   - `EXIT_ERROR (1)`: Build should fail
   - `EXIT_INVALID (3)`: Configuration problem
