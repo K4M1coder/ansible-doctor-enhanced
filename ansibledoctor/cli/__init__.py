@@ -23,7 +23,15 @@ from ansibledoctor.cli.collection import collection
 from ansibledoctor.cli.project import project
 from ansibledoctor.config.loader import find_config_file, load_config, merge_config
 from ansibledoctor.config.models import ConfigModel
-from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError, ValidationError
+from ansibledoctor.exceptions import (
+    AnsibleDoctorError,
+    EXIT_ERROR,
+    EXIT_INVALID,
+    EXIT_SUCCESS,
+    EXIT_WARNING,
+    ParsingError,
+    ValidationError,
+)
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
@@ -70,7 +78,7 @@ def cli():
 
 
 @cli.command()
-@click.argument("role_path", type=click.Path(exists=True, path_type=Path))
+@click.argument("role_path", type=click.Path(exists=False, path_type=Path))
 @click.option(
     "--output",
     "-o",
@@ -116,6 +124,12 @@ def cli():
     default="json",
     help="Report output format (default: json)",
 )
+@click.option(
+    "--fail-on-warnings",
+    is_flag=True,
+    default=False,
+    help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
+)
 def parse(
     role_path: Path,
     output: Path | None,
@@ -126,6 +140,7 @@ def parse(
     correlation_id: str | None,
     report: Path | None,
     report_format: str,
+    fail_on_warnings: bool,
 ):
     """
     Parse Ansible role and extract documentation.
@@ -154,6 +169,15 @@ def parse(
         correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
     
+    # Validate path exists
+    if not role_path.exists():
+        click.echo(f"Error: Role path does not exist: {role_path}", err=True)
+        sys.exit(EXIT_ERROR)
+    
+    if not role_path.is_dir():
+        click.echo(f"Error: Role path is not a directory: {role_path}", err=True)
+        sys.exit(EXIT_ERROR)
+    
     # Initialize metrics collector for performance tracking
     metrics_collector = MetricsCollector()
     
@@ -175,6 +199,8 @@ def parse(
     warnings_list = []
     errors_list = []
     output_files = []
+    files_processed = 0
+    roles_documented = 0
 
     try:
         # Start parsing phase
@@ -234,7 +260,12 @@ def parse(
             )
         
         logger.info("cli_parse_completed", correlation_id=correlation_id, success=True)
-        sys.exit(0)
+        
+        # Determine exit code based on warnings
+        if fail_on_warnings and len(warnings_list) > 0:
+            sys.exit(EXIT_WARNING)
+        else:
+            sys.exit(EXIT_SUCCESS)
 
     except ValidationError as e:
         completed_at = datetime.now(timezone.utc)
@@ -273,7 +304,7 @@ def parse(
                 output_files=output_files,
             )
         
-        sys.exit(2)
+        sys.exit(EXIT_INVALID)
 
     except ParsingError as e:
         completed_at = datetime.now(timezone.utc)
@@ -312,7 +343,7 @@ def parse(
                 output_files=output_files,
             )
         
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
     except AnsibleDoctorError as e:
         completed_at = datetime.now(timezone.utc)
@@ -349,7 +380,7 @@ def parse(
                 output_files=output_files,
             )
         
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
     """
     Generate documentation for an Ansible role or multiple roles recursively.
@@ -707,7 +738,7 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
 
 
 @cli.command()
-@click.argument("role_path", type=click.Path(exists=True, path_type=Path))
+@click.argument("role_path", type=click.Path(exists=False, path_type=Path))
 @click.option(
     "--format",
     "-f",
@@ -805,6 +836,12 @@ def _parse_roles_recursive(roles_dir: Path, validate: bool, metrics_collector: M
     default="json",
     help="Report output format (default: json)",
 )
+@click.option(
+    "--fail-on-warnings",
+    is_flag=True,
+    default=False,
+    help="Exit with code 2 if warnings are present (for CI/CD pipelines)",
+)
 def generate(
     role_path,
     format,
@@ -824,12 +861,22 @@ def generate(
     correlation_id,
     report,
     report_format,
+    fail_on_warnings,
 ):
 
     # Generate or use provided correlation ID for request tracing
     if correlation_id is None:
         correlation_id = generate_correlation_id()
     set_correlation_id(correlation_id)
+    
+    # Validate path exists
+    if not role_path.exists():
+        click.echo(f"Error: Role path does not exist: {role_path}", err=True)
+        sys.exit(EXIT_ERROR)
+    
+    if not role_path.is_dir():
+        click.echo(f"Error: Role path is not a directory: {role_path}", err=True)
+        sys.exit(EXIT_ERROR)
     
     # Initialize metrics collector for performance tracking
     metrics_collector = MetricsCollector()
@@ -854,6 +901,8 @@ def generate(
     warnings_list = []
     errors_list = []
     output_files = []
+    files_processed = 0
+    roles_documented = 0
 
     try:
         # T013: Load config file and merge with CLI arguments
@@ -1050,6 +1099,12 @@ def generate(
                 errors=errors_list,
                 output_files=output_files,
             )
+        
+        # Determine exit code based on warnings
+        if fail_on_warnings and len(warnings_list) > 0:
+            sys.exit(EXIT_WARNING)
+        else:
+            sys.exit(EXIT_SUCCESS)
 
     except (ParsingError, ValidationError, AnsibleDoctorError) as e:
         completed_at = datetime.now(timezone.utc)
@@ -1086,7 +1141,7 @@ def generate(
                 output_files=output_files,
             )
         
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
         
     except Exception as e:
         completed_at = datetime.now(timezone.utc)
@@ -1123,7 +1178,7 @@ def generate(
                 output_files=output_files,
             )
         
-        sys.exit(1)
+        sys.exit(EXIT_ERROR)
 
 
 def _parse_role_for_generation(role_path: Path) -> AnsibleRole:

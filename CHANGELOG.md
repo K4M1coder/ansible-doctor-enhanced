@@ -7,7 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added - Execution Reports & Structured Logging (Spec 009 Phase 1-2)
+### Added - Execution Reports & Structured Logging (Spec 009)
+
+**Phase 7: User Story 5 Implementation (T076-T081) - IN PROGRESS**
+- **Exit Code Constants**: Added standardized exit codes to `ansibledoctor/exceptions.py`:
+  - `EXIT_SUCCESS = 0`: Command succeeded (with or without warnings)
+  - `EXIT_ERROR = 1`: Fatal error (parsing failed, file not found, etc.)
+  - `EXIT_WARNING = 2`: Warnings present with --fail-on-warnings flag
+  - `EXIT_INVALID = 3`: Invalid command usage (bad arguments, validation errors)
+- **CLI Enhancements**:
+  - **New Flag**: `--fail-on-warnings` for both `parse` and `generate` commands
+    - Help text: "Exit with code 2 if warnings are present (for CI/CD pipelines)"
+    - Default: False (warnings don't cause failure)
+    - When True: Command exits with code 2 if any warnings present
+  - **Path Validation**: Manual path checking with appropriate exit codes:
+    - Changed `@click.argument("role_path")` from `exists=True` to `exists=False`
+    - Added validation at command start: `role_path.exists()` and `role_path.is_dir()`
+    - Nonexistent paths now return EXIT_ERROR (1) instead of Click's EXIT_INVALID (2)
+  - **Exit Code Logic**: Applied to both commands:
+    - Success path: `sys.exit(EXIT_SUCCESS)` or `sys.exit(EXIT_WARNING)` based on warnings + flag
+    - ValidationError: `sys.exit(EXIT_INVALID)` for invalid usage
+    - ParsingError/AnsibleDoctorError: `sys.exit(EXIT_ERROR)` for fatal errors
+    - Exception handler: `sys.exit(EXIT_ERROR)` for unexpected errors
+  - **Variable Initialization**: Fixed NameError by initializing `files_processed=0`, `roles_documented=0` at command start
+- **Test Status**: 6/9 tests PASSING (66%)
+  - **PASSING**:
+    - `test_successful_parse_returns_exit_code_0`: Basic parse succeeds with code 0 ✅
+    - `test_successful_generate_returns_exit_code_0`: Basic generate succeeds with code 0 ✅
+    - `test_nonexistent_role_returns_exit_code_1`: Missing path returns code 1 ✅
+    - `test_invalid_flags_return_exit_code_2_or_3`: Invalid flags caught by Click ✅
+    - `test_generate_with_invalid_flags`: Invalid combination caught ✅
+    - `test_parse_with_validation_errors`: Validation errors return code 3 ✅
+  - **FAILING (Edge Cases)**:
+    - `test_invalid_yaml_returns_exit_code_1`: Returns 0, expects 1 (YAML errors not caught)
+    - `test_warnings_with_fail_on_warnings_returns_exit_code_2`: Returns 1, expects 0 or 2 (exception during generation)
+    - `test_warnings_without_fail_on_warnings_returns_exit_code_0`: Returns 1, expects 0 (exception during generation)
+- **Known Issues**:
+  - YAML parsing errors in `meta/main.yml` don't propagate to command exit code (need error handling in parser)
+  - Minimal roles (meta + defaults only) cause exceptions during generation (need resilience improvements)
+  - Tests expect warnings from undocumented variables, but none are generated (need warning generation logic)
+- **CI/CD Integration**: Exit codes now support pipeline integration:
+  - `EXIT_SUCCESS (0)`: Safe to proceed
+  - `EXIT_WARNING (2)`: Warning threshold exceeded (with --fail-on-warnings)
+  - `EXIT_ERROR (1)`: Build should fail
+  - `EXIT_INVALID (3)`: Configuration problem
+
+### Added - Execution Reports & Structured Logging (Spec 009 Phase 1-6 Complete) ✅
 
 **Phase 1: Setup (T001-T003)**
 - **Reporting Module**: Created `ansibledoctor/reporting/__init__.py` with module documentation

@@ -14,6 +14,13 @@ Exit Codes (for CLI integration):
 from typing import Any, Optional
 
 
+# Exit code constants for CI/CD integration (User Story 5)
+EXIT_SUCCESS = 0      # Operation completed successfully
+EXIT_ERROR = 1        # Fatal error occurred (parsing, validation, exceptions)
+EXIT_WARNING = 2      # Warnings treated as errors (with --fail-on-warnings)
+EXIT_INVALID = 3      # Invalid command-line usage
+
+
 class AnsibleDoctorError(Exception):
     """
     Base exception for all Ansible Doctor errors.
