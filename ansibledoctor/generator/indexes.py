@@ -538,6 +538,7 @@ class DefaultIndexGenerator:
         components: dict[str, list[IndexItem]],
         index_style: str = "list",
         max_depth: int | None = None,
+        filters: list["IndexFilter"] | None = None,
         logger: object | None = None,
     ) -> dict[str, list[Path]]:
         """Generate and write index pages for all component types.
@@ -549,6 +550,7 @@ class DefaultIndexGenerator:
             components: Dict mapping component type to list of IndexItems
             index_style: Visualization style (list, table, tree, etc.)
             max_depth: Maximum depth for tree visualization (None = unlimited)
+            filters: Optional list of IndexFilter to apply to items
             logger: Optional structured logger
 
         Returns:
@@ -560,18 +562,26 @@ class DefaultIndexGenerator:
         all_files: dict[str, list[Path]] = {}
 
         for component_type, items in components.items():
+            # Apply filters if provided
+            filtered_items = items
+            if filters:
+                for filter_obj in filters:
+                    filtered_items = [item for item in filtered_items if filter_obj.matches(item)]
+
             if logger:
                 logger.info(
                     "index_generation_start",
                     component_type=component_type,
-                    item_count=len(items),
+                    item_count=len(filtered_items),
+                    original_count=len(items),
                     style=index_style,
+                    filters_applied=len(filters) if filters else 0,
                 )
 
             # Generate index pages
             pages = self.generate_index_page(
                 component_type=component_type,
-                items=items,
+                items=filtered_items,
                 format=index_style,
             )
 

@@ -17,7 +17,13 @@
 | [{{ item.name }}]({{ item.doc_link }}) | {{ item.description | default('') | truncate(80) | replace('\n', ' ') }} | {% if item.tags %}{% for tag in item.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} | {% if item.dependencies %}{% for dep in item.dependencies %}{{ dep }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} |
 {% endfor %}
 {% else %}
+{% if filters_applied %}
+*No {{ component_type }} found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all {{ component_type }}.
+{% else %}
 *No {{ component_type }} found.*
+{% endif %}
 {% endif %}
 
 {% if has_pagination %}

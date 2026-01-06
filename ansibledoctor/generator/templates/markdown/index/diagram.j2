@@ -9,6 +9,7 @@
 
 ## Project Structure Diagram
 
+{% if page.items %}
 ```mermaid
 {{ diagram_code }}
 ```
@@ -38,6 +39,15 @@
 {%- endif %}
 
 {%- endfor %}
+{% else %}
+{% if page.filters_applied %}
+*No components found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all components.
+{% else %}
+*No components found.*
+{% endif %}
+{% endif %}
 
 {% if page.has_pagination %}
 ---

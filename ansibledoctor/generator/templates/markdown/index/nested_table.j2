@@ -9,6 +9,7 @@
 
 ## Collections Overview
 
+{% if page.items %}
 | Collection | Namespace | Roles | Plugins | Description |
 |------------|-----------|-------|---------|-------------|
 {%- for item in page.items %}
@@ -28,6 +29,15 @@
 {%- endif %}
 {%- endif %}
 {%- endfor %}
+{% else %}
+{% if page.filters_applied %}
+*No collections found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all collections.
+{% else %}
+*No collections found.*
+{% endif %}
+{% endif %}
 
 {% if page.has_pagination %}
 ---

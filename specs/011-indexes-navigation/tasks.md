@@ -179,19 +179,19 @@
 
 ### Tests First
 
-- [ ] T074 [P] [US6] Write test for tag filtering in tests/unit/test_index_filters.py (tag:database filter)
-- [ ] T075 [P] [US6] Write test for namespace filtering in tests/unit/test_index_filters.py (namespace:my_namespace filter)
-- [ ] T076 [P] [US6] Write test for multiple filters in tests/unit/test_index_filters.py (AND logic)
-- [ ] T077 [P] [US6] Write test for empty filter results in tests/integration/test_index_generation.py (no matches message)
+- [X] T074 [P] [US6] Write test for tag filtering in tests/unit/test_index_filters.py (tag:database filter)
+- [X] T075 [P] [US6] Write test for namespace filtering in tests/unit/test_index_filters.py (namespace:my_namespace filter)
+- [X] T076 [P] [US6] Write test for multiple filters in tests/unit/test_index_filters.py (AND logic)
+- [X] T077 [P] [US6] Write test for empty filter results in tests/integration/test_index_generation.py (no matches message)
 - [ ] T078 [P] [US6] Write test for HTML client-side filtering in tests/integration/test_index_generation.py (filter box rendered)
 
 ### Implementation
 
-- [ ] T079 [US6] Create IndexFilter model in ansibledoctor/models/index.py (field, operator, value, matches())
-- [ ] T080 [US6] Implement filter parsing in CLI in ansibledoctor/cli/__init__.py (parse 'field:value' strings)
-- [ ] T081 [US6] Implement filter application in IndexGenerator (apply filters before rendering)
-- [ ] T082 [US6] Add --filter CLI flag in ansibledoctor/cli/__init__.py (multiple=True)
-- [ ] T083 [US6] Implement empty filter message in templates (show when filtered_count=0)
+- [X] T079 [US6] Create IndexFilter model in ansibledoctor/models/index.py (field, operator, value, matches())
+- [X] T080 [US6] Implement filter parsing in CLI in ansibledoctor/cli/__init__.py (parse 'field:value' strings)
+- [X] T081 [US6] Implement filter application in IndexGenerator (apply filters before rendering)
+- [X] T082 [US6] Add --filter CLI flag in ansibledoctor/cli/__init__.py (multiple=True)
+- [X] T083 [US6] Implement empty filter message in templates (show when filtered_count=0)
 
 ---
 
