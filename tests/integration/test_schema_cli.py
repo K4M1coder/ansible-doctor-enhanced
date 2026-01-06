@@ -3,6 +3,7 @@
 Tests the schema command group including validate, export, convert, and docs commands.
 """
 
+import json
 
 import pytest
 from click.testing import CliRunner
@@ -85,16 +86,61 @@ unknown_field: value
 
 
 class TestSchemaExportCommand:
-    """Test the 'schema export' command (placeholder)."""
+    """Test the 'schema export' command."""
 
     @pytest.fixture
     def cli_runner(self):
         """Create a Click CLI runner."""
         return CliRunner()
 
-    def test_export_not_implemented(self, cli_runner):
-        """Test that export command shows not implemented message."""
+    def test_export_config_to_stdout(self, cli_runner):
+        """Test exporting config schema to stdout (default JSON Schema)."""
         result = cli_runner.invoke(schema, ["export", "config"])
+        assert result.exit_code == 0
+        
+        # Parse output as JSON
+        schema_data = json.loads(result.output)
+        assert "$schema" in schema_data
+        assert "properties" in schema_data
+        assert "output_format" in schema_data["properties"]
+
+    def test_export_config_json_schema_format(self, cli_runner):
+        """Test exporting config schema as JSON Schema format."""
+        result = cli_runner.invoke(schema, ["export", "config", "--format", "json-schema"])
+        assert result.exit_code == 0
+        
+        schema_data = json.loads(result.output)
+        assert schema_data["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+
+    def test_export_config_openapi_format(self, cli_runner):
+        """Test exporting config schema in OpenAPI format."""
+        result = cli_runner.invoke(schema, ["export", "config", "--format", "openapi"])
+        assert result.exit_code == 0
+        
+        schema_data = json.loads(result.output)
+        assert "openapi" in schema_data
+        assert "components" in schema_data
+        assert "schemas" in schema_data["components"]
+
+    def test_export_to_file(self, cli_runner, tmp_path):
+        """Test exporting schema to a file."""
+        output_file = tmp_path / "schema.json"
+        result = cli_runner.invoke(schema, ["export", "config", "--output", str(output_file)])
+        assert result.exit_code == 0
+        assert "exported to" in result.output.lower()
+        
+        # Verify file was created
+        assert output_file.exists()
+        
+        # Verify file contains valid JSON Schema
+        with open(output_file) as f:
+            schema_data = json.load(f)
+        assert "$schema" in schema_data
+        assert "properties" in schema_data
+
+    def test_export_role_not_implemented(self, cli_runner):
+        """Test that role export shows not implemented message."""
+        result = cli_runner.invoke(schema, ["export", "role"])
         assert result.exit_code == 1
         assert "not yet implemented" in result.output.lower()
 

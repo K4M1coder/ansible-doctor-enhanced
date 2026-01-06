@@ -17,5 +17,7 @@ Usage:
     schema = exporter.export_schema(MyModel, format="json")
 """
 
+from ansibledoctor.serialization.schema_exporter import SchemaExporter
+
 # Placeholder exports for future implementation
 __all__ = ["FormatConverter", "SchemaExporter", "SchemaDocumenter"]

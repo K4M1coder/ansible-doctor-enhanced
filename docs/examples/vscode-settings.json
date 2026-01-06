@@ -1,0 +1,36 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        ".ansibledoctor.yml",
+        ".ansibledoctor.yaml",
+        "**/ansibledoctor.yml",
+        "**/ansibledoctor.yaml"
+      ],
+      "url": "./config-schema.json"
+    }
+  ],
+  "yaml.schemas": {
+    "./config-schema.json": [
+      ".ansibledoctor.yml",
+      ".ansibledoctor.yaml",
+      "**/ansibledoctor.yml",
+      "**/ansibledoctor.yaml"
+    ]
+  },
+  "yaml.customTags": [
+    "!vault"
+  ],
+  "files.associations": {
+    ".ansibledoctor.yml": "yaml",
+    ".ansibledoctor.yaml": "yaml"
+  },
+  "[yaml]": {
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.suggest.showWords": false
+  }
+}

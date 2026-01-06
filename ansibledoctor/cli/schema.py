@@ -3,10 +3,12 @@
 Provides commands for schema validation, export, conversion, and documentation.
 """
 
+import json
 from pathlib import Path
 
 import click
 
+from ansibledoctor.serialization import SchemaExporter
 from ansibledoctor.validation import ConfigurationValidator
 
 
@@ -43,22 +45,67 @@ def validate_config(config_file: Path, strict: bool, verbose: bool):
     # Default: success (exit code 0)
 
 
-# Placeholder for future commands
+# T040-T042: Schema export command
 @schema.command("export")
 @click.argument("schema_type", type=click.Choice(["config", "role", "collection"]))
-@click.option("--format", "output_format", type=click.Choice(["json", "openapi"]), default="json")
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["json-schema", "openapi"]),
+    default="json-schema",
+    help="Output format: json-schema or openapi",
+)
 @click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path")
-def export_schema(schema_type: str, output_format: str, output: Path):
+def export_schema(schema_type: str, output_format: str, output: Path | None):
     """Export JSON Schema for ansible-doctor data models.
+
+    Generates JSON Schema or OpenAPI 3.1 specifications for configuration,
+    role, and collection data models. Useful for IDE autocomplete integration.
+
+    Examples:
+        \b
+        # Export config schema to stdout
+        ansible-doctor schema export config
+
+        \b
+        # Export as OpenAPI spec to file
+        ansible-doctor schema export config --format openapi -o schema.yaml
+
+        \b
+        # Export role schema
+        ansible-doctor schema export role --output role-schema.json
 
     Args:
         schema_type: Type of schema to export (config, role, collection)
-        output_format: Output format (json, openapi)
-        output: Output file path
+        output_format: Output format (json-schema, openapi)
+        output: Output file path (stdout if not specified)
     """
-    click.echo("Schema export not yet implemented (Spec 012 Phase 4)")
-    click.echo(f"Would export {schema_type} schema in {output_format} format")
-    raise click.Exit(1)
+    exporter = SchemaExporter()
+
+    try:
+        # T040: Export based on schema type
+        if schema_type == "config":
+            schema = exporter.export_config_schema(format_type=output_format)
+        elif schema_type in ("role", "collection"):
+            # Placeholder for future implementation
+            click.echo(f"Schema export for {schema_type} not yet implemented", err=True)
+            raise click.Abort()
+        else:
+            click.echo(f"Unknown schema type: {schema_type}", err=True)
+            raise click.Abort()
+
+        # T042: Output to file or stdout
+        if output:
+            # Write to file
+            exporter.export_to_file(schema_type, output, format_type=output_format)
+            click.echo(f"✓ Schema exported to {output}")
+        else:
+            # Print to stdout with pretty formatting
+            click.echo(json.dumps(schema, indent=2, ensure_ascii=False))
+
+    except Exception as e:
+        click.echo(f"Error exporting schema: {e}", err=True)
+        raise click.Abort()
 
 
 @schema.command("convert")

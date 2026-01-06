@@ -9,9 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Schema Documentation & Validation (Spec 012) - 🚧 IN PROGRESS
 
+**Phase 4: User Story 2 - Schema Export ✅ COMPLETE (T030-T043, 43/94 tasks - 46%)**
+
 **Phase 3: User Story 1 - Configuration Validation ✅ COMPLETE (T001-T029, 29/94 tasks - 31%)**
 
-This feature introduces JSON Schema validation for ansible-doctor configuration files, with detailed error messages and CLI commands for validation.
+This feature introduces JSON Schema validation and export for ansible-doctor, enabling IDE autocomplete integration, format conversion, and comprehensive data validation.
+
+**Schema Export** (`ansibledoctor/serialization/`, T030-T043):
+- **SchemaExporter** (`ansibledoctor/serialization/schema_exporter.py`):
+  - Export Pydantic models as JSON Schema (Draft 2020-12)
+  - Export as OpenAPI 3.1 specifications for API documentation
+  - Metadata enrichment: descriptions, examples, default values
+  - $schema property injection for IDE recognition
+  - Schema $id for unique identification
+  - 89% code coverage, 6 integration tests passing
+
+- **CLI Commands** (`ansibledoctor/cli/schema.py`):
+  - `ansible-doctor schema export config` - Export config schema to stdout
+  - `--format json-schema|openapi` - Choose output format
+  - `--output FILE` - Write schema to file instead of stdout
+  - Support for config, role, collection schema types (config implemented)
+  - 95% CLI code coverage, 12 total CLI tests passing
+
+- **IDE Integration** (`docs/examples/`):
+  - VS Code settings example with JSON Schema mapping
+  - IntelliJ/PyCharm integration instructions
+  - OpenAPI format for Swagger UI, Redoc, Postman
+  - Complete setup guide with troubleshooting
 
 **Configuration Validation** (`ansibledoctor/validation/`, T001-T029):
 - **Schema Models** (`ansibledoctor/models/schemas.py`):
@@ -44,12 +68,14 @@ This feature introduces JSON Schema validation for ansible-doctor configuration 
 - jsonschema ^4.0 (JSON Schema validation)
 
 **Testing**:
-- 29 total tests passing (21 validation + 8 CLI)
-- 83% overall code coverage
+- 47 total tests passing (29 Phase 3 + 18 Phase 4)
+- Phase 3: 21 validation + 8 CLI tests
+- Phase 4: 6 schema export + 12 CLI tests
+- 83% overall code coverage maintained
 - TDD approach: tests written before implementation
-- Test fixtures for valid/invalid configs
+- Test fixtures for valid/invalid configs and schemas
 
-**Next**: Phase 4 - Schema Export (P1 MVP), Phase 5 - Format Conversion (P2), Phase 6 - Data Model Validation (P2)
+**Next**: Phase 5 - Format Conversion (P2), Phase 6 - Data Model Validation (P2), Phase 7 - Schema Documentation (P3)
 
 ## [0.11.0] - 2026-01-06
 
