@@ -107,6 +107,9 @@ class IndexPage(BaseModel):
     filters_applied: list[str] = Field(
         default_factory=list, description="Human-readable filter descriptions"
     )
+    nested_depth: int = Field(
+        default=2, ge=1, description="Maximum nesting depth for nested-table format"
+    )
 
     @property
     def has_pagination(self) -> bool:

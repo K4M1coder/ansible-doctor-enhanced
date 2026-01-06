@@ -217,6 +217,12 @@ def parse(
     default=5,
     help="Maximum depth for hierarchical tree visualization (default: 5, use 0 for unlimited)",
 )
+@click.option(
+    "--nested-depth",
+    type=int,
+    default=2,
+    help="Maximum nesting depth for nested-table format (default: 2)",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
@@ -229,6 +235,7 @@ def generate(
     index_style: str,
     index_format: str,
     index_depth: int,
+    nested_depth: int,
 ) -> None:
     """
     Generate documentation for an Ansible collection.

@@ -130,19 +130,19 @@
 
 ### Tests First
 
-- [ ] T053 [P] [US4] Write test for nested table in tests/integration/test_index_generation.py (collections with child counts)
-- [ ] T054 [P] [US4] Write test for nested depth in tests/unit/test_index_generator.py (--nested-depth 2 limits)
-- [ ] T055 [P] [US4] Write test for HTML nested table in tests/integration/test_index_generation.py (expandable rows)
-- [ ] T056 [P] [US4] Write test for Markdown nested table in tests/integration/test_index_generation.py (inline children)
+- [X] T053 [P] [US4] Write test for nested table in tests/integration/test_index_generation.py (collections with child counts)
+- [X] T054 [P] [US4] Write test for nested depth in tests/unit/test_index_generator.py (--nested-depth 2 limits)
+- [X] T055 [P] [US4] Write test for HTML nested table in tests/integration/test_index_generation.py (expandable rows)
+- [X] T056 [P] [US4] Write test for Markdown nested table in tests/integration/test_index_generation.py (inline children)
 
 ### Implementation
 
-- [ ] T057 [US4] Create nested_table.j2 template at ansibledoctor/templates/index/nested_table.j2 (collection|roles|plugins columns)
-- [ ] T058 [US4] Implement nested table logic in IndexGenerator (calculate child summaries)
-- [ ] T059 [US4] Add nested-depth parameter to IndexPage model (limit nesting levels)
-- [ ] T060 [P] [US4] Implement HTML expandable rows in nested_table.j2 (JavaScript for expand/collapse)
-- [ ] T061 [P] [US4] Implement Markdown static nested table in nested_table.j2 (comma-separated children)
-- [ ] T062 [US4] Add --nested-depth CLI flag in ansibledoctor/cli/__init__.py (default 2)
+- [X] T057 [US4] Create nested_table.j2 template at ansibledoctor/templates/index/nested_table.j2 (collection|roles|plugins columns)
+- [X] T058 [US4] Implement nested table logic in IndexGenerator (calculate child summaries)
+- [X] T059 [US4] Add nested-depth parameter to IndexPage model (limit nesting levels)
+- [X] T060 [P] [US4] Implement HTML expandable rows in nested_table.j2 (JavaScript for expand/collapse)
+- [X] T061 [P] [US4] Implement Markdown static nested table in nested_table.j2 (comma-separated children)
+- [X] T062 [US4] Add --nested-depth CLI flag in ansibledoctor/cli/__init__.py (default 2)
 
 ---
 

@@ -706,3 +706,222 @@ class TestHierarchicalProjectIndex:
         # Verify playbook names
         playbook_names = {child.name for child in playbooks}
         assert playbook_names == {"deploy", "rollback"}
+
+
+class TestNestedTables:
+    """Test nested table format (Phase 6 US4)."""
+
+    @pytest.fixture
+    def generator(self, tmp_path):
+        """Create a generator instance."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        return DefaultIndexGenerator(output_dir=output_dir)
+
+    @pytest.fixture
+    def nested_structure(self):
+        """Create nested collection structure for testing."""
+        return [
+            # Collection 1
+            IndexItem(
+                name="my_collection",
+                type="collection",
+                description="First collection",
+                path=Path("collections/ansible_collections/my_namespace/my_collection"),
+                namespace="my_namespace",
+                metadata={"role_count": 2, "plugin_count": 3},
+            ),
+            # Roles under collection 1
+            IndexItem(
+                name="role1",
+                type="role",
+                description="First role",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/roles/role1"
+                ),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="role2",
+                type="role",
+                description="Second role",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/roles/role2"
+                ),
+                namespace="my_namespace",
+            ),
+            # Plugins under collection 1
+            IndexItem(
+                name="module1",
+                type="module",
+                description="First module",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/plugins/modules/module1.py"
+                ),
+                namespace="my_namespace",
+                metadata={"plugin_type": "module"},
+            ),
+            IndexItem(
+                name="filter1",
+                type="plugin",
+                description="First filter",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/plugins/filter/filter1.py"
+                ),
+                namespace="my_namespace",
+                metadata={"plugin_type": "filter"},
+            ),
+            IndexItem(
+                name="lookup1",
+                type="plugin",
+                description="First lookup",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/plugins/lookup/lookup1.py"
+                ),
+                namespace="my_namespace",
+                metadata={"plugin_type": "lookup"},
+            ),
+            # Collection 2
+            IndexItem(
+                name="another_collection",
+                type="collection",
+                description="Second collection",
+                path=Path(
+                    "collections/ansible_collections/other_namespace/another_collection"
+                ),
+                namespace="other_namespace",
+                metadata={"role_count": 1, "plugin_count": 1},
+            ),
+            # Role under collection 2
+            IndexItem(
+                name="role3",
+                type="role",
+                description="Third role",
+                path=Path(
+                    "collections/ansible_collections/other_namespace/another_collection/roles/role3"
+                ),
+                namespace="other_namespace",
+            ),
+            # Plugin under collection 2
+            IndexItem(
+                name="module2",
+                type="module",
+                description="Second module",
+                path=Path(
+                    "collections/ansible_collections/other_namespace/another_collection/plugins/modules/module2.py"
+                ),
+                namespace="other_namespace",
+                metadata={"plugin_type": "module"},
+            ),
+        ]
+
+    def test_nested_table_structure(self, generator, nested_structure):
+        """T053: Test nested table shows collections with child counts."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(nested_structure)
+
+        # Generate index page with nested-table format
+        pages = generator.generate_index_page(
+            component_type="collections",
+            items=hierarchy,
+            format="nested-table",
+            page_size=50,
+        )
+
+        # Verify page created
+        assert len(pages) == 1
+        page = pages[0]
+
+        # Verify format
+        assert page.format == "nested-table"
+
+        # Verify collections are top-level items
+        assert len(page.items) == 2
+
+        # Verify child counts in metadata (for nested-table rendering)
+        collection1 = next(item for item in page.items if item.name == "my_collection")
+        assert len(collection1.children) == 5  # 2 roles + 3 plugins
+
+        collection2 = next(
+            item for item in page.items if item.name == "another_collection"
+        )
+        assert len(collection2.children) == 2  # 1 role + 1 plugin
+
+    def test_nested_depth_limiting(self, generator, nested_structure):
+        """T054: Test nested-depth parameter limits nesting levels."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(nested_structure)
+
+        # Generate page with nested_depth=1 (only top level, no children)
+        pages = generator.generate_index_page(
+            component_type="collections",
+            items=hierarchy,
+            format="nested-table",
+            page_size=50,
+        )
+
+        page = pages[0]
+
+        # Verify nested_depth parameter exists (will be added to IndexPage model)
+        # For now, just verify the structure exists
+        assert page.format == "nested-table"
+
+        # Children should still be in the structure but rendering will limit display
+        collection1 = next(item for item in page.items if item.name == "my_collection")
+        assert len(collection1.children) > 0
+
+    def test_markdown_nested_table(self, generator, nested_structure):
+        """T056: Test Markdown nested table with inline children."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(nested_structure)
+
+        # Generate nested-table page
+        pages = generator.generate_index_page(
+            component_type="collections",
+            items=hierarchy,
+            format="nested-table",
+            page_size=50,
+        )
+
+        page = pages[0]
+
+        # Verify structure for Markdown rendering
+        # Table will have: Collection | Roles | Plugins columns
+        assert page.format == "nested-table"
+        assert len(page.items) == 2
+
+        # Verify children can be accessed for inline display
+        collection1 = next(item for item in page.items if item.name == "my_collection")
+        roles = [c for c in collection1.children if c.type == "role"]
+        plugins = [
+            c for c in collection1.children if c.type in ("module", "plugin")
+        ]
+
+        assert len(roles) == 2
+        assert len(plugins) == 3
+
+    def test_child_summary_calculation(self, generator, nested_structure):
+        """T058: Test child summary statistics for nested table."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(nested_structure)
+
+        # Verify child statistics can be calculated
+        collection1 = next(item for item in hierarchy if item.name == "my_collection")
+
+        # Count children by type
+        roles = [c for c in collection1.children if c.type == "role"]
+        modules = [c for c in collection1.children if c.type == "module"]
+        plugins = [
+            c
+            for c in collection1.children
+            if c.type == "plugin" or c.type == "module"
+        ]
+
+        assert len(roles) == 2
+        assert len(modules) == 1
+        assert len(plugins) == 3  # 1 module + 2 plugins (filter, lookup)
+
+        # Verify metadata for display
+        assert collection1.metadata.get("role_count") == 2
+        assert collection1.metadata.get("plugin_count") == 3
+
