@@ -195,17 +195,102 @@ class SectionIndex(BaseModel):
             return 0
         return len(self.items) - self.limit
 
-    def render_inline(self, template_engine: Any) -> str:
+    def render_inline(self, template_engine: Any | None = None) -> str:
         """Render section index for inline embedding.
 
         Args:
-            template_engine: Template engine with render() method
+            template_engine: Template engine with render() method (optional)
 
         Returns:
             Rendered section content (without header/footer)
         """
-        template_name = f"index/section_{self.format}.j2"
-        return template_engine.render(template_name, section=self)  # type: ignore[no-any-return]
+        # If template engine provided, use it
+        if template_engine is not None:
+            template_name = f"index/section_{self.format}.j2"
+            return template_engine.render(template_name, section=self)  # type: ignore[no-any-return]
+
+        # Otherwise, generate simple inline representation
+        return self._render_simple_inline()
+
+    def _render_simple_inline(self) -> str:
+        """Generate simple inline representation without template engine."""
+        # Apply filter if specified
+        items = self.items
+        if self.filter_expression:
+            try:
+                filter_obj = IndexFilter.parse(self.filter_expression)
+                items = [item for item in items if filter_obj.matches(item)]
+            except ValueError:
+                pass  # Invalid filter, use all items
+
+        # Apply limit
+        visible = items[: self.limit] if self.limit else items
+        hidden = len(items) - len(visible) if self.limit and len(items) > self.limit else 0
+
+        # Group items if specified
+        grouped: dict[str, list[IndexItem]] = {}
+        if self.group_by:
+            for item in visible:
+                # Extract group key from item
+                group_key = self._extract_group_key(item, self.group_by)
+                if group_key not in grouped:
+                    grouped[group_key] = []
+                grouped[group_key].append(item)
+        else:
+            grouped["_default"] = visible
+
+        # Render based on format
+        lines: list[str] = []
+
+        for group_name, group_items in grouped.items():
+            # Add group header if grouped
+            if self.group_by and group_name != "_default":
+                lines.append(f"\n### {group_name}\n")
+
+            # Render items based on format
+            if self.format == "table":
+                lines.append("| Name | Description |")
+                lines.append("|------|-------------|")
+                for item in group_items:
+                    desc = item.description or ""
+                    lines.append(f"| {item.name} | {desc} |")
+            elif self.format == "tree":
+                for item in group_items:
+                    lines.append(f"  - {item.name}")
+            else:  # list format
+                for item in group_items:
+                    desc = f" - {item.description}" if item.description else ""
+                    lines.append(f"- [{item.name}]({item.doc_link}){desc}")
+
+        # Add "and X more..." if limited
+        if hidden > 0:
+            lines.append(f"\nand {hidden} more...")
+
+        return "\n".join(lines)
+
+    def _extract_group_key(self, item: IndexItem, group_by: str) -> str:
+        """Extract grouping key from item.
+
+        Args:
+            item: IndexItem to extract key from
+            group_by: Field path (e.g., 'metadata.plugin_type')
+
+        Returns:
+            String key for grouping
+        """
+        # Handle nested paths like "metadata.plugin_type"
+        parts = group_by.split(".")
+        value: Any = item
+
+        for part in parts:
+            if hasattr(value, part):
+                value = getattr(value, part)
+            elif isinstance(value, dict) and part in value:
+                value = value[part]
+            else:
+                return "Other"
+
+        return str(value) if value else "Other"
 
 
 class IndexFilter(BaseModel):

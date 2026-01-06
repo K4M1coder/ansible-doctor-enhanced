@@ -104,21 +104,21 @@
 
 ### Tests First
 
-- [ ] T041 [P] [US3] Write test for template marker parsing in tests/unit/test_index_generator.py ({{ index('roles') }} parsed)
-- [ ] T042 [P] [US3] Write test for embedded table format in tests/integration/test_embedded_indexes.py (format='table' works)
-- [ ] T043 [P] [US3] Write test for group_by in tests/integration/test_embedded_indexes.py (plugins grouped by type)
-- [ ] T044 [P] [US3] Write test for limit parameter in tests/integration/test_embedded_indexes.py (limit=5 shows 5 + more link)
-- [ ] T045 [P] [US3] Write test for filter parameter in tests/integration/test_embedded_indexes.py (filter='tag:database' works)
+- [X] T041 [P] [US3] Write test for template marker parsing in tests/unit/test_index_generator.py ({{ index('roles') }} parsed)
+- [X] T042 [P] [US3] Write test for embedded table format in tests/integration/test_embedded_indexes.py (format='table' works)
+- [X] T043 [P] [US3] Write test for group_by in tests/integration/test_embedded_indexes.py (plugins grouped by type)
+- [X] T044 [P] [US3] Write test for limit parameter in tests/integration/test_embedded_indexes.py (limit=5 shows 5 + more link)
+- [X] T045 [P] [US3] Write test for filter parameter in tests/integration/test_embedded_indexes.py (filter='tag:database' works)
 
 ### Implementation
 
-- [ ] T046 [US3] Implement IndexGenerator.generate_section_index() in ansibledoctor/generator/indexes.py (section index generation)
-- [ ] T047 [US3] Register index() function as Jinja2 global in ansibledoctor/generator/engine.py (callable from templates)
-- [ ] T048 [US3] Implement template marker argument parsing in index() function (parse format, limit, filter, group_by)
-- [ ] T049 [US3] Implement limit logic in SectionIndex (show N items + "and X more..." link)
-- [ ] T050 [US3] Implement group_by logic in SectionIndex (group plugins by type)
-- [ ] T051 [US3] Add filter parameter support in index() function (parse filter string, apply criteria)
-- [ ] T052 [US3] Create example templates using markers in demo/ (collection README with {{ index('roles') }})
+- [X] T046 [US3] Implement IndexGenerator.generate_section_index() in ansibledoctor/generator/indexes.py (section index generation)
+- [X] T047 [US3] Register index() function as Jinja2 global in ansibledoctor/generator/engine.py (callable from templates)
+- [X] T048 [US3] Implement template marker argument parsing in index() function (parse format, limit, filter, group_by)
+- [X] T049 [US3] Implement limit logic in SectionIndex (show N items + "and X more..." link)
+- [X] T050 [US3] Implement group_by logic in SectionIndex (group plugins by type)
+- [X] T051 [US3] Add filter parameter support in index() function (parse filter string, apply criteria)
+- [X] T052 [US3] Create example templates using markers in demo/ (collection README with {{ index('roles') }})
 
 ---
 
