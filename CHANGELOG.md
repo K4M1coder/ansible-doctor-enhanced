@@ -11,8 +11,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Phase 1-2: Foundation Infrastructure ✅ COMPLETE**
 **Phase 3: User Story 1 - Role Index Pages ✅ COMPLETE (T012-T026)**
+**Phase 4: User Story 2 - Hierarchical Project Index ✅ COMPLETE (T027-T040)**
 
 This work-in-progress feature introduces comprehensive index generation and navigation structures for Ansible documentation.
+
+**Phase 4: Hierarchical Indexing ✅ (14 tasks complete)**
+
+**TreeVisualizer Class** (`ansibledoctor/generator/tree_visualizer.py`, T032-T034):
+- Hierarchical tree rendering with ASCII and Unicode box-drawing characters
+- render_tree(): Main method for full tree with vertical lines (├── └── │)
+- render_compact(): Simpler indentation without connecting lines
+- Depth limiting with max_depth parameter (configurable via CLI)
+- Description display toggle (show_description parameter)
+- Tree statistics: get_stats() calculates total_nodes, max_depth, leaf_nodes
+- 9 comprehensive unit tests covering all rendering modes
+- 62% code coverage
+
+**Enhanced Hierarchy Building** (T027-T030, T035, T037-T038):
+- build_hierarchy(): Collections → Roles/Plugins/Playbooks tree structure
+- Path-based child assignment (components under collection if path starts with collection path)
+- Plugin indexing: Modules, filters, lookups nested under collections
+- Playbook indexing: Playbooks organized under collections
+- Standalone component detection: Roles and playbooks not under any collection added as roots
+- 4 integration tests validating hierarchy structure (all passing)
+
+**Tree Template and CLI Integration** (T036, T040):
+- tree.j2 template (`ansibledoctor/generator/templates/markdown/index/tree.j2`)
+- Displays tree visualization in fenced code block (```)
+- Component details section with type, path, namespace, tags, dependencies, children
+- --index-depth CLI flag (default: 5, 0 for unlimited depth)
+- max_depth parameter threaded through generate_and_write_indexes()
+
+**Test Coverage**:
+- 28 tests passing (9 TreeVisualizer unit + 19 integration)
+- indexes.py: 57% coverage
+- tree_visualizer.py: 62% coverage
+- Progress: 40/95 tasks (42.1%)
 
 **Core Index Models (T001-T010)**:
 - **IndexItem Model** (`ansibledoctor/models/index.py`):
