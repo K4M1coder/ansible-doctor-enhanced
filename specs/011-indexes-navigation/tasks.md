@@ -202,9 +202,9 @@
 **Note**: Cross-reference functionality (US7) has been moved to Spec 013 (Links & Cross-References).
 Spec 011 should consume CrossReference and LinkValidator from Spec 013's `ansibledoctor/links/` module.
 
-- [ ] T084 [P] Update CHANGELOG.md with Spec 011 feature summary (index pages, embedded sections, multiple formats)
-- [ ] T085 [P] Create user guide docs/INDEX_GUIDE.md (usage examples for all index styles)
-- [ ] T086 [P] Update README.md with index feature showcase (examples of list, tree, nested-table, diagram)
+- [X] T084 [P] Update CHANGELOG.md with Spec 011 feature summary (index pages, embedded sections, multiple formats)
+- [X] T085 [P] Create user guide docs/INDEX_GUIDE.md (usage examples for all index styles)
+- [X] T086 [P] Update README.md with index feature showcase (examples of list, tree, nested-table, diagram)
 - [ ] T087 [P] Add quickstart examples to docs/ (basic role index, hierarchical project, embedded sections)
 - [ ] T088 Write comprehensive integration test in tests/integration/test_full_index_workflow.py (end-to-end with all features)
 - [ ] T089 Performance test large project in tests/integration/test_index_performance.py (500+ components < 500ms)

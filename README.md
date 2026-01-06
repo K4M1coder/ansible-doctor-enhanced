@@ -148,6 +148,151 @@ poetry run ansible-doctor-enhanced project parse ./ --output project.json --pret
 - ✅ Multiple output formats (Markdown, HTML, RST)
 - ✅ Custom template support
 
+## 📑 Index Generation & Navigation (New in v0.5.0)
+
+Ansible Doctor Enhanced provides comprehensive **Index Generation** with multiple visualization formats, filtering capabilities, and embedded section indexes:
+
+### Generate Indexes
+
+Create professional index pages for roles, plugins, and collections:
+
+```bash
+# List format (default) - Bulleted list with descriptions
+ansible-doctor-enhanced collection generate ./my_collection --include-index
+
+# Table format - Compact table view
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style table
+
+# Tree format - Hierarchical structure with ASCII art
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style tree --index-depth 3
+
+# Nested table - Collections with inline children display
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style nested-table --nested-depth 2
+
+# Mermaid diagram - Visual flowchart with clickable nodes
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style diagram
+```
+
+### Filter Indexes
+
+Filter components by tag, namespace, type, or custom metadata:
+
+```bash
+# Single filter - Show only web-tagged components
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style table \
+    --filter 'tag:web'
+
+# Multiple filters - AND logic (all must match)
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --index-style table \
+    --filter 'tag:web' \
+    --filter 'namespace:my_namespace'
+
+# Filter by type
+ansible-doctor-enhanced collection generate ./my_collection \
+    --include-index --filter 'type:role'
+```
+
+### Embedded Section Indexes
+
+Use `{{ index() }}` function in Jinja2 templates to embed indexes anywhere:
+
+```jinja
+## Available Roles
+
+{{ index('roles', format='table') }}
+
+## Web Infrastructure (Top 5)
+
+{{ index('roles', format='list', filter='tag:web', limit=5) }}
+
+## Plugins by Type
+
+{{ index('plugins', format='table', group_by='metadata.plugin_type') }}
+```
+
+**Features**:
+- ✅ **5 Index Formats**: list, table, tree, nested-table, diagram (Mermaid)
+- ✅ **Hierarchical Organization**: Collections → Roles/Plugins/Playbooks
+- ✅ **Embedded Sections**: `{{ index() }}` function for inline indexes
+- ✅ **Advanced Filtering**: Filter by tag, namespace, type, metadata
+- ✅ **Visual Diagrams**: Mermaid flowcharts and mindmaps with clickable nodes
+- ✅ **Nested Tables**: Inline display of children with role/plugin counts
+- ✅ **50+ Tests**: Comprehensive test coverage with TDD approach
+
+**Example Output**:
+
+**List Format:**
+```markdown
+# Roles Index
+
+## [webserver](docs/roles/webserver.md)
+
+Deploy and configure a web server with Nginx or Apache.
+
+**Tags:** `web`, `nginx`, `apache`
+
+**Dependencies:** common, firewall
+
+---
+
+## [database](docs/roles/database.md)
+
+Deploy PostgreSQL or MySQL database servers.
+
+**Tags:** `database`, `postgres`, `mysql`
+```
+
+**Tree Format:**
+```
+Collection: my_namespace.my_collection
+├── Role: webserver (tags: web, nginx)
+│   ├── Dependencies: common, firewall
+│   └── Used by: app_server
+├── Role: database (tags: database, postgres)
+└── Plugin: web_config (type: module)
+```
+
+**Nested Table Format:**
+```markdown
+| Collection | Namespace | Roles | Plugins | Description |
+|------------|-----------|-------|---------|-------------|
+| [my_collection](docs/index.md) | my_namespace | 5 | 8 | Web infrastructure |
+| ↳ **Roles:** | | webserver, database, cache | | |
+| ↳ **Plugins:** | | web_config, db_backup | | |
+```
+
+**Mermaid Diagram:**
+````markdown
+```mermaid
+graph TD
+    collection[my_namespace.my_collection]
+    webserver(webserver)
+    database(database)
+    
+    collection --> webserver
+    collection --> database
+    webserver -.depends.-> common
+    
+    click webserver "docs/roles/webserver.md"
+```
+````
+
+**Documentation**: See [INDEX_GUIDE.md](docs/INDEX_GUIDE.md) for comprehensive usage guide with examples.
+
+**CLI Reference**:
+- `--include-index`: Enable index generation
+- `--index-style`: Format (list, table, tree, nested-table, diagram)
+- `--index-format`: Page format (full, section)
+- `--index-depth`: Maximum tree depth (default: 5)
+- `--nested-depth`: Nesting depth for nested-table (default: 2)
+- `--filter`: Filter by field:value (multiple allowed)
+
 **Documentation**: See [PROJECT_COMPLETION.md](PROJECT_COMPLETION.md) for comprehensive usage guide.
 
 **Demo**: Try the included demo project at `demo-role/` or `test-role/`
