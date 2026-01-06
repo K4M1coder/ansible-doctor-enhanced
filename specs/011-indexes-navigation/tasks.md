@@ -154,20 +154,20 @@
 
 ### Tests First
 
-- [ ] T063 [P] [US5] Write test for Mermaid flowchart in tests/unit/test_mermaid_builder.py (correct syntax generated)
-- [ ] T064 [P] [US5] Write test for dependency arrows in tests/unit/test_mermaid_builder.py (dependencies shown)
-- [ ] T065 [P] [US5] Write test for mindmap diagram in tests/unit/test_mermaid_builder.py (mindmap syntax)
-- [ ] T066 [P] [US5] Write test for clickable nodes in tests/unit/test_mermaid_builder.py (click links included)
-- [ ] T067 [P] [US5] Write test for large project clustering in tests/integration/test_index_generation.py (100+ components clustered)
+- [X] T063 [P] [US5] Write test for Mermaid flowchart in tests/unit/test_mermaid_builder.py (correct syntax generated)
+- [X] T064 [P] [US5] Write test for dependency arrows in tests/unit/test_mermaid_builder.py (dependencies shown)
+- [X] T065 [P] [US5] Write test for mindmap diagram in tests/unit/test_mermaid_builder.py (mindmap syntax)
+- [X] T066 [P] [US5] Write test for clickable nodes in tests/unit/test_mermaid_builder.py (click links included)
+- [X] T067 [P] [US5] Write test for large project clustering in tests/integration/test_index_generation.py (100+ components clustered)
 
 ### Implementation
 
-- [ ] T068 [US5] Create MermaidBuilder class in ansibledoctor/utils/mermaid_builder.py with build_flowchart() method
-- [ ] T069 [US5] Implement Mermaid flowchart generation in MermaidBuilder (graph TD syntax)
-- [ ] T070 [US5] Implement dependency arrow rendering in MermaidBuilder (role1 -.depends.-> role2)
-- [ ] T071 [P] [US5] Implement mindmap diagram in MermaidBuilder.build_mindmap() (mindmap syntax)
-- [ ] T072 [US5] Add clickable node support in MermaidBuilder (click directive with doc links)
-- [ ] T073 [US5] Create diagram.j2 template at ansibledoctor/templates/index/diagram.j2 (wrap Mermaid code)
+- [X] T068 [US5] Create MermaidBuilder class in ansibledoctor/utils/mermaid_builder.py with build_flowchart() method
+- [X] T069 [US5] Implement Mermaid flowchart generation in MermaidBuilder (graph TD syntax)
+- [X] T070 [US5] Implement dependency arrow rendering in MermaidBuilder (role1 -.depends.-> role2)
+- [X] T071 [P] [US5] Implement mindmap diagram in MermaidBuilder.build_mindmap() (mindmap syntax)
+- [X] T072 [US5] Add clickable node support in MermaidBuilder (click directive with doc links)
+- [X] T073 [US5] Create diagram.j2 template at ansibledoctor/templates/index/diagram.j2 (wrap Mermaid code)
 
 ---
 
