@@ -194,6 +194,23 @@ def parse(
     default=False,
     help="Continue processing remaining files if errors occur (for partial success)",
 )
+@click.option(
+    "--include-index/--no-include-index",
+    default=False,
+    help="Generate index pages for roles, plugins, etc. (default: False)",
+)
+@click.option(
+    "--index-style",
+    type=click.Choice(["list", "table", "tree", "nested-table", "diagram"], case_sensitive=False),
+    default="list",
+    help="Index visualization style (default: list)",
+)
+@click.option(
+    "--index-format",
+    type=click.Choice(["full", "section"], case_sensitive=False),
+    default="full",
+    help="Index page format: full (standalone pages) or section (embedded) (default: full)",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
@@ -202,6 +219,9 @@ def generate(
     config: Path | None,
     legacy_output: bool,
     continue_on_error: bool,
+    include_index: bool,
+    index_style: str,
+    index_format: str,
 ) -> None:
     """
     Generate documentation for an Ansible collection.
@@ -311,6 +331,80 @@ def generate(
         logger.info(
             f"Generated {format} documentation for {ansible_collection.metadata.fqcn} at {output_file}"
         )
+
+        # Generate index pages if requested (T023)
+        if include_index:
+            click.echo(f"Generating {index_style} index pages...", err=True)
+            
+            # Import index generator
+            from ansibledoctor.generator.indexes import DefaultIndexGenerator
+            from ansibledoctor.generator.engine import TemplateEngine
+            from ansibledoctor.models.index import IndexItem
+            
+            # Create template engine for indexes
+            # Find the template directory for the current output format
+            import ansibledoctor.generator.templates as templates_module
+            templates_dir = Path(templates_module.__file__).parent
+            template_engine = TemplateEngine.create(template_dir=templates_dir)
+            
+            # Create index generator
+            index_generator = DefaultIndexGenerator(
+                output_dir=output_dir_path,
+                language_code="en",  # Default to English for now
+                template_engine=template_engine,
+                output_format=format.lower(),
+            )
+            
+            # Build IndexItems from parsed roles
+            role_items: list[IndexItem] = []
+            for role_name in ansible_collection.roles:
+                # Create IndexItem with basic metadata
+                item = IndexItem(
+                    name=role_name,
+                    type="role",
+                    path=collection_path / "roles" / role_name,
+                    description=f"Role: {role_name}",  # TODO: Parse role metadata for description
+                    tags=[],
+                    namespace=ansible_collection.metadata.namespace,
+                )
+                role_items.append(item)
+            
+            # Build IndexItems from plugins
+            plugin_items: list[IndexItem] = []
+            for plugin in plugins:
+                item = IndexItem(
+                    name=plugin.name,
+                    type=plugin.type.value if hasattr(plugin.type, 'value') else str(plugin.type),
+                    path=plugin.path,
+                    description=plugin.short_description or f"Plugin: {plugin.name}",
+                    tags=[],
+                    namespace=ansible_collection.metadata.namespace,
+                )
+                plugin_items.append(item)
+            
+            # Generate and write indexes
+            components = {}
+            if role_items:
+                components["roles"] = role_items
+            if plugin_items:
+                components["plugins"] = plugin_items
+            
+            if components:
+                written_files = index_generator.generate_and_write_indexes(
+                    components=components,
+                    index_style=index_style,
+                    logger=logger,
+                )
+                
+                # Report generated index files
+                total_files = sum(len(files) for files in written_files.values())
+                click.echo(f"✓ Generated {total_files} index file(s)", err=True)
+                for component_type, files in written_files.items():
+                    for file_path in files:
+                        logger.info(f"Generated index: {file_path}")
+            else:
+                click.echo("⚠ No components found for index generation", err=True)
+
 
     except ParsingError as e:
         # User-facing parsing errors

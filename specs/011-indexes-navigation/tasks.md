@@ -61,7 +61,7 @@
 - [X] T020 [US1] Implement component metadata extraction in IndexGenerator (extract name, description, tags from parsed roles)
 - [X] T021 [US1] Implement dependency link generation in IndexGenerator (resolve dependency names to doc links)
 - [X] T022 [US1] Add CLI flags to ansibledoctor/cli/__init__.py (--include-index, --index-style, --index-format)
-- [ ] T023 [US1] Integrate index generation into main generation flow in ansibledoctor/generator/engine.py (call after main docs)
+- [X] T023 [US1] Integrate index generation into main generation flow in ansibledoctor/generator/engine.py (call after main docs)
 - [X] T024 [US1] Implement empty collection handling in IndexGenerator (detect empty, show message)
 - [X] T025 [US1] Write index files to output directory in IndexGenerator (docs/lang/{code}/roles/index.md)
 - [X] T026 [US1] Add index generation logging in IndexGenerator (component counts, duration)
