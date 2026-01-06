@@ -146,21 +146,21 @@
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T057 [P] [US4] Write test for missing required field in tests/unit/test_model_validator.py (role missing author)
-- [ ] T058 [P] [US4] Write test for invalid dependency format in tests/unit/test_model_validator.py (collection dependencies)
-- [ ] T059 [P] [US4] Write test for valid data validation in tests/unit/test_model_validator.py (success with no errors)
-- [ ] T060 [P] [US4] Write test for strict validation mode in tests/unit/test_model_validator.py (warnings as errors)
-- [ ] T061 [P] [US4] Write test for schema validation in tests in tests/integration/test_schema_validation_e2e.py (test failures with validation errors)
+- [X] T057 [P] [US4] Write test for missing required field in tests/unit/test_model_validator.py (role missing name)
+- [X] T058 [P] [US4] Write test for invalid dependency format in tests/unit/test_model_validator.py (collection dependencies)
+- [X] T059 [P] [US4] Write test for valid data validation in tests/unit/test_model_validator.py (success with no errors)
+- [X] T060 [P] [US4] Write test for strict validation mode in tests/unit/test_model_validator.py (warnings as errors)
+- [X] T061 [P] [US4] Write test for schema validation in tests in tests/integration/test_schema_validation_e2e.py (test failures with validation errors)
 
 ### Implementation for User Story 4
 
-- [ ] T062 [US4] Create DataModelValidator class in ansibledoctor/validation/model_validator.py with validate_model() method
-- [ ] T063 [US4] Implement schema generation from pydantic models in DataModelValidator
-- [ ] T064 [US4] Implement validation of role data against schema in DataModelValidator
-- [ ] T065 [US4] Implement validation of collection data against schema in DataModelValidator
-- [ ] T066 [US4] Add strict validation mode in DataModelValidator (--strict-validation flag treats warnings as errors)
-- [ ] T067 [US4] Add --strict-validation CLI flag in ansibledoctor/cli/schema.py
-- [ ] T068 [US4] Create integration examples showing data model validation in tests/
+- [X] T062 [US4] Create DataModelValidator class in ansibledoctor/validation/model_validator.py with validate_model() method
+- [X] T063 [US4] Implement schema generation from pydantic models in DataModelValidator
+- [X] T064 [US4] Implement validation of role data against schema in DataModelValidator
+- [X] T065 [US4] Implement validation of collection data against schema in DataModelValidator
+- [X] T066 [US4] Add strict validation mode in DataModelValidator (--strict-validation flag treats warnings as errors)
+- [X] T067 [US4] Add --strict-validation CLI flag in ansibledoctor/cli/schema.py
+- [X] T068 [US4] Create integration examples showing data model validation in tests/
 
 ---
 

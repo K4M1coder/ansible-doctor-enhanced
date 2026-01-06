@@ -9,7 +9,7 @@ from pathlib import Path
 import click
 
 from ansibledoctor.serialization import FormatConverter, SchemaExporter
-from ansibledoctor.validation import ConfigurationValidator
+from ansibledoctor.validation import ConfigurationValidator, DataModelValidator
 
 
 @click.group()
@@ -43,6 +43,86 @@ def validate_config(config_file: Path, strict: bool, verbose: bool):
     elif strict and result.warnings:
         raise click.Abort()
     # Default: success (exit code 0)
+
+
+@schema.command("validate-model")
+@click.argument("model_type", type=click.Choice(["role", "collection"]))
+@click.argument("data_file", type=click.Path(exists=True, path_type=Path))
+@click.option("--strict-validation", is_flag=True, help="Treat validation warnings as errors")
+@click.option("--verbose", is_flag=True, help="Show detailed error messages")
+def validate_model(model_type: str, data_file: Path, strict_validation: bool, verbose: bool):
+    """Validate role or collection data against pydantic models.
+
+    Validates YAML/JSON data files containing role or collection metadata
+    against the pydantic data models, ensuring type correctness and
+    required field presence.
+
+    Examples:
+        \b
+        # Validate role data
+        ansible-doctor schema validate-model role role_data.yml
+
+        \b
+        # Validate collection with strict mode
+        ansible-doctor schema validate-model collection galaxy.yml --strict-validation
+
+    Args:
+        model_type: Type of model to validate (role, collection)
+        data_file: Path to YAML/JSON data file
+        strict_validation: Treat warnings as errors
+        verbose: Show detailed error messages
+    """
+    import yaml
+    from ansibledoctor.models import AnsibleCollection, AnsibleRole
+
+    validator = DataModelValidator()
+
+    # Load data from file
+    try:
+        with data_file.open("r", encoding="utf-8") as f:
+            if data_file.suffix in (".yml", ".yaml"):
+                data = yaml.safe_load(f)
+            else:
+                data = json.load(f)
+    except Exception as e:
+        click.echo(f"Error loading data file: {e}", err=True)
+        raise click.Abort()
+
+    # Validate based on model type
+    try:
+        if model_type == "role":
+            result = validator.validate_role(data, strict=strict_validation)
+        elif model_type == "collection":
+            result = validator.validate_collection(data, strict=strict_validation)
+        else:
+            click.echo(f"Unknown model type: {model_type}", err=True)
+            raise click.Abort()
+
+        # Print validation results
+        if result.is_valid:
+            click.echo(f"✓ {model_type.capitalize()} data is valid")
+            if result.warnings and not strict_validation:
+                click.echo(f"  {len(result.warnings)} warning(s):")
+                for warning in result.warnings:
+                    click.echo(f"    - {warning.path}: {warning.message}")
+        else:
+            click.echo(f"✗ {model_type.capitalize()} data validation failed", err=True)
+            click.echo(f"  {len(result.errors)} error(s):")
+            for error in result.errors:
+                click.echo(f"    - {error.path}: {error.message}")
+                if verbose and error.suggestion:
+                    click.echo(f"      Suggestion: {error.suggestion}")
+
+        # Exit with appropriate code
+        if not result.is_valid:
+            raise click.Abort()
+        elif strict_validation and result.warnings:
+            click.echo("  Strict mode: Warnings treated as errors", err=True)
+            raise click.Abort()
+
+    except Exception as e:
+        click.echo(f"Error validating model: {e}", err=True)
+        raise click.Abort()
 
 
 # T040-T042: Schema export command

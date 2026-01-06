@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Schema Documentation & Validation (Spec 012) - 🚧 IN PROGRESS
 
+**Phase 6: User Story 4 - Data Model Validation ✅ COMPLETE (T057-T068, 68/94 tasks - 72%)**
+
 **Phase 5: User Story 3 - Format Conversion ✅ COMPLETE (T044-T056, 56/94 tasks - 60%)**
 
 **Phase 4: User Story 2 - Schema Export ✅ COMPLETE (T030-T043, 43/94 tasks - 46%)**
@@ -16,6 +18,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 3: User Story 1 - Configuration Validation ✅ COMPLETE (T001-T029, 29/94 tasks - 31%)**
 
 This feature introduces JSON Schema validation and export for ansible-doctor, enabling IDE autocomplete integration, format conversion, and comprehensive data validation.
+
+**Data Model Validation** (`ansibledoctor/validation/`, T057-T068):
+- **DataModelValidator** (`ansibledoctor/validation/model_validator.py`):
+  - Validate Role and Collection data against pydantic models
+  - Schema generation from pydantic models (JSON Schema Draft 2020-12)
+  - Strict validation mode treating warnings as errors
+  - Recommended field checking (e.g., description should be present)
+  - Dependency format validation (FQCN format: namespace.name)
+  - 87% code coverage, 13 unit tests passing
+
+- **Validation Features**:
+  - `validate_model(model, strict)` - Validate pydantic instance with warning detection
+  - `validate_dict(data, model_class, strict)` - Validate dict against model
+  - `generate_schema(model_class)` - Generate JSON Schema from pydantic
+  - `validate_role(role_data, strict)` - Convenience method for roles
+  - `validate_collection(collection_data, strict)` - Convenience method for collections
+  - Pydantic error enhancement with field paths and validator types
+  - Custom warnings for recommended fields and dependency formats
+
+- **CLI Commands** (`ansibledoctor/cli/schema.py`):
+  - `ansible-doctor schema validate-model role <file>` - Validate role data
+  - `ansible-doctor schema validate-model collection <file>` - Validate collection data
+  - `--strict-validation` - Treat warnings as errors
+  - `--verbose` - Show detailed error messages with suggestions
+  - Clear success/failure reporting with error counts
+  - 11 integration tests passing
+
+**Examples**:
+```bash
+# Validate role data from YAML file
+ansible-doctor schema validate-model role role_data.yml
+
+# Validate collection with strict mode (warnings = errors)
+ansible-doctor schema validate-model collection galaxy.yml --strict-validation
+
+# Verbose output with suggestions
+ansible-doctor schema validate-model role role.yml --verbose
+```
+
+**Integration Tests** (`tests/integration/test_schema_validation_e2e.py`):
+- End-to-end validation scenarios demonstrating real-world usage
+- Valid role/collection data validation (happy path)
+- Invalid data caught early (preventing parser failures)
+- Strict mode catching missing recommended fields
+- Dependency format warnings for invalid FQCNs
+- Schema generation for IDE integration
+- Error detail quality checks (field paths, messages, validators)
+- 11 integration tests passing
 
 **Format Conversion** (`ansibledoctor/serialization/`, T044-T056):
 - **FormatConverter** (`ansibledoctor/serialization/format_converter.py`):

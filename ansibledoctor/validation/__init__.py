@@ -9,7 +9,7 @@ Components:
 - model_validator: Data model validation
 
 Usage:
-    from ansibledoctor.validation import SchemaValidator, ConfigurationValidator
+    from ansibledoctor.validation import SchemaValidator, ConfigurationValidator, DataModelValidator
 
     validator = ConfigurationValidator()
     result = validator.validate(config_data)
@@ -18,6 +18,7 @@ Usage:
 """
 
 from ansibledoctor.validation.config_validator import ConfigurationValidator
+from ansibledoctor.validation.model_validator import DataModelValidator
 from ansibledoctor.validation.schema_validator import SchemaValidator
 
-__all__ = ["SchemaValidator", "ConfigurationValidator"]
+__all__ = ["SchemaValidator", "ConfigurationValidator", "DataModelValidator"]
