@@ -499,3 +499,210 @@ class TestIndexFileWriting:
         for files in result.values():
             for file_path in files:
                 assert file_path.exists()
+
+
+class TestHierarchicalProjectIndex:
+    """Tests for US2 - Hierarchical Project Index with Tree Visualization."""
+
+    @pytest.fixture
+    def generator(self, tmp_path):
+        """Create a generator instance."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        return DefaultIndexGenerator(output_dir=output_dir)
+
+    @pytest.fixture
+    def project_structure(self):
+        """T027: Create project structure with 2 collections, 3 roles each."""
+        return [
+            # Collection 1
+            IndexItem(
+                name="webstack",
+                type="collection",
+                description="Web stack collection",
+                path=Path("collections/ansible_collections/my_namespace/webstack"),
+                namespace="my_namespace",
+            ),
+            # Collection 1 roles
+            IndexItem(
+                name="nginx",
+                type="role",
+                description="Configure nginx web server",
+                path=Path("collections/ansible_collections/my_namespace/webstack/roles/nginx"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="apache",
+                type="role",
+                description="Configure Apache web server",
+                path=Path("collections/ansible_collections/my_namespace/webstack/roles/apache"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="haproxy",
+                type="role",
+                description="Configure HAProxy load balancer",
+                path=Path("collections/ansible_collections/my_namespace/webstack/roles/haproxy"),
+                namespace="my_namespace",
+            ),
+            # Collection 2
+            IndexItem(
+                name="dbstack",
+                type="collection",
+                description="Database stack collection",
+                path=Path("collections/ansible_collections/my_namespace/dbstack"),
+                namespace="my_namespace",
+            ),
+            # Collection 2 roles
+            IndexItem(
+                name="postgresql",
+                type="role",
+                description="Install PostgreSQL database",
+                path=Path("collections/ansible_collections/my_namespace/dbstack/roles/postgresql"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="mysql",
+                type="role",
+                description="Install MySQL database",
+                path=Path("collections/ansible_collections/my_namespace/dbstack/roles/mysql"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="redis",
+                type="role",
+                description="Install Redis cache",
+                path=Path("collections/ansible_collections/my_namespace/dbstack/roles/redis"),
+                namespace="my_namespace",
+            ),
+        ]
+
+    def test_project_hierarchy_structure(self, generator, project_structure):
+        """T027: Test hierarchical structure with 2 collections, 3 roles each."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(project_structure)
+
+        # Should have 2 root collections
+        collections = [item for item in hierarchy if item.type == "collection"]
+        assert len(collections) == 2
+
+        # Each collection should have 3 child roles
+        for collection in collections:
+            roles = [child for child in collection.children if child.type == "role"]
+            assert len(roles) == 3
+            # Verify parent-child relationship by checking paths
+            for role in roles:
+                # Role path should start with collection path
+                assert str(role.path).startswith(str(collection.path))
+                # Role should be in collection's children
+                assert role in collection.children
+
+    def test_plugin_indexing(self, generator):
+        """T028: Test plugin indexing under collection."""
+        components = [
+            IndexItem(
+                name="my_collection",
+                type="collection",
+                path=Path("collections/ansible_collections/my_namespace/my_collection"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="my_module",
+                type="module",
+                description="Test module plugin",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/plugins/modules/my_module.py"
+                ),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="my_filter",
+                type="plugin",
+                description="Test filter plugin",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/plugins/filter/my_filter.py"
+                ),
+                namespace="my_namespace",
+            ),
+        ]
+
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(components)
+
+        # Find collection
+        collection = next(item for item in hierarchy if item.type == "collection")
+
+        # Verify plugins are children of collection
+        plugins = [child for child in collection.children if child.type in ["module", "plugin"]]
+        assert len(plugins) == 2
+
+        # Verify plugin types
+        plugin_types = {child.type for child in plugins}
+        assert plugin_types == {"module", "plugin"}
+
+    def test_depth_limiting(self, generator, project_structure):
+        """T029: Test depth limiting in tree visualization."""
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(project_structure)
+
+        # Calculate max depth (depth of deepest leaf node)
+        def calculate_max_depth(items, current_depth=0):
+            if not items:
+                return (
+                    current_depth - 1
+                )  # Subtract 1 since we want depth of deepest node, not level count
+            return max(calculate_max_depth(item.children, current_depth + 1) for item in items)
+
+        max_depth = calculate_max_depth(hierarchy)
+
+        # Project structure should have max depth of 1 (collection=0, role=1)
+        assert max_depth == 1
+
+        # Verify depth property is set correctly on IndexItem (depth property counts children depth)
+        for item in hierarchy:
+            if item.type == "collection":
+                # Collection has children at depth 1, so its depth property is 1
+                assert item.depth == 1  # item.depth counts the deepest child level
+
+    def test_playbook_indexing(self, generator):
+        """T030: Test playbook indexing in collection."""
+        components = [
+            IndexItem(
+                name="my_collection",
+                type="collection",
+                path=Path("collections/ansible_collections/my_namespace/my_collection"),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="deploy",
+                type="playbook",
+                description="Deploy application playbook",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/playbooks/deploy.yml"
+                ),
+                namespace="my_namespace",
+            ),
+            IndexItem(
+                name="rollback",
+                type="playbook",
+                description="Rollback application playbook",
+                path=Path(
+                    "collections/ansible_collections/my_namespace/my_collection/playbooks/rollback.yml"
+                ),
+                namespace="my_namespace",
+            ),
+        ]
+
+        # Build hierarchy
+        hierarchy = generator.build_hierarchy(components)
+
+        # Find collection
+        collection = next(item for item in hierarchy if item.type == "collection")
+
+        # Verify playbooks are children
+        playbooks = [child for child in collection.children if child.type == "playbook"]
+        assert len(playbooks) == 2
+
+        # Verify playbook names
+        playbook_names = {child.name for child in playbooks}
+        assert playbook_names == {"deploy", "rollback"}

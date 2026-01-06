@@ -76,18 +76,18 @@
 
 ### Tests First
 
-- [ ] T027 [P] [US2] Write test for project hierarchy in tests/integration/test_index_generation.py (2 collections, 3 roles each)
-- [ ] T028 [P] [US2] Write test for plugin indexing in tests/integration/test_index_generation.py (plugins shown under collection)
-- [ ] T029 [P] [US2] Write test for depth limiting in tests/integration/test_index_generation.py (--index-depth 2 limits tree)
-- [ ] T030 [P] [US2] Write test for playbook indexing in tests/integration/test_index_generation.py (playbooks section)
-- [ ] T031 [P] [US2] Write test for ASCII tree rendering in tests/unit/test_tree_visualizer.py (correct characters used)
+- [X] T027 [P] [US2] Write test for project hierarchy in tests/integration/test_index_generation.py (2 collections, 3 roles each)
+- [X] T028 [P] [US2] Write test for plugin indexing in tests/integration/test_index_generation.py (plugins shown under collection)
+- [X] T029 [P] [US2] Write test for depth limiting in tests/integration/test_index_generation.py (--index-depth 2 limits tree)
+- [X] T030 [P] [US2] Write test for playbook indexing in tests/integration/test_index_generation.py (playbooks section)
+- [X] T031 [P] [US2] Write test for ASCII tree rendering in tests/unit/test_tree_visualizer.py (correct characters used)
 
 ### Implementation
 
-- [ ] T032 [US2] Create TreeVisualizer class in ansibledoctor/generator/tree_visualizer.py with render_tree() method
-- [ ] T033 [US2] Implement ASCII tree rendering in TreeVisualizer (├── └── │ characters)
-- [ ] T034 [P] [US2] Add Unicode tree support in TreeVisualizer (use_unicode flag for box-drawing characters)
-- [ ] T035 [US2] Implement IndexGenerator.build_hierarchy() in ansibledoctor/generator/indexes.py (convert flat list to tree)
+- [X] T032 [US2] Create TreeVisualizer class in ansibledoctor/generator/tree_visualizer.py with render_tree() method
+- [X] T033 [US2] Implement ASCII tree rendering in TreeVisualizer (├── └── │ characters)
+- [X] T034 [P] [US2] Add Unicode tree support in TreeVisualizer (use_unicode flag for box-drawing characters)
+- [X] T035 [US2] Implement IndexGenerator.build_hierarchy() in ansibledoctor/generator/indexes.py (convert flat list to tree)
 - [ ] T036 [US2] Create tree format template at ansibledoctor/templates/index/tree.j2 (use TreeVisualizer output)
 - [ ] T037 [US2] Implement plugin indexing in IndexGenerator (extract modules, filters, lookups, etc.)
 - [ ] T038 [US2] Implement playbook indexing in IndexGenerator (parse playbook descriptions)

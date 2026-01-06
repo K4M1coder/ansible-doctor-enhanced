@@ -236,15 +236,15 @@ class DefaultIndexGenerator:
     ) -> list[IndexItem]:
         """Build hierarchical tree structure from flat item list."""
         # Simple implementation: group by type hierarchy
-        # collections -> roles -> plugins
+        # collections -> roles/plugins/playbooks
 
         collections = [item for item in items if item.type == "collection"]
         roles = [item for item in items if item.type == "role"]
         plugins = [item for item in items if item.type in ("plugin", "module")]
         playbooks = [item for item in items if item.type == "playbook"]
 
-        # Build tree by matching roles to their parent collection
-        # A role belongs to a collection if the role's path starts with the collection's path
+        # Build tree by matching items to their parent collection
+        # An item belongs to a collection if its path starts with the collection's path
         for collection in collections:
             # Find roles belonging to this specific collection
             collection_roles = [
@@ -258,6 +258,14 @@ class DefaultIndexGenerator:
             ]
             collection.children.extend(collection_plugins)
 
+            # Find playbooks belonging to this specific collection
+            collection_playbooks = [
+                playbook
+                for playbook in playbooks
+                if str(playbook.path).startswith(str(collection.path))
+            ]
+            collection.children.extend(collection_playbooks)
+
         # Return root items (collections + standalone items)
         root_items = collections.copy()
 
@@ -269,8 +277,13 @@ class DefaultIndexGenerator:
         ]
         root_items.extend(standalone_roles)
 
-        # Add playbooks (typically at root level)
-        root_items.extend(playbooks)
+        # Add standalone playbooks (not under any collection)
+        standalone_playbooks = [
+            playbook
+            for playbook in playbooks
+            if not any(str(playbook.path).startswith(str(c.path)) for c in collections)
+        ]
+        root_items.extend(standalone_playbooks)
 
         return root_items
 
