@@ -88,11 +88,11 @@
 - [X] T033 [US2] Implement ASCII tree rendering in TreeVisualizer (├── └── │ characters)
 - [X] T034 [P] [US2] Add Unicode tree support in TreeVisualizer (use_unicode flag for box-drawing characters)
 - [X] T035 [US2] Implement IndexGenerator.build_hierarchy() in ansibledoctor/generator/indexes.py (convert flat list to tree)
-- [ ] T036 [US2] Create tree format template at ansibledoctor/templates/index/tree.j2 (use TreeVisualizer output)
-- [ ] T037 [US2] Implement plugin indexing in IndexGenerator (extract modules, filters, lookups, etc.)
-- [ ] T038 [US2] Implement playbook indexing in IndexGenerator (parse playbook descriptions)
-- [ ] T039 [US2] Add depth limiting logic in TreeVisualizer (max_depth parameter)
-- [ ] T040 [US2] Add --index-depth CLI flag in ansibledoctor/cli/__init__.py (default 5)
+- [X] T036 [US2] Create tree format template at ansibledoctor/templates/index/tree.j2 (use TreeVisualizer output)
+- [X] T037 [US2] Implement plugin indexing in IndexGenerator (extract modules, filters, lookups, etc.)
+- [X] T038 [US2] Implement playbook indexing in IndexGenerator (parse playbook descriptions)
+- [X] T039 [US2] Add depth limiting logic in TreeVisualizer (max_depth parameter)
+- [X] T040 [US2] Add --index-depth CLI flag in ansibledoctor/cli/__init__.py (default 5)
 
 ---
 

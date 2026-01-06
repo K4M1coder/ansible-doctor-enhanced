@@ -211,6 +211,12 @@ def parse(
     default="full",
     help="Index page format: full (standalone pages) or section (embedded) (default: full)",
 )
+@click.option(
+    "--index-depth",
+    type=int,
+    default=5,
+    help="Maximum depth for hierarchical tree visualization (default: 5, use 0 for unlimited)",
+)
 def generate(
     collection_path: Path,
     output_dir: Path,
@@ -222,6 +228,7 @@ def generate(
     include_index: bool,
     index_style: str,
     index_format: str,
+    index_depth: int,
 ) -> None:
     """
     Generate documentation for an Ansible collection.
@@ -393,6 +400,7 @@ def generate(
                 written_files = index_generator.generate_and_write_indexes(
                     components=components,
                     index_style=index_style,
+                    max_depth=index_depth if index_depth > 0 else None,
                     logger=logger,
                 )
                 

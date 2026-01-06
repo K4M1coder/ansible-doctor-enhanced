@@ -537,6 +537,7 @@ class DefaultIndexGenerator:
         self,
         components: dict[str, list[IndexItem]],
         index_style: str = "list",
+        max_depth: int | None = None,
         logger: object | None = None,
     ) -> dict[str, list[Path]]:
         """Generate and write index pages for all component types.
@@ -547,6 +548,7 @@ class DefaultIndexGenerator:
         Args:
             components: Dict mapping component type to list of IndexItems
             index_style: Visualization style (list, table, tree, etc.)
+            max_depth: Maximum depth for tree visualization (None = unlimited)
             logger: Optional structured logger
 
         Returns:
