@@ -15,16 +15,66 @@ from ansibledoctor.validation import ConfigurationValidator, DataModelValidator
 
 @click.group()
 def schema():
-    """Schema validation, export, and documentation commands."""
+    """Schema validation, export, conversion, and documentation.
+    
+    Comprehensive schema operations for configuration files and data models:
+    
+    \b
+    - validate: Validate .ansibledoctor.yml against JSON Schema
+    - validate-model: Validate role/collection data against pydantic models
+    - export: Export JSON Schema definitions for IDE integration
+    - convert: Convert configs between YAML, JSON, XML, Mermaid formats
+    - docs: Generate human-readable Markdown from JSON Schema
+    
+    Examples:
+    
+    \b
+      # Validate config with strict mode
+      ansible-doctor schema validate .ansibledoctor.yml --strict
+    
+    \b
+      # Export schema for VS Code autocomplete
+      ansible-doctor schema export config --output config-schema.json
+    
+    \b
+      # Convert config to JSON
+      ansible-doctor schema convert .ansibledoctor.yml --to json --pretty
+    
+    \b
+      # Generate schema documentation
+      ansible-doctor schema docs config --output schema-docs.md
+    """
     pass
 
 
 @schema.command("validate")
 @click.argument("config_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--strict", is_flag=True, help="Treat warnings as errors")
-@click.option("--verbose", is_flag=True, help="Show detailed error messages")
+@click.option("--strict", is_flag=True, help="Treat warnings as errors (for CI/CD)")
+@click.option("--verbose", is_flag=True, help="Show detailed error messages with suggestions")
 def validate_config(config_file: Path, strict: bool, verbose: bool):
-    """Validate a configuration file against JSON Schema.
+    """Validate .ansibledoctor.yml against JSON Schema.
+
+    Validates configuration files to catch errors early. Use --strict in CI/CD
+    to fail on warnings. Use --verbose for detailed error messages with
+    actionable suggestions.
+
+    Examples:
+    
+        \b
+        # Basic validation
+        ansible-doctor schema validate .ansibledoctor.yml
+    
+        \b
+        # Strict mode for CI/CD (fail on warnings)
+        ansible-doctor schema validate .ansibledoctor.yml --strict
+    
+        \b
+        # Verbose output with suggestions
+        ansible-doctor schema validate .ansibledoctor.yml --verbose
+
+    Exit Codes:
+        0: Validation passed
+        1: Validation failed (or warnings in strict mode)
 
     Args:
         config_file: Path to .ansibledoctor.yml file
@@ -50,22 +100,37 @@ def validate_config(config_file: Path, strict: bool, verbose: bool):
 @click.argument("model_type", type=click.Choice(["role", "collection"]))
 @click.argument("data_file", type=click.Path(exists=True, path_type=Path))
 @click.option("--strict-validation", is_flag=True, help="Treat validation warnings as errors")
-@click.option("--verbose", is_flag=True, help="Show detailed error messages")
+@click.option("--verbose", is_flag=True, help="Show detailed error messages with field context")
 def validate_model(model_type: str, data_file: Path, strict_validation: bool, verbose: bool):
     """Validate role or collection data against pydantic models.
 
     Validates YAML/JSON data files containing role or collection metadata
-    against the pydantic data models, ensuring type correctness and
-    required field presence.
+    against pydantic data models, ensuring type correctness, required field
+    presence, and format compliance (e.g., FQCN for dependencies).
+
+    Checks:
+    - Required fields are present
+    - Field types match schema (string, list, dict)
+    - Dependency format follows FQCN (namespace.name)
+    - Platform definitions are valid
+    - Version strings follow semver
 
     Examples:
         \b
-        # Validate role data
-        ansible-doctor schema validate-model role role_data.yml
+        # Validate role metadata
+        ansible-doctor schema validate-model role roles/webserver/meta/main.yml
 
         \b
         # Validate collection with strict mode
         ansible-doctor schema validate-model collection galaxy.yml --strict-validation
+        
+        \b
+        # Verbose output for debugging
+        ansible-doctor schema validate-model role role.yml --verbose
+
+    Exit Codes:
+        0: Validation passed (no errors)
+        1: Validation failed (or warnings in strict mode)
 
     Args:
         model_type: Type of model to validate (role, collection)
@@ -134,14 +199,29 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
     "output_format",
     type=click.Choice(["json-schema", "openapi"]),
     default="json-schema",
-    help="Output format: json-schema or openapi",
+    help="Output format: json-schema (default) or openapi",
 )
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path")
+@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)")
 def export_schema(schema_type: str, output_format: str, output: Path | None):
-    """Export JSON Schema for ansible-doctor data models.
+    """Export JSON Schema or OpenAPI spec for IDE integration.
 
-    Generates JSON Schema or OpenAPI 3.1 specifications for configuration,
-    role, and collection data models. Useful for IDE autocomplete integration.
+    Generates JSON Schema Draft 2020-12 or OpenAPI 3.1 specifications for
+    configuration, role, and collection data models. Use exported schemas to
+    enable autocomplete and validation in VS Code, IntelliJ IDEA, or PyCharm.
+
+    IDE Integration:
+    
+        \b
+        # VS Code: Add to .vscode/settings.json
+        {
+          "yaml.schemas": {
+            "./config-schema.json": ".ansibledoctor.yml"
+          }
+        }
+    
+        \b
+        # IntelliJ IDEA: Settings → Languages & Frameworks → 
+        # Schemas and DTDs → JSON Schema Mappings → Add mapping
 
     Examples:
         \b
@@ -149,11 +229,15 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
         ansible-doctor schema export config
 
         \b
-        # Export as OpenAPI spec to file
-        ansible-doctor schema export config --format openapi -o schema.yaml
+        # Export to file for VS Code
+        ansible-doctor schema export config --output config-schema.json
 
         \b
-        # Export role schema
+        # Export as OpenAPI spec (YAML)
+        ansible-doctor schema export config --format openapi -o openapi.yaml
+
+        \b
+        # Export role schema (future)
         ansible-doctor schema export role --output role-schema.json
 
     Args:
@@ -191,20 +275,45 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
 
 @schema.command("convert")
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--to", "to_format", required=True, type=click.Choice(["json", "yaml", "xml", "mermaid"]))
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path")
-@click.option("--pretty", is_flag=True, help="Pretty-print output")
+@click.option("--to", "to_format", required=True, type=click.Choice(["json", "yaml", "xml", "mermaid"]), help="Target format")
+@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)")
+@click.option("--pretty", is_flag=True, help="Pretty-print output for readability")
 def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool):
-    """Convert between data formats (YAML, JSON, XML, Mermaid).
+    """Convert configuration files between formats.
+
+    Convert between YAML, JSON, XML, and Mermaid diagram formats. Use --pretty
+    for human-readable output. Mermaid diagrams visualize configuration structure.
+
+    Supported Conversions:
+        YAML → JSON, XML, Mermaid
+        JSON → YAML, XML, Mermaid
+        XML → YAML, JSON
+
+    Use Cases:
+        - Convert YAML configs to JSON for APIs
+        - Generate XML for legacy systems
+        - Create Mermaid diagrams for documentation
+        - Validate config by round-trip conversion
 
     Examples:
+        \b
+        # YAML to JSON (compact)
         ansible-doctor schema convert config.yml --to json
-        ansible-doctor schema convert config.json --to yaml --pretty
+        
+        \b
+        # YAML to JSON (pretty-printed)
+        ansible-doctor schema convert config.yml --to json --pretty
+        
+        \b
+        # YAML to XML file
         ansible-doctor schema convert config.yml --to xml --output config.xml
+        
+        \b
+        # Generate Mermaid diagram
         ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
 
     Args:
-        input_file: Input file path
+        input_file: Input file path (.yml, .json, .xml)
         to_format: Target format (json, yaml, xml, mermaid)
         output: Output file path (stdout if not specified)
         pretty: Pretty-print output for readability
@@ -234,12 +343,23 @@ def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool)
 
 @schema.command("docs")
 @click.argument("schema_type", type=click.Choice(["config", "role", "collection"]))
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output markdown file")
+@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output markdown file (stdout if omitted)")
 def generate_docs(schema_type: str, output: Path):
-    """Generate human-readable schema documentation.
+    """Generate human-readable Markdown documentation from JSON Schema.
     
-    Creates Markdown documentation from JSON Schema definitions with
-    comprehensive property details, types, defaults, and examples.
+    Creates comprehensive Markdown documentation from JSON Schema definitions
+    with property descriptions, types, defaults, constraints, and examples.
+    Perfect for team onboarding, documentation websites, or README files.
+
+    Generated Documentation Includes:
+        - Schema title and description
+        - Property sections with types
+        - Required vs optional fields
+        - Default values
+        - Enum constraints with all allowed values
+        - Nested object properties (unlimited depth)
+        - Deprecation warnings
+        - Usage examples
 
     Examples:
         \b
@@ -248,11 +368,21 @@ def generate_docs(schema_type: str, output: Path):
 
         \b
         # Save docs to file
-        ansible-doctor schema docs config --output schema-docs.md
+        ansible-doctor schema docs config --output docs/config-schema.md
 
         \b
-        # Generate role schema docs
-        ansible-doctor schema docs role --output role-schema.md
+        # Generate role schema docs (future)
+        ansible-doctor schema docs role --output docs/role-schema.md
+        
+        \b
+        # Generate collection schema docs (future)
+        ansible-doctor schema docs collection --output docs/collection-schema.md
+
+    Use Cases:
+        - Team documentation for config options
+        - Onboarding guides for new developers
+        - README sections with property references
+        - Documentation websites with schema details
 
     Args:
         schema_type: Type of schema to document (config, role, collection)

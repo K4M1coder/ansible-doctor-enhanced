@@ -193,18 +193,18 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T080 [P] Update CHANGELOG.md with Spec 012 feature summary (schema validation, export, conversion)
-- [ ] T081 [P] Create user guide docs/SCHEMA_GUIDE.md (usage examples for all schema commands)
-- [ ] T082 [P] Update README.md with schema feature showcase (validation, IDE integration, format conversion)
-- [ ] T083 [P] Add quickstart examples to docs/ (config validation, schema export, format conversion)
+- [X] T080 [P] Update CHANGELOG.md with Spec 012 feature summary (schema validation, export, conversion)
+- [X] T081 [P] Create user guide docs/SCHEMA_GUIDE.md (usage examples for all schema commands)
+- [X] T082 [P] Update README.md with schema feature showcase (validation, IDE integration, format conversion)
+- [X] T083 [P] Add quickstart examples to docs/ (config validation, schema export, format conversion)
 - [ ] T084 Create schema cache implementation in ansibledoctor/utils/schema_cache.py (compiled schema caching with LRU eviction)
 - [ ] T085 Write tests for schema caching in tests/unit/test_schema_cache.py (cache hit/miss, invalidation)
 - [ ] T086 Implement schema versioning in SchemaExporter (support multiple schema versions)
 - [ ] T087 [P] Add schema diff functionality in SchemaExporter (compare schema versions, show changes)
 - [ ] T088 Write comprehensive integration test in tests/integration/test_schema_validation_e2e.py (end-to-end with all features)
 - [ ] T089 Performance test large configs in tests/integration/test_schema_performance.py (500+ properties < 10ms)
-- [ ] T090 Update cli help text in ansibledoctor/cli/schema.py (document all schema commands with examples)
-- [ ] T091 Run quickstart.md validation (ensure all examples work correctly)
+- [X] T090 Update cli help text in ansibledoctor/cli/schema.py (document all schema commands with examples)
+- [X] T091 Run quickstart.md validation (ensure all examples work correctly)
 
 ---
 

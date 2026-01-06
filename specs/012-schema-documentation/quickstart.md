@@ -639,6 +639,440 @@ See `tests/fixtures/` for complete examples:
 
 ---
 
+## Complete End-to-End Examples
+
+### Example 1: New Project Setup with Schema Validation
+
+**Scenario**: Setting up a new Ansible project with validation and autocomplete.
+
+**Steps**:
+
+```bash
+# 1. Create new project structure
+mkdir my-ansible-project
+cd my-ansible-project
+mkdir -p roles/webserver/{defaults,meta,tasks,templates}
+
+# 2. Create initial config
+cat > .ansibledoctor.yml <<EOF
+output_format: markdown
+recursive: true
+output_dir: docs/
+template_dir: .ansibledoctor/templates
+languages:
+  default: en
+  enabled: [en, fr]
+EOF
+
+# 3. Export schema for IDE
+python -m ansibledoctor schema export config --output config-schema.json
+
+# 4. Configure VS Code
+mkdir -p .vscode
+cat > .vscode/settings.json <<EOF
+{
+  "yaml.schemas": {
+    "./config-schema.json": ".ansibledoctor.yml"
+  }
+}
+EOF
+
+# 5. Validate config
+python -m ansibledoctor schema validate .ansibledoctor.yml --strict
+
+# 6. Generate documentation
+python -m ansibledoctor role generate ./roles/webserver
+```
+
+**Result**:
+- ✅ Schema validation in CI/CD
+- ✅ IDE autocomplete for .ansibledoctor.yml
+- ✅ Type-safe configuration
+- ✅ Professional documentation
+
+---
+
+### Example 2: CI/CD Pipeline Integration
+
+**Scenario**: Add schema validation to GitHub Actions workflow.
+
+**`.github/workflows/validate.yml`**:
+
+```yaml
+name: Validate Configuration
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install ansible-doctor
+        run: |
+          pip install poetry
+          poetry install
+      
+      - name: Validate Configuration
+        run: |
+          poetry run python -m ansibledoctor schema validate .ansibledoctor.yml --strict --verbose
+      
+      - name: Validate Role Data
+        run: |
+          for role in roles/*; do
+            if [ -f "$role/meta/main.yml" ]; then
+              echo "Validating $role..."
+              poetry run python -m ansibledoctor schema validate-model role "$role/meta/main.yml" --strict-validation
+            fi
+          done
+      
+      - name: Export Schema (cache for next run)
+        run: |
+          poetry run python -m ansibledoctor schema export config --output config-schema.json
+      
+      - name: Upload Schema Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: config-schema
+          path: config-schema.json
+```
+
+**Result**:
+- ✅ Automated validation on every commit
+- ✅ Strict mode catches all issues
+- ✅ Fail fast on configuration errors
+- ✅ Schema artifact for documentation
+
+---
+
+### Example 3: Multi-Format Documentation Pipeline
+
+**Scenario**: Generate documentation in multiple formats for different audiences.
+
+**`scripts/generate_docs.sh`**:
+
+```bash
+#!/bin/bash
+set -e
+
+PROJECT_DIR="."
+DOCS_DIR="docs"
+
+echo "=== Ansible Doctor Documentation Pipeline ==="
+
+# 1. Validate all configs
+echo "Step 1: Validating configurations..."
+python -m ansibledoctor schema validate .ansibledoctor.yml --strict
+
+# 2. Generate schema documentation
+echo "Step 2: Generating schema documentation..."
+python -m ansibledoctor schema docs config --output "$DOCS_DIR/schema/config-schema.md"
+
+# 3. Convert config to multiple formats
+echo "Step 3: Converting config to formats..."
+python -m ansibledoctor schema convert .ansibledoctor.yml --to json --output "$DOCS_DIR/config.json" --pretty
+python -m ansibledoctor schema convert .ansibledoctor.yml --to xml --output "$DOCS_DIR/config.xml"
+python -m ansibledoctor schema convert .ansibledoctor.yml --to mermaid --output "$DOCS_DIR/diagrams/config-structure.mmd"
+
+# 4. Generate project documentation
+echo "Step 4: Generating project docs..."
+python -m ansibledoctor project generate "$PROJECT_DIR" --languages en,fr --output "$DOCS_DIR"
+
+# 5. Generate collection documentation
+echo "Step 5: Generating collection docs..."
+for collection in collections/ansible_collections/*/*; do
+  if [ -f "$collection/galaxy.yml" ]; then
+    echo "  - Processing $(basename $(dirname $collection)).$(basename $collection)"
+    python -m ansibledoctor collection generate "$collection" --format html --include-index
+  fi
+done
+
+# 6. Generate role documentation
+echo "Step 6: Generating role docs..."
+for role in roles/*; do
+  if [ -d "$role/tasks" ]; then
+    echo "  - Processing $(basename $role)"
+    python -m ansibledoctor role generate "$role"
+  fi
+done
+
+echo "=== Documentation generation complete ==="
+echo "Output directory: $DOCS_DIR/"
+```
+
+**Usage**:
+
+```bash
+chmod +x scripts/generate_docs.sh
+./scripts/generate_docs.sh
+```
+
+**Result**:
+- ✅ Markdown for developers
+- ✅ HTML for stakeholders
+- ✅ JSON/XML for integrations
+- ✅ Mermaid diagrams for architecture
+- ✅ Multi-language support
+
+---
+
+### Example 4: Pre-commit Hook for Validation
+
+**Scenario**: Prevent invalid configs from being committed.
+
+**`.pre-commit-config.yaml`**:
+
+```yaml
+# See https://pre-commit.com for more information
+repos:
+  - repo: local
+    hooks:
+      - id: validate-ansible-doctor-config
+        name: Validate ansible-doctor config
+        entry: poetry run python -m ansibledoctor schema validate
+        language: system
+        files: \.ansibledoctor\.yml$
+        pass_filenames: true
+        args: ['--strict']
+      
+      - id: validate-role-metadata
+        name: Validate role metadata
+        entry: bash -c 'for f in "$@"; do poetry run python -m ansibledoctor schema validate-model role "$f" --strict-validation; done'
+        language: system
+        files: roles/.*/meta/main\.yml$
+        pass_filenames: true
+      
+      - id: validate-collection-metadata
+        name: Validate collection metadata
+        entry: poetry run python -m ansibledoctor schema validate-model collection
+        language: system
+        files: galaxy\.yml$
+        pass_filenames: true
+```
+
+**Setup**:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks
+pre-commit install
+
+# Test hooks
+pre-commit run --all-files
+```
+
+**Result**:
+- ✅ Automatic validation before commit
+- ✅ Prevents invalid configs in repo
+- ✅ Fast feedback loop
+- ✅ Team-wide consistency
+
+---
+
+### Example 5: Custom Validation Script
+
+**Scenario**: Validate all project files in one script.
+
+**`scripts/validate_all.py`**:
+
+```python
+#!/usr/bin/env python3
+"""Validate all Ansible project configurations."""
+
+import sys
+from pathlib import Path
+from ansibledoctor.validation import ConfigurationValidator, DataModelValidator
+
+def main():
+    project_root = Path(".")
+    errors = []
+    
+    # 1. Validate main config
+    config_file = project_root / ".ansibledoctor.yml"
+    if config_file.exists():
+        print(f"Validating {config_file}...")
+        validator = ConfigurationValidator()
+        result = validator.validate_file(str(config_file), strict=True)
+        if not result.is_valid:
+            errors.append(f"{config_file}: {result.format_report()}")
+    
+    # 2. Validate all roles
+    roles_dir = project_root / "roles"
+    if roles_dir.exists():
+        for role_dir in roles_dir.iterdir():
+            meta_file = role_dir / "meta" / "main.yml"
+            if meta_file.exists():
+                print(f"Validating {meta_file}...")
+                validator = DataModelValidator()
+                result = validator.validate_role(str(meta_file), strict=True)
+                if not result.is_valid:
+                    errors.append(f"{meta_file}: {result.format_report()}")
+    
+    # 3. Validate all collections
+    collections_dir = project_root / "collections" / "ansible_collections"
+    if collections_dir.exists():
+        for namespace in collections_dir.iterdir():
+            for collection in namespace.iterdir():
+                galaxy_file = collection / "galaxy.yml"
+                if galaxy_file.exists():
+                    print(f"Validating {galaxy_file}...")
+                    validator = DataModelValidator()
+                    result = validator.validate_collection(str(galaxy_file), strict=True)
+                    if not result.is_valid:
+                        errors.append(f"{galaxy_file}: {result.format_report()}")
+    
+    # Report results
+    if errors:
+        print("\n❌ Validation failed:")
+        for error in errors:
+            print(f"  - {error}")
+        sys.exit(1)
+    else:
+        print("\n✅ All validations passed!")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+**Usage**:
+
+```bash
+chmod +x scripts/validate_all.py
+python scripts/validate_all.py
+```
+
+**Result**:
+- ✅ Single script validates everything
+- ✅ Clear error reporting
+- ✅ Exit code for CI/CD
+- ✅ Extensible for custom checks
+
+---
+
+### Example 6: IDE Integration Complete Setup
+
+**Scenario**: Full IDE setup with autocomplete, validation, and documentation.
+
+**For VS Code**:
+
+```bash
+# 1. Export all schemas
+python -m ansibledoctor schema export config --output schemas/config-schema.json
+
+# 2. Create VS Code settings
+cat > .vscode/settings.json <<EOF
+{
+  "yaml.schemas": {
+    "./schemas/config-schema.json": [
+      ".ansibledoctor.yml",
+      ".ansibledoctor.yaml"
+    ]
+  },
+  "yaml.validate": true,
+  "yaml.completion": true,
+  "yaml.hover": true,
+  "files.associations": {
+    ".ansibledoctor.yml": "yaml",
+    ".ansibledoctor.yaml": "yaml"
+  }
+}
+EOF
+
+# 3. Install VS Code extension
+code --install-extension redhat.vscode-yaml
+```
+
+**For IntelliJ IDEA / PyCharm**:
+
+```bash
+# 1. Export schema
+python -m ansibledoctor schema export config --output schemas/config-schema.json
+
+# 2. Configure in IDE:
+# Settings → Languages & Frameworks → Schemas and DTDs → JSON Schema Mappings
+# - Schema file: schemas/config-schema.json
+# - Schema version: JSON Schema version 7
+# - File path pattern: .ansibledoctor.yml
+```
+
+**Result**:
+- ✅ Autocomplete for all properties
+- ✅ Real-time validation
+- ✅ Hover documentation
+- ✅ Enum value dropdowns
+- ✅ Error highlighting with suggestions
+
+---
+
+### Example 7: Performance Benchmarking
+
+**Scenario**: Measure and optimize validation performance.
+
+**`scripts/benchmark_validation.py`**:
+
+```python
+#!/usr/bin/env python3
+"""Benchmark schema validation performance."""
+
+import time
+from pathlib import Path
+from ansibledoctor.validation import ConfigurationValidator
+
+def benchmark(iterations: int = 100):
+    validator = ConfigurationValidator()
+    config_file = Path(".ansibledoctor.yml")
+    
+    # Warmup
+    for _ in range(10):
+        validator.validate_file(str(config_file), strict=False)
+    
+    # Benchmark
+    start = time.perf_counter()
+    for _ in range(iterations):
+        validator.validate_file(str(config_file), strict=False)
+    end = time.perf_counter()
+    
+    total_ms = (end - start) * 1000
+    avg_ms = total_ms / iterations
+    
+    print(f"Validation Performance Benchmark")
+    print(f"================================")
+    print(f"Iterations: {iterations}")
+    print(f"Total time: {total_ms:.2f}ms")
+    print(f"Average: {avg_ms:.2f}ms per validation")
+    print(f"Throughput: {1000 / avg_ms:.0f} validations/second")
+
+if __name__ == "__main__":
+    benchmark()
+```
+
+**Expected Output**:
+```
+Validation Performance Benchmark
+================================
+Iterations: 100
+Total time: 215.34ms
+Average: 2.15ms per validation
+Throughput: 465 validations/second
+```
+
+**Result**:
+- ✅ Sub-10ms validation for typical configs
+- ✅ Performance monitoring
+- ✅ Identify bottlenecks
+- ✅ Validate performance requirements
+
+---
+
 ## Next Steps
 
 1. Set up VS Code integration with exported schemas
@@ -646,3 +1080,5 @@ See `tests/fixtures/` for complete examples:
 3. Generate schema documentation for team
 4. Configure pre-commit hooks for validation
 5. Monitor validation performance with cache metrics
+6. Create custom validation scripts for your workflow
+7. Integrate with your documentation pipeline

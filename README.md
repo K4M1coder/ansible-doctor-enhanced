@@ -377,6 +377,158 @@ Use the `t()` filter in custom templates for translatable strings:
 
 **Supported Languages**: English (en), French (fr), German (de) - extensible with custom translation files.
 
+## 🔍 Schema Validation & Documentation (New in v0.5.0)
+
+Ansible Doctor Enhanced provides comprehensive **Schema Validation, Export, Conversion, and Documentation** capabilities for configuration files, data models, and documentation workflows.
+
+### Configuration Validation
+
+Validate `.ansibledoctor.yml` files against JSON Schema:
+
+```bash
+# Basic validation
+ansible-doctor-enhanced schema validate .ansibledoctor.yml
+
+# Strict mode (warnings as errors)
+ansible-doctor-enhanced schema validate .ansibledoctor.yml --strict
+
+# Verbose output with suggestions
+ansible-doctor-enhanced schema validate .ansibledoctor.yml --verbose
+```
+
+**Example Output**:
+```
+✗ Configuration validation failed
+  1 error(s):
+    - output_format: Input should be 'markdown', 'html' or 'rst'
+      Suggestion: Use one of the allowed values: markdown, html, rst
+```
+
+### Schema Export
+
+Export JSON Schema definitions for IDE integration:
+
+```bash
+# Export to stdout
+ansible-doctor-enhanced schema export config
+
+# Export to file
+ansible-doctor-enhanced schema export config --output config-schema.json
+
+# OpenAPI format
+ansible-doctor-enhanced schema export config --format openapi --output openapi.yaml
+```
+
+**IDE Integration** - Enable autocomplete and validation in VS Code:
+
+```json
+// .vscode/settings.json
+{
+  "yaml.schemas": {
+    "./config-schema.json": ".ansibledoctor.yml"
+  }
+}
+```
+
+### Format Conversion
+
+Convert configuration files between YAML, JSON, XML, and Mermaid:
+
+```bash
+# YAML to JSON (pretty)
+ansible-doctor-enhanced schema convert .ansibledoctor.yml --to json --pretty
+
+# YAML to XML
+ansible-doctor-enhanced schema convert .ansibledoctor.yml --to xml --output config.xml
+
+# Generate Mermaid diagram
+ansible-doctor-enhanced schema convert .ansibledoctor.yml --to mermaid --output diagram.mmd
+```
+
+**Mermaid Output Example**:
+```mermaid
+graph TB
+    root[Config]
+    root --> output_format[output_format: markdown]
+    root --> recursive[recursive: false]
+    root --> template_dir[template_dir]
+```
+
+### Data Model Validation
+
+Validate role and collection data against pydantic models:
+
+```bash
+# Validate role data
+ansible-doctor-enhanced schema validate-model role role_data.yml
+
+# Validate collection metadata
+ansible-doctor-enhanced schema validate-model collection galaxy.yml
+
+# Strict mode (warnings as errors)
+ansible-doctor-enhanced schema validate-model role role.yml --strict-validation
+```
+
+**Example Validation**:
+```
+✓ Role data is valid
+  1 warning(s):
+    - metadata.description: Description is recommended but missing or empty
+```
+
+### Schema Documentation
+
+Generate human-readable Markdown documentation from JSON Schema:
+
+```bash
+# Generate to stdout
+ansible-doctor-enhanced schema docs config
+
+# Save to file
+ansible-doctor-enhanced schema docs config --output schema-docs.md
+```
+
+**Generated Documentation Example**:
+```markdown
+# ConfigModel
+
+Configuration model for .ansibledoctor.yml files.
+
+## Properties
+
+### `output_format` *(required)*
+
+**Type**: `string`
+
+Documentation format (markdown, html, or rst).
+
+**Allowed values**:
+- `markdown`
+- `html`
+- `rst`
+
+**Default**: `markdown`
+```
+
+**Features**:
+- ✅ **Configuration Validation**: Validate `.ansibledoctor.yml` with strict mode
+- ✅ **Schema Export**: JSON Schema Draft 2020-12 for IDE integration
+- ✅ **Format Conversion**: YAML ↔ JSON ↔ XML ↔ Mermaid
+- ✅ **Data Model Validation**: Validate roles and collections with pydantic
+- ✅ **Schema Documentation**: Generate Markdown from JSON Schema
+- ✅ **IDE Autocomplete**: VS Code, IntelliJ IDEA, PyCharm integration
+- ✅ **Strict Mode**: Treat warnings as errors for CI/CD
+- ✅ **Verbose Output**: Detailed error messages with suggestions
+
+**Documentation**: See [SCHEMA_GUIDE.md](docs/SCHEMA_GUIDE.md) for comprehensive usage guide.
+
+**CLI Commands**:
+- `schema validate` - Validate configuration files
+- `schema export` - Export JSON Schema definitions
+- `schema convert` - Convert between formats
+- `schema validate-model` - Validate data models
+- `schema docs` - Generate schema documentation
+
 ## 🏗️ Architecture
 
 Ansible Doctor Enhanced follows **Domain-Driven Design (DDD)** principles with clean architecture:
