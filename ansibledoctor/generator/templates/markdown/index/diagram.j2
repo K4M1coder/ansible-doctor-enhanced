@@ -1,0 +1,60 @@
+# {{ page.title }}
+
+{% if page.filters_applied %}
+**Filters Applied:** {{ page.filters_applied | join(', ') }}
+{% if page.filtered_count is not none %}
+**Showing:** {{ page.filtered_count }} of {{ page.total_count }} total components
+{% endif %}
+{% endif %}
+
+## Project Structure Diagram
+
+{% if page.items %}
+```mermaid
+{{ diagram_code }}
+```
+
+## Component Details
+
+{%- for item in page.items %}
+
+### {{ item.name }}
+
+- **Type:** {{ item.type }}
+- **Path:** `{{ item.path }}`
+{%- if item.namespace %}
+- **Namespace:** {{ item.namespace }}
+{%- endif %}
+{%- if item.description %}
+- **Description:** {{ item.description }}
+{%- endif %}
+{%- if item.tags %}
+- **Tags:** {{ item.tags | join(', ') }}
+{%- endif %}
+{%- if item.dependencies %}
+- **Dependencies:** {{ item.dependencies | join(', ') }}
+{%- endif %}
+{%- if item.children %}
+- **Children:** {{ item.children | length }}
+{%- endif %}
+
+{%- endfor %}
+{% else %}
+{% if page.filters_applied %}
+*No components found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all components.
+{% else %}
+*No components found.*
+{% endif %}
+{% endif %}
+
+{% if page.has_pagination %}
+---
+**Navigation:**
+{% if page.has_prev %}← [Previous]({{ page.prev_page_link }}){% endif %}
+{% if page.has_prev and page.has_next %} | {% endif %}
+{% if page.has_next %}[Next]({{ page.next_page_link }}) →{% endif %}
+
+Page {{ page.page_number }} of {{ page.total_pages }}
+{% endif %}

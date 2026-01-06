@@ -1,0 +1,74 @@
+{# Tree format for index pages - displays hierarchical component structure #}
+# {{ title }}
+
+{% if filters_applied %}
+**Filters Applied:**
+{% for filter_desc in filters_applied %}
+- {{ filter_desc }}
+{% endfor %}
+
+---
+{% endif %}
+
+{% if items %}
+```
+{{ tree_output }}
+```
+
+---
+
+## Component Details
+
+{% for item in items %}
+### {{ item.name }}
+
+{% if item.description %}
+{{ item.description }}
+{% endif %}
+
+- **Type:** {{ item.type }}
+- **Path:** `{{ item.path }}`
+{% if item.namespace %}
+- **Namespace:** `{{ item.namespace }}`
+{% endif %}
+{% if item.tags %}
+- **Tags:** {% for tag in item.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}
+{% endif %}
+{% if item.dependencies %}
+- **Dependencies:**
+  {% for dep in item.dependencies %}
+  - {{ dep }}
+  {% endfor %}
+{% endif %}
+
+{% if item.children %}
+
+#### Child Components ({{ item.children | length }})
+
+{% for child in item.children %}
+- [{{ child.name }}]({{ child.doc_link }}) - {{ child.description | default('No description') }}
+{% endfor %}
+{% endif %}
+
+---
+
+{% endfor %}
+{% else %}
+{% if filters_applied %}
+*No {{ component_type }} found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all {{ component_type }}.
+{% else %}
+*No {{ component_type }} found.*
+{% endif %}
+{% endif %}
+
+{% if has_pagination %}
+
+---
+
+## Navigation
+
+{% if has_previous %}[← Previous]({{ previous_page_link }}) | {% endif %}Page {{ page_number }} of {{ total_pages }}{% if has_next %} | [Next →]({{ next_page_link }}){% endif %}
+
+{% endif %}

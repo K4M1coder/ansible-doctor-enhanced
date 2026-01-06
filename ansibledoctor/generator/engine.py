@@ -37,6 +37,7 @@ class TemplateEngine:
         autoescape: bool = False,
         strict_undefined: bool = True,
         translation_provider: object | None = None,
+        index_generator: object | None = None,
         **jinja_options: Any,
     ) -> "TemplateEngine":
         """Create template engine with default configuration.
@@ -45,6 +46,8 @@ class TemplateEngine:
             template_dir: Directory containing templates (optional)
             autoescape: Enable auto-escaping for HTML safety
             strict_undefined: Raise error on undefined variables
+            translation_provider: Provider for translation function
+            index_generator: IndexGenerator for {{ index() }} template markers
             **jinja_options: Additional Jinja2 Environment options
 
         Returns:
@@ -89,6 +92,53 @@ class TemplateEngine:
             except Exception:
                 # Ignore silently if provider not as expected
                 pass
+
+        # Register index() function if index_generator provided
+        if index_generator is not None:
+            # Store generator in globals so templates can access it
+            environment.globals["_index_generator"] = index_generator
+
+            # Create index() function that uses the generator
+            def index_func(
+                component_type: str,
+                format: str = "list",
+                limit: int | None = None,
+                filter: str | None = None,
+                group_by: str | None = None,
+                **kwargs: Any,
+            ) -> str:
+                """Generate embedded section index.
+
+                This function is available in templates as {{ index('roles') }}.
+
+                Args:
+                    component_type: Type of components (roles, plugins, etc.)
+                    format: Visualization style (list, table, tree)
+                    limit: Maximum items to show
+                    filter: Filter expression (e.g., 'tag:database')
+                    group_by: Field to group by (e.g., 'metadata.plugin_type')
+                    **kwargs: Additional context variables (items, etc.)
+
+                Returns:
+                    Rendered section index HTML/Markdown
+                """
+                # Get items from kwargs (passed from template context)
+                items = kwargs.get("items", [])
+
+                # Generate section index using the generator
+                section_index = index_generator.generate_section_index(
+                    component_type=component_type,
+                    items=items,
+                    format=format,
+                    limit=limit,
+                    group_by=group_by,
+                    filter_expression=filter,
+                )
+
+                # Render inline (without template engine to avoid recursion)
+                return section_index.render_inline()
+
+            environment.globals["index"] = index_func
 
         return cls(environment)
 

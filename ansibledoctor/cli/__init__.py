@@ -1042,6 +1042,23 @@ def _parse_roles_recursive(
     default=False,
     help="Continue processing remaining files if errors occur (for partial success)",
 )
+@click.option(
+    "--include-index/--no-include-index",
+    default=False,
+    help="Generate index pages for roles, plugins, and other components (default: no)",
+)
+@click.option(
+    "--index-style",
+    type=click.Choice(["list", "table", "tree", "nested-table", "diagram"], case_sensitive=False),
+    default="list",
+    help="Index visualization style (default: list)",
+)
+@click.option(
+    "--index-format",
+    type=click.Choice(["full", "section"], case_sensitive=False),
+    default="full",
+    help="Index page format: full (standalone pages) or section (embedded) (default: full)",
+)
 def generate(
     role_path: Path,
     format: str,
@@ -1066,6 +1083,9 @@ def generate(
     error_output: Path | None,
     ignore: str | None,
     continue_on_error: bool,
+    include_index: bool,
+    index_style: str,
+    index_format: str,
 ) -> None:
     """
     Generate documentation from Ansible role.

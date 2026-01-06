@@ -1,0 +1,38 @@
+# {{ collection.name }}
+
+{{ collection.description }}
+
+## Quick Start
+
+```bash
+ansible-galaxy collection install {{ collection.namespace }}.{{ collection.name }}
+```
+
+## Roles
+
+This collection provides the following roles:
+
+{{ index('roles', format='table', items=roles) }}
+
+## Plugins
+
+### Modules
+
+{{ index('plugins', format='list', filter='type:module', items=plugins) }}
+
+### Filters
+
+{{ index('plugins', format='list', filter='type:filter', items=plugins) }}
+
+## Requirements
+
+- Ansible {{ collection.min_ansible_version }}
+- Python {{ collection.min_python_version }}
+
+## License
+
+{{ collection.license }}
+
+## Author
+
+{{ collection.author }}

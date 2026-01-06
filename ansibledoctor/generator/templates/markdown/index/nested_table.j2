@@ -1,0 +1,50 @@
+# {{ page.title }}
+
+{% if page.filters_applied %}
+**Filters Applied:** {{ page.filters_applied | join(', ') }}
+{% if page.filtered_count is not none %}
+**Showing:** {{ page.filtered_count }} of {{ page.total_count }} total components
+{% endif %}
+{% endif %}
+
+## Collections Overview
+
+{% if page.items %}
+| Collection | Namespace | Roles | Plugins | Description |
+|------------|-----------|-------|---------|-------------|
+{%- for item in page.items %}
+| [{{ item.name }}]({{ item.doc_link }}) | {{ item.namespace or '-' }} | {{ item.children | selectattr('type', 'equalto', 'role') | list | length }} | {{ item.children | select('in', ['module', 'plugin']) | selectattr('type') | list | length }} | {{ item.description or '-' }} |
+{%- if item.children %}
+{%- set roles = item.children | selectattr('type', 'equalto', 'role') | list %}
+{%- if roles %}
+| ↳ **Roles:** | | {{ roles | map(attribute='name') | join(', ') }} | | |
+{%- endif %}
+{%- set plugins = item.children | rejectattr('type', 'equalto', 'role') | rejectattr('type', 'equalto', 'playbook') | list %}
+{%- if plugins %}
+| ↳ **Plugins:** | | {{ plugins | map(attribute='name') | join(', ') }} | | |
+{%- endif %}
+{%- set playbooks = item.children | selectattr('type', 'equalto', 'playbook') | list %}
+{%- if playbooks %}
+| ↳ **Playbooks:** | | {{ playbooks | map(attribute='name') | join(', ') }} | | |
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+{% else %}
+{% if page.filters_applied %}
+*No collections found matching the specified filters.*
+
+Try adjusting your filter criteria or removing filters to see all collections.
+{% else %}
+*No collections found.*
+{% endif %}
+{% endif %}
+
+{% if page.has_pagination %}
+---
+**Navigation:**
+{% if page.has_prev %}← [Previous]({{ page.prev_page_link }}){% endif %}
+{% if page.has_prev and page.has_next %} | {% endif %}
+{% if page.has_next %}[Next]({{ page.next_page_link }}) →{% endif %}
+
+Page {{ page.page_number }} of {{ page.total_pages }}
+{% endif %}
