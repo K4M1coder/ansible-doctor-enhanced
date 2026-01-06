@@ -435,3 +435,149 @@ class DefaultIndexGenerator:
 
             # Update dependencies with resolved links
             item.dependencies = resolved_deps
+
+    def write_index_files(
+        self,
+        pages: list[IndexPage],
+        component_type: str,
+        logger: object | None = None,
+    ) -> list[Path]:
+        """Write index pages to output directory.
+
+        Args:
+            pages: List of IndexPage objects to write
+            component_type: Type of components (e.g., 'roles', 'plugins')
+            logger: Optional structured logger for observability
+
+        Returns:
+            List of Path objects for written files
+
+        Raises:
+            IOError: If unable to write files
+        """
+        import time
+
+        start_time = time.time()
+        written_files: list[Path] = []
+
+        # Create index directory if it doesn't exist
+        index_dir = self.output_dir / component_type
+        index_dir.mkdir(parents=True, exist_ok=True)
+
+        for page in pages:
+            # Determine filename based on page number
+            if page.page_number == 1:
+                filename = "index.md"
+            else:
+                filename = f"index-{page.page_number}.md"
+
+            file_path = index_dir / filename
+
+            # Handle empty collections (T024)
+            if not page.items:
+                # Generate empty state message
+                content = f"# {page.title}\n\n*No {component_type} found.*\n"
+                if logger:
+                    logger.info(
+                        "index_empty_collection",
+                        component_type=component_type,
+                        page_number=page.page_number,
+                    )
+            else:
+                # Render page using template
+                if self._engine:
+                    content = self.render_index_page(page)
+                else:
+                    # Fallback to simple format
+                    content = f"# {page.title}\n\n"
+                    for item in page.items:
+                        content += f"- [{item.name}]({item.doc_link})\n"
+
+            # Write file
+            file_path.write_text(content, encoding="utf-8")
+            written_files.append(file_path)
+
+            # Logging (T026)
+            if logger:
+                logger.info(
+                    "index_page_written",
+                    file_path=str(file_path),
+                    page_number=page.page_number,
+                    item_count=len(page.items),
+                    component_type=component_type,
+                )
+
+        # Summary logging (T026)
+        duration_ms = (time.time() - start_time) * 1000
+        if logger:
+            logger.info(
+                "index_generation_complete",
+                component_type=component_type,
+                total_pages=len(pages),
+                total_files=len(written_files),
+                duration_ms=round(duration_ms, 2),
+            )
+
+        return written_files
+
+    def generate_and_write_indexes(
+        self,
+        components: dict[str, list[IndexItem]],
+        index_style: str = "list",
+        logger: object | None = None,
+    ) -> dict[str, list[Path]]:
+        """Generate and write index pages for all component types.
+
+        High-level method that orchestrates index generation for multiple
+        component types (roles, plugins, modules, etc.).
+
+        Args:
+            components: Dict mapping component type to list of IndexItems
+            index_style: Visualization style (list, table, tree, etc.)
+            logger: Optional structured logger
+
+        Returns:
+            Dict mapping component type to list of written file paths
+        """
+        import time
+
+        start_time = time.time()
+        all_files: dict[str, list[Path]] = {}
+
+        for component_type, items in components.items():
+            if logger:
+                logger.info(
+                    "index_generation_start",
+                    component_type=component_type,
+                    item_count=len(items),
+                    style=index_style,
+                )
+
+            # Generate index pages
+            pages = self.generate_index_page(
+                component_type=component_type,
+                items=items,
+                format=index_style,
+            )
+
+            # Write to files
+            files = self.write_index_files(
+                pages=pages,
+                component_type=component_type,
+                logger=logger,
+            )
+
+            all_files[component_type] = files
+
+        # Overall summary logging
+        total_duration_ms = (time.time() - start_time) * 1000
+        if logger:
+            logger.info(
+                "all_indexes_generated",
+                component_types=list(components.keys()),
+                total_component_types=len(components),
+                total_files=sum(len(files) for files in all_files.values()),
+                duration_ms=round(total_duration_ms, 2),
+            )
+
+        return all_files

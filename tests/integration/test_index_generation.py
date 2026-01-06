@@ -368,3 +368,134 @@ class TestEmbeddedIndexes:
 
         assert section.filter_expression == "tag:tag1"
         assert len(section.items) == 5  # Only even-numbered roles have tag1
+
+
+class TestIndexFileWriting:
+    """Tests for T024-T026 - File writing, empty handling, and logging."""
+
+    @pytest.fixture
+    def generator(self, tmp_path):
+        """Create generator with temp output directory."""
+        return DefaultIndexGenerator(output_dir=tmp_path, output_format="markdown")
+
+    @pytest.fixture
+    def sample_roles(self):
+        """Sample roles for testing."""
+        return [
+            IndexItem(
+                name="role1",
+                type="role",
+                description="Test role 1",
+                path=Path("roles/role1"),
+                doc_link="./role1.md",
+                tags=["test"],
+            ),
+            IndexItem(
+                name="role2",
+                type="role",
+                description="Test role 2",
+                path=Path("roles/role2"),
+                doc_link="./role2.md",
+                tags=["test"],
+            ),
+        ]
+
+    def test_write_index_files(self, generator, sample_roles):
+        """T025: Test writing index files to disk."""
+        # Generate pages
+        pages = generator.generate_index_page(
+            component_type="roles",
+            items=sample_roles,
+            format="list",
+        )
+
+        # Write files
+        written_files = generator.write_index_files(
+            pages=pages,
+            component_type="roles",
+        )
+
+        assert len(written_files) == 1
+        assert written_files[0].exists()
+        assert written_files[0].name == "index.md"
+        assert written_files[0].parent.name == "roles"
+
+        # Check content was written
+        content = written_files[0].read_text()
+        assert "role1" in content or "role2" in content
+
+    def test_write_index_files_with_pagination(self, generator):
+        """T025: Test writing multiple paginated index files."""
+        # Create enough items to trigger pagination
+        many_roles = [
+            IndexItem(
+                name=f"role{i}",
+                type="role",
+                description=f"Test role {i}",
+                path=Path(f"roles/role{i}"),
+                doc_link=f"./role{i}.md",
+            )
+            for i in range(75)
+        ]
+
+        pages = generator.generate_index_page(
+            component_type="roles",
+            items=many_roles,
+            page_size=50,
+        )
+
+        written_files = generator.write_index_files(
+            pages=pages,
+            component_type="roles",
+        )
+
+        assert len(written_files) == 2
+        assert written_files[0].name == "index.md"
+        assert written_files[1].name == "index-2.md"
+
+    def test_empty_collection_handling(self, generator):
+        """T024: Test handling of empty collections."""
+        pages = generator.generate_index_page(
+            component_type="roles",
+            items=[],
+            format="list",
+        )
+
+        written_files = generator.write_index_files(
+            pages=pages,
+            component_type="roles",
+        )
+
+        assert len(written_files) == 1
+        content = written_files[0].read_text()
+        assert "No roles found" in content
+
+    def test_generate_and_write_indexes(self, generator, sample_roles):
+        """T025-T026: Test end-to-end index generation and writing."""
+        components = {
+            "roles": sample_roles,
+            "plugins": [
+                IndexItem(
+                    name="my_module",
+                    type="plugin",
+                    description="Test module",
+                    path=Path("plugins/modules/my_module.py"),
+                    doc_link="./my_module.md",
+                )
+            ],
+        }
+
+        result = generator.generate_and_write_indexes(
+            components=components,
+            index_style="list",
+        )
+
+        assert "roles" in result
+        assert "plugins" in result
+        assert len(result["roles"]) == 1
+        assert len(result["plugins"]) == 1
+
+        # Verify files exist
+        for files in result.values():
+            for file_path in files:
+                assert file_path.exists()
