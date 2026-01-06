@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Indexes & Navigation (Spec 011) - IN PROGRESS
 
 **Phase 1-2: Foundation Infrastructure ✅ COMPLETE**
+**Phase 3: User Story 1 - Role Index Pages ✅ COMPLETE (T012-T026)**
 
 This work-in-progress feature introduces comprehensive index generation and navigation structures for Ansible documentation.
 
@@ -37,17 +38,22 @@ This work-in-progress feature introduces comprehensive index generation and navi
   - matches() method for IndexItem testing
   - parse() classmethod for "field:value" string conversion
 
-**Index Generator Implementation (T002, T017-T021)**:
+**Index Generator Implementation (T002, T017-T021, T024-T026)**:
 - **IndexGenerator Protocol** (`ansibledoctor/generator/indexes.py`):
   - generate_index_page(): Create standalone index pages with pagination
   - generate_section_index(): Create embedded sections
   - build_hierarchy(): Convert flat list to tree structure with path-based matching
   - extract_component_metadata(): Parse Role/Collection/Plugin/Playbook to IndexItem
   - resolve_dependency_links(): Link dependencies to documentation
+  - write_index_files(): Write index pages to disk with pagination (index.md, index-{N}.md)
+  - generate_and_write_indexes(): Orchestrate multi-component index generation
 
 - **DefaultIndexGenerator** (`ansibledoctor/generator/indexes.py`):
   - Template engine integration for rendering
   - Filter application and pagination calculation (default 50 items/page)
+  - Empty collection handling with custom "No X found" messages (T024)
+  - Structured logging with duration tracking in milliseconds (T026)
+  - File I/O with directory creation and error handling (T025)
   - Hierarchical building with correct path-based parent-child associations
   - Component metadata extraction supporting all Ansible component types
   - Dependency link resolution with markdown link generation
@@ -61,10 +67,25 @@ This work-in-progress feature introduces comprehensive index generation and navi
   - Markdown table with Name|Description|Tags|Dependencies columns
   - Truncated descriptions for readability
 
+**CLI Integration (T022-T023)**:
+- **Collection Generate Command** (`ansibledoctor/cli/collection.py`):
+  - `--include-index/--no-include-index`: Enable index generation (default: False)
+  - `--index-style {list,table,tree,nested-table,diagram}`: Visualization style (default: list)
+  - `--index-format {full,section}`: Standalone pages or embedded sections (default: full)
+  - Generates index files after main documentation (roles/index.md, plugins/index.md)
+  - Reports total index files generated with logging integration
+
 **Test Coverage (T012-T016)**:
 - 40 unit tests (100% passing) with 94% coverage on index models
-- 11 integration tests (100% passing) for role index generation, hierarchy building, embedded indexes
+- 15 integration tests (100% passing):
+  - Role index generation with pagination, tags, dependencies, empty collections
+  - Hierarchical structure building (path-based matching)
+  - Embedded section indexes with limits and filters
+  - File writing with directory creation and empty state handling
+  - End-to-end multi-component orchestration (roles + plugins)
 - Test fixtures: simple_project structure with 3 roles and dependencies
+
+**Progress**: Phase 1-3 complete (26/95 tasks, 27.4%). Phases 4-9 pending (hierarchical trees, embedded sections, nested tables, Mermaid diagrams, HTML filtering, polish).
 
 ### Changed
 
