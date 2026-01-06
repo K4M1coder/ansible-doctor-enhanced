@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Schema Documentation & Validation (Spec 012) - 🚧 IN PROGRESS
 
+**Phase 7: User Story 5 - Schema Documentation ✅ COMPLETE (T069-T079, 79/94 tasks - 84%)**
+
 **Phase 6: User Story 4 - Data Model Validation ✅ COMPLETE (T057-T068, 68/94 tasks - 72%)**
 
 **Phase 5: User Story 3 - Format Conversion ✅ COMPLETE (T044-T056, 56/94 tasks - 60%)**
@@ -18,6 +20,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 3: User Story 1 - Configuration Validation ✅ COMPLETE (T001-T029, 29/94 tasks - 31%)**
 
 This feature introduces JSON Schema validation and export for ansible-doctor, enabling IDE autocomplete integration, format conversion, and comprehensive data validation.
+
+**Schema Documentation** (`ansibledoctor/serialization/`, T069-T079):
+- **SchemaDocumenter** (`ansibledoctor/serialization/schema_documenter.py`):
+  - Generate human-readable Markdown documentation from JSON Schema
+  - Comprehensive property documentation with types, defaults, descriptions
+  - Nested object handling with proper heading hierarchy
+  - Enum value listing with allowed values
+  - Deprecated property marking with clear indicators
+  - Required field markers for mandatory properties
+  - Examples inclusion for better understanding
+  - 100% test coverage, 16 unit tests passing
+
+- **Documentation Features**:
+  - Automatic Markdown generation with proper formatting
+  - Property sections with type information (string, integer, boolean, etc.)
+  - Default value documentation
+  - Enum constraints with all possible values listed
+  - Recursive nested object documentation (unlimited depth)
+  - Heading hierarchy (###, ####, etc.) for nested structures
+  - Deprecation warnings with clear markers
+  - Required vs optional field distinction
+
+- **CLI Commands** (`ansibledoctor/cli/schema.py`):
+  - `ansible-doctor schema docs config` - Generate config schema documentation
+  - `--output FILE` - Save documentation to file instead of stdout
+  - Clear formatting with examples and descriptions
+  - 16 unit tests passing
+
+**Examples**:
+```bash
+# Generate schema docs to stdout
+python -m ansibledoctor schema docs config
+
+# Save to file
+python -m ansibledoctor schema docs config --output schema-docs.md
+
+# Future: Role and collection schema docs
+python -m ansibledoctor schema docs role --output role-schema.md
+```
 
 **Data Model Validation** (`ansibledoctor/validation/`, T057-T068):
 - **DataModelValidator** (`ansibledoctor/validation/model_validator.py`):

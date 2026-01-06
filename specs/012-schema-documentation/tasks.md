@@ -172,20 +172,20 @@
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T069 [P] [US5] Write test for Markdown generation in tests/unit/test_schema_documenter.py (sections for each property)
-- [ ] T070 [P] [US5] Write test for descriptions in docs in tests/unit/test_schema_documenter.py (schema descriptions included)
-- [ ] T071 [P] [US5] Write test for nested objects in tests/unit/test_schema_documenter.py (proper heading hierarchy)
-- [ ] T072 [P] [US5] Write test for enum values in tests/unit/test_schema_documenter.py (all values listed)
-- [ ] T073 [P] [US5] Write test for deprecated properties in tests/unit/test_schema_documenter.py (marked as deprecated)
+- [X] T069 [P] [US5] Write test for Markdown generation in tests/unit/test_schema_documenter.py (sections for each property)
+- [X] T070 [P] [US5] Write test for descriptions in docs in tests/unit/test_schema_documenter.py (schema descriptions included)
+- [X] T071 [P] [US5] Write test for nested objects in tests/unit/test_schema_documenter.py (proper heading hierarchy)
+- [X] T072 [P] [US5] Write test for enum values in tests/unit/test_schema_documenter.py (all values listed)
+- [X] T073 [P] [US5] Write test for deprecated properties in tests/unit/test_schema_documenter.py (marked as deprecated)
 
 ### Implementation for User Story 5
 
-- [ ] T074 [US5] Create SchemaDocumenter class in ansibledoctor/serialization/schema_documenter.py with generate_docs() method
-- [ ] T075 [US5] Implement Markdown generation from JSON Schema in SchemaDocumenter
-- [ ] T076 [US5] Implement property documentation in SchemaDocumenter (type, default, description, examples)
-- [ ] T077 [US5] Implement nested object handling in SchemaDocumenter (recursive documentation with proper heading levels)
-- [ ] T078 [US5] Implement enum documentation in SchemaDocumenter (list all possible values)
-- [ ] T079 [US5] Add `ansible-doctor schema docs <type>` CLI command in ansibledoctor/cli/schema.py
+- [X] T074 [US5] Create SchemaDocumenter class in ansibledoctor/serialization/schema_documenter.py with generate_docs() method
+- [X] T075 [US5] Implement Markdown generation from JSON Schema in SchemaDocumenter
+- [X] T076 [US5] Implement property documentation in SchemaDocumenter (type, default, description, examples)
+- [X] T077 [US5] Implement nested object handling in SchemaDocumenter (recursive documentation with proper heading levels)
+- [X] T078 [US5] Implement enum documentation in SchemaDocumenter (list all possible values)
+- [X] T079 [US5] Add `ansible-doctor schema docs <type>` CLI command in ansibledoctor/cli/schema.py
 
 ---
 

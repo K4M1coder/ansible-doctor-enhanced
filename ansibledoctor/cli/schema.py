@@ -9,6 +9,7 @@ from pathlib import Path
 import click
 
 from ansibledoctor.serialization import FormatConverter, SchemaExporter
+from ansibledoctor.serialization.schema_documenter import SchemaDocumenter
 from ansibledoctor.validation import ConfigurationValidator, DataModelValidator
 
 
@@ -236,11 +237,53 @@ def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool)
 @click.option("--output", "-o", type=click.Path(path_type=Path), help="Output markdown file")
 def generate_docs(schema_type: str, output: Path):
     """Generate human-readable schema documentation.
+    
+    Creates Markdown documentation from JSON Schema definitions with
+    comprehensive property details, types, defaults, and examples.
+
+    Examples:
+        \b
+        # Generate config schema docs to stdout
+        ansible-doctor schema docs config
+
+        \b
+        # Save docs to file
+        ansible-doctor schema docs config --output schema-docs.md
+
+        \b
+        # Generate role schema docs
+        ansible-doctor schema docs role --output role-schema.md
 
     Args:
-        schema_type: Type of schema to document
-        output: Output markdown file path
+        schema_type: Type of schema to document (config, role, collection)
+        output: Output markdown file path (stdout if not specified)
     """
-    click.echo("Schema documentation not yet implemented (Spec 012 Phase 7)")
-    click.echo(f"Would generate docs for {schema_type} schema")
-    raise click.Exit(1)
+    try:
+        exporter = SchemaExporter()
+        documenter = SchemaDocumenter()
+        
+        # Export schema first
+        if schema_type == "config":
+            schema = exporter.export_config_schema(format_type="json-schema")
+        elif schema_type in ("role", "collection"):
+            # For now, role/collection not fully implemented in exporter
+            click.echo(f"Schema documentation for {schema_type} coming in future release", err=True)
+            raise click.Abort()
+        else:
+            click.echo(f"Unknown schema type: {schema_type}", err=True)
+            raise click.Abort()
+        
+        # Generate documentation
+        docs = documenter.generate_docs(schema)
+        
+        # Output to file or stdout
+        if output:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(docs, encoding="utf-8")
+            click.echo(f"✓ Documentation written to {output}")
+        else:
+            click.echo(docs)
+            
+    except Exception as e:
+        click.echo(f"Error generating documentation: {e}", err=True)
+        raise click.Abort()
