@@ -12,8 +12,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 1-2: Foundation Infrastructure ✅ COMPLETE**
 **Phase 3: User Story 1 - Role Index Pages ✅ COMPLETE (T012-T026)**
 **Phase 4: User Story 2 - Hierarchical Project Index ✅ COMPLETE (T027-T040)**
+**Phase 5: User Story 3 - Embedded Section Indexes ✅ COMPLETE (T041-T052)** 🎉 **MVP COMPLETE!**
 
 This work-in-progress feature introduces comprehensive index generation and navigation structures for Ansible documentation.
+
+**Phase 5: Embedded Section Indexes ✅ (12 tasks complete) - MVP MILESTONE REACHED!**
+
+**SectionIndex Model Enhancements** (`ansibledoctor/models/index.py`, T041-T051):
+- render_inline(): Inline rendering with optional template engine or simple inline mode
+- _render_simple_inline(): Generate list/table/tree formats without template engine
+  - List format: Markdown links with descriptions (- [name](link) - description)
+  - Table format: Name|Description columns with proper headers
+  - Tree format: Simple indented item list
+- _extract_group_key(): Extract nested grouping keys (e.g., 'metadata.plugin_type')
+  - Handles dot notation paths for nested attributes
+  - Fallback to "Other" for missing values
+- Limit logic: Shows N items + "and X more..." message for remaining items
+- Group-by logic: Organizes items by field (e.g., plugins by type)
+- Filter support: Applies IndexFilter criteria before rendering (e.g., 'tag:web')
+- Inline rendering without recursion for embedded use cases
+- 75% code coverage
+
+**Template Engine Integration** (T047-T048):
+- TemplateEngine.create(): Now accepts optional index_generator parameter
+- index() Jinja2 global function registered for use in templates
+  - Signature: index(component_type, format='list', limit=None, filter=None, group_by=None, **kwargs)
+  - Accepts items from template context via kwargs
+  - Returns rendered section index HTML/Markdown
+  - Supports all SectionIndex parameters (format, limit, filter, group_by)
+- _index_generator stored in environment.globals for template access
+- Integration with existing translation provider registration
+
+**Tests Added** (T041-T045):
+- test_embedded_indexes.py: 6 comprehensive integration tests (all passing)
+  - test_template_marker_parsing: Basic {{ index('roles') }} parsing and rendering
+  - test_embedded_table_format: format='table' rendering with proper table structure
+  - test_group_by_plugin_type: group_by='metadata.plugin_type' logic with grouped sections
+  - test_limit_parameter: limit=2 shows 2 items + "and 1 more..." message
+  - test_filter_parameter: filter='tag:web' filters items correctly
+  - test_combined_parameters: Multiple parameters work together (filter + limit + format)
+- sample_roles and sample_plugins fixtures with realistic test data
+- Tests verify inline rendering output format and content
+
+**Demo Template** (T052):
+- collection-readme-with-indexes.md.j2 (`demo/templates/`)
+- Shows practical {{ index() }} usage in collection README
+- Demonstrates format='table' for roles section
+- Demonstrates filter='type:module' and filter='type:filter' for plugin sections
+- Real-world example of embedded indexes in documentation
+
+**Test Coverage**:
+- 34 tests passing total:
+  - 19 integration tests (index generation + hierarchy)
+  - 9 TreeVisualizer unit tests
+  - 6 embedded index integration tests
+- indexes.py: 57% coverage
+- index.py: 75% coverage (improved from 70%)
+- engine.py: 32% coverage
+- **Progress: 52/95 tasks (54.7%)**
+- **🎉 MVP Complete: 52/52 MVP tasks (100%)**
 
 **Phase 4: Hierarchical Indexing ✅ (14 tasks complete)**
 
