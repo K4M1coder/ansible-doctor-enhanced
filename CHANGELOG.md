@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-01-06
+
 ### Added - Indexes & Navigation (Spec 011) - ✅ COMPLETE
 
 **All 9 Phases Complete - Feature Ready for Release! 🎉**
