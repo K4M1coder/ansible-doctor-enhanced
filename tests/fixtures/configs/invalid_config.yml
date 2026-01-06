@@ -1,0 +1,5 @@
+# Invalid ansible-doctor configuration file
+output_format: pdf  # Invalid: not in enum
+output_dir: 123  # Invalid: should be string
+verbose: "true"  # Invalid: should be boolean, not string
+unknown_property: value  # Invalid: not in schema

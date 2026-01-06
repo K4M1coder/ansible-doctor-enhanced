@@ -1,0 +1,7 @@
+# Valid ansible-doctor configuration file
+output_format: markdown
+output_dir: docs
+verbose: false
+exclude_tags:
+  - internal
+  - debug

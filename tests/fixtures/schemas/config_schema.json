@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ansible-doctor.com/schemas/config.json",
+  "title": "Ansible Doctor Configuration",
+  "description": "JSON Schema for .ansibledoctor.yml configuration files",
+  "type": "object",
+  "properties": {
+    "output_format": {
+      "type": "string",
+      "enum": ["markdown", "html", "rst"],
+      "default": "markdown",
+      "description": "Output documentation format"
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "docs",
+      "description": "Output directory for generated documentation"
+    },
+    "verbose": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose logging"
+    },
+    "template": {
+      "type": "string",
+      "description": "Custom template path"
+    },
+    "exclude_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags to exclude from documentation"
+    }
+  },
+  "additionalProperties": false
+}

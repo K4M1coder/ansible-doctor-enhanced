@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Schema Documentation & Validation (Spec 012) - 🚧 IN PROGRESS
+
+**Phase 3: User Story 1 - Configuration Validation ✅ COMPLETE (T001-T029, 29/94 tasks - 31%)**
+
+This feature introduces JSON Schema validation for ansible-doctor configuration files, with detailed error messages and CLI commands for validation.
+
+**Configuration Validation** (`ansibledoctor/validation/`, T001-T029):
+- **Schema Models** (`ansibledoctor/models/schemas.py`):
+  - ValidationError model with severity levels (ERROR, WARNING, INFO)
+  - ValidationResult model with error/warning aggregation and reporting
+  - SchemaModel base class with JSON Schema export
+  - 99% code coverage, 16 unit tests passing
+
+- **Schema Validator** (`ansibledoctor/validation/schema_validator.py`):
+  - SchemaValidator class with JSON Schema validation engine
+  - Support for YAML and JSON config files (ruamel.yaml integration)
+  - Detailed error messages with line numbers and suggestions
+  - Automatic suggestion generation for common errors (enum, type, required properties)
+  - 81% code coverage
+
+- **Configuration Validator** (`ansibledoctor/validation/config_validator.py`):
+  - ConfigurationValidator extending SchemaValidator
+  - Complete JSON Schema for .ansibledoctor.yml (Draft 2020-12)
+  - Supports all config properties including Spec 011 index flags
+  - Strict mode with additionalProperties:false
+  - 100% code coverage, 5 integration tests passing
+
+- **CLI Commands** (`ansibledoctor/cli/schema.py`):
+  - `ansible-doctor schema validate <file>` command with --strict and --verbose flags
+  - Schema command group with placeholder commands for export, convert, docs
+  - Integrated into main CLI with proper exit codes
+  - 8 CLI integration tests passing
+
+**Dependencies Added**:
+- jsonschema ^4.0 (JSON Schema validation)
+
+**Testing**:
+- 29 total tests passing (21 validation + 8 CLI)
+- 83% overall code coverage
+- TDD approach: tests written before implementation
+- Test fixtures for valid/invalid configs
+
+**Next**: Phase 4 - Schema Export (P1 MVP), Phase 5 - Format Conversion (P2), Phase 6 - Data Model Validation (P2)
+
 ## [0.11.0] - 2026-01-06
 
 ### Added - Indexes & Navigation (Spec 011) - ✅ COMPLETE

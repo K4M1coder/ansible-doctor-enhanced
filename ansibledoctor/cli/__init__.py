@@ -21,6 +21,7 @@ from ansibledoctor import __version__
 # Import collection command group
 from ansibledoctor.cli.collection import collection
 from ansibledoctor.cli.project import project
+from ansibledoctor.cli.schema import schema
 from ansibledoctor.config.loader import find_config_file, load_config, merge_config
 from ansibledoctor.config.models import ConfigModel
 from ansibledoctor.exceptions import (
@@ -2080,6 +2081,7 @@ def watch(role_path: str, format: str, output: str | None):
 # Register collection and project command groups
 cli.add_command(collection)
 cli.add_command(project)
+cli.add_command(schema)
 
 
 def _generate_execution_report(
