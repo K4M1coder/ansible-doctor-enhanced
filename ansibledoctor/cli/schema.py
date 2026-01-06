@@ -8,7 +8,7 @@ from pathlib import Path
 
 import click
 
-from ansibledoctor.serialization import SchemaExporter
+from ansibledoctor.serialization import FormatConverter, SchemaExporter
 from ansibledoctor.validation import ConfigurationValidator
 
 
@@ -110,21 +110,45 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
 
 @schema.command("convert")
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--to", "to_format", required=True, type=click.Choice(["json", "yaml", "xml"]))
+@click.option("--to", "to_format", required=True, type=click.Choice(["json", "yaml", "xml", "mermaid"]))
 @click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path")
 @click.option("--pretty", is_flag=True, help="Pretty-print output")
 def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool):
-    """Convert between data formats (YAML, JSON, XML).
+    """Convert between data formats (YAML, JSON, XML, Mermaid).
+
+    Examples:
+        ansible-doctor schema convert config.yml --to json
+        ansible-doctor schema convert config.json --to yaml --pretty
+        ansible-doctor schema convert config.yml --to xml --output config.xml
+        ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
 
     Args:
         input_file: Input file path
-        to_format: Target format
-        output: Output file path
-        pretty: Pretty-print output
+        to_format: Target format (json, yaml, xml, mermaid)
+        output: Output file path (stdout if not specified)
+        pretty: Pretty-print output for readability
     """
-    click.echo("Format conversion not yet implemented (Spec 012 Phase 5)")
-    click.echo(f"Would convert {input_file} to {to_format}")
-    raise click.Exit(1)
+    try:
+        converter = FormatConverter()
+        
+        # Convert the file
+        result = converter.convert_file(
+            input_file,
+            to_format=to_format,
+            pretty=pretty
+        )
+        
+        # Output to file or stdout
+        if output:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(result, encoding="utf-8")
+            click.echo(f"Converted {input_file} to {to_format}: {output}")
+        else:
+            click.echo(result)
+            
+    except Exception as e:
+        click.echo(f"Error converting format: {e}", err=True)
+        raise click.Abort()
 
 
 @schema.command("docs")

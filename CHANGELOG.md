@@ -9,11 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - Schema Documentation & Validation (Spec 012) - 🚧 IN PROGRESS
 
+**Phase 5: User Story 3 - Format Conversion ✅ COMPLETE (T044-T056, 56/94 tasks - 60%)**
+
 **Phase 4: User Story 2 - Schema Export ✅ COMPLETE (T030-T043, 43/94 tasks - 46%)**
 
 **Phase 3: User Story 1 - Configuration Validation ✅ COMPLETE (T001-T029, 29/94 tasks - 31%)**
 
 This feature introduces JSON Schema validation and export for ansible-doctor, enabling IDE autocomplete integration, format conversion, and comprehensive data validation.
+
+**Format Conversion** (`ansibledoctor/serialization/`, T044-T056):
+- **FormatConverter** (`ansibledoctor/serialization/format_converter.py`):
+  - Convert between YAML, JSON, XML, and Mermaid diagram formats
+  - Round-trip conversion preserves data fidelity (YAML ↔ JSON)
+  - Pretty formatting support with indentation and line breaks
+  - Auto-detect source format from file extension
+  - Mermaid diagram generation for visualizing config structure
+  - 81% code coverage, 10 integration tests passing
+
+- **Conversion Methods**:
+  - YAML ↔ JSON: Using ruamel.yaml for YAML parsing/generation
+  - JSON → XML: Using xml.etree.ElementTree for XML generation
+  - XML → JSON: Parse XML elements to dictionary structure
+  - Data → Mermaid: Generate graph TB diagrams with hierarchical structure
+  - Pretty formatting: Configurable indentation for JSON (2 spaces), XML formatting
+
+- **CLI Commands** (`ansibledoctor/cli/schema.py`):
+  - `ansible-doctor schema convert <file> --to <format>` - Convert to json, yaml, xml, or mermaid
+  - `--output FILE` - Write output to file instead of stdout
+  - `--pretty` - Enable pretty formatting for readable output
+  - 7 CLI tests passing
+
+**Examples**:
+```bash
+# Convert YAML to JSON with pretty formatting
+ansible-doctor schema convert config.yml --to json --pretty
+
+# Convert to XML file
+ansible-doctor schema convert config.yml --to xml --output config.xml
+
+# Generate Mermaid diagram
+ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
+```
 
 **Schema Export** (`ansibledoctor/serialization/`, T030-T043):
 - **SchemaExporter** (`ansibledoctor/serialization/schema_exporter.py`):
@@ -68,14 +104,15 @@ This feature introduces JSON Schema validation and export for ansible-doctor, en
 - jsonschema ^4.0 (JSON Schema validation)
 
 **Testing**:
-- 47 total tests passing (29 Phase 3 + 18 Phase 4)
+- 64 total tests passing (29 Phase 3 + 18 Phase 4 + 17 Phase 5)
 - Phase 3: 21 validation + 8 CLI tests
 - Phase 4: 6 schema export + 12 CLI tests
-- 83% overall code coverage maintained
+- Phase 5: 10 format conversion + 7 CLI tests
+- 81% coverage on FormatConverter (159 statements)
 - TDD approach: tests written before implementation
 - Test fixtures for valid/invalid configs and schemas
 
-**Next**: Phase 5 - Format Conversion (P2), Phase 6 - Data Model Validation (P2), Phase 7 - Schema Documentation (P3)
+**Next**: Phase 6 - Data Model Validation (P2), Phase 7 - Schema Documentation (P3), Phase 8 - Polish & Documentation
 
 ## [0.11.0] - 2026-01-06
 

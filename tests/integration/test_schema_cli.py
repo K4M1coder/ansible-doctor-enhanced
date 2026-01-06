@@ -146,20 +146,125 @@ class TestSchemaExportCommand:
 
 
 class TestSchemaConvertCommand:
-    """Test the 'schema convert' command (placeholder)."""
+    """Test the 'schema convert' command."""
 
     @pytest.fixture
     def cli_runner(self):
         """Create a Click CLI runner."""
         return CliRunner()
 
-    def test_convert_not_implemented(self, cli_runner, tmp_path):
-        """Test that convert command shows not implemented message."""
-        input_file = tmp_path / "input.yml"
-        input_file.write_text("key: value")
-        result = cli_runner.invoke(schema, ["convert", str(input_file), "--to", "json"])
-        assert result.exit_code == 1
-        assert "not yet implemented" in result.output.lower()
+    @pytest.fixture
+    def sample_yaml_file(self, tmp_path):
+        """Create a sample YAML file for testing."""
+        yaml_file = tmp_path / "input.yml"
+        yaml_file.write_text("""
+output_format: markdown
+output_dir: docs/
+recursive: true
+theme:
+  primary_color: "#007acc"
+""")
+        return yaml_file
+
+    @pytest.fixture
+    def sample_json_file(self, tmp_path):
+        """Create a sample JSON file for testing."""
+        json_file = tmp_path / "input.json"
+        json_file.write_text('{"output_format": "markdown", "recursive": true}')
+        return json_file
+
+    def test_convert_yaml_to_json_stdout(self, cli_runner, sample_yaml_file):
+        """Test converting YAML to JSON and output to stdout.
+        
+        T055: CLI convert command - stdout output
+        """
+        result = cli_runner.invoke(schema, ["convert", str(sample_yaml_file), "--to", "json"])
+        
+        assert result.exit_code == 0
+        # Output should be valid JSON
+        data = json.loads(result.output)
+        assert data["output_format"] == "markdown"
+        assert data["recursive"] is True
+
+    def test_convert_yaml_to_json_with_pretty(self, cli_runner, sample_yaml_file):
+        """Test converting with pretty formatting.
+        
+        T055: CLI convert command - pretty flag
+        """
+        result = cli_runner.invoke(
+            schema, ["convert", str(sample_yaml_file), "--to", "json", "--pretty"]
+        )
+        
+        assert result.exit_code == 0
+        # Pretty output should have indentation
+        assert "  " in result.output or "\t" in result.output
+        # Should still be valid JSON
+        data = json.loads(result.output)
+        assert "output_format" in data
+
+    def test_convert_to_file(self, cli_runner, sample_yaml_file, tmp_path):
+        """Test converting to output file.
+        
+        T056: CLI convert command - file output
+        """
+        output_file = tmp_path / "output.json"
+        
+        result = cli_runner.invoke(
+            schema,
+            ["convert", str(sample_yaml_file), "--to", "json", "--output", str(output_file)]
+        )
+        
+        assert result.exit_code == 0
+        assert output_file.exists()
+        
+        # Verify output file content
+        data = json.loads(output_file.read_text())
+        assert data["output_format"] == "markdown"
+
+    def test_convert_json_to_yaml(self, cli_runner, sample_json_file):
+        """Test converting JSON to YAML.
+        
+        T055: CLI convert command - JSON to YAML
+        """
+        result = cli_runner.invoke(schema, ["convert", str(sample_json_file), "--to", "yaml"])
+        
+        assert result.exit_code == 0
+        # Output should contain YAML syntax
+        assert "output_format:" in result.output
+        assert "recursive:" in result.output
+
+    def test_convert_to_xml(self, cli_runner, sample_json_file):
+        """Test converting to XML.
+        
+        T055: CLI convert command - XML output
+        """
+        result = cli_runner.invoke(schema, ["convert", str(sample_json_file), "--to", "xml"])
+        
+        assert result.exit_code == 0
+        # Output should contain XML syntax
+        assert "<?xml" in result.output
+        assert "<root>" in result.output
+        assert "</root>" in result.output
+
+    def test_convert_to_mermaid(self, cli_runner, sample_yaml_file):
+        """Test converting to Mermaid diagram.
+        
+        T055: CLI convert command - Mermaid output
+        """
+        result = cli_runner.invoke(schema, ["convert", str(sample_yaml_file), "--to", "mermaid"])
+        
+        assert result.exit_code == 0
+        # Output should contain Mermaid syntax
+        assert "graph" in result.output.lower()
+
+    def test_convert_missing_file(self, cli_runner, tmp_path):
+        """Test error handling for missing input file."""
+        missing_file = tmp_path / "missing.yml"
+        
+        result = cli_runner.invoke(schema, ["convert", str(missing_file), "--to", "json"])
+        
+        # Click should catch file not exists
+        assert result.exit_code != 0
 
 
 class TestSchemaDocsCommand:
