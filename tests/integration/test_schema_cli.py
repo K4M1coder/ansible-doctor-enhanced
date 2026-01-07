@@ -275,8 +275,9 @@ class TestSchemaDocsCommand:
         """Create a Click CLI runner."""
         return CliRunner()
 
-    def test_docs_not_implemented(self, cli_runner):
-        """Test that docs command shows not implemented message."""
+    def test_docs_command_succeeds(self, cli_runner):
+        """Test that docs command executes successfully."""
         result = cli_runner.invoke(schema, ["docs", "config"])
-        assert result.exit_code == 1
-        assert "not yet implemented" in result.output.lower()
+        assert result.exit_code == 0
+        # Output should contain Markdown documentation
+        assert "# Configuration Schema" in result.output or "## Properties" in result.output
