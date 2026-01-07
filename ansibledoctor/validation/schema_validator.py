@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 from jsonschema import ValidationError as JsonSchemaValidationError
 from ruamel.yaml import YAML
 

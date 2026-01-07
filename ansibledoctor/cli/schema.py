@@ -16,30 +16,30 @@ from ansibledoctor.validation import ConfigurationValidator, DataModelValidator
 @click.group()
 def schema():
     """Schema validation, export, conversion, and documentation.
-    
+
     Comprehensive schema operations for configuration files and data models:
-    
+
     \b
     - validate: Validate .ansibledoctor.yml against JSON Schema
     - validate-model: Validate role/collection data against pydantic models
     - export: Export JSON Schema definitions for IDE integration
     - convert: Convert configs between YAML, JSON, XML, Mermaid formats
     - docs: Generate human-readable Markdown from JSON Schema
-    
+
     Examples:
-    
+
     \b
       # Validate config with strict mode
       ansible-doctor schema validate .ansibledoctor.yml --strict
-    
+
     \b
       # Export schema for VS Code autocomplete
       ansible-doctor schema export config --output config-schema.json
-    
+
     \b
       # Convert config to JSON
       ansible-doctor schema convert .ansibledoctor.yml --to json --pretty
-    
+
     \b
       # Generate schema documentation
       ansible-doctor schema docs config --output schema-docs.md
@@ -59,15 +59,15 @@ def validate_config(config_file: Path, strict: bool, verbose: bool):
     actionable suggestions.
 
     Examples:
-    
+
         \b
         # Basic validation
         ansible-doctor schema validate .ansibledoctor.yml
-    
+
         \b
         # Strict mode for CI/CD (fail on warnings)
         ansible-doctor schema validate .ansibledoctor.yml --strict
-    
+
         \b
         # Verbose output with suggestions
         ansible-doctor schema validate .ansibledoctor.yml --verbose
@@ -123,7 +123,7 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
         \b
         # Validate collection with strict mode
         ansible-doctor schema validate-model collection galaxy.yml --strict-validation
-        
+
         \b
         # Verbose output for debugging
         ansible-doctor schema validate-model role role.yml --verbose
@@ -139,7 +139,7 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
         verbose: Show detailed error messages
     """
     import yaml
-    from ansibledoctor.models import AnsibleCollection, AnsibleRole
+
 
     validator = DataModelValidator()
 
@@ -152,7 +152,7 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
                 data = json.load(f)
     except Exception as e:
         click.echo(f"Error loading data file: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
     # Validate based on model type
     try:
@@ -188,7 +188,7 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
 
     except Exception as e:
         click.echo(f"Error validating model: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 # T040-T042: Schema export command
@@ -201,7 +201,9 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
     default="json-schema",
     help="Output format: json-schema (default) or openapi",
 )
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)")
+@click.option(
+    "--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)"
+)
 def export_schema(schema_type: str, output_format: str, output: Path | None):
     """Export JSON Schema or OpenAPI spec for IDE integration.
 
@@ -210,7 +212,7 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
     enable autocomplete and validation in VS Code, IntelliJ IDEA, or PyCharm.
 
     IDE Integration:
-    
+
         \b
         # VS Code: Add to .vscode/settings.json
         {
@@ -218,9 +220,9 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
             "./config-schema.json": ".ansibledoctor.yml"
           }
         }
-    
+
         \b
-        # IntelliJ IDEA: Settings → Languages & Frameworks → 
+        # IntelliJ IDEA: Settings → Languages & Frameworks →
         # Schemas and DTDs → JSON Schema Mappings → Add mapping
 
     Examples:
@@ -250,7 +252,9 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
     try:
         # T040: Export based on schema type
         if schema_type == "config":
-            schema = exporter.export_config_schema(format_type=output_format)
+            # Cast to literal type for type checker
+            fmt: str = output_format
+            schema = exporter.export_config_schema(format_type=fmt)  # type: ignore[arg-type]
         elif schema_type in ("role", "collection"):
             # Placeholder for future implementation
             click.echo(f"Schema export for {schema_type} not yet implemented", err=True)
@@ -262,7 +266,8 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
         # T042: Output to file or stdout
         if output:
             # Write to file
-            exporter.export_to_file(schema_type, output, format_type=output_format)
+            fmt_type: str = output_format
+            exporter.export_to_file(schema_type, output, format_type=fmt_type)  # type: ignore[arg-type]
             click.echo(f"✓ Schema exported to {output}")
         else:
             # Print to stdout with pretty formatting
@@ -270,13 +275,21 @@ def export_schema(schema_type: str, output_format: str, output: Path | None):
 
     except Exception as e:
         click.echo(f"Error exporting schema: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @schema.command("convert")
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
-@click.option("--to", "to_format", required=True, type=click.Choice(["json", "yaml", "xml", "mermaid"]), help="Target format")
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)")
+@click.option(
+    "--to",
+    "to_format",
+    required=True,
+    type=click.Choice(["json", "yaml", "xml", "mermaid"]),
+    help="Target format",
+)
+@click.option(
+    "--output", "-o", type=click.Path(path_type=Path), help="Output file path (stdout if omitted)"
+)
 @click.option("--pretty", is_flag=True, help="Pretty-print output for readability")
 def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool):
     """Convert configuration files between formats.
@@ -299,15 +312,15 @@ def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool)
         \b
         # YAML to JSON (compact)
         ansible-doctor schema convert config.yml --to json
-        
+
         \b
         # YAML to JSON (pretty-printed)
         ansible-doctor schema convert config.yml --to json --pretty
-        
+
         \b
         # YAML to XML file
         ansible-doctor schema convert config.yml --to xml --output config.xml
-        
+
         \b
         # Generate Mermaid diagram
         ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
@@ -320,14 +333,10 @@ def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool)
     """
     try:
         converter = FormatConverter()
-        
+
         # Convert the file
-        result = converter.convert_file(
-            input_file,
-            to_format=to_format,
-            pretty=pretty
-        )
-        
+        result = converter.convert_file(input_file, to_format=to_format, pretty=pretty)
+
         # Output to file or stdout
         if output:
             output.parent.mkdir(parents=True, exist_ok=True)
@@ -335,18 +344,23 @@ def convert_format(input_file: Path, to_format: str, output: Path, pretty: bool)
             click.echo(f"Converted {input_file} to {to_format}: {output}")
         else:
             click.echo(result)
-            
+
     except Exception as e:
         click.echo(f"Error converting format: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
 
 
 @schema.command("docs")
 @click.argument("schema_type", type=click.Choice(["config", "role", "collection"]))
-@click.option("--output", "-o", type=click.Path(path_type=Path), help="Output markdown file (stdout if omitted)")
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(path_type=Path),
+    help="Output markdown file (stdout if omitted)",
+)
 def generate_docs(schema_type: str, output: Path):
     """Generate human-readable Markdown documentation from JSON Schema.
-    
+
     Creates comprehensive Markdown documentation from JSON Schema definitions
     with property descriptions, types, defaults, constraints, and examples.
     Perfect for team onboarding, documentation websites, or README files.
@@ -373,7 +387,7 @@ def generate_docs(schema_type: str, output: Path):
         \b
         # Generate role schema docs (future)
         ansible-doctor schema docs role --output docs/role-schema.md
-        
+
         \b
         # Generate collection schema docs (future)
         ansible-doctor schema docs collection --output docs/collection-schema.md
@@ -391,7 +405,7 @@ def generate_docs(schema_type: str, output: Path):
     try:
         exporter = SchemaExporter()
         documenter = SchemaDocumenter()
-        
+
         # Export schema first
         if schema_type == "config":
             schema = exporter.export_config_schema(format_type="json-schema")
@@ -402,10 +416,10 @@ def generate_docs(schema_type: str, output: Path):
         else:
             click.echo(f"Unknown schema type: {schema_type}", err=True)
             raise click.Abort()
-        
+
         # Generate documentation
         docs = documenter.generate_docs(schema)
-        
+
         # Output to file or stdout
         if output:
             output.parent.mkdir(parents=True, exist_ok=True)
@@ -413,7 +427,7 @@ def generate_docs(schema_type: str, output: Path):
             click.echo(f"✓ Documentation written to {output}")
         else:
             click.echo(docs)
-            
+
     except Exception as e:
         click.echo(f"Error generating documentation: {e}", err=True)
-        raise click.Abort()
+        raise click.Abort() from e
