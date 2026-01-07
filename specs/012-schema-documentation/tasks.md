@@ -304,7 +304,7 @@ With multiple developers:
 
 These tasks ensure existing functionality is not broken:
 
-- [ ] T092 [REGRESSION] Run existing Spec 001-008 test suites to verify no regressions
+- [ ] T092 [REGRESSION] Run existing Spec 001-011 test suites to verify no regressions
 - [ ] T093 [REGRESSION] Verify existing `.ansibledoctor.yml` configs remain valid without changes
 - [ ] T094 [REGRESSION] Test that existing config loading behavior unchanged without validation flag
 
