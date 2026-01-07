@@ -4,7 +4,7 @@ Validates .ansibledoctor.yml configuration files against JSON Schema.
 """
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from ansibledoctor.models.schemas import ValidationResult
 from ansibledoctor.validation.schema_validator import SchemaValidator
@@ -131,9 +131,13 @@ class ConfigurationValidator(SchemaValidator):
         "additionalProperties": False,
     }
 
-    def __init__(self):
-        """Initialize ConfigurationValidator with config schema."""
-        super().__init__(self.CONFIG_SCHEMA)
+    def __init__(self, schema_cache: Optional[Any] = None):
+        """Initialize ConfigurationValidator with config schema.
+        
+        Args:
+            schema_cache: Optional SchemaCache instance for performance
+        """
+        super().__init__(self.CONFIG_SCHEMA, schema_cache=schema_cache)
 
     def validate(self, data: Any, strict: bool = False) -> ValidationResult:
         """Validate configuration data.

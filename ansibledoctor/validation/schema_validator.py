@@ -20,15 +20,18 @@ class SchemaValidator:
     Attributes:
         schema: JSON Schema dictionary
         validator_class: jsonschema validator class to use
+        schema_cache: Optional cache for compiled validators
     """
 
-    def __init__(self, schema: dict[str, Any]):
+    def __init__(self, schema: dict[str, Any], schema_cache: Optional[Any] = None):
         """Initialize validator with JSON Schema.
 
         Args:
             schema: JSON Schema dictionary
+            schema_cache: Optional SchemaCache instance for caching compiled validators
         """
         self.schema = schema
+        self.schema_cache = schema_cache
         self.validator_class = jsonschema.validators.validator_for(schema)
         self.validator_class.check_schema(schema)
         self.validator = self.validator_class(schema)
