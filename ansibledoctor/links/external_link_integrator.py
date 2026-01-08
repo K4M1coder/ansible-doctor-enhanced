@@ -67,6 +67,15 @@ class ExternalLinkIntegrator:
         self.ansible_version = ansible_version
         self.ansible_docs_base = ansible_docs_base
         self.galaxy_base = galaxy_base
+        
+        # Configuration options (set by from_config())
+        self.module_docs_override: Dict[str, str] = {}
+        self.best_practices_keywords = BEST_PRACTICES_KEYWORDS
+        self.enable_module_docs = True
+        self.enable_galaxy_links = True
+        self.enable_best_practices = True
+        self.new_tab_external = True
+        self.version_specific = True
 
     @classmethod
     def from_config(cls, config_path: Path) -> "ExternalLinkIntegrator":
@@ -78,6 +87,11 @@ class ExternalLinkIntegrator:
             
         Returns:
             Configured ExternalLinkIntegrator instance
+            
+        Example:
+            >>> integrator = ExternalLinkIntegrator.from_config(Path(".ansibledoctor.yml"))
+            >>> integrator.ansible_version
+            '2.15'
         """
         if not config_path.exists():
             return cls()
@@ -88,11 +102,31 @@ class ExternalLinkIntegrator:
         ansible_version = config.get("ansible_version", "latest")
         external_links = config.get("external_links", {})
         
-        return cls(
+        instance = cls(
             ansible_version=ansible_version,
             ansible_docs_base=external_links.get("ansible_docs_base", "https://docs.ansible.com"),
             galaxy_base=external_links.get("galaxy_base", "https://galaxy.ansible.com"),
         )
+        
+        # Load custom module documentation mappings
+        instance.module_docs_override = external_links.get("module_docs", {})
+        
+        # Load custom best practices mappings
+        custom_practices = external_links.get("best_practices", {})
+        if custom_practices:
+            instance.best_practices_keywords = {**BEST_PRACTICES_KEYWORDS, **custom_practices}
+        else:
+            instance.best_practices_keywords = BEST_PRACTICES_KEYWORDS
+        
+        # Load feature flags
+        features = external_links.get("features", {})
+        instance.enable_module_docs = features.get("module_docs", True)
+        instance.enable_galaxy_links = features.get("galaxy_links", True)
+        instance.enable_best_practices = features.get("best_practices", True)
+        instance.new_tab_external = features.get("new_tab", True)
+        instance.version_specific = features.get("version_specific", True)
+        
+        return instance
 
     def generate_module_doc_link(self, module_fqcn: str, source_file: Optional[Path] = None) -> Link:
         """
@@ -111,20 +145,24 @@ class ExternalLinkIntegrator:
             >>> print(link.target)
             https://docs.ansible.com/ansible/2.15/collections/ansible/builtin/copy_module.html
         """
-        # Parse FQCN: namespace.collection.module_name
-        parts = module_fqcn.split(".")
-        
-        if len(parts) < 3:
-            # Invalid FQCN - use legacy format
-            module_name = module_fqcn
-            url = f"{self.ansible_docs_base}/ansible/{self.ansible_version}/modules/{module_name}_module.html"
+        # Check for custom override URL first
+        if module_fqcn in self.module_docs_override:
+            url = self.module_docs_override[module_fqcn]
         else:
-            namespace = parts[0]
-            collection = parts[1]
-            module_name = ".".join(parts[2:])
+            # Parse FQCN: namespace.collection.module_name
+            parts = module_fqcn.split(".")
             
-            # Modern collection-based URL
-            url = f"{self.ansible_docs_base}/ansible/{self.ansible_version}/collections/{namespace}/{collection}/{module_name}_module.html"
+            if len(parts) < 3:
+                # Invalid FQCN - use legacy format
+                module_name = module_fqcn
+                url = f"{self.ansible_docs_base}/ansible/{self.ansible_version}/modules/{module_name}_module.html"
+            else:
+                namespace = parts[0]
+                collection = parts[1]
+                module_name = ".".join(parts[2:])
+                
+                # Modern collection-based URL
+                url = f"{self.ansible_docs_base}/ansible/{self.ansible_version}/collections/{namespace}/{collection}/{module_name}_module.html"
         
         # Use provided source_file or fallback to absolute dummy path
         if source_file is None:
@@ -151,6 +189,10 @@ class ExternalLinkIntegrator:
         Returns:
             List of module documentation links
         """
+        # Check if module documentation linking is enabled
+        if not self.enable_module_docs:
+            return []
+        
         links: List[Link] = []
         modules_seen: set[str] = set()
         
@@ -186,7 +228,7 @@ class ExternalLinkIntegrator:
                 
         return links
 
-    def generate_galaxy_link(self, collection: AnsibleCollection) -> Link:
+    def generate_galaxy_link(self, collection: AnsibleCollection) -> Optional[Link]:
         """
         Generate Ansible Galaxy link for a collection.
         
@@ -194,7 +236,7 @@ class ExternalLinkIntegrator:
             collection: AnsibleCollection instance
             
         Returns:
-            Link to Galaxy collection page
+            Link to Galaxy collection page, or None if Galaxy links are disabled
             
         Example:
             >>> from ansibledoctor.models.galaxy import GalaxyMetadata
@@ -206,6 +248,10 @@ class ExternalLinkIntegrator:
             >>> print(link.target)
             https://galaxy.ansible.com/ui/repo/published/community/general/
         """
+        # Check if Galaxy linking is enabled
+        if not self.enable_galaxy_links:
+            return None
+        
         namespace = collection.metadata.namespace
         name = collection.metadata.name
         url = f"{self.galaxy_base}/ui/repo/published/{namespace}/{name}/"
@@ -224,7 +270,7 @@ class ExternalLinkIntegrator:
             line_number=1,
         )
 
-    def generate_role_galaxy_link(self, role_dir: Path) -> Link:
+    def generate_role_galaxy_link(self, role_dir: Path) -> Optional[Link]:
         """
         Generate Ansible Galaxy link for a role.
         
@@ -234,8 +280,12 @@ class ExternalLinkIntegrator:
             role_dir: Path to role directory
             
         Returns:
-            Link to Galaxy role page
+            Link to Galaxy role page, or None if Galaxy links are disabled
         """
+        # Check if Galaxy linking is enabled
+        if not self.enable_galaxy_links:
+            return None
+        
         meta_file = role_dir / "meta" / "main.yml"
         
         if not meta_file.exists():
@@ -290,13 +340,16 @@ class ExternalLinkIntegrator:
             >>> links = integrator.extract_best_practice_links(content)
             >>> assert any("vault" in link.target for link in links)
         """
+        if not self.enable_best_practices:
+            return []
+            
         links: List[Link] = []
         content_lower = content.lower()
         
         if source_file is None:
             source_file = Path.cwd() / "best_practices.md"
         
-        for keyword, url in BEST_PRACTICES_KEYWORDS.items():
+        for keyword, url in self.best_practices_keywords.items():
             if keyword in content_lower:
                 link = Link(
                     source_file=source_file.resolve(),
@@ -313,7 +366,7 @@ class ExternalLinkIntegrator:
         """
         Render link as HTML with appropriate attributes.
         
-        External links get target="_blank" and security attributes.
+        External links get target="_blank" and security attributes (if enabled).
         Internal links stay in the same tab.
         
         Args:
@@ -334,11 +387,11 @@ class ExternalLinkIntegrator:
             >>> assert 'target="_blank"' in html
             >>> assert 'rel="noopener noreferrer"' in html
         """
-        if link.link_type == LinkType.EXTERNAL_URL:
-            # External links open in new tab with security attributes
+        if link.link_type == LinkType.EXTERNAL_URL and self.new_tab_external:
+            # External links open in new tab with security attributes (if enabled)
             return f'<a href="{link.target}" target="_blank" rel="noopener noreferrer">{link.text}</a>'
         else:
-            # Internal links stay in same tab
+            # Internal links or external links without new tab feature stay in same tab
             return f'<a href="{link.target}">{link.text}</a>'
 
     def integrate_links(self, content: str, context: Dict[str, Any]) -> str:

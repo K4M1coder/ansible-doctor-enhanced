@@ -163,11 +163,7 @@
 - [X] T065 [US4] Implement best practices guide linking in ExternalLinkIntegrator (detect keywords, link to relevant guides) ✅ Complete: extract_best_practice_links() with 8 keyword mappings
 - [X] T066 [US4] Add version-specific URL generation in ExternalLinkIntegrator (use Ansible version from config) ✅ Complete: ansible_version parameter with from_config()
 - [X] T067 [US4] Configure external link targets in HTML templates (add target="_blank" rel="noopener noreferrer") ✅ Complete: render_link_html() with security attributes
-- [ ] T068 [US4] Create external resource configuration in .ansibledoctor.yml (configurable external link mappings)
-- [ ] T065 [US4] Implement best practices guide linking in ExternalLinkIntegrator (detect keywords, link to relevant guides)
-- [ ] T066 [US4] Add version-specific URL generation in ExternalLinkIntegrator (use Ansible version from config)
-- [ ] T067 [US4] Configure external link targets in HTML templates (add target="_blank" rel="noopener noreferrer")
-- [ ] T068 [US4] Create external resource configuration in .ansibledoctor.yml (configurable external link mappings)
+- [X] T068 [US4] Create external resource configuration in .ansibledoctor.yml (configurable external link mappings) ✅ Complete: Full configuration support with feature flags, custom URL overrides, 14 passing tests
 
 ---
 

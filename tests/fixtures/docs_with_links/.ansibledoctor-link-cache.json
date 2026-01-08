@@ -1,0 +1,66 @@
+{
+  "https://this-domain-does-not-exist-12345.com/": {
+    "url": "https://this-domain-does-not-exist-12345.com/",
+    "is_valid": false,
+    "status": "timeout",
+    "error_message": "Connection failed: https://this-domain-does-not-exist-12345.com/",
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\broken_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://httpstat.us/404": {
+    "url": "https://httpstat.us/404",
+    "is_valid": false,
+    "status": "timeout",
+    "error_message": "Connection failed: https://httpstat.us/404",
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\broken_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://httpstat.us/200?sleep=30000": {
+    "url": "https://httpstat.us/200?sleep=30000",
+    "is_valid": false,
+    "status": "timeout",
+    "error_message": "Connection failed: https://httpstat.us/200?sleep=30000",
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\broken_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://example.com/space in url": {
+    "url": "https://example.com/space in url",
+    "is_valid": false,
+    "status": "broken",
+    "error_message": "HTTP 404: https://example.com/space in url",
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\broken_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://docs.ansible.com/": {
+    "url": "https://docs.ansible.com/",
+    "is_valid": true,
+    "status": "valid",
+    "error_message": null,
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\valid_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://galaxy.ansible.com/": {
+    "url": "https://galaxy.ansible.com/",
+    "is_valid": true,
+    "status": "valid",
+    "error_message": null,
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\valid_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://github.com/": {
+    "url": "https://github.com/",
+    "is_valid": true,
+    "status": "valid",
+    "error_message": null,
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\valid_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  },
+  "https://example.com/": {
+    "url": "https://example.com/",
+    "is_valid": true,
+    "status": "valid",
+    "error_message": null,
+    "source_file": "E:\\specify-projects\\ansible-doctor-enhanced\\tests\\fixtures\\docs_with_links\\valid_links.md",
+    "checked_at": "2026-01-08T02:12:22.811529"
+  }
+}

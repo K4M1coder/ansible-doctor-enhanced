@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (58/90 tasks - 64%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (65/90 tasks - 72%)
 
-**Current Phase**: Phase 6 - US4 Access External Resources (54% complete - 7/13 tasks done)  
-**Status**: ExternalLinkIntegrator core implementation complete, all 13 US4 tests passing
+**Current Phase**: Phase 6 - US4 Access External Resources (100% complete - 13/13 tasks done) ✅ | Next: Phase 7 - US5 Index Navigation  
+**Status**: All Phase 6 tasks complete, 27 US4 tests passing (13 integration + 14 configuration)
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -97,8 +97,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cache integration: Saves cache after validation
   - Logging: Correlation ID tracking for tracing
 - 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
+**Phase 6: US4 External Resources ✅ 100% COMPLETE (T057-T068, 13/13 tasks done)**
 
-**Phase 5: US3 Section Navigation 🚧 67% COMPLETE (T045-T052, 8/12 tasks done)**
+#### Tests (T057-T061) - ✅ All Complete
+- ✅ Test suite for module documentation linking (T057)
+  - 3 integration tests: ansible.builtin, community.general modules, multiple modules
+  - Test coverage: FQCN parsing, namespace-based URLs, batch generation
+- ✅ Test suite for Galaxy page linking (T058)
+  - 2 integration tests: collections and roles with meta/main.yml parsing
+  - Test coverage: galaxy.ansible.com URLs, namespace detection
+- ✅ Test suite for best practices linking (T059)
+  - 3 integration tests: security, testing, multiple keywords
+  - Test coverage: keyword detection, official guide URLs
+- ✅ Test suite for new tab behavior (T060)
+  - 2 integration tests: external vs internal link targeting
+  - Test coverage: target="_blank", rel="noopener noreferrer" security attributes
+- ✅ Test suite for version-specific links (T061)
+  - 3 integration tests: Ansible 2.15, latest, config file loading
+  - Test coverage: /ansible/{version}/ path construction
+
+#### ExternalLinkIntegrator Implementation (T062-T068) - ✅ Complete
+- ✅ ExternalLinkIntegrator class implementation (T062-T067)
+  - ansibledoctor/links/external_link_integrator.py (433+ lines, 52% coverage)
+  - integrate_links() method: Main entry point for external resource linking
+  - Module documentation linking (T063):
+    - extract_module_links(): Parse YAML tasks, extract module FQCNs
+    - generate_module_doc_link(): docs.ansible.com URL generation
+    - Support for ansible.builtin and community collections
+  - Galaxy linking (T064):
+    - generate_galaxy_link(): Collection Galaxy URLs
+    - generate_role_galaxy_link(): Role Galaxy URLs with meta/main.yml parsing
+    - Support for both collections and standalone roles
+  - Best practices linking (T065):
+    - extract_best_practice_links(): Keyword detection in content
+    - 8 default keyword mappings (security, vault, secrets, molecule, testing, handlers, idempotency, variables)
+    - Links to official Ansible best practice guides
+  - Version-specific URLs (T066):
+    - ansible_version parameter (default: "latest")
+    - from_config() classmethod: Load version from .ansibledoctor.yml
+    - Dynamic URL path construction: /ansible/{version}/
+  - HTML rendering (T067):
+    - render_link_html(): Generate <a> tags with proper attributes
+    - External links: target="_blank" rel="noopener noreferrer"
+    - Internal links: Same-tab navigation
+- ✅ Configuration support (T068)
+  - docs/examples/.ansibledoctor.yml.external-links: Comprehensive example configuration
+  - Full configuration loading in from_config():
+    - ansible_version: Ansible version for documentation URLs
+    - external_links.ansible_docs_base: Custom docs base URL
+    - external_links.galaxy_base: Custom Galaxy base URL
+    - external_links.module_docs: Dict of FQCN → custom URL overrides
+    - external_links.best_practices: Dict of custom keyword → URL mappings
+    - external_links.features: Enable/disable flags
+      - module_docs: Enable/disable module documentation linking
+      - galaxy_links: Enable/disable Galaxy linking
+      - best_practices: Enable/disable best practices linking
+      - new_tab: Enable/disable target="_blank" for external links
+      - version_specific: Enable/disable version-specific URLs
+    - external_links.validation: Link validation settings (timeout, retries, cache_ttl)
+    - output.html: HTML-specific settings (external_icon, nofollow)
+    - links: Auto-generation settings (auto_cross_reference, auto_external_links, table_of_contents)
+  - Feature flag implementation:
+    - extract_module_links() checks self.enable_module_docs
+    - extract_best_practice_links() checks self.enable_best_practices
+    - generate_galaxy_link() checks self.enable_galaxy_links, returns None if disabled
+    - generate_role_galaxy_link() checks self.enable_galaxy_links, returns None if disabled
+    - render_link_html() checks self.new_tab_external
+  - Custom overrides:
+    - generate_module_doc_link() checks self.module_docs_override first
+    - extract_best_practice_links() uses self.best_practices_keywords (merged with defaults)
+  - tests/unit/test_external_link_config.py: 14 configuration tests
+    - TestConfigurationLoading: 6 tests for loading config from YAML
+    - TestFeatureFlagBehavior: 4 tests for feature enable/disable
+    - TestCustomOverrides: 4 tests for custom URL mappings
+    - All 14 tests passing ✅
+- **All US4 tests complete**: 27 total tests (13 integration + 14 configuration)
+- **Next**: Phase 7 - US5 Index-Based Navigation (11 tasks)
+
+
 
 #### Tests (T045-T049) - ✅ All Complete
 - ✅ Test suite for table of contents generation (T045)
