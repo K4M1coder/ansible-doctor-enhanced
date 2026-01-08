@@ -103,7 +103,7 @@
 - [X] T039 [US2] Add validation result formatting in LinkValidator (convert to ValidationError models from Spec 012) ✅ ValidationResult class complete
 - [X] T040 [US2] Create CLI command structure at ansibledoctor/cli/linkcheck.py with linkcheck, linkfix, linkreport commands ✅ Structure complete (185 lines)
 - [X] T041 [US2] Add `ansible-doctor linkcheck` CLI command in ansibledoctor/cli/linkcheck.py (validate all links in documentation) ✅ Complete with text/json/summary formats
-- [ ] T042 [US2] Implement link validation report generation in LinkValidator (group errors by file, severity)
+- [X] T042 [US2] Implement link validation report generation in LinkValidator (group errors by file, severity) ✅ Complete with markdown/html/text/json formats, grouping options
 - [ ] T043 [US2] Add link validation caching in LinkValidator (cache external link results to avoid re-checking)
 - [ ] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/__init__.py (optional --validate-links flag)
 
@@ -257,6 +257,8 @@ Task: "Write test for browser navigation in tests/integration/test_link_generati
 ---
 
 ## Implementation Strategy
+
+TDD
 
 ### MVP First (User Stories 1 + 2 Only)
 
