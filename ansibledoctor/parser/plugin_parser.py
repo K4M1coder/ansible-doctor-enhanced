@@ -82,10 +82,12 @@ class PluginParser:
 
     def _extract_string_value(self, node: ast.AST) -> Optional[str]:
         """Extract string value from an AST node."""
-        if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            return node.value
+        if isinstance(node, ast.Constant):
+            if isinstance(node.value, str):
+                value: str = node.value
+                return value
         elif isinstance(node, ast.Str):  # Legacy Python < 3.8
-            return node.s
+            return node.s  # type: ignore[return-value]  # ast.Str.s is str but mypy doesn't know
         return None
 
     def _parse_yaml(
@@ -93,7 +95,9 @@ class PluginParser:
     ) -> Optional[Dict[str, Any]]:
         """Parse YAML string with error handling."""
         try:
-            return yaml.safe_load(yaml_str)
+            result = yaml.safe_load(yaml_str)
+            # Ensure we return a dictionary or None
+            return result if isinstance(result, dict) else None
         except yaml.YAMLError as e:
             logger.warning(f"Failed to parse {block_type} YAML in plugin {plugin_name}: {e}")
             return None

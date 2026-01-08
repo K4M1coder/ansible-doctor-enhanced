@@ -118,7 +118,7 @@ class CollectionParser:
                             name=file_path.stem,
                             path=str(file_path.absolute()),
                             description=description,
-                            tags=sorted(list(tags)),
+                            tags=sorted(tags),
                         )
                     )
         return sorted(playbooks, key=lambda p: p.name)

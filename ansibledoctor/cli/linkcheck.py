@@ -414,8 +414,8 @@ def _generate_markdown_report(
     # Build report
     report = f"""# Link Validation Report
 
-**Generated**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
-**Base Path**: `{base_path}`  
+**Generated**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+**Base Path**: `{base_path}`
 
 ## Summary
 
@@ -601,7 +601,7 @@ def _generate_html_report(results: list[ValidationResult], group_by: str, base_p
             <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
             <p><strong>Base Path:</strong> <code>{base_path}</code></p>
         </div>
-        
+
         <h2>📊 Summary</h2>
         <table>
             <tr>

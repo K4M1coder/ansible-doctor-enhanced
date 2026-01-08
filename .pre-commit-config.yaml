@@ -19,7 +19,7 @@ repos:
         language: python
         additional_dependencies: ["pyyaml>=6.0"]
         files: '\.ya?ml$'
-        exclude: 'tests/fixtures/'
+        exclude: 'tests/fixtures/|specs/.*/contracts/.*\.yaml$'
 
       - id: black
         name: Format Python code with Black
