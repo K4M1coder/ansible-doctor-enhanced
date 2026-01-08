@@ -73,7 +73,7 @@
 - [X] T025 [US1] Implement link resolution in LinkManager (resolve relative paths to absolute, handle anchors) ✅ Core logic complete, unit tests pass
 - [X] T026 [US1] Integrate link generation into document generation in ansibledoctor/generator/__init__.py (call CrossReferenceGenerator) ✅ Integrated in CLI
 - [X] T027 [US1] Add cross-reference sections to templates (update role/collection templates with "Depends On", "See Also" sections) ✅ Added to markdown/role.j2
-- [ ] T028 [US1] Implement bidirectional relationships in ansibledoctor/models/cross_reference.py (extend Spec 011 CrossReference model)
+- [X] T028 [US1] Implement bidirectional relationships in ansibledoctor/models/cross_reference.py (extend Spec 011 CrossReference model) ✅ Complete (218 lines)
 - [X] T029 [US1] Add link formatting for different output formats in LinkManager (Markdown: [text](url), HTML: <a href="url">text</a>) ✅ Unit tests pass (Markdown, HTML, RST)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -88,21 +88,21 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T030 [P] [US2] Write test for broken internal link detection in tests/integration/test_link_validation_e2e.py (error with file and line number)
-- [ ] T031 [P] [US2] Write test for missing role documentation in tests/integration/test_link_validation_e2e.py (warning shows "Target role not found")
-- [ ] T032 [P] [US2] Write test for invalid section anchor in tests/integration/test_link_validation_e2e.py (error shows "Anchor not found")
-- [ ] T033 [P] [US2] Write test for external 404 link in tests/integration/test_external_links.py (warning reports dead link with HTTP status)
-- [ ] T034 [P] [US2] Write test for valid links in tests/integration/test_link_validation_e2e.py (success message)
+- [X] T030 [P] [US2] Write test for broken internal link detection in tests/integration/test_link_validation_e2e.py (error with file and line number) ✅ 8 tests passing
+- [X] T031 [P] [US2] Write test for missing role documentation in tests/integration/test_link_validation_e2e.py (warning shows "Target role not found") ✅ 8 tests passing
+- [X] T032 [P] [US2] Write test for invalid section anchor in tests/integration/test_link_validation_e2e.py (error shows "Anchor not found") ✅ 8 tests passing
+- [X] T033 [P] [US2] Write test for external 404 link in tests/integration/test_external_links.py (warning reports dead link with HTTP status) ✅ 8 tests passing
+- [X] T034 [P] [US2] Write test for valid links in tests/integration/test_link_validation_e2e.py (success message) ✅ 8 tests passing
 
 ### Implementation for User Story 2
 
-- [ ] T035 [US2] Create LinkValidator class in ansibledoctor/links/link_validator.py with validate() method
-- [ ] T036 [US2] Implement internal file link validation in LinkValidator (check file existence)
-- [ ] T037 [US2] Implement anchor validation in LinkValidator (parse target file, extract anchors, verify existence)
-- [ ] T038 [US2] Implement external link validation in LinkValidator (HTTP HEAD requests with timeout/retry)
-- [ ] T039 [US2] Add validation result formatting in LinkValidator (convert to ValidationError models from Spec 012)
-- [ ] T040 [US2] Create CLI command structure at ansibledoctor/cli/linkcheck.py with linkcheck, linkfix, linkreport commands
-- [ ] T041 [US2] Add `ansible-doctor linkcheck` CLI command in ansibledoctor/cli/linkcheck.py (validate all links in documentation)
+- [X] T035 [US2] Create LinkValidator class in ansibledoctor/links/link_validator.py with validate() method ✅ Complete (379 lines, 64% coverage)
+- [X] T036 [US2] Implement internal file link validation in LinkValidator (check file existence) ✅ Working with tests
+- [X] T037 [US2] Implement anchor validation in LinkValidator (parse target file, extract anchors, verify existence) ✅ Working with tests
+- [X] T038 [US2] Implement external link validation in LinkValidator (HTTP HEAD requests with timeout/retry) ✅ Working with tests
+- [X] T039 [US2] Add validation result formatting in LinkValidator (convert to ValidationError models from Spec 012) ✅ ValidationResult class complete
+- [X] T040 [US2] Create CLI command structure at ansibledoctor/cli/linkcheck.py with linkcheck, linkfix, linkreport commands ✅ Structure complete (185 lines)
+- [X] T041 [US2] Add `ansible-doctor linkcheck` CLI command in ansibledoctor/cli/linkcheck.py (validate all links in documentation) ✅ Complete with text/json/summary formats
 - [ ] T042 [US2] Implement link validation report generation in LinkValidator (group errors by file, severity)
 - [ ] T043 [US2] Add link validation caching in LinkValidator (cache external link results to avoid re-checking)
 - [ ] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/__init__.py (optional --validate-links flag)

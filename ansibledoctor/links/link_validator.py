@@ -379,6 +379,6 @@ class LinkValidator:
         return ValidationResult(
             link=link,
             is_valid=False,
-            status=LinkStatus.WARNING,  # WARNING for network issues vs BROKEN for 404
+            status=LinkStatus.TIMEOUT,  # TIMEOUT for network issues vs BROKEN for 404
             error_message=last_error or f"Failed to validate: {url}",
         )

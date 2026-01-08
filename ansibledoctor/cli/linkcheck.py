@@ -19,14 +19,16 @@ Phase: 4 (User Story 2 - Detect Broken Links)
 Tasks: T040-T044
 """
 
+import json
 import sys
 from pathlib import Path
 from typing import Any
 
 import click
 
-from ansibledoctor.links.link_validator import LinkValidator
+from ansibledoctor.links.link_validator import LinkValidator, ValidationResult
 from ansibledoctor.models.link import LinkStatus
+from ansibledoctor.utils.link_parser import LinkParser
 from ansibledoctor.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -79,21 +81,168 @@ def linkcheck(
         ansible-doctor link check ./docs --no-external
         ansible-doctor link check ./docs --format json
     """
-    click.echo(f"🔍 Validating links in: {path}")
+    # Only show progress messages for non-JSON formats
+    show_progress = format != "json"
     
-    # TODO T041: Implementation
-    # 1. Scan directory for Markdown/RST/HTML files
-    # 2. Parse links from each file
-    # 3. Validate each link with LinkValidator
-    # 4. Collect results and generate report
-    # 5. Output in requested format
-    # 6. Exit with appropriate code
+    if show_progress:
+        click.echo(f"🔍 Validating links in: {path}")
     
-    click.echo("⚠️  Link validation not yet implemented")
-    click.echo("📋 This will validate all links and report broken ones")
+    # T041: Full implementation
+    # Step 1: Scan directory for documentation files
+    parser = LinkParser()
+    if show_progress:
+        click.echo("📂 Scanning documentation files...")
     
-    if exit_code:
+    try:
+        all_links = parser.parse_directory(path)
+    except Exception as e:
+        if show_progress:
+            click.echo(f"❌ Error scanning directory: {e}", err=True)
+        if exit_code:
+            sys.exit(1)
+        return
+    
+    if not all_links:
+        if show_progress:
+            click.echo("⚠️  No links found in documentation")
+        return
+    
+    if show_progress:
+        click.echo(f"🔗 Found {len(all_links)} links to validate")
+    
+    # Step 2: Initialize validator
+    validator = LinkValidator(base_path=path, timeout=timeout, enable_cache=True)
+    
+    # Step 3: Validate each link
+    results: list[ValidationResult] = []
+    broken_count = 0
+    warning_count = 0
+    valid_count = 0
+    
+    for i, link in enumerate(all_links, start=1):
+        # Skip external links if disabled
+        if not external and link.link_type.name.startswith("EXTERNAL"):
+            continue
+        
+        # Validate link
+        result = validator.validate(link)
+        results.append(result)
+        
+        # Count by status
+        if result.status == LinkStatus.BROKEN:
+            broken_count += 1
+        elif result.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT):
+            warning_count += 1
+        elif result.status == LinkStatus.VALID:
+            valid_count += 1
+        
+        # Show progress for large doc sets
+        if show_progress and i % 100 == 0:
+            click.echo(f"⏳ Progress: {i}/{len(all_links)} links validated...")
+    
+    # Step 4: Format and output results
+    if format == "json":
+        _output_json_format(results)
+    elif format == "summary":
+        _output_summary_format(results, broken_count, warning_count, valid_count)
+    else:  # text
+        _output_text_format(results, broken_count, warning_count, valid_count)
+    
+    # Step 5: Exit with appropriate code
+    if exit_code and broken_count > 0:
         sys.exit(1)
+
+
+def _output_text_format(
+    results: list[ValidationResult],
+    broken_count: int,
+    warning_count: int,
+    valid_count: int,
+) -> None:
+    """Output validation results in text format."""
+    click.echo("\n" + "=" * 60)
+    click.echo("📊 Link Validation Results")
+    click.echo("=" * 60)
+    
+    # Show broken links
+    if broken_count > 0:
+        click.echo(f"\n❌ Broken Links ({broken_count}):")
+        for result in results:
+            if result.status == LinkStatus.BROKEN:
+                click.echo(
+                    f"  • {result.source_file}:{result.line_number or '?'}\n"
+                    f"    Target: {result.link.target}\n"
+                    f"    Error: {result.error_message}"
+                )
+    
+    # Show warnings
+    if warning_count > 0:
+        click.echo(f"\n⚠️  Warnings ({warning_count}):")
+        for result in results:
+            if result.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT):
+                click.echo(
+                    f"  • {result.source_file}:{result.line_number or '?'}\n"
+                    f"    Target: {result.link.target}\n"
+                    f"    Warning: {result.error_message}"
+                )
+    
+    # Summary
+    click.echo("\n" + "=" * 60)
+    click.echo(f"✅ Valid:   {valid_count}")
+    click.echo(f"⚠️  Warning: {warning_count}")
+    click.echo(f"❌ Broken:  {broken_count}")
+    click.echo(f"📊 Total:   {len(results)}")
+    click.echo("=" * 60)
+    
+    if broken_count == 0 and warning_count == 0:
+        click.echo("\n🎉 All links are valid!")
+
+
+def _output_summary_format(
+    results: list[ValidationResult],
+    broken_count: int,
+    warning_count: int,
+    valid_count: int,
+) -> None:
+    """Output validation results in summary format."""
+    click.echo("\n📊 Summary:")
+    click.echo(f"  Valid:   {valid_count}")
+    click.echo(f"  Warning: {warning_count}")
+    click.echo(f"  Broken:  {broken_count}")
+    click.echo(f"  Total:   {len(results)}")
+    
+    if broken_count > 0:
+        click.echo(f"\n❌ {broken_count} broken link(s) found")
+    elif warning_count > 0:
+        click.echo(f"\n⚠️  {warning_count} warning(s) found")
+    else:
+        click.echo("\n✅ All links valid!")
+
+
+def _output_json_format(results: list[ValidationResult]) -> None:
+    """Output validation results in JSON format."""
+    output = {
+        "links": [
+            {
+                "source_file": str(r.source_file),
+                "line_number": r.line_number,
+                "target": r.link.target,
+                "link_type": r.link.link_type.name,
+                "status": r.status.name,
+                "is_valid": r.is_valid,
+                "error_message": r.error_message,
+                "resolved_path": str(r.resolved_path) if r.resolved_path else None,
+            }
+            for r in results
+        ],
+        "summary": {
+            "total": len(results),
+            "valid": sum(1 for r in results if r.status == LinkStatus.VALID),
+            "warning": sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)),
+            "broken": sum(1 for r in results if r.status == LinkStatus.BROKEN),
+        },
+    }
+    click.echo(json.dumps(output, indent=2))
 
 
 @link_commands.command(name="fix")

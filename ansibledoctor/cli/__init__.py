@@ -20,6 +20,7 @@ from ansibledoctor import __version__
 
 # Import collection command group
 from ansibledoctor.cli.collection import collection
+from ansibledoctor.cli.linkcheck import link_commands
 from ansibledoctor.cli.project import project
 from ansibledoctor.cli.schema import schema
 from ansibledoctor.config.loader import find_config_file, load_config, merge_config
@@ -2090,6 +2091,7 @@ def watch(role_path: str, format: str, output: str | None):
 cli.add_command(collection)
 cli.add_command(project)
 cli.add_command(schema)
+cli.add_command(link_commands)
 
 
 def _generate_execution_report(

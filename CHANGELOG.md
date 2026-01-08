@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (27/90 tasks - 30%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (41/90 tasks - 46%)
 
-**Current Phase**: Phase 3 - US1 Navigate Between Docs (91% complete - 10/11 tasks done)  
-**Status**: Core cross-reference generation complete and integrated into document pipeline
+**Current Phase**: Phase 4 - US2 Detect Broken Links (73% complete - 11/15 tasks done)  
+**Status**: Link validation complete, CLI command implemented
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test coverage: dependency links, parent collection links, project context, related roles, browser navigation
 - Tests written in TDD Red phase (failing as expected until implementation complete)
 
-**Phase 3B: US1 Implementation ✅ 91% COMPLETE (T019-T029, 10/11 tasks done)**
+**Phase 3B: US1 Implementation ✅ 100% COMPLETE (T019-T029)**
 - ✅ CrossReferenceGenerator class (303 lines, 74% coverage)
   - generate_references() for roles and collections
   - Dependency link generation (T020)
@@ -48,6 +48,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - resolve_link() for absolute/relative paths (T025)
   - extract_anchor() for section links
   - format_link() supporting Markdown, HTML, RST (T029)
+- ✅ CrossReference model (218 lines)
+  - Bidirectional link tracking (T028)
+  - Inverse relationship creation
+  - Integration with Spec 011 indexes
+- ✅ CLI and template integration (T026-T027)
+  - Integrated into document generation pipeline
+  - Added "Related Documentation" sections to role templates
+
+**Phase 4: US2 Broken Link Detection 🚧 73% COMPLETE (T030-T041, 11/15 tasks done)**
+- ✅ Test suite for link validation (T030-T034)
+  - 16 integration tests (8 internal + 8 external validation)
+  - Broken internal links, missing roles, invalid anchors
+  - External 404 detection, timeouts, connection errors
+  - All 16 tests passing (100%)
+- ✅ LinkValidator class (379 lines, 64% coverage) (T035-T039)
+  - validate() with type-based routing
+  - _validate_internal_file() for file existence
+  - _validate_section_anchor() with Markdown header parsing
+  - _validate_external() with HTTP HEAD and retry/backoff
+  - ValidationResult class for structured output
+- ✅ CLI linkcheck command (T040-T041)
+  - `ansible-doctor link check <path>` validates all links
+  - Scans Markdown, HTML, RST files recursively
+  - Three output formats: text (detailed), json (structured), summary (concise)
+  - `--external/--no-external` flag for external link validation
+  - `--timeout` for HTTP request timeout control
+  - `--exit-code` for CI/CD integration (non-zero if broken links)
+  - Proper exit codes for automation
+- 🔄 **REMAINING**: T042-T044 (report generation, caching, workflow integration)
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality
