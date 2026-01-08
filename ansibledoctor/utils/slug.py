@@ -23,6 +23,26 @@ def _slugify(s: str, allow_underscore: bool = False) -> str:
     return s.strip("-")
 
 
+def slugify(text: str) -> str:
+    """Convert text to URL-safe slug for anchor links.
+
+    Used for generating heading anchors in documentation.
+    
+    Args:
+        text: Text to slugify (e.g., heading text)
+    
+    Returns:
+        URL-safe slug (lowercase, hyphens, no special chars)
+    
+    Example:
+        >>> slugify("My Heading Text")
+        'my-heading-text'
+        >>> slugify("Special!@# Characters")
+        'special-characters'
+    """
+    return _slugify(text, allow_underscore=False)
+
+
 def collection_slug(namespace: str, name: str) -> str:
     """Return slug for a collection with prefix 'collection_' and dot separator between namespace and name.
 

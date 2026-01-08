@@ -129,9 +129,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T050 [US3] Create NavigationBuilder class in ansibledoctor/links/navigation_builder.py with build_toc() method
-- [ ] T051 [US3] Implement table of contents generation in NavigationBuilder (parse headings, generate anchor links)
-- [ ] T052 [US3] Implement anchor slug generation in NavigationBuilder (convert heading text to URL-safe anchors)
+- [X] T050 [US3] Create NavigationBuilder class in ansibledoctor/links/navigation_builder.py with build_toc() method ✅ Complete: Created NavigationBuilder with full TOC generation support
+- [X] T051 [US3] Implement table of contents generation in NavigationBuilder (parse headings, generate anchor links) ✅ Complete: Supports Markdown & HTML formats, max_depth, mobile-friendly
+- [X] T052 [US3] Implement anchor slug generation in NavigationBuilder (convert heading text to URL-safe anchors) ✅ Complete: Added slugify() utility, handles duplicates & special chars
 - [ ] T053 [US3] Add TOC insertion to templates (inject TOC after title in long documents)
 - [ ] T054 [US3] Implement nested section handling in NavigationBuilder (hierarchical TOC for h2, h3, h4)
 - [ ] T055 [US3] Add smooth scrolling support in HTML output (CSS/JavaScript for smooth scroll to anchor)

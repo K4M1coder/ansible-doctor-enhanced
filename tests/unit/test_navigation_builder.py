@@ -334,14 +334,14 @@ class TestNestedSubsections:
             # Count nesting depth
             max_depth = 0
             current_depth = 0
-            for char in toc:
-                if char == "<":
-                    next_chars = toc[toc.index(char):toc.index(char) + 4]
-                    if next_chars.startswith("<ul>") or next_chars.startswith("<ol>"):
-                        current_depth += 1
-                        max_depth = max(max_depth, current_depth)
-                    elif next_chars.startswith("</ul") or next_chars.startswith("</ol"):
-                        current_depth -= 1
+            i = 0
+            while i < len(toc):
+                if toc[i:i+4] == "<ul>" or toc[i:i+4] == "<ol>":
+                    current_depth += 1
+                    max_depth = max(max_depth, current_depth)
+                elif toc[i:i+5] == "</ul>" or toc[i:i+5] == "</ol>":
+                    current_depth -= 1
+                i += 1
             
             assert max_depth >= 2  # At least 2 levels of nesting
 

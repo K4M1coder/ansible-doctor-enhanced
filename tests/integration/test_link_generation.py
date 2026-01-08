@@ -14,6 +14,7 @@ from ansibledoctor.links.cross_reference_generator import CrossReferenceGenerato
 from ansibledoctor.links.link_manager import LinkManager
 from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.models.collection import AnsibleCollection
+from ansibledoctor.models.link import LinkType
 
 
 class TestDependencyLinks:
@@ -967,9 +968,9 @@ See [Overview](../README.md#overview) for intro.
         
         # Create link with anchor
         link = manager.create_link(
-            text="Page 2 Section B",
+            source=doc1,
             target="page2.md#section-b",
-            source_file=doc1,
+            text="Page 2 Section B",
         )
         
         # Verify anchor is preserved
