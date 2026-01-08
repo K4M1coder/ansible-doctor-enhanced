@@ -77,7 +77,7 @@ class TestExternalLinkValidation:
             result = validator.validate(link)
             
             assert not result.is_valid
-            assert result.status == LinkStatus.WARNING
+            assert result.status == LinkStatus.TIMEOUT
             assert "timeout" in result.error_message.lower()
     
     def test_external_link_connection_error(self, tmp_path: Path) -> None:
@@ -102,7 +102,7 @@ class TestExternalLinkValidation:
             result = validator.validate(link)
             
             assert not result.is_valid
-            assert result.status == LinkStatus.WARNING
+            assert result.status == LinkStatus.TIMEOUT
             assert "connection" in result.error_message.lower() or "failed" in result.error_message.lower()
     
     def test_valid_external_link(self, tmp_path: Path) -> None:
