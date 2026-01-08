@@ -194,21 +194,21 @@
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns (11 tasks, ~7 hours)
+## Phase 8: Polish & Cross-Cutting Concerns (11 tasks, ~7 hours) ✅ Core Complete (6/11 done, 4 deferred, 1 optional)
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T080 [P] Update CHANGELOG.md with Spec 013 feature summary (link management, validation, cross-references)
-- [ ] T081 [P] Create user guide docs/LINKS_GUIDE.md (usage examples for link validation, cross-references)
-- [ ] T082 [P] Update README.md with link feature showcase (broken link detection, navigation)
-- [ ] T083 [P] Add quickstart examples to docs/ (linkcheck usage, cross-reference generation)
-- [ ] T084 Create LinkHealthMonitor class in ansibledoctor/links/link_health_monitor.py (periodic link health monitoring)
-- [ ] T085 Write tests for link health monitoring in tests/unit/test_link_health_monitor.py (report generation, scheduling)
-- [ ] T086 Add `ansible-doctor linkreport` CLI command in ansibledoctor/cli/linkcheck.py (generate link health report)
-- [ ] T087 [P] Add `ansible-doctor linkfix` CLI command in ansibledoctor/cli/linkcheck.py (attempt to fix broken links with suggestions)
-- [ ] T088 Write comprehensive integration test in tests/integration/test_link_validation_e2e.py (end-to-end with all features)
-- [ ] T089 Performance test large doc sets in tests/integration/test_link_performance.py (5000+ files < 30s validation)
-- [ ] T090 Run quickstart.md validation (ensure all examples work correctly)
+- [X] T080 [P] Update CHANGELOG.md with Spec 013 feature summary (link management, validation, cross-references) ✅ Complete: Added Phase 7 details, updated progress to 77/90 (86%), commit 8815062
+- [X] T081 [P] Create user guide docs/LINKS_GUIDE.md (usage examples for link validation, cross-references) ✅ Complete: Comprehensive 500-line guide with API examples, CLI usage, troubleshooting, commit 8815062
+- [X] T082 [P] Update README.md with link feature showcase (broken link detection, navigation) ✅ Complete: Added 150-line section with features, examples, CI/CD integration, commit 8815062
+- [X] T083 [P] Add quickstart examples to docs/ (linkcheck usage, cross-reference generation) ✅ Complete: Examples integrated in LINKS_GUIDE.md (link validation, cross-refs, indexes), commit 8815062
+- [ ] T084 Create LinkHealthMonitor class in ansibledoctor/links/link_health_monitor.py (periodic link health monitoring) ⏸️ DEFERRED: Advanced feature, not blocking MVP
+- [ ] T085 Write tests for link health monitoring in tests/unit/test_link_health_monitor.py (report generation, scheduling) ⏸️ DEFERRED: Depends on T084
+- [ ] T086 Add `ansible-doctor linkreport` CLI command in ansibledoctor/cli/linkcheck.py (generate link health report) ⏸️ DEFERRED: Can be added post-release (basic validation exists)
+- [ ] T087 [P] Add `ansible-doctor linkfix` CLI command in ansibledoctor/cli/linkcheck.py (attempt to fix broken links with suggestions) ⏸️ DEFERRED: Can be added post-release (validation working)
+- [X] T088 Write comprehensive integration test in tests/integration/test_link_validation_e2e.py (end-to-end with all features) ✅ Complete: 8 integration tests covering all validation scenarios (internal, external, anchors, reporting)
+- [ ] T089 Performance test large doc sets in tests/integration/test_link_performance.py (5000+ files < 30s validation) ⏸️ DEFERRED: Performance optimization post-MVP (current: < 10s for 100 files)
+- [X] T090 Run quickstart.md validation (ensure all examples work correctly) ✅ Complete: All quickstart examples tested and documented in LINKS_GUIDE.md
 
 ---
 
