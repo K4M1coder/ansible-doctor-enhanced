@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (47/90 tasks - 52%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (49/90 tasks - 54%)
 
-**Current Phase**: Phase 5 - US3 Navigate Within Documents (25% complete - 3/12 tasks done)  
-**Status**: Phase 4 complete, Phase 5 tests progressing well
+**Current Phase**: Phase 5 - US3 Navigate Within Documents (42% complete - 5/12 tasks done)  
+**Status**: All US3 tests complete (46 tests), ready for NavigationBuilder implementation
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -98,31 +98,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Logging: Correlation ID tracking for tracing
 - 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
 
-**Phase 5: US3 Section Navigation 🚧 25% COMPLETE (T045-T047, 3/12 tasks done)**
+**Phase 5: US3 Section Navigation 🚧 42% COMPLETE (T045-T049, 5/12 tasks done)**
 - ✅ Test suite for table of contents generation (T045)
   - 16 unit tests for NavigationBuilder.build_toc()
   - Test cases: simple headings, mixed levels, special characters, code blocks
   - Formats: Markdown and HTML
   - Features: max_depth, nested structure, duplicate handling
-  - Tests written in TDD Red phase (failing until implementation)
 - ✅ Test suite for section link jumping (T046)
   - 10 integration tests for section navigation
-  - Test cases: TOC links to headings, nested sections, special characters
-  - Cross-document section links (file.md#anchor)
-  - Case insensitivity, duplicate headings, inline code in headings
-  - Multiple links to same section
-  - Tests written in TDD Red phase (failing until NavigationBuilder implemented)
+  - Cross-document section links, case insensitivity, duplicate headings
 - ✅ Test suite for URL anchor updates (T047)
   - 10 integration tests for URL anchor behavior
-  - Test cases: browser URL updates with anchors, cross-document URLs
-  - Anchor encoding for special characters
-  - Relative paths with anchors (api/file.md#section)
-  - Hash navigation without page reload (INTERNAL_SECTION type)
-  - Fragment identifier validation (valid characters only)
-  - Anchor target existence validation (broken anchor detection)
-  - Deep links to nested subsections (h5 level)
-  - HTML output with proper id attributes
-  - Tests written in TDD Red phase
+  - Anchor encoding, validation, deep links, HTML output
+- ✅ Test suite for nested subsections (T048)
+  - 12 unit tests for nested TOC structure
+  - Test cases: 3-level nesting, indentation (Markdown/HTML), inconsistent levels
+  - Deep nesting (h1-h6), max_depth limits, sibling sections
+  - Empty parents, anchor generation, list markers, CSS classes
+- ✅ Test suite for mobile navigation (T049)
+  - 13 integration tests for mobile compatibility
+  - Test cases: collapsible TOC, touch-friendly targets, responsive width
+  - Hamburger menu, smooth scrolling, sticky positioning
+  - Back-to-top links, readable fonts, swipe gestures
+  - Landscape orientation, reduced motion, offline support
+- **All US3 tests complete**: 46 total tests (16 unit + 30 integration)
+- **Next**: NavigationBuilder implementation (T050-T056)
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality

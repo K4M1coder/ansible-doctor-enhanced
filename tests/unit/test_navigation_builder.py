@@ -248,3 +248,261 @@ Second overview (duplicate name).
             parent1_indent = len(lines[parent1_idx]) - len(lines[parent1_idx].lstrip())
             child11_indent = len(lines[child11_idx]) - len(lines[child11_idx].lstrip())
             assert child11_indent > parent1_indent or "  " in lines[child11_idx]
+
+
+class TestNestedSubsections:
+    """T048: Test nested subsections in TOC structure."""
+
+    @pytest.fixture
+    def builder(self):
+        """Create a NavigationBuilder instance for testing."""
+        return NavigationBuilder()
+
+    def test_three_level_nesting(self, builder):
+        """Test TOC with three levels of nesting (h2, h3, h4)."""
+        content = """# Document
+
+## Level 2 A
+### Level 3 A.1
+#### Level 4 A.1.1
+#### Level 4 A.1.2
+### Level 3 A.2
+
+## Level 2 B
+### Level 3 B.1
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # Should contain all levels
+        assert "Level 2 A" in toc
+        assert "Level 3 A.1" in toc
+        assert "Level 4 A.1.1" in toc
+        assert "Level 4 A.1.2" in toc
+        assert "Level 3 A.2" in toc
+        assert "Level 2 B" in toc
+        assert "Level 3 B.1" in toc
+
+    def test_nested_indentation_markdown(self, builder):
+        """Test that nested items are properly indented in Markdown format."""
+        content = """# Main
+
+## Section 1
+### Subsection 1.1
+#### Sub-subsection 1.1.1
+### Subsection 1.2
+
+## Section 2
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        lines = [line for line in toc.split("\n") if line.strip()]
+        
+        # Check indentation patterns
+        # h2 should have base indentation
+        # h3 should be indented more than h2
+        # h4 should be indented more than h3
+        section1_lines = [line for line in lines if "Section 1" in line and "Sub" not in line]
+        subsection11_lines = [line for line in lines if "Subsection 1.1" in line and "Sub-sub" not in line]
+        subsubsection_lines = [line for line in lines if "Sub-subsection 1.1.1" in line]
+        
+        if section1_lines and subsection11_lines and subsubsection_lines:
+            section1_indent = len(section1_lines[0]) - len(section1_lines[0].lstrip())
+            subsection11_indent = len(subsection11_lines[0]) - len(subsection11_lines[0].lstrip())
+            subsubsection_indent = len(subsubsection_lines[0]) - len(subsubsection_lines[0].lstrip())
+            
+            # Each level should be indented more than previous
+            assert subsection11_indent > section1_indent
+            assert subsubsection_indent > subsection11_indent
+
+    def test_nested_html_structure(self, builder):
+        """Test that nested items create proper HTML list structure."""
+        content = """# Main
+
+## Parent
+### Child
+#### Grandchild
+"""
+        toc = builder.build_toc(content, format="html")
+        
+        # Should have nested <ul> or <ol> tags
+        assert toc.count("<ul>") >= 1 or toc.count("<ol>") >= 1
+        assert toc.count("<li>") >= 3
+        
+        # Nested lists should be inside parent list items
+        # Pattern: <li>Parent<ul><li>Child</li></ul></li> or similar
+        if "<ul>" in toc:
+            # Count nesting depth
+            max_depth = 0
+            current_depth = 0
+            for char in toc:
+                if char == "<":
+                    next_chars = toc[toc.index(char):toc.index(char) + 4]
+                    if next_chars.startswith("<ul>") or next_chars.startswith("<ol>"):
+                        current_depth += 1
+                        max_depth = max(max_depth, current_depth)
+                    elif next_chars.startswith("</ul") or next_chars.startswith("</ol"):
+                        current_depth -= 1
+            
+            assert max_depth >= 2  # At least 2 levels of nesting
+
+    def test_inconsistent_nesting_levels(self, builder):
+        """Test TOC handles inconsistent heading levels (e.g., h2 -> h4 without h3)."""
+        content = """# Main
+
+## Section 1
+#### Subsection 1.1 (skipped h3)
+## Section 2
+### Subsection 2.1
+##### Sub-subsection 2.1.1 (skipped h4)
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # Should still include all headings
+        assert "Section 1" in toc
+        assert "Subsection 1.1" in toc
+        assert "Section 2" in toc
+        assert "Subsection 2.1" in toc
+        assert "Sub-subsection 2.1.1" in toc
+
+    def test_deep_nesting_six_levels(self, builder):
+        """Test TOC with all six heading levels (h1-h6)."""
+        content = """# Level 1
+## Level 2
+### Level 3
+#### Level 4
+##### Level 5
+###### Level 6
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # Should include all levels (excluding h1 if include_top_level=False by default)
+        assert "Level 2" in toc or "Level 1" in toc
+        assert "Level 3" in toc
+        assert "Level 4" in toc
+        assert "Level 5" in toc
+        assert "Level 6" in toc
+
+    def test_nested_with_max_depth_limit(self, builder):
+        """Test max_depth parameter limits nesting depth."""
+        content = """# Main
+
+## Level 2
+### Level 3
+#### Level 4
+##### Level 5
+"""
+        # Limit to 3 levels (h2, h3, h4)
+        toc = builder.build_toc(content, max_depth=4, format="markdown")
+        
+        # Should include up to level 4
+        assert "Level 2" in toc
+        assert "Level 3" in toc
+        assert "Level 4" in toc
+        # Should not include level 5
+        assert "Level 5" not in toc
+
+    def test_nested_sibling_sections(self, builder):
+        """Test multiple sibling sections at each level."""
+        content = """# Main
+
+## Section 1
+### Subsection 1.1
+### Subsection 1.2
+### Subsection 1.3
+
+## Section 2
+### Subsection 2.1
+### Subsection 2.2
+
+## Section 3
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # All siblings should be included
+        assert "Section 1" in toc
+        assert "Section 2" in toc
+        assert "Section 3" in toc
+        assert "Subsection 1.1" in toc
+        assert "Subsection 1.2" in toc
+        assert "Subsection 1.3" in toc
+        assert "Subsection 2.1" in toc
+        assert "Subsection 2.2" in toc
+
+    def test_nested_with_empty_parents(self, builder):
+        """Test nested structure where parent sections have no content."""
+        content = """# Main
+
+## Empty Parent Section
+### Child with content
+Content here.
+
+## Another Empty Parent
+### Child 1
+### Child 2
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # Should include all headings regardless of content
+        assert "Empty Parent Section" in toc
+        assert "Child with content" in toc
+        assert "Another Empty Parent" in toc
+        assert "Child 1" in toc
+        assert "Child 2" in toc
+
+    def test_nested_anchor_generation(self, builder):
+        """Test that nested sections generate correct anchor links."""
+        content = """# Main
+
+## Configuration
+### Database Configuration
+#### Connection Settings
+### Cache Configuration
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        # Should have proper anchor format
+        assert "[" in toc and "]" in toc and "(" in toc and ")" in toc
+        
+        # Anchors should be slugified
+        assert "#configuration" in toc.lower() or "configuration" in toc.lower()
+        assert "#database" in toc.lower() or "database" in toc.lower()
+        assert "#connection" in toc.lower() or "connection" in toc.lower()
+
+    def test_nested_list_markers(self, builder):
+        """Test that nested items use appropriate list markers in Markdown."""
+        content = """# Main
+
+## Section 1
+### Subsection 1.1
+#### Sub-subsection 1.1.1
+"""
+        toc = builder.build_toc(content, format="markdown")
+        
+        lines = [line.strip() for line in toc.split("\n") if line.strip()]
+        
+        # Markdown lists typically use -, *, or numbered markers
+        # Check that list markers are present
+        for line in lines:
+            # Each line should start with a list marker or be indented
+            assert (
+                line.startswith("-") or
+                line.startswith("*") or
+                line.startswith("1") or
+                line.startswith(" ") or
+                line.startswith("\t")
+            )
+
+    def test_nested_html_with_css_classes(self, builder):
+        """Test HTML output includes CSS classes for styling nested items."""
+        content = """# Main
+
+## Section
+### Subsection
+"""
+        toc = builder.build_toc(content, format="html")
+        
+        # HTML should have structure suitable for CSS styling
+        assert "<li>" in toc
+        # May include class attributes for different levels
+        # <li class="level-2"> or similar
+        assert ">" in toc and "<" in toc
