@@ -6,7 +6,6 @@ that would cause parser failures.
 Spec 012 Phase 6: T068 - Integration examples
 """
 
-
 import pytest
 
 from ansibledoctor.models import AnsibleCollection, AnsibleRole
