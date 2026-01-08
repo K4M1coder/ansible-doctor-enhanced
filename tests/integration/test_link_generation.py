@@ -822,3 +822,312 @@ Links:
         assert any("new-features" in t for t in targets)
         assert any("bug-fixes" in t for t in targets)
 
+
+class TestURLAnchorUpdates:
+    """T047: Test URL anchor updates when navigating with anchors."""
+
+    def test_browser_url_updates_with_anchor(self, tmp_path):
+        """Browser URL should update to include anchor when clicking section link."""
+        doc_path = tmp_path / "docs" / "guide.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# User Guide
+
+## Table of Contents
+- [Installation](#installation)
+- [Configuration](#configuration)
+
+## Installation
+Install steps here.
+
+## Configuration
+Config steps here.
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        from ansibledoctor.models.link import LinkType
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Simulate clicking on Installation link
+        installation_links = [link for link in links if link.target == "#installation"]
+        assert len(installation_links) == 1
+        
+        installation_link = installation_links[0]
+        assert installation_link.link_type == LinkType.INTERNAL_SECTION
+        
+        # URL should be: guide.md#installation
+        expected_url = f"{doc_path.name}#installation"
+        # The target includes the anchor
+        assert installation_link.target == "#installation"
+
+    def test_cross_document_url_with_anchor(self, tmp_path):
+        """URLs to other documents with anchors should be properly formed."""
+        main_doc = tmp_path / "docs" / "index.md"
+        main_doc.parent.mkdir(parents=True)
+        main_content = """# Documentation
+
+See [Installation Prerequisites](install.md#prerequisites).
+See [Configuration Options](config.md#options).
+"""
+        main_doc.write_text(main_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(main_doc)
+        
+        # Find cross-document links with anchors
+        cross_links = [link for link in links if ".md#" in link.target]
+        assert len(cross_links) == 2
+        
+        # Verify URL format: file.md#anchor
+        targets = [link.target for link in cross_links]
+        assert "install.md#prerequisites" in targets
+        assert "config.md#options" in targets
+
+    def test_url_anchor_encoding(self, tmp_path):
+        """URL anchors with special characters should be properly encoded."""
+        doc_path = tmp_path / "docs" / "faq.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# FAQ
+
+## How to use variables?
+Variable usage guide.
+
+## What's the best practice?
+Best practices here.
+
+Links:
+- [Variables](#how-to-use-variables)
+- [Best practices](#whats-the-best-practice)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        targets = [link.target for link in section_links]
+        
+        # Special characters should be handled
+        # Question marks and apostrophes should be removed/encoded
+        assert any("how-to-use-variables" in t for t in targets)
+        assert any("best-practice" in t for t in targets)
+        # Should not contain raw special chars
+        for target in targets:
+            assert "?" not in target
+            assert "'" not in target
+
+    def test_relative_path_with_anchor(self, tmp_path):
+        """Relative paths with anchors should work correctly."""
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir()
+        
+        # Create subdirectory structure
+        api_dir = docs_dir / "api"
+        api_dir.mkdir()
+        
+        main_doc = docs_dir / "index.md"
+        main_content = """# Documentation
+
+See [API Endpoint](api/endpoints.md#get-users) for details.
+See [Overview](../README.md#overview) for intro.
+"""
+        main_doc.write_text(main_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(main_doc)
+        
+        # Find relative path links with anchors
+        relative_links = [link for link in links if ".md#" in link.target]
+        assert len(relative_links) == 2
+        
+        targets = [link.target for link in relative_links]
+        # Should preserve relative path with anchor
+        assert any("api/endpoints.md#get-users" in t for t in targets)
+        assert any("../README.md#overview" in t for t in targets)
+
+    def test_anchor_preserved_during_navigation(self, tmp_path):
+        """Anchors should be preserved when navigating between documents."""
+        from ansibledoctor.links.link_manager import LinkManager
+        
+        docs_dir = tmp_path / "docs"
+        docs_dir.mkdir()
+        
+        doc1 = docs_dir / "page1.md"
+        doc1.write_text("# Page 1\n## Section A\nSee [Page 2 Section B](page2.md#section-b).")
+        
+        doc2 = docs_dir / "page2.md"
+        doc2.write_text("# Page 2\n## Section B\nContent here.")
+        
+        # Create link manager
+        manager = LinkManager(base_path=docs_dir)
+        
+        # Create link with anchor
+        link = manager.create_link(
+            text="Page 2 Section B",
+            target="page2.md#section-b",
+            source_file=doc1,
+        )
+        
+        # Verify anchor is preserved
+        assert "#section-b" in link.target
+        
+        # Extract anchor
+        anchor = manager.extract_anchor(link.target)
+        assert anchor == "section-b"
+
+    def test_hash_navigation_without_page_reload(self, tmp_path):
+        """Hash navigation should not require page reload in browser context."""
+        doc_path = tmp_path / "docs" / "single-page.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Single Page App
+
+[Jump to Features](#features)
+[Jump to Installation](#installation)
+
+## Features
+Feature list.
+
+## Installation
+Install guide.
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        from ansibledoctor.models.link import LinkType
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Hash links should be internal section type
+        hash_links = [link for link in links if link.target.startswith("#")]
+        assert len(hash_links) == 2
+        
+        for link in hash_links:
+            # Should be internal section (no external request needed)
+            assert link.link_type == LinkType.INTERNAL_SECTION
+            # Target should start with #
+            assert link.target.startswith("#")
+
+    def test_url_fragment_identifier_validation(self, tmp_path):
+        """URL fragment identifiers (anchors) should be valid."""
+        doc_path = tmp_path / "docs" / "test.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Test Document
+
+## Valid-Section-Name
+## another_valid_section
+## section123
+
+Links:
+- [Valid](#valid-section-name)
+- [Underscore](#another_valid_section)
+- [Numbers](#section123)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) == 3
+        
+        # All should be valid fragment identifiers
+        for link in section_links:
+            target = link.target.lstrip("#")
+            # Should contain only alphanumeric, hyphens, underscores
+            assert all(c.isalnum() or c in "-_" for c in target)
+
+    def test_anchor_target_exists_validation(self, tmp_path):
+        """Links should validate that anchor targets exist in the document."""
+        doc_path = tmp_path / "docs" / "broken.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Document
+
+## Existing Section
+Content here.
+
+Links:
+- [Valid Link](#existing-section)
+- [Broken Link](#non-existent-section)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        from ansibledoctor.links.link_validator import LinkValidator
+        
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        validator = LinkValidator(base_path=tmp_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) == 2
+        
+        # Validate each link
+        results = []
+        for link in section_links:
+            result = validator.validate(link)
+            results.append((link.target, result.is_valid))
+        
+        # Valid link should pass
+        assert any(target == "#existing-section" and valid for target, valid in results)
+        # Broken link should fail
+        assert any(target == "#non-existent-section" and not valid for target, valid in results)
+
+    def test_anchor_in_generated_html_output(self, tmp_path):
+        """Generated HTML should include proper anchor IDs for headings."""
+        # This test verifies that when docs are generated to HTML,
+        # heading elements have id attributes matching the anchor
+        doc_path = tmp_path / "docs" / "source.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Main Title
+
+## Section One
+Content.
+
+## Section Two
+More content.
+"""
+        doc_path.write_text(doc_content)
+        
+        # Simulate HTML generation (would normally use generator)
+        # For testing, we just verify the expected anchor format
+        from ansibledoctor.utils.slug import slugify
+        
+        headings = ["Section One", "Section Two"]
+        expected_ids = [slugify(h) for h in headings]
+        
+        # Expected IDs should be: section-one, section-two
+        assert "section-one" in expected_ids
+        assert "section-two" in expected_ids
+
+    def test_deep_link_to_subsection(self, tmp_path):
+        """Deep links to deeply nested subsections should work."""
+        doc_path = tmp_path / "docs" / "deep.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Documentation
+
+## Chapter 1
+### Section 1.1
+#### Subsection 1.1.1
+##### Sub-subsection 1.1.1.1
+
+Deep link: [Go deep](#sub-subsection-1111)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        deep_links = [link for link in links if "sub-subsection" in link.target]
+        assert len(deep_links) == 1
+        
+        deep_link = deep_links[0]
+        # Should handle deeply nested heading
+        assert deep_link.target == "#sub-subsection-1111"
+

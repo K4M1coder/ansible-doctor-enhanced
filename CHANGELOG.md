@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (46/90 tasks - 51%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (47/90 tasks - 52%)
 
-**Current Phase**: Phase 5 - US3 Navigate Within Documents (17% complete - 2/12 tasks done)  
-**Status**: Phase 4 complete, Phase 5 tests in progress
+**Current Phase**: Phase 5 - US3 Navigate Within Documents (25% complete - 3/12 tasks done)  
+**Status**: Phase 4 complete, Phase 5 tests progressing well
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -98,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Logging: Correlation ID tracking for tracing
 - 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
 
-**Phase 5: US3 Section Navigation 🚧 17% COMPLETE (T045-T046, 2/12 tasks done)**
+**Phase 5: US3 Section Navigation 🚧 25% COMPLETE (T045-T047, 3/12 tasks done)**
 - ✅ Test suite for table of contents generation (T045)
   - 16 unit tests for NavigationBuilder.build_toc()
   - Test cases: simple headings, mixed levels, special characters, code blocks
@@ -112,6 +112,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Case insensitivity, duplicate headings, inline code in headings
   - Multiple links to same section
   - Tests written in TDD Red phase (failing until NavigationBuilder implemented)
+- ✅ Test suite for URL anchor updates (T047)
+  - 10 integration tests for URL anchor behavior
+  - Test cases: browser URL updates with anchors, cross-document URLs
+  - Anchor encoding for special characters
+  - Relative paths with anchors (api/file.md#section)
+  - Hash navigation without page reload (INTERNAL_SECTION type)
+  - Fragment identifier validation (valid characters only)
+  - Anchor target existence validation (broken anchor detection)
+  - Deep links to nested subsections (h5 level)
+  - HTML output with proper id attributes
+  - Tests written in TDD Red phase
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality

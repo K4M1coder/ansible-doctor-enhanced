@@ -121,7 +121,7 @@
 
 - [X] T045 [P] [US3] Write test for table of contents generation in tests/unit/test_navigation_builder.py (TOC with section links) ✅ Complete with 16 tests
 - [X] T046 [P] [US3] Write test for section link jumping in tests/integration/test_link_generation.py (links jump to correct headings) ✅ Complete with 10 comprehensive tests
-- [ ] T047 [P] [US3] Write test for URL anchor updates in tests/integration/test_link_generation.py (URL updates with anchor)
+- [X] T047 [P] [US3] Write test for URL anchor updates in tests/integration/test_link_generation.py (URL updates with anchor) ✅ Complete with 10 URL anchor tests
 - [ ] T048 [P] [US3] Write test for nested subsections in tests/unit/test_navigation_builder.py (nested TOC structure)
 - [ ] T049 [P] [US3] Write test for mobile navigation in tests/integration/test_link_generation.py (works on small screens)
 
