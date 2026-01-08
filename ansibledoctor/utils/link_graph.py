@@ -369,7 +369,9 @@ class LinkGraph:
                 # Sanitize node names for Mermaid
                 safe_source = source.replace(".", "_").replace("-", "_")
                 safe_target = target.replace(".", "_").replace("-", "_")
-                lines.append(f"    {safe_source} {arrow}|{rel_type.value}| {safe_target}")
+                # Handle both enum and string relationship types
+                rel_label = rel_type.value if isinstance(rel_type, RelationshipType) else str(rel_type)
+                lines.append(f"    {safe_source} {arrow}|{rel_label}| {safe_target}")
 
         return "\n".join(lines)
 

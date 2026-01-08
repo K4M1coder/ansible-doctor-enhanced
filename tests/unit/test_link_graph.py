@@ -10,7 +10,6 @@ documentation entities with support for:
 - Relationship filtering and querying
 """
 
-
 import pytest
 
 from ansibledoctor.utils.link_graph import LinkGraph, RelationshipType

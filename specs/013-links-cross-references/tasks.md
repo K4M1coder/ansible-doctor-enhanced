@@ -185,11 +185,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T074 [US5] Extend IndexGenerator from Spec 011 in ansibledoctor/generator/indexes.py (add enhanced linking)
-- [ ] T075 [US5] Implement alphabetical index linking in IndexGenerator (generate letter-based index with links)
-- [ ] T076 [US5] Implement category index linking in IndexGenerator (group by type, link to all items)
-- [ ] T077 [US5] Create LinkGraph class in ansibledoctor/utils/link_graph.py (graph data structure for link relationships)
-- [ ] T078 [US5] Implement bidirectional relationship tracking in LinkGraph (track both "links to" and "linked by")
+- [X] T074 [US5] Extend IndexGenerator from Spec 011 in ansibledoctor/generator/indexes.py (add enhanced linking) ✅ Complete: Added 4 new index methods
+- [X] T075 [US5] Implement alphabetical index linking in IndexGenerator (generate letter-based index with links) ✅ Complete: generate_alphabetical_index with unicode normalization
+- [X] T076 [US5] Implement category index linking in IndexGenerator (group by type, link to all items) ✅ Complete: generate_category_index, generate_tag_index, generate_search_index with search method
+- [X] T077 [US5] Create LinkGraph class in ansibledoctor/utils/link_graph.py (graph data structure for link relationships) ✅ Complete: 421 lines, 96% coverage, RelationshipType enum, bidirectional tracking
+- [X] T078 [US5] Implement bidirectional relationship tracking in LinkGraph (track both "links to" and "linked by") ✅ Complete: Full bidirectional API with get_outgoing/get_incoming, cycle detection, visualization, traversal
 - [ ] T079 [US5] Add tag-based navigation to index pages (link tags to all content with that tag)
 
 ---

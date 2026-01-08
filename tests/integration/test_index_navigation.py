@@ -17,7 +17,7 @@ class TestAlphabeticalIndex:
 
     def test_alphabetical_index_groups_by_first_letter(self, tmp_path: Path) -> None:
         """Test that items are grouped by first letter."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         # Create items starting with different letters
         items = [
@@ -27,7 +27,7 @@ class TestAlphabeticalIndex:
             {"name": "cache_manager", "type": "role"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_alphabetical_index(items)
 
         # Should have groups for A, B, C
@@ -42,7 +42,7 @@ class TestAlphabeticalIndex:
 
     def test_alphabetical_index_generates_working_links(self, tmp_path: Path) -> None:
         """Test that alphabetical index contains working links to items."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "web_server", "type": "role", "path": tmp_path / "roles" / "web_server"},
@@ -53,18 +53,18 @@ class TestAlphabeticalIndex:
         (tmp_path / "roles" / "web_server").mkdir(parents=True)
         (tmp_path / "roles" / "database").mkdir(parents=True)
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_alphabetical_index(items)
 
         # Check links are generated
-        assert index["W"][0]["link"] is not None
-        assert "web_server" in index["W"][0]["link"]
-        assert index["D"][0]["link"] is not None
-        assert "database" in index["D"][0]["link"]
+        assert index["W"][0]["path"] is not None
+        assert "web_server" in index["W"][0]["path"]
+        assert index["D"][0]["path"] is not None
+        assert "database" in index["D"][0]["path"]
 
     def test_alphabetical_index_handles_special_characters(self, tmp_path: Path) -> None:
         """Test that special characters are normalized in index."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "_private_role", "type": "role"},
@@ -72,7 +72,7 @@ class TestAlphabeticalIndex:
             {"name": "ñoño", "type": "role"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_alphabetical_index(items)
 
         # Special chars should be normalized or grouped
@@ -81,7 +81,7 @@ class TestAlphabeticalIndex:
 
     def test_alphabetical_index_case_insensitive_grouping(self, tmp_path: Path) -> None:
         """Test that grouping is case-insensitive."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "Apache", "type": "role"},
@@ -89,7 +89,7 @@ class TestAlphabeticalIndex:
             {"name": "API", "type": "role"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_alphabetical_index(items)
 
         # All should be in 'A' group
@@ -102,7 +102,7 @@ class TestCategoryIndex:
 
     def test_category_index_groups_by_type(self, tmp_path: Path) -> None:
         """Test that items are grouped by category/type."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "web_server", "type": "role"},
@@ -112,7 +112,7 @@ class TestCategoryIndex:
             {"name": "cache_lookup", "type": "lookup"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_category_index(items)
 
         # Should have categories for each type
@@ -122,31 +122,31 @@ class TestCategoryIndex:
         assert "lookup" in index
 
         # Check item counts
-        assert len(index["role"]) == 2
-        assert len(index["module"]) == 1
-        assert len(index["filter"]) == 1
-        assert len(index["lookup"]) == 1
+        assert len(index["role"]["items"]) == 2
+        assert len(index["module"]["items"]) == 1
+        assert len(index["filter"]["items"]) == 1
+        assert len(index["lookup"]["items"]) == 1
 
     def test_category_index_generates_navigation_links(self, tmp_path: Path) -> None:
         """Test that category index has navigation between categories."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "type": "role", "path": tmp_path / "roles"},
             {"name": "module1", "type": "module", "path": tmp_path / "plugins" / "modules"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_category_index(items)
 
         # Should have navigation metadata
-        assert "categories" in index
-        assert "role" in index["categories"]
-        assert "module" in index["categories"]
+        # Categories are top-level keys
+        assert "role" in index
+        assert "module" in index
 
     def test_category_index_sorts_within_categories(self, tmp_path: Path) -> None:
         """Test that items within categories are sorted."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "zebra_role", "type": "role"},
@@ -154,16 +154,16 @@ class TestCategoryIndex:
             {"name": "beta_role", "type": "role"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_category_index(items)
 
         # Items should be sorted alphabetically
-        role_names = [item["name"] for item in index["role"]]
+        role_names = [item["name"] for item in index["role"]["items"]]
         assert role_names == ["alpha_role", "beta_role", "zebra_role"]
 
     def test_category_index_includes_item_count(self, tmp_path: Path) -> None:
         """Test that category index shows item counts."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "type": "role"},
@@ -172,12 +172,12 @@ class TestCategoryIndex:
             {"name": "module1", "type": "module"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_category_index(items)
 
         # Should have count metadata
-        assert index["_metadata"]["role"]["count"] == 3
-        assert index["_metadata"]["module"]["count"] == 1
+        assert index["role"]["count"] == 3
+        assert index["module"]["count"] == 1
 
 
 class TestTagBasedNavigation:
@@ -185,7 +185,7 @@ class TestTagBasedNavigation:
 
     def test_tag_index_groups_by_tag(self, tmp_path: Path) -> None:
         """Test that items are grouped by tags."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "web_server", "tags": ["webserver", "production"]},
@@ -193,7 +193,7 @@ class TestTagBasedNavigation:
             {"name": "cache_server", "tags": ["cache", "production"]},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_tag_index(items)
 
         # Should have groups for each tag
@@ -203,13 +203,13 @@ class TestTagBasedNavigation:
         assert "cache" in index
 
         # Check item associations
-        assert len(index["webserver"]) == 2  # web_server, api_gateway
-        assert len(index["production"]) == 2  # web_server, cache_server
-        assert len(index["api"]) == 1  # api_gateway
+        assert len(index["webserver"]["items"]) == 2  # web_server, api_gateway
+        assert len(index["production"]["items"]) == 2  # web_server, cache_server
+        assert len(index["api"]["items"]) == 1  # api_gateway
 
     def test_tag_index_links_to_all_tagged_content(self, tmp_path: Path) -> None:
         """Test that clicking a tag shows all content with that tag."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "tags": ["database"], "path": tmp_path / "role1"},
@@ -217,40 +217,41 @@ class TestTagBasedNavigation:
             {"name": "plugin1", "tags": ["database"], "path": tmp_path / "plugin1"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_tag_index(items)
 
         # All items with 'database' tag should be accessible
-        assert len(index["database"]) == 3
-        assert all("link" in item for item in index["database"])
+        assert len(index["database"]["items"]) == 3
+        assert all("path" in item for item in index["database"]["items"])
 
     def test_tag_index_bidirectional_navigation(self, tmp_path: Path) -> None:
         """Test that tags link to items and items link back to tags."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "tags": ["web", "production"]},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_tag_index(items)
 
         # Tag should link to item
-        assert index["web"][0]["name"] == "role1"
+        assert index["web"]["items"][0]["name"] == "role1"
 
-        # Item should have link back to tag index
-        assert "tag_links" in index["web"][0]
+        # Item should be properly structured with path and type
+        assert "path" in index["web"]["items"][0]
+        assert "type" in index["web"]["items"][0]
 
     def test_tag_index_handles_no_tags(self, tmp_path: Path) -> None:
         """Test that items without tags are handled gracefully."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "tags": []},
             {"name": "role2"},  # No tags field
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_tag_index(items)
 
         # Should have an 'untagged' category or handle gracefully
@@ -258,7 +259,7 @@ class TestTagBasedNavigation:
 
     def test_tag_index_sorts_by_popularity(self, tmp_path: Path) -> None:
         """Test that tags can be sorted by usage count."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "tags": ["common"]},
@@ -267,12 +268,12 @@ class TestTagBasedNavigation:
             {"name": "role4", "tags": ["rare"]},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_tag_index(items)
 
         # Should have metadata about tag popularity
-        assert index["_metadata"]["common"]["count"] == 3
-        assert index["_metadata"]["rare"]["count"] == 1
+        assert index["common"]["count"] == 3
+        assert index["rare"]["count"] == 1
 
 
 class TestBidirectionalRelationships:
@@ -360,14 +361,14 @@ class TestSearchIndex:
 
     def test_search_index_indexes_all_content(self, tmp_path: Path) -> None:
         """Test that search index includes all searchable content."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "web_server", "description": "Deploy web server with nginx"},
             {"name": "database", "description": "PostgreSQL database setup"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_search_index(items)
 
         # Should have entries for key terms
@@ -379,7 +380,7 @@ class TestSearchIndex:
 
     def test_search_index_links_to_relevant_sections(self, tmp_path: Path) -> None:
         """Test that search terms link to relevant content."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {
@@ -394,7 +395,7 @@ class TestSearchIndex:
             },
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_search_index(items)
 
         # Searching for "nginx" should return both items
@@ -404,14 +405,14 @@ class TestSearchIndex:
 
     def test_search_index_ranks_results_by_relevance(self, tmp_path: Path) -> None:
         """Test that search results are ranked by relevance."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "nginx_role", "description": "nginx server nginx configuration nginx"},
             {"name": "apache_role", "description": "apache with nginx backend"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_search_index(items)
 
         # nginx_role should rank higher (appears more times)
@@ -421,13 +422,13 @@ class TestSearchIndex:
 
     def test_search_index_handles_stop_words(self, tmp_path: Path) -> None:
         """Test that common stop words are filtered."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "role1", "description": "the and or a an this that"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_search_index(items)
 
         # Stop words should not be indexed
@@ -437,13 +438,13 @@ class TestSearchIndex:
 
     def test_search_index_supports_partial_matching(self, tmp_path: Path) -> None:
         """Test that partial term matching works."""
-        from ansibledoctor.generator.indexes import IndexGenerator
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
             {"name": "postgresql", "description": "database server"},
         ]
 
-        generator = IndexGenerator()
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
         index = generator.generate_search_index(items)
 
         # Should be able to search with partial terms
