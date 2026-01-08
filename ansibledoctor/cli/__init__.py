@@ -38,6 +38,7 @@ from ansibledoctor.generator.models import OutputFormat, TemplateContext
 from ansibledoctor.generator.renderers.html import HtmlRenderer
 from ansibledoctor.generator.renderers.markdown import MarkdownRenderer
 from ansibledoctor.generator.renderers.rst import RstRenderer
+from ansibledoctor.links.cross_reference_generator import CrossReferenceGenerator
 from ansibledoctor.models import AnsibleRole
 from ansibledoctor.models.error_report import ErrorReport
 from ansibledoctor.models.execution_report import ExecutionMetrics
@@ -1280,6 +1281,12 @@ def generate(
             "files_processed", 5
         )  # Approximate: meta, defaults, vars, tasks, handlers
 
+        # T026: Generate cross-references for role
+        logger.info("Generating cross-references...")
+        cross_ref_generator = CrossReferenceGenerator(base_path=role_path.parent)
+        cross_references = cross_ref_generator.generate_references(role)
+        logger.debug(f"Generated {len(cross_references)} cross-references")
+
         # Select renderer based on format
         if format.lower() == "markdown":
             renderer = MarkdownRenderer(template_path=str(template) if template else None)
@@ -1318,6 +1325,7 @@ def generate(
             generator_version=__version__,
             output_format=output_format,
             theme_config=theme_config,
+            custom_data={"cross_references": cross_references},
         )
 
         # Render documentation

@@ -20,6 +20,7 @@
 {% if has_todos %}- [TODOs](#todos){% endif %}
 {% if has_examples %}- [Examples](#examples){% endif %}
 {% if role.existing_docs %}- [Documentation](#documentation){% endif %}
+{% if custom_data and custom_data.cross_references and (custom_data.cross_references.depends_on or custom_data.cross_references.parent_collection or custom_data.cross_references.see_also) %}- [Related Documentation](#related-documentation){% endif %}
 
 ---
 
@@ -207,6 +208,47 @@ Available static files:
 {% endfor %}
 
 ---
+{% endif %}
+{% endif %}
+
+---
+
+{# Cross-References (T027: Add cross-reference sections to templates) #}
+{% if custom_data and custom_data.cross_references %}
+{% set xrefs = custom_data.cross_references %}
+
+{% if xrefs.depends_on or xrefs.parent_collection or xrefs.see_also %}
+## Related Documentation
+
+{% if xrefs.depends_on %}
+### Dependencies
+
+This role depends on:
+{% for dep in xrefs.depends_on %}
+- [{{ dep.link.text }}]({{ dep.link.target }})
+{% endfor %}
+
+{% endif %}
+
+{% if xrefs.parent_collection %}
+### Parent Collection
+
+This role is part of: [{{ xrefs.parent_collection.name }}]({{ xrefs.parent_collection.link.target }})
+
+{% endif %}
+
+{% if xrefs.see_also %}
+### See Also
+
+Related roles you might find useful:
+{% for related in xrefs.see_also %}
+- [{{ related.name }}]({{ related.link.target }}){% if related.shared_tags %} (common tags: {{ related.shared_tags | join(', ') }}){% endif %}
+{% endfor %}
+
+{% endif %}
+
+---
+
 {% endif %}
 {% endif %}
 
