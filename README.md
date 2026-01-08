@@ -21,7 +21,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Collection Support (v0.5.0)**: Parse, generate documentation, and analyze dependencies for Ansible Collections
 - **Project Documentation (v0.6.0)**: Generate comprehensive project-level documentation with architecture diagrams, role/collection inventories, and multi-language support
 - **Internationalization (v0.5.1)**: Initial i18n support with translation files for English, French and German and a Jinja2 `t()` filter for templates
-- **Links & Cross-References (v0.12.0 - In Progress)**: Smart link management with cross-reference generation, broken link detection, and intelligent navigation
+- **Links & Cross-References (v0.12.0)**: Smart link management with automatic cross-references, broken link detection, external resource integration, and multiple navigation indexes
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
 - **Error Handling**: Graceful error recovery with actionable suggestions and detailed context
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates
@@ -297,6 +297,223 @@ graph TD
 **Documentation**: See [PROJECT_COMPLETION.md](PROJECT_COMPLETION.md) for comprehensive usage guide.
 
 **Demo**: Try the included demo project at `demo-role/` or `test-role/`
+
+## 🔗 Links & Cross-References (New in v0.12.0)
+
+Ansible Doctor Enhanced provides comprehensive **Link Management** with automatic cross-reference generation, broken link detection, and intelligent navigation features:
+
+### Automatic Cross-References
+
+Links are automatically generated between related documentation:
+
+```bash
+# Generate documentation with automatic cross-references
+ansible-doctor-enhanced role ./my_role --output ./docs
+
+# Links are generated for:
+# - Dependencies (roles that this role depends on)
+# - Parent collection (link back to collection)
+# - Related roles (by tags or functionality)
+# - Project context (breadcrumb navigation)
+```
+
+**Generated Links Include**:
+```markdown
+## Dependencies
+
+- [common](../common/README.md)
+- [database](../database/README.md)
+
+**Part of Collection**: [namespace.collection](../../README.md)
+
+## Related Roles
+
+- [nginx](../nginx/README.md) - Web server configuration
+- [haproxy](../haproxy/README.md) - Load balancer setup
+```
+
+### Link Validation
+
+Validate all links in your documentation to catch broken links before deployment:
+
+```bash
+# Validate all links (internal + external)
+ansible-doctor linkcheck ./docs
+
+# Internal links only (fast)
+ansible-doctor linkcheck ./docs --internal-only
+
+# External links only (with caching)
+ansible-doctor linkcheck ./docs --external-only
+
+# JSON output for CI/CD
+ansible-doctor linkcheck ./docs --format json --output validation.json
+
+# Validate during generation
+ansible-doctor role ./my_role --output ./docs --validate-links
+```
+
+**CI/CD Integration**:
+```yaml
+# .github/workflows/docs.yml
+- name: Validate Documentation Links
+  run: |
+    ansible-doctor linkcheck ./docs --format json
+    if [ $? -ne 0 ]; then
+      echo "❌ Broken links detected!"
+      exit 1
+    fi
+```
+
+**Exit Codes**:
+- `0`: All links valid ✅
+- `1`: Broken links found ❌
+- `2`: Validation error occurred ⚠️
+
+### External Resource Integration
+
+Automatically link to official Ansible documentation and Galaxy:
+
+```bash
+# Enable external link integration
+ansible-doctor role ./my_role --output ./docs
+```
+
+**Automatic Links Generated For**:
+- **Module Documentation**: `ansible.builtin.apt` → https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
+- **Galaxy Pages**: Collections → https://galaxy.ansible.com/namespace/collection
+- **Best Practices**: Keywords like "security", "vault", "molecule" link to official guides
+- **Version-Specific**: Uses configured Ansible version (e.g., `/ansible/2.15/`)
+
+**Configuration**:
+```yaml
+# .ansibledoctor.yml
+ansible_version: "2.15"
+
+external_links:
+  enable_module_docs: true
+  enable_galaxy_links: true
+  enable_best_practices: true
+  ansible_docs_base: "https://docs.ansible.com"
+  galaxy_base: "https://galaxy.ansible.com"
+```
+
+### Index-Based Navigation
+
+Multiple pathways to discover content:
+
+```bash
+# Generate documentation with indexes
+ansible-doctor collection ./my_collection --output ./docs
+```
+
+**Generated Indexes**:
+- **Alphabetical Index**: Group by first letter (A-Z, #)
+- **Category Index**: Group by type (role, module, plugin)
+- **Tag Index**: Group by tags with popularity sorting
+- **Search Index**: Full-text search with relevance scoring
+
+**Tag Navigation Example**:
+```markdown
+# Tags
+
+## webserver (5 items)
+- [apache](./apache/README.md) *role*
+- [nginx](./nginx/README.md) *role*
+- [haproxy](./haproxy/README.md) *role*
+
+## database (3 items)
+- [postgres](./postgres/README.md) *role*
+- [mysql](./mysql/README.md) *role*
+
+**Tags**: [`webserver`](../tags.md#tag-webserver), [`production`](../tags.md#tag-production)
+```
+
+### Section Navigation
+
+Table of contents with anchor links for long documents:
+
+```bash
+# TOC automatically generated for documents with 5+ headings
+ansible-doctor role ./my_role --output ./docs
+```
+
+**Generated TOC**:
+```markdown
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Dependencies](#dependencies)
+- [Configuration](#configuration)
+- [Usage](#usage)
+```
+
+**Features**:
+- ✅ Automatic TOC generation for long documents
+- ✅ Nested structure support (H2-H6)
+- ✅ URL-safe anchor slugs
+- ✅ Duplicate heading handling
+- ✅ Mobile-responsive HTML TOC
+
+### Link Health Reporting
+
+Generate comprehensive link health reports:
+
+```bash
+# Markdown report
+ansible-doctor linkreport ./docs --format markdown --output report.md
+
+# HTML report with all links
+ansible-doctor linkreport ./docs --format html --include-valid --output report.html
+
+# JSON report grouped by file
+ansible-doctor linkreport ./docs --format json --group-by file
+```
+
+**Report Includes**:
+- Valid links count with ✅ indicator
+- Warning links (redirects, slow responses)
+- Broken links with file:line locations
+- HTTP status codes for external links
+- Suggested fixes for common issues
+
+### Bidirectional Relationships
+
+Track "links to" and "linked by" relationships:
+
+```bash
+# Generate documentation with relationship tracking
+ansible-doctor collection ./my_collection --output ./docs
+```
+
+**Relationship Visualization**:
+```mermaid
+graph TD
+    role_a -->|depends_on| role_b
+    role_a -->|includes| role_c
+    role_b <-->|references| role_d
+```
+
+**Features**:
+- ✅ **Automatic Cross-References**: Links between related roles/collections/projects
+- ✅ **Broken Link Detection**: Internal and external link validation
+- ✅ **External Integration**: Official Ansible docs and Galaxy links
+- ✅ **Multiple Indexes**: Alphabetical, category, tag, and search indexes
+- ✅ **Section Navigation**: Auto-generated table of contents
+- ✅ **Link Caching**: External link validation caching (< 30s for 1000+ docs)
+- ✅ **Relationship Tracking**: Bidirectional "links to" / "linked by"
+- ✅ **CI/CD Ready**: JSON output, exit codes, automated validation
+
+**CLI Commands**:
+- `ansible-doctor linkcheck`: Validate all links
+- `ansible-doctor linkreport`: Generate link health report
+- `ansible-doctor linkfix`: Interactive broken link fixing (coming soon)
+
+**Documentation**: See [LINKS_GUIDE.md](docs/LINKS_GUIDE.md) for comprehensive usage guide with examples.
+
+**Configuration**: See `.ansibledoctor.yml` for external link configuration options.
 
 ## 🌐 Internationalization (i18n) Support (New in v0.5.1)
 

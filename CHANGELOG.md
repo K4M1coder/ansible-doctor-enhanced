@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (65/90 tasks - 72%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (74/90 tasks - 82%)
 
-**Current Phase**: Phase 6 - US4 Access External Resources (100% complete - 13/13 tasks done) ✅ | Next: Phase 7 - US5 Index Navigation  
-**Status**: All Phase 6 tasks complete, 27 US4 tests passing (13 integration + 14 configuration)
+**Current Phase**: Phase 7 - US5 Index-Based Navigation (100% complete - 11/11 tasks done) ✅ | Next: Phase 8 - Polish & Documentation  
+**Status**: All Phase 7 tasks complete, 27 integration tests passing (23 index navigation + 4 tag navigation)
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -148,6 +148,102 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - external_links.galaxy_base: Custom Galaxy base URL
     - external_links.module_docs: Dict of FQCN → custom URL overrides
     - external_links.best_practices: Dict of custom keyword → URL mappings
+  - Feature flags (enable_module_docs, enable_galaxy_links, enable_best_practices)
+  - 14 configuration tests passing (full coverage of config scenarios)
+
+**Phase 7: US5 Index-Based Navigation ✅ 100% COMPLETE (T069-T079, 11/11 tasks done)**
+
+#### Tests (T069-T073) - ✅ All Complete (27 tests)
+- ✅ Test suite for alphabetical index (T069)
+  - 4 integration tests: letter grouping, working links, special character handling, case-insensitive sorting
+  - Test coverage: A-Z grouping, unicode normalization, _private → P, numbers → #
+- ✅ Test suite for category index (T070)
+  - 4 integration tests: type grouping, navigation links, sorting within categories, item counts
+  - Test coverage: role/module/filter/lookup categories, alphabetical sorting, count metadata
+- ✅ Test suite for tag-based navigation (T071)
+  - 5 integration tests: tag grouping, all tagged content linking, bidirectional nav, untagged handling, popularity sorting
+  - Test coverage: multi-tag membership, untagged category, count-based sorting
+- ✅ Test suite for bidirectional relationships (T072)
+  - 27 unit tests for LinkGraph: basics, relationship types, cycles, visualization, traversal
+  - Test coverage: add/get relationships, DEPENDS_ON/INCLUDES/REFERENCES types, cycle detection, Mermaid output
+- ✅ Test suite for search index (T073)
+  - 5 integration tests: content indexing, relevant linking, relevance ranking, stop words, partial matching
+  - Test coverage: inverted index, term scoring, partial search, stop word filtering
+
+#### IndexGenerator Extensions (T074-T076) - ✅ Complete
+- ✅ Extended DefaultIndexGenerator class (T074-T076)
+  - ansibledoctor/generator/indexes.py: Added 512+ lines of new methods (46% coverage, up from 6%)
+  - generate_alphabetical_index() (T075):
+    - Letter-based grouping (A-Z + # for numbers)
+    - Unicode normalization: ñ → N via unicodedata.normalize("NFD")
+    - Special handling: _private → P (uses second char), numbers → #
+    - Case-insensitive: "Apache", "ansible", "API" all in "A"
+    - Returns: Dict[str, List[dict]] with name, path, type per item
+  - generate_category_index() (T076):
+    - Type-based grouping: role, module, filter, lookup, etc.
+    - Returns: Dict[str, Dict[str, List | int]] with items list and count
+    - Alphabetical sorting within each category
+    - Category-level alphabetical ordering
+  - generate_tag_index() (T076):
+    - Tag-based grouping with multi-group membership (items can have multiple tags)
+    - Untagged category for items without tags
+    - Popularity sorting: Most used tags first, then alphabetically
+    - Returns: Dict[str, Dict[str, List | int]] with items and counts
+  - generate_search_index() (T076):
+    - Inverted index for term lookup with relevance scoring
+    - Tokenization: regex-based word extraction, lowercased
+    - Stop words filtering: 34 common words excluded ("the", "and", "or", etc.)
+    - Scoring algorithm:
+      * Base score: term frequency
+      * +10 bonus: term in item name
+      * +20 bonus: exact name match
+    - Returns: Dict[term, List[dict]] with name, path, type, score
+  - search() method (T076):
+    - Multi-term query support with result aggregation
+    - Direct lookup for exact matches
+    - Partial matching with substring search (50% weighted)
+    - Score aggregation across matched terms
+    - matched_terms tracking for each result
+    - Results sorted by score descending
+
+#### LinkGraph Implementation (T077-T078) - ✅ Complete
+- ✅ LinkGraph class (T077-T078)
+  - ansibledoctor/utils/link_graph.py: 421 lines, 96% coverage
+  - RelationshipType enum: DEPENDS_ON, INCLUDES, REFERENCES, LINKS_TO, PARENT_OF, CHILD_OF
+  - add_relationship(): Bidirectional edge creation with type safety
+  - get_outgoing()/get_incoming(): Directional relationship queries
+  - has_cycle(): DFS-based cycle detection with path tracking
+  - find_cycles(): All cycles enumeration
+  - to_mermaid(): Graph visualization with relationship labels
+  - get_all_nodes()/get_all_relationships(): Graph introspection
+  - traverse(): BFS/DFS traversal with visited tracking
+  - get_neighbors(): Adjacency list retrieval
+  - String and enum relationship type support (isinstance checks)
+
+#### Tag Navigation Page (T079) - ✅ Complete
+- ✅ Tag navigation page generation (T079)
+  - generate_tag_navigation_page(): Standalone tag index page method
+  - Templates created:
+    * markdown/index/tags.j2: Simple tag sections with item lists
+    * html/index/tags.j2: Styled tag page with counts and responsive design
+  - Tag links made clickable:
+    * Updated markdown/index/list.j2: Tags link to ../tags.md#tag-{tag}
+    * Updated markdown/index/table.j2: Table format includes tag links
+  - Features:
+    * Tags sorted by popularity (most items first)
+    * Item counts per tag
+    * Anchor links to specific tags (#tag-{tag})
+    * Fallback markdown generation if template engine unavailable
+  - 4 integration tests: page generation, clickable links, item counts, popularity sorting
+
+**Progress Summary**:
+- Phase 7: 11/11 tasks complete (100%) ✅
+- Total: 74/90 tasks complete (82%)
+- New code: 933+ lines (IndexGenerator extensions, LinkGraph, templates)
+- Test coverage: 27 integration tests, 27 unit tests (all passing)
+- Commits: ff46f12 (LinkGraph), 8017161 (IndexGenerator), 2563b55 (cleanup), d289608 (tag nav)
+
+
     - external_links.features: Enable/disable flags
       - module_docs: Enable/disable module documentation linking
       - galaxy_links: Enable/disable Galaxy linking
