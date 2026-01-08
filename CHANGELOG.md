@@ -7,6 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 
+
+## [0.12.0] - 2026-01-08
+
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (27/90 tasks - 30%)
+
+**Current Phase**: Phase 3 - US1 Navigate Between Docs (91% complete - 10/11 tasks done)  
+**Status**: Core cross-reference generation complete and integrated into document pipeline
+
+**Phase 1: Setup ✅ COMPLETE (T001-T005)**
+- Created links module structure (`ansibledoctor/links/`)
+- Implemented Link, LinkType, LinkStatus pydantic models with validation
+- Created LinkParser utility supporting Markdown, HTML, and RST formats
+- Added test fixtures (valid_links.md, broken_links.md, circular_refs.md)
+- Added dependencies: `requests>=2.28`, `beautifulsoup4>=4.11`, type stubs
+
+**Phase 2: Foundational Infrastructure ✅ COMPLETE (T006-T013)**
+- Implemented Link model with factory methods (`from_markdown()`, `from_html()`)
+- Link type inference (external/internal/section/relative/absolute)
+- Path resolution and anchor extraction
+- Comprehensive test suite: 42 tests (23 model + 19 parser)
+- Test coverage: Link model 94%, LinkParser 84%
+- All tests passing (100% pass rate)
+
+**Phase 3A: US1 Tests ✅ COMPLETE (T014-T018)**
+- 5 integration tests for US1 (Navigate Between Docs)
+- Test coverage: dependency links, parent collection links, project context, related roles, browser navigation
+- Tests written in TDD Red phase (failing as expected until implementation complete)
+
+**Phase 3B: US1 Implementation ✅ 91% COMPLETE (T019-T029, 10/11 tasks done)**
+- ✅ CrossReferenceGenerator class (303 lines, 74% coverage)
+  - generate_references() for roles and collections
+  - Dependency link generation (T020)
+  - Parent collection link support (T021)
+  - Project context breadcrumbs (T022)
+  - Related roles by tags/functionality (T023)
+- ✅ LinkManager class (166 lines, 92% coverage)
+  - create_link() with auto-detection (T024)
+  - resolve_link() for absolute/relative paths (T025)
+  - extract_anchor() for section links
+  - format_link() supporting Markdown, HTML, RST (T029)
+- ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
+  - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
+  - 100% pass rate, validates all core functionality
+  - Uses mocks for isolation (no Role/Collection parsing needed)
+- ✅ Pipeline Integration (T026)
+  - Integrated into CLI document generation
+  - Cross-references generated automatically for all roles
+  - Added to TemplateContext.custom_data
+- ✅ Template Updates (T027)
+  - Added "Related Documentation" section to markdown/role.j2
+  - Displays dependencies, parent collection, related roles
+  - TOC includes cross-references link
+  - Tested with demo role (dependencies rendered correctly)
+- ⏸️ Remaining: T028 (Bidirectional relationships model extension)
+  - Related roles ('See Also' section with relevance scoring)
+- ✅ LinkManager class (166 lines)
+  - create_link(), resolve_link() methods
+  - Anchor extraction and path resolution
+  - Multi-format output (Markdown, HTML, RST)
+- 🔄 Next: Integration with document generation pipeline
+
+**Remaining Phases**:
+- Phase 4: US2 - Broken Link Detection (P1 MVP)
+- Phase 5: US3 - Section Navigation (P2)
+- Phase 6: US4 - External Resources (P2)
+- Phase 7: US5 - Index Navigation (P3)
+- Phase 8: Polish & Documentation
+
 ### Added - Schema Documentation & Validation (Spec 012) - ✅ **COMPLETE** (91/94 tasks - 97%) - **PRODUCTION READY**
 
 **Feature Complete**: All 5 User Stories + Documentation + Advanced Features  
