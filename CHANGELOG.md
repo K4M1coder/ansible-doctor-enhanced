@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (52/90 tasks - 58%)
 
 **Current Phase**: Phase 5 - US3 Navigate Within Documents (67% complete - 8/12 tasks done)  
-**Status**: NavigationBuilder core implementation complete with 85% coverage, 57 tests passing
+**Status**: NavigationBuilder core implementation complete with 85% coverage, all tests passing
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -98,7 +98,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Logging: Correlation ID tracking for tracing
 - 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
 
-**Phase 5: US3 Section Navigation 🚧 42% COMPLETE (T045-T049, 5/12 tasks done)**
+**Phase 5: US3 Section Navigation 🚧 67% COMPLETE (T045-T052, 8/12 tasks done)**
+
+#### Tests (T045-T049) - ✅ All Complete
 - ✅ Test suite for table of contents generation (T045)
   - 16 unit tests for NavigationBuilder.build_toc()
   - Test cases: simple headings, mixed levels, special characters, code blocks
@@ -118,6 +120,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Test suite for mobile navigation (T049)
   - 13 integration tests for mobile compatibility
   - Test cases: collapsible TOC, touch-friendly targets, responsive width
+
+#### NavigationBuilder Implementation (T050-T052) - ✅ Complete
+- ✅ NavigationBuilder class implementation (T050-T052)
+  - ansibledoctor/links/navigation_builder.py (280+ lines, 85% coverage)
+  - build_toc() method: Parse headings, generate TOC in Markdown/HTML
+  - Heading extraction: Regex pattern matching for h1-h6, code block exclusion
+  - Anchor generation: slugify() utility with duplicate handling
+  - Markdown output: Indented list with links (2 spaces per level)
+  - HTML output: Nested <ul>/<li> with proper parent-child nesting
+  - Parameters: format, max_depth, include_top_level, mobile_friendly
+  - Fixed test bug: Corrected nested HTML depth counting algorithm
+  - ansibledoctor/utils/slug.py: Added slugify() public function
+  - All 57 tests passing (25 unit + 32 integration)
+- **Next**: Template integration (T053-T056)
   - Hamburger menu, smooth scrolling, sticky positioning
   - Back-to-top links, readable fonts, swipe gestures
   - Landscape orientation, reduced motion, offline support

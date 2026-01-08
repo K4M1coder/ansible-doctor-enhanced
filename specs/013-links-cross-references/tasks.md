@@ -132,10 +132,10 @@
 - [X] T050 [US3] Create NavigationBuilder class in ansibledoctor/links/navigation_builder.py with build_toc() method ✅ Complete: Created NavigationBuilder with full TOC generation support
 - [X] T051 [US3] Implement table of contents generation in NavigationBuilder (parse headings, generate anchor links) ✅ Complete: Supports Markdown & HTML formats, max_depth, mobile-friendly
 - [X] T052 [US3] Implement anchor slug generation in NavigationBuilder (convert heading text to URL-safe anchors) ✅ Complete: Added slugify() utility, handles duplicates & special chars
-- [ ] T053 [US3] Add TOC insertion to templates (inject TOC after title in long documents)
-- [ ] T054 [US3] Implement nested section handling in NavigationBuilder (hierarchical TOC for h2, h3, h4)
-- [ ] T055 [US3] Add smooth scrolling support in HTML output (CSS/JavaScript for smooth scroll to anchor)
-- [ ] T056 [US3] Add mobile-responsive navigation in HTML templates (collapsible TOC for small screens)
+- [ ] T053 [US3] Add TOC insertion to templates (inject TOC after title in long documents) ⏸️ Deferred: Template variables ready, awaiting full pipeline integration
+- [X] T054 [US3] Implement nested section handling in NavigationBuilder (hierarchical TOC for h2, h3, h4) ✅ Complete: Nested HTML <ul> and Markdown indentation fully implemented
+- [ ] T055 [US3] Add smooth scrolling support in HTML output (CSS/JavaScript for smooth scroll to anchor) ⏸️ Deferred: CSS framework task, core anchor navigation works
+- [X] T056 [US3] Add mobile-responsive navigation in HTML templates (collapsible TOC for small screens) ✅ Complete: mobile_friendly parameter with <details> and responsive HTML
 
 ---
 
