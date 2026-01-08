@@ -190,7 +190,7 @@
 - [X] T076 [US5] Implement category index linking in IndexGenerator (group by type, link to all items) ✅ Complete: generate_category_index, generate_tag_index, generate_search_index with search method
 - [X] T077 [US5] Create LinkGraph class in ansibledoctor/utils/link_graph.py (graph data structure for link relationships) ✅ Complete: 421 lines, 96% coverage, RelationshipType enum, bidirectional tracking
 - [X] T078 [US5] Implement bidirectional relationship tracking in LinkGraph (track both "links to" and "linked by") ✅ Complete: Full bidirectional API with get_outgoing/get_incoming, cycle detection, visualization, traversal
-- [ ] T079 [US5] Add tag-based navigation to index pages (link tags to all content with that tag)
+- [X] T079 [US5] Add tag-based navigation to index pages (link tags to all content with that tag) ✅ Complete: Added generate_tag_navigation_page method, tag index templates (Markdown/HTML), clickable tag links in list/table templates, 4 integration tests passing
 
 ---
 

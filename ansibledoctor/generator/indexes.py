@@ -1118,3 +1118,78 @@ class DefaultIndexGenerator:
         )
 
         return results
+    def generate_tag_navigation_page(
+        self,
+        items: list[IndexItem] | list[dict[str, Any]],
+        output_path: Path | None = None,
+    ) -> str:
+        """Generate a standalone tag navigation page.
+
+        Creates a comprehensive tag index page with links to all tagged content.
+        Tags are sorted by popularity (number of items) and include links to
+        individual items.
+
+        Args:
+            items: List of IndexItem objects or dicts to index
+            output_path: Optional path where the page will be saved (for relative links)
+
+        Returns:
+            Rendered tag navigation page content
+
+        Example:
+            >>> generator = DefaultIndexGenerator(output_dir=Path("."))
+            >>> items = [
+            ...     {"name": "apache", "tags": ["webserver", "production"], "path": "./apache/README.md"},
+            ...     {"name": "nginx", "tags": ["webserver"], "path": "./nginx/README.md"}
+            ... ]
+            >>> page_content = generator.generate_tag_navigation_page(items)
+            >>> "webserver" in page_content
+            True
+        """
+        # Generate tag index
+        tag_index = self.generate_tag_index(items)
+
+        if self._engine is None:
+            # Fallback: generate simple markdown if no template engine
+            content = "# Tags\n\nBrowse all content by tag.\n\n"
+            for tag, data in tag_index.items():
+                count = data.get("count", 0) if isinstance(data, dict) else 0
+                content += f"## {tag} ({count})\n\n"
+                items_list = data.get("items", []) if isinstance(data, dict) else []
+                for item in items_list:
+                    if isinstance(item, dict):
+                        name = item.get("name", "")
+                        path = item.get("path", "#")
+                        item_type = item.get("type", "unknown")
+                        content += f"- [{name}]({path}) *{item_type}*\n"
+                content += "\n"
+            content += f"\n---\n\n**Total Tags**: {len(tag_index)}\n"
+            return content
+
+        # Use template engine to render
+        template_name = f"{self.output_format}/index/tags.j2"
+
+        try:
+            template = self._engine.get_template(template_name)
+        except Exception:
+            # Fallback if template not found
+            content = "# Tags\n\nBrowse all content by tag.\n\n"
+            for tag, data in tag_index.items():
+                count = data.get("count", 0) if isinstance(data, dict) else 0
+                content += f"## {tag} ({count})\n\n"
+                items_list = data.get("items", []) if isinstance(data, dict) else []
+                for item in items_list:
+                    if isinstance(item, dict):
+                        name = item.get("name", "")
+                        path = item.get("path", "#")
+                        item_type = item.get("type", "unknown")
+                        content += f"- [{name}]({path}) *{item_type}*\n"
+                content += "\n"
+            content += f"\n---\n\n**Total Tags**: {len(tag_index)}\n"
+            return content
+
+        # Render template with tag index data
+        return template.render(
+            tag_index=tag_index,
+            project_name=self.output_dir.name,
+        )

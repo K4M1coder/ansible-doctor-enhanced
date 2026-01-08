@@ -451,3 +451,86 @@ class TestSearchIndex:
         results = generator.search(index, "postgre")
         assert len(results) > 0
         assert results[0]["name"] == "postgresql"
+
+class TestTagNavigationPage:
+    """Test tag navigation page generation."""
+
+    def test_tag_navigation_page_generation(self, tmp_path: Path) -> None:
+        """Test that tag navigation page is generated with all tags."""
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
+
+        items = [
+            {"name": "web_server", "tags": ["webserver", "production"], "path": "./web/README.md", "type": "role"},
+            {"name": "api_gateway", "tags": ["webserver", "api"], "path": "./api/README.md", "type": "role"},
+            {"name": "database", "tags": ["database", "production"], "path": "./db/README.md", "type": "role"},
+            {"name": "cache", "tags": ["cache"], "path": "./cache/README.md", "type": "module"},
+        ]
+
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
+        page_content = generator.generate_tag_navigation_page(items)
+
+        # Should contain all tags
+        assert "webserver" in page_content
+        assert "production" in page_content
+        assert "database" in page_content
+        assert "api" in page_content
+        assert "cache" in page_content
+
+        # Should contain item names
+        assert "web_server" in page_content
+        assert "api_gateway" in page_content
+        assert "database" in page_content
+        assert "cache" in page_content
+
+    def test_tag_navigation_page_has_clickable_links(self, tmp_path: Path) -> None:
+        """Test that tag navigation page contains clickable links to items."""
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
+
+        items = [
+            {"name": "web_server", "tags": ["webserver"], "path": "./web/README.md", "type": "role"},
+            {"name": "api_gateway", "tags": ["webserver"], "path": "./api/README.md", "type": "role"},
+        ]
+
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
+        page_content = generator.generate_tag_navigation_page(items)
+
+        # Should contain markdown links to items
+        assert "[web_server](./web/README.md)" in page_content or "web_server" in page_content
+        assert "[api_gateway](./api/README.md)" in page_content or "api_gateway" in page_content
+
+    def test_tag_navigation_page_shows_item_counts(self, tmp_path: Path) -> None:
+        """Test that tag navigation page shows count of items per tag."""
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
+
+        items = [
+            {"name": "web1", "tags": ["webserver"], "path": "./web1/README.md", "type": "role"},
+            {"name": "web2", "tags": ["webserver"], "path": "./web2/README.md", "type": "role"},
+            {"name": "web3", "tags": ["webserver"], "path": "./web3/README.md", "type": "role"},
+            {"name": "db1", "tags": ["database"], "path": "./db1/README.md", "type": "role"},
+        ]
+
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
+        page_content = generator.generate_tag_navigation_page(items)
+
+        # Should show count for each tag (webserver has 3 items)
+        assert "3" in page_content  # webserver count
+        assert "1" in page_content  # database count
+
+    def test_tag_navigation_page_sorts_by_popularity(self, tmp_path: Path) -> None:
+        """Test that tags are sorted by popularity (most items first)."""
+        from ansibledoctor.generator.indexes import DefaultIndexGenerator
+
+        items = [
+            {"name": "web1", "tags": ["common"], "path": "./web1/README.md", "type": "role"},
+            {"name": "web2", "tags": ["common"], "path": "./web2/README.md", "type": "role"},
+            {"name": "web3", "tags": ["common"], "path": "./web3/README.md", "type": "role"},
+            {"name": "db1", "tags": ["rare"], "path": "./db1/README.md", "type": "role"},
+        ]
+
+        generator = DefaultIndexGenerator(output_dir=tmp_path)
+        page_content = generator.generate_tag_navigation_page(items)
+
+        # "common" should appear before "rare" in the content
+        common_pos = page_content.find("common")
+        rare_pos = page_content.find("rare")
+        assert common_pos < rare_pos  # common appears first

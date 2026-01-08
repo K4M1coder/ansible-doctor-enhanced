@@ -1,0 +1,89 @@
+{# Tag index template (HTML) - displays tags with their associated items #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tags - {{ project_name | default('Documentation') }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .tag-count {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .item-list {
+            list-style: none;
+            padding: 0;
+        }
+        .item-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .item-list a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .item-list a:hover {
+            text-decoration: underline;
+        }
+        .item-type {
+            color: #95a5a6;
+            font-style: italic;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        .stats {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tags</h1>
+    <p>Browse all content by tag. Click on any tag to see all items tagged with it.</p>
+
+    {% if tag_index %}
+    {% for tag, data in tag_index.items() %}
+    <section id="tag-{{ tag }}">
+        <h2>
+            {{ tag }}
+            <span class="tag-count">({{ data.count }} item{% if data.count != 1 %}s{% endif %})</span>
+        </h2>
+        <ul class="item-list">
+        {% for item in data.items %}
+            <li>
+                <a href="{{ item.path }}">{{ item.name }}</a>
+                <span class="item-type">{{ item.type }}</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p><em>No tagged content found.</em></p>
+    {% endif %}
+
+    <div class="stats">
+        <strong>Total Tags:</strong> {{ tag_index|length }}
+    </div>
+</body>
+</html>

@@ -19,7 +19,7 @@
 {% endif %}
 
 {% if item.tags %}
-**Tags:** {% for tag in item.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}
+**Tags:** {% for tag in item.tags %}[`{{ tag }}`](../tags.md#tag-{{ tag }}){% if not loop.last %}, {% endif %}{% endfor %}
 {% endif %}
 
 {% if item.dependencies %}
