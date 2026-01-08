@@ -173,13 +173,15 @@
 
 **Independent Test**: Generate large doc set → Index pages contain working links to all documented items
 
-### Tests for User Story 5 ⚠️
+### Tests for User Story 5 ✅
 
-- [ ] T069 [P] [US5] Write test for alphabetical index in tests/integration/test_link_generation.py (letter-based index with working links)
-- [ ] T070 [P] [US5] Write test for category index in tests/integration/test_link_generation.py (category-based navigation)
-- [ ] T071 [P] [US5] Write test for tag-based navigation in tests/integration/test_link_generation.py (tag links to all tagged content)
-- [ ] T072 [P] [US5] Write test for bidirectional relationships in tests/unit/test_link_graph.py (relationship graph showing both directions)
-- [ ] T073 [P] [US5] Write test for search index in tests/integration/test_link_generation.py (term search links to relevant sections)
+- [X] T069 [P] [US5] Write test for alphabetical index in tests/integration/test_index_navigation.py (letter-based index with working links) ✅ Complete: 4 tests for alphabetical grouping, links, special chars, case sensitivity
+- [X] T070 [P] [US5] Write test for category index in tests/integration/test_index_navigation.py (category-based navigation) ✅ Complete: 4 tests for type grouping, navigation, sorting, counts
+- [X] T071 [P] [US5] Write test for tag-based navigation in tests/integration/test_index_navigation.py (tag links to all tagged content) ✅ Complete: 5 tests for tag grouping, links, bidirectional nav, untagged, popularity
+- [X] T072 [P] [US5] Write test for bidirectional relationships in tests/unit/test_link_graph.py (relationship graph showing both directions) ✅ Complete: 27 unit tests for LinkGraph (basics, types, cycles, viz, traversal)
+- [X] T073 [P] [US5] Write test for search index in tests/integration/test_index_navigation.py (term search links to relevant sections) ✅ Complete: 5 tests for indexing, linking, ranking, stop words, partial matching
+
+**All US5 tests complete (27 total tests)** - Ready for implementation phase
 
 ### Implementation for User Story 5
 
