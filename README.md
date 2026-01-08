@@ -20,7 +20,8 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Annotation System**: Support for `@var`, `@tag`, `@todo`, `@example`, and `@meta` annotations with multiple formats (single-line, multiline, JSON)
 - **Collection Support (v0.5.0)**: Parse, generate documentation, and analyze dependencies for Ansible Collections
 - **Project Documentation (v0.6.0)**: Generate comprehensive project-level documentation with architecture diagrams, role/collection inventories, and multi-language support
- - **Internationalization (v0.5.1)**: Initial i18n support with translation files for English, French and German and a Jinja2 `t()` filter for templates
+- **Internationalization (v0.5.1)**: Initial i18n support with translation files for English, French and German and a Jinja2 `t()` filter for templates
+- **Links & Cross-References (v0.12.0 - In Progress)**: Smart link management with cross-reference generation, broken link detection, and intelligent navigation
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
 - **Error Handling**: Graceful error recovery with actionable suggestions and detailed context
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates
