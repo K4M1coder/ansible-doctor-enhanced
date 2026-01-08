@@ -119,7 +119,7 @@
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T045 [P] [US3] Write test for table of contents generation in tests/unit/test_navigation_builder.py (TOC with section links)
+- [X] T045 [P] [US3] Write test for table of contents generation in tests/unit/test_navigation_builder.py (TOC with section links) ✅ Complete with 16 tests
 - [ ] T046 [P] [US3] Write test for section link jumping in tests/integration/test_link_generation.py (links jump to correct headings)
 - [ ] T047 [P] [US3] Write test for URL anchor updates in tests/integration/test_link_generation.py (URL updates with anchor)
 - [ ] T048 [P] [US3] Write test for nested subsections in tests/unit/test_navigation_builder.py (nested TOC structure)
