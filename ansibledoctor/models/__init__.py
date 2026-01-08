@@ -9,6 +9,7 @@ Following Constitution Article X (Domain-Driven Design):
 
 from ansibledoctor.models.annotation import Annotation, AnnotationType
 from ansibledoctor.models.collection import AnsibleCollection
+from ansibledoctor.models.cross_reference import CrossReference
 from ansibledoctor.models.example import Example
 from ansibledoctor.models.galaxy import GalaxyMetadata
 from ansibledoctor.models.metadata import ArgumentSpec, Dependency, Platform, RoleMetadata
@@ -37,4 +38,6 @@ __all__ = [
     "Example",
     # Tags
     "Tag",
+    # Links & Cross-References
+    "CrossReference",
 ]
