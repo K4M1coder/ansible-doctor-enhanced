@@ -275,3 +275,316 @@ class TestExternalLinkRetry:
             assert result.is_valid
             assert result.status == LinkStatus.VALID
             assert mock_head.call_count == 3
+
+
+# ===========================
+# US4: External Resources (T057-T061)
+# ===========================
+
+
+class TestModuleDocumentationLinks:
+    """Tests for module documentation linking (T057)."""
+
+    def test_ansible_module_generates_docs_link(self, tmp_path: Path) -> None:
+        """Test that Ansible module names generate correct docs.ansible.com links.
+        
+        Scenario:
+            - Role uses ansible.builtin.copy module
+            - Documentation should link to official module docs
+            - Link format: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html
+        """
+        role_dir = tmp_path / "roles" / "test_role"
+        role_dir.mkdir(parents=True)
+        
+        # Create task file with module usage
+        tasks_dir = role_dir / "tasks"
+        tasks_dir.mkdir()
+        (tasks_dir / "main.yml").write_text("""
+---
+- name: Copy configuration file
+  ansible.builtin.copy:
+    src: config.conf
+    dest: /etc/app/config.conf
+""")
+        
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        integrator = ExternalLinkIntegrator(ansible_version="2.15")
+        
+        links = integrator.extract_module_links(role_dir)
+        
+        # Should detect ansible.builtin.copy module with version 2.15
+        assert any(link.target == "https://docs.ansible.com/ansible/2.15/collections/ansible/builtin/copy_module.html" 
+                   for link in links)
+        assert any("copy" in link.text for link in links)
+
+    def test_community_module_generates_correct_namespace_link(self, tmp_path: Path) -> None:
+        """Test that community modules link to correct namespace."""
+        role_dir = tmp_path / "roles" / "test_role"
+        role_dir.mkdir(parents=True)
+        
+        tasks_dir = role_dir / "tasks"
+        tasks_dir.mkdir()
+        (tasks_dir / "main.yml").write_text("""
+---
+- name: Install package
+  community.general.homebrew:
+    name: git
+    state: present
+""")
+        
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        integrator = ExternalLinkIntegrator(ansible_version="2.15")
+        
+        links = integrator.extract_module_links(role_dir)
+        
+        # Should link to community.general collection docs
+        assert any("community/general" in link.target for link in links)
+        assert any("homebrew_module.html" in link.target for link in links)
+
+    def test_multiple_modules_generate_multiple_links(self, tmp_path: Path) -> None:
+        """Test that multiple different modules generate separate links."""
+        role_dir = tmp_path / "roles" / "test_role"
+        role_dir.mkdir(parents=True)
+        
+        tasks_dir = role_dir / "tasks"
+        tasks_dir.mkdir()
+        (tasks_dir / "main.yml").write_text("""
+---
+- name: Create directory
+  ansible.builtin.file:
+    path: /var/app
+    state: directory
+
+- name: Install package
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+""")
+        
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        integrator = ExternalLinkIntegrator(ansible_version="2.15")
+        
+        links = integrator.extract_module_links(role_dir)
+        
+        # Should have links for both file and apt modules
+        assert len(links) >= 2
+        targets = [link.target for link in links]
+        assert any("file_module.html" in t for t in targets)
+        assert any("apt_module.html" in t for t in targets)
+
+
+class TestGalaxyPageLinks:
+    """Tests for Ansible Galaxy page linking (T058)."""
+
+    def test_collection_generates_galaxy_link(self, tmp_path: Path) -> None:
+        """Test that collections link to their Ansible Galaxy pages.
+        
+        Scenario:
+            - Collection namespace: mycompany.myapp
+            - Should generate link: https://galaxy.ansible.com/ui/repo/published/mycompany/myapp/
+        """
+        from ansibledoctor.models.collection import AnsibleCollection
+        from ansibledoctor.models.galaxy import GalaxyMetadata
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        metadata = GalaxyMetadata(
+            namespace="mycompany",
+            name="myapp",
+            version="1.0.0",
+            authors=["Test Author"],
+            dependencies={}
+        )
+        
+        collection = AnsibleCollection(
+            metadata=metadata
+        )
+        
+        integrator = ExternalLinkIntegrator()
+        link = integrator.generate_galaxy_link(collection)
+        
+        assert link.target == "https://galaxy.ansible.com/ui/repo/published/mycompany/myapp/"
+        assert "Ansible Galaxy" in link.text
+        assert link.link_type == LinkType.EXTERNAL_URL
+
+    def test_role_with_galaxy_metadata_generates_link(self, tmp_path: Path) -> None:
+        """Test that roles with galaxy_info generate Galaxy links."""
+        role_dir = tmp_path / "roles" / "nginx"
+        role_dir.mkdir(parents=True)
+        
+        meta_dir = role_dir / "meta"
+        meta_dir.mkdir()
+        (meta_dir / "main.yml").write_text("""
+galaxy_info:
+  author: johndoe
+  namespace: johndoe
+  role_name: nginx
+""")
+        
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        integrator = ExternalLinkIntegrator()
+        
+        link = integrator.generate_role_galaxy_link(role_dir)
+        
+        assert "galaxy.ansible.com" in link.target
+        assert "johndoe" in link.target
+        assert "nginx" in link.target
+
+
+class TestBestPracticesLinks:
+    """Tests for best practices guide linking (T059)."""
+
+    def test_security_keyword_links_to_security_guide(self, tmp_path: Path) -> None:
+        """Test that security-related content links to Ansible security best practices.
+        
+        Scenario:
+            - Documentation mentions "security", "vault", "secrets"
+            - Should link to: https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#best-practices-for-security
+        """
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator()
+        
+        content = """
+        This role handles sensitive data using Ansible Vault for secrets management.
+        Security is a top priority.
+        """
+        
+        links = integrator.extract_best_practice_links(content)
+        
+        # Should detect security-related keywords
+        assert any("security" in link.target.lower() or "vault" in link.target.lower() 
+                   for link in links)
+        assert any("best_practices" in link.target for link in links)
+
+    def test_testing_keyword_links_to_testing_guide(self, tmp_path: Path) -> None:
+        """Test that testing-related content links to Ansible testing guides."""
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator()
+        
+        content = """
+        This role includes molecule tests and CI/CD integration testing.
+        """
+        
+        links = integrator.extract_best_practice_links(content)
+        
+        # Should detect testing keywords
+        assert any("test" in link.target.lower() or "molecule" in link.target.lower() 
+                   for link in links)
+
+    def test_multiple_best_practices_generate_separate_links(self, tmp_path: Path) -> None:
+        """Test that different best practice topics generate distinct links."""
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator()
+        
+        content = """
+        This role follows Ansible best practices:
+        - Security with Vault
+        - Testing with Molecule
+        - Performance optimization
+        """
+        
+        links = integrator.extract_best_practice_links(content)
+        
+        # Should have multiple distinct links
+        targets = [link.target for link in links]
+        assert len(set(targets)) >= 2  # At least 2 different best practice topics
+
+
+class TestNewTabBehavior:
+    """Tests for external link new tab behavior (T060)."""
+
+    def test_external_links_have_target_blank_attribute(self, tmp_path: Path) -> None:
+        """Test that external links include target='_blank' attribute.
+        
+        Scenario:
+            - External link in HTML output
+            - Should have target="_blank" rel="noopener noreferrer"
+        """
+        from ansibledoctor.models.link import Link, LinkType
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        link = Link(
+            source_file=tmp_path / "README.md",
+            target="https://docs.ansible.com/",
+            link_type=LinkType.EXTERNAL_URL,
+            text="Ansible Documentation",
+            line_number=1
+        )
+        
+        integrator = ExternalLinkIntegrator()
+        html = integrator.render_link_html(link)
+        
+        # Should include security attributes
+        assert 'target="_blank"' in html
+        assert 'rel="noopener noreferrer"' in html
+
+    def test_internal_links_do_not_have_target_blank(self, tmp_path: Path) -> None:
+        """Test that internal links stay in same tab."""
+        from ansibledoctor.models.link import Link, LinkType
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        link = Link(
+            source_file=tmp_path / "README.md",
+            target="./roles/nginx/README.md",
+            link_type=LinkType.INTERNAL_FILE,
+            text="Nginx Role",
+            line_number=1
+        )
+        
+        integrator = ExternalLinkIntegrator()
+        html = integrator.render_link_html(link)
+        
+        # Internal links should NOT open in new tab
+        assert 'target="_blank"' not in html
+
+
+class TestVersionSpecificLinks:
+    """Tests for version-specific documentation linking (T061)."""
+
+    def test_ansible_2_15_links_to_2_15_docs(self, tmp_path: Path) -> None:
+        """Test that Ansible 2.15 generates version-specific docs links.
+        
+        Scenario:
+            - Project uses Ansible 2.15
+            - Module docs should link to /ansible/2.15/ path
+        """
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator(ansible_version="2.15")
+        
+        link = integrator.generate_module_doc_link("ansible.builtin.copy")
+        
+        # Should use version-specific URL
+        assert "/ansible/2.15/" in link.target or "/ansible/latest/" in link.target
+
+    def test_latest_version_uses_latest_path(self, tmp_path: Path) -> None:
+        """Test that 'latest' version uses /latest/ path."""
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator(ansible_version="latest")
+        
+        link = integrator.generate_module_doc_link("ansible.builtin.file")
+        
+        assert "/ansible/latest/" in link.target
+
+    def test_version_config_from_ansibledoctor_yml(self, tmp_path: Path) -> None:
+        """Test that Ansible version can be configured in .ansibledoctor.yml."""
+        config_file = tmp_path / ".ansibledoctor.yml"
+        config_file.write_text("""
+ansible_version: "2.14"
+external_links:
+  ansible_docs_base: "https://docs.ansible.com"
+""")
+        
+        from ansibledoctor.links.external_link_integrator import ExternalLinkIntegrator
+        
+        integrator = ExternalLinkIntegrator.from_config(config_file)
+        
+        assert integrator.ansible_version == "2.14"
+        
+        link = integrator.generate_module_doc_link("ansible.builtin.template")
+        
+        # Should respect configured version
+        assert "/ansible/2.14/" in link.target or "/ansible/latest/" in link.target

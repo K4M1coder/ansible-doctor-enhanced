@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (52/90 tasks - 58%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (58/90 tasks - 64%)
 
-**Current Phase**: Phase 5 - US3 Navigate Within Documents (67% complete - 8/12 tasks done)  
-**Status**: NavigationBuilder core implementation complete with 85% coverage, all tests passing
+**Current Phase**: Phase 6 - US4 Access External Resources (54% complete - 7/13 tasks done)  
+**Status**: ExternalLinkIntegrator core implementation complete, all 13 US4 tests passing
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -150,6 +150,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ansibledoctor/utils/slug.py: Added slugify() public function
   - All 57 tests passing (25 unit + 32 integration)
 - **Next**: Template integration (T053-T056)
+
+**Phase 6: US4 Access External Resources 🚧 54% COMPLETE (T057-T067, 7/13 tasks done)**
+
+#### Tests (T057-T061) - ✅ All Complete
+- ✅ Module documentation link tests (3 tests): ansible.builtin → docs.ansible.com, community modules → namespace URLs
+- ✅ Galaxy page link tests (2 tests): Collections/roles → galaxy.ansible.com URLs  
+- ✅ Best practices link tests (3 tests): Keywords → official guides (security, testing, performance)
+- ✅ New tab behavior tests (2 tests): External links target="_blank", internal links same tab
+- ✅ Version-specific link tests (3 tests): Ansible version → correct URL paths
+
+#### ExternalLinkIntegrator Implementation (T062-T067) - ✅ Core Complete
+- ✅ ExternalLinkIntegrator class (350+ lines): from_config(), integrate_links()
+- ✅ Module documentation linking: extract_module_links() with YAML parsing, FQCN → docs URLs
+- ✅ Galaxy linking: generate_galaxy_link() for collections, generate_role_galaxy_link() for roles
+- ✅ Best practices linking: 8 keyword mappings (security, vault, testing, molecule, ci/cd, performance)
+- ✅ Version-specific URLs: ansible_version parameter, dynamic URL generation
+- ✅ HTML rendering: render_link_html() with target="_blank" rel="noopener noreferrer"
+- **Next**: External resource configuration (T068), template integration
+
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality

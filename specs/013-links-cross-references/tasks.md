@@ -147,17 +147,23 @@
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T057 [P] [US4] Write test for module documentation links in tests/integration/test_external_links.py (module names link to Ansible docs)
-- [ ] T058 [P] [US4] Write test for Galaxy page links in tests/integration/test_external_links.py (collection links to Galaxy)
-- [ ] T059 [P] [US4] Write test for best practices links in tests/integration/test_external_links.py (links to official guides)
-- [ ] T060 [P] [US4] Write test for new tab behavior in tests/integration/test_link_generation.py (external links open in new tabs)
-- [ ] T061 [P] [US4] Write test for version-specific links in tests/integration/test_external_links.py (links target correct Ansible version)
+- [X] T057 [P] [US4] Write test for module documentation links in tests/integration/test_external_links.py (module names link to Ansible docs) ✅ Complete: 3 tests for module doc linking
+- [X] T058 [P] [US4] Write test for Galaxy page links in tests/integration/test_external_links.py (collection links to Galaxy) ✅ Complete: 2 tests for Galaxy linking
+- [X] T059 [P] [US4] Write test for best practices links in tests/integration/test_external_links.py (links to official guides) ✅ Complete: 3 tests for best practices
+- [X] T060 [P] [US4] Write test for new tab behavior in tests/integration/test_link_generation.py (external links open in new tabs) ✅ Complete: 2 tests for target="_blank"
+- [X] T061 [P] [US4] Write test for version-specific links in tests/integration/test_external_links.py (links target correct Ansible version) ✅ Complete: 3 tests for version-aware URLs
+
+**All US4 tests complete (13 total tests)** - Ready for implementation phase
 
 ### Implementation for User Story 4
 
-- [ ] T062 [US4] Create ExternalLinkIntegrator class in ansibledoctor/links/external_link_integrator.py with integrate_links() method
-- [ ] T063 [US4] Implement Ansible module documentation linking in ExternalLinkIntegrator (detect module usage, generate docs.ansible.com links)
-- [ ] T064 [US4] Implement Galaxy collection linking in ExternalLinkIntegrator (extract namespace.name, link to Galaxy)
+- [X] T062 [US4] Create ExternalLinkIntegrator class in ansibledoctor/links/external_link_integrator.py with integrate_links() method ✅ Complete: 350+ lines with full implementation
+- [X] T063 [US4] Implement Ansible module documentation linking in ExternalLinkIntegrator (detect module usage, generate docs.ansible.com links) ✅ Complete: extract_module_links() with YAML parsing
+- [X] T064 [US4] Implement Galaxy collection linking in ExternalLinkIntegrator (extract namespace.name, link to Galaxy) ✅ Complete: generate_galaxy_link() for collections and roles
+- [X] T065 [US4] Implement best practices guide linking in ExternalLinkIntegrator (detect keywords, link to relevant guides) ✅ Complete: extract_best_practice_links() with 8 keyword mappings
+- [X] T066 [US4] Add version-specific URL generation in ExternalLinkIntegrator (use Ansible version from config) ✅ Complete: ansible_version parameter with from_config()
+- [X] T067 [US4] Configure external link targets in HTML templates (add target="_blank" rel="noopener noreferrer") ✅ Complete: render_link_html() with security attributes
+- [ ] T068 [US4] Create external resource configuration in .ansibledoctor.yml (configurable external link mappings)
 - [ ] T065 [US4] Implement best practices guide linking in ExternalLinkIntegrator (detect keywords, link to relevant guides)
 - [ ] T066 [US4] Add version-specific URL generation in ExternalLinkIntegrator (use Ansible version from config)
 - [ ] T067 [US4] Configure external link targets in HTML templates (add target="_blank" rel="noopener noreferrer")
