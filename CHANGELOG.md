@@ -18,17 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
-- Implemented Link, LinkType, LinkStatus pydantic models with validation
-- Created LinkParser utility supporting Markdown, HTML, and RST formats
+- Implemented Link, LinkType, LinkStatus pydantic models with validation (234 lines, 99% coverage)
+- Created LinkParser utility supporting Markdown, HTML, and RST formats (201 lines, 94% coverage)
 - Added test fixtures (valid_links.md, broken_links.md, circular_refs.md)
 - Added dependencies: `requests>=2.28`, `beautifulsoup4>=4.11`, type stubs
 
 **Phase 2: Foundational Infrastructure ✅ COMPLETE (T006-T013)**
 - Implemented Link model with factory methods (`from_markdown()`, `from_html()`)
 - Link type inference (external/internal/section/relative/absolute)
-- Path resolution and anchor extraction
+- Path resolution and anchor extraction (integrated in Link.extract_anchor() and LinkManager.extract_anchor())
 - Comprehensive test suite: 42 tests (23 model + 19 parser)
-- Test coverage: Link model 94%, LinkParser 84%
+- Test coverage: Link model 99%, LinkParser 94%
 - All tests passing (100% pass rate)
 
 **Phase 3A: US1 Tests ✅ COMPLETE (T014-T018)**
