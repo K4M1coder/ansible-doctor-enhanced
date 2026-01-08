@@ -101,6 +101,107 @@ def _output_error_report(
         click.echo(output_data, err=True)
 
 
+def _validate_generated_links(
+    output_path: Path,
+    timeout: float,
+    verbose: bool,
+    correlation_id: str,
+) -> None:
+    """Validate links in generated documentation (T044, Spec 013).
+    
+    Args:
+        output_path: Path to generated documentation file or directory
+        timeout: HTTP timeout for external link validation
+        verbose: Show detailed validation results
+        correlation_id: Request correlation ID for tracking
+    """
+    from ansibledoctor.links.link_validator import LinkValidator
+    from ansibledoctor.models.link import LinkStatus
+    from ansibledoctor.utils.link_parser import LinkParser
+    
+    logger.info("Starting link validation", correlation_id=correlation_id)
+    click.echo("\n🔗 Validating links in generated documentation...", err=True)
+    
+    # Determine validation path
+    if output_path.is_file():
+        validation_path = output_path.parent
+    else:
+        validation_path = output_path
+    
+    # Parse links
+    parser = LinkParser()
+    try:
+        all_links = parser.parse_directory(validation_path)
+    except Exception as e:
+        logger.warning(f"Link validation failed: {e}", correlation_id=correlation_id)
+        click.echo(f"⚠️  Warning: Link validation failed: {e}", err=True)
+        return
+    
+    if not all_links:
+        click.echo("✅ No links found to validate", err=True)
+        return
+    
+    # Validate links
+    validator = LinkValidator(base_path=validation_path, timeout=timeout, enable_cache=True)
+    results = []
+    broken_count = 0
+    warning_count = 0
+    
+    for link in all_links:
+        result = validator.validate(link)
+        results.append(result)
+        
+        if result.status == LinkStatus.BROKEN:
+            broken_count += 1
+        elif result.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT):
+            warning_count += 1
+    
+    # Save cache for next run
+    validator.save_cache()
+    
+    # Report results
+    total = len(results)
+    valid = total - broken_count - warning_count
+    
+    if verbose:
+        # Detailed output
+        if broken_count > 0:
+            click.echo(f"\n❌ Broken links ({broken_count}):", err=True)
+            for result in results:
+                if result.status == LinkStatus.BROKEN:
+                    click.echo(
+                        f"  • {result.source_file.name}:{result.line_number} → {result.link.target}",
+                        err=True,
+                    )
+                    click.echo(f"    Error: {result.error_message}", err=True)
+        
+        if warning_count > 0:
+            click.echo(f"\n⚠️  Warnings ({warning_count}):", err=True)
+            for result in results:
+                if result.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT):
+                    click.echo(
+                        f"  • {result.source_file.name}:{result.line_number} → {result.link.target}",
+                        err=True,
+                    )
+                    click.echo(f"    Warning: {result.error_message}", err=True)
+    
+    # Summary
+    click.echo(
+        f"\n📊 Link validation: {valid} valid, {warning_count} warnings, {broken_count} broken (total: {total})",
+        err=True,
+    )
+    
+    if broken_count > 0:
+        click.echo("⚠️  Found broken links - consider fixing them", err=True)
+        logger.warning(
+            f"Link validation found {broken_count} broken links",
+            correlation_id=correlation_id,
+        )
+    else:
+        click.echo("✅ All links validated successfully", err=True)
+        logger.info("Link validation complete - all valid", correlation_id=correlation_id)
+
+
 @click.group()
 @click.version_option(version=__version__)
 def cli():
@@ -1062,6 +1163,17 @@ def _parse_roles_recursive(
     default="full",
     help="Index page format: full (standalone pages) or section (embedded) (default: full)",
 )
+@click.option(
+    "--validate-links/--no-validate-links",
+    default=False,
+    help="Validate all links after generation (default: no) [Spec 013]",
+)
+@click.option(
+    "--link-validation-timeout",
+    type=float,
+    default=5.0,
+    help="Timeout for external link validation in seconds (default: 5.0) [Spec 013]",
+)
 def generate(
     role_path: Path,
     format: str,
@@ -1089,6 +1201,8 @@ def generate(
     include_index: bool,
     index_style: str,
     index_format: str,
+    validate_links: bool,
+    link_validation_timeout: float,
 ) -> None:
     """
     Generate documentation from Ansible role.
@@ -1349,6 +1463,15 @@ def generate(
         metrics_collector.end_phase("writing")
 
         logger.info("Documentation generation complete", correlation_id=correlation_id)
+
+        # T044: Validate links if requested (Spec 013)
+        if validate_links:
+            _validate_generated_links(
+                output_path=output or role_path,
+                timeout=link_validation_timeout,
+                verbose=verbose,
+                correlation_id=correlation_id,
+            )
 
         # Calculate execution metrics
         completed_at = datetime.now(timezone.utc)

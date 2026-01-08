@@ -105,7 +105,7 @@
 - [X] T041 [US2] Add `ansible-doctor linkcheck` CLI command in ansibledoctor/cli/linkcheck.py (validate all links in documentation) ✅ Complete with text/json/summary formats
 - [X] T042 [US2] Implement link validation report generation in LinkValidator (group errors by file, severity) ✅ Complete with markdown/html/text/json formats, grouping options
 - [X] T043 [US2] Add link validation caching in LinkValidator (cache external link results to avoid re-checking) ✅ Persistent cache with TTL, load/save/clear methods
-- [ ] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/__init__.py (optional --validate-links flag)
+- [X] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/__init__.py (optional --validate-links flag) ✅ Complete with --validate-links flag and inline validation
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

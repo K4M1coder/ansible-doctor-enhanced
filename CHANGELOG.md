@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (41/90 tasks - 46%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (44/90 tasks - 49%)
 
-**Current Phase**: Phase 4 - US2 Detect Broken Links (73% complete - 11/15 tasks done)  
-**Status**: Link validation complete, CLI command implemented
+**Current Phase**: Phase 4 - US2 Detect Broken Links (80% complete - 12/15 tasks done)  
+**Status**: Link validation complete, CLI command implemented, generation workflow integration complete
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Integrated into document generation pipeline
   - Added "Related Documentation" sections to role templates
 
-**Phase 4: US2 Broken Link Detection 🚧 73% COMPLETE (T030-T041, 11/15 tasks done)**
+**Phase 4: US2 Broken Link Detection 🚧 80% COMPLETE (T030-T044, 12/15 tasks done)**
 - ✅ Test suite for link validation (T030-T034)
   - 16 integration tests (8 internal + 8 external validation)
   - Broken internal links, missing roles, invalid anchors
@@ -75,8 +75,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `--external/--no-external` flag for external link validation
   - `--timeout` for HTTP request timeout control
   - `--exit-code` for CI/CD integration (non-zero if broken links)
+  - `--clear-cache` to force fresh validation
   - Proper exit codes for automation
-- 🔄 **REMAINING**: T042-T044 (report generation, caching, workflow integration)
+- ✅ CLI linkreport command (T042)
+  - `ansible-doctor link report <path>` generates comprehensive validation reports
+  - Four output formats: markdown (GitHub tables), html (styled), text (plain), json (structured)
+  - Three grouping options: by-file, by-severity, by-type
+  - Includes statistics (total, valid, warnings, broken with percentages)
+  - Recommendations section with actionable advice
+- ✅ Persistent link caching (T043)
+  - Cache file: .ansibledoctor-link-cache.json
+  - TTL-based expiration (default: 24 hours)
+  - Load on init, save after validation
+  - Cache entry: {url: {is_valid, status, error_message, source_file, checked_at}}
+- ✅ Generation workflow integration (T044)
+  - `ansible-doctor generate <role> --validate-links` validates links after generation
+  - Optional flag: --validate-links/--no-validate-links (default: False)
+  - Configurable timeout: --link-validation-timeout (default: 5.0s)
+  - Inline results: Shows counts (valid/warnings/broken) with emoji indicators
+  - Verbose mode: Detailed broken link list with file:line locations
+  - Cache integration: Saves cache after validation
+  - Logging: Correlation ID tracking for tracing
+- 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality
