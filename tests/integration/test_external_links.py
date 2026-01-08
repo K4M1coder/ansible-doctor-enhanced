@@ -186,7 +186,7 @@ class TestExternalLinkValidation:
 
             validator = LinkValidator(base_path=tmp_path)
 
-            result = validator.validate(link)
+            validator.validate(link)
 
             # Verify user agent was set
             mock_head.assert_called_once()

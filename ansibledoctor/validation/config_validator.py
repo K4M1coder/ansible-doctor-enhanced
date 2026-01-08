@@ -133,7 +133,7 @@ class ConfigurationValidator(SchemaValidator):
 
     def __init__(self, schema_cache: Optional[Any] = None):
         """Initialize ConfigurationValidator with config schema.
-        
+
         Args:
             schema_cache: Optional SchemaCache instance for performance
         """

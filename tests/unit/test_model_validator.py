@@ -25,7 +25,7 @@ class TestRoleValidation:
 
     def test_valid_role_passes_validation(self, model_validator):
         """Test that a valid role passes validation with no errors.
-        
+
         T059: Valid data validation - success with no errors
         """
         # Create a valid role
@@ -37,13 +37,13 @@ class TestRoleValidation:
                 company="Example Corp",
                 license="MIT",
                 min_ansible_version="2.9",
-                description="A test role"
-            )
+                description="A test role",
+            ),
         )
-        
+
         # Validate the role
         result = model_validator.validate_model(role)
-        
+
         # Should pass with no errors
         assert result.is_valid is True
         assert len(result.errors) == 0
@@ -51,7 +51,7 @@ class TestRoleValidation:
 
     def test_role_missing_required_field_fails(self, model_validator):
         """Test that missing required fields are detected.
-        
+
         T057: Missing required field - role missing name
         """
         # Create role with missing name (truly required field)
@@ -61,15 +61,15 @@ class TestRoleValidation:
             "metadata": {
                 "company": "Example Corp",
                 "license": "MIT",
-            }
+            },
         }
-        
+
         # Validate should detect missing name
         result = model_validator.validate_dict(role_data, AnsibleRole)
-        
+
         assert result.is_valid is False
         assert len(result.errors) > 0
-        
+
         # Check that error mentions "name" field
         error_messages = [e.message for e in result.errors]
         assert any("name" in msg.lower() for msg in error_messages)
@@ -84,11 +84,11 @@ class TestRoleValidation:
                 "author": "John Doe",
                 "company": "Example Corp",
                 "license": "MIT",
-            }
+            },
         }
-        
+
         result = model_validator.validate_dict(role_data, AnsibleRole)
-        
+
         assert result.is_valid is False
         assert len(result.errors) > 0
 
@@ -98,7 +98,7 @@ class TestCollectionValidation:
 
     def test_valid_collection_passes_validation(self, model_validator):
         """Test that a valid collection passes validation.
-        
+
         T059: Valid data validation
         """
         # Create a valid collection
@@ -108,13 +108,13 @@ class TestCollectionValidation:
                 name="my_collection",
                 version="1.0.0",
                 authors=["John Doe"],
-                description="A test collection"
+                description="A test collection",
             ),
-            roles=[]
+            roles=[],
         )
-        
+
         result = model_validator.validate_model(collection)
-        
+
         assert result.is_valid is True
         assert len(result.errors) == 0
 
@@ -128,21 +128,21 @@ class TestCollectionValidation:
                 "authors": ["John Doe"],
                 # "namespace" is missing - required field
             },
-            "roles": []
+            "roles": [],
         }
-        
+
         result = model_validator.validate_dict(collection_data, AnsibleCollection)
-        
+
         assert result.is_valid is False
         assert len(result.errors) > 0
-        
+
         # Check error mentions namespace
         error_messages = [e.message for e in result.errors]
         assert any("namespace" in msg.lower() for msg in error_messages)
 
     def test_collection_invalid_dependency_format_fails(self, model_validator):
         """Test that invalid dependency formats are detected.
-        
+
         T058: Invalid dependency format - collection dependencies
         """
         # Create collection with invalid dependency
@@ -152,16 +152,14 @@ class TestCollectionValidation:
                 "name": "my_collection",
                 "version": "1.0.0",
                 "authors": ["John Doe"],
-                "dependencies": {
-                    "invalid_dep": "not_a_valid_version"  # Should follow semver
-                }
+                "dependencies": {"invalid_dep": "not_a_valid_version"},  # Should follow semver
             },
-            "roles": []
+            "roles": [],
         }
-        
+
         # This might pass pydantic validation but fail semantic validation
         result = model_validator.validate_dict(collection_data, AnsibleCollection)
-        
+
         # Should either have errors or warnings about dependency format
         assert result.is_valid is False or len(result.warnings) > 0
 
@@ -171,7 +169,7 @@ class TestStrictValidationMode:
 
     def test_strict_mode_treats_warnings_as_errors(self, model_validator):
         """Test that strict mode treats warnings as errors.
-        
+
         T060: Strict validation mode - warnings as errors
         """
         # Create role with a field that might trigger a warning
@@ -184,12 +182,12 @@ class TestStrictValidationMode:
                 company="Example Corp",
                 license="MIT",
                 # Missing description - might be a warning
-            )
+            ),
         )
-        
+
         # Validate in strict mode
         result = model_validator.validate_model(role, strict=True)
-        
+
         # In strict mode, warnings should prevent is_valid from being True
         # if there are any warnings
         if len(result.warnings) > 0:
@@ -204,12 +202,12 @@ class TestStrictValidationMode:
                 author="John Doe",
                 company="Example Corp",
                 license="MIT",
-            )
+            ),
         )
-        
+
         # Validate in normal mode
         result = model_validator.validate_model(role, strict=False)
-        
+
         # Should pass even with warnings (if any)
         assert result.is_valid is True or len(result.errors) == 0
 
@@ -219,11 +217,11 @@ class TestSchemaGeneration:
 
     def test_generate_schema_from_role_model(self, model_validator):
         """Test schema generation from Role model.
-        
+
         T063: Schema generation from pydantic models
         """
         schema = model_validator.generate_schema(AnsibleRole)
-        
+
         assert schema is not None
         assert "$schema" in schema or "properties" in schema
         assert "path" in schema.get("properties", {})
@@ -233,7 +231,7 @@ class TestSchemaGeneration:
     def test_generate_schema_from_collection_model(self, model_validator):
         """Test schema generation from Collection model."""
         schema = model_validator.generate_schema(AnsibleCollection)
-        
+
         assert schema is not None
         assert "properties" in schema
         assert "metadata" in schema["properties"]
@@ -242,7 +240,7 @@ class TestSchemaGeneration:
     def test_generated_schema_includes_required_fields(self, model_validator):
         """Test that generated schemas include required field info."""
         schema = model_validator.generate_schema(AnsibleRole)
-        
+
         # Role has required fields: path, name
         assert "required" in schema
         assert "path" in schema["required"]
@@ -260,14 +258,14 @@ class TestValidationErrorDetails:
             "metadata": {
                 "author": "Test Author",
                 "company": "Example Corp",
-            }
+            },
         }
-        
+
         result = model_validator.validate_dict(role_data, AnsibleRole)
-        
+
         assert result.is_valid is False
         assert len(result.errors) > 0
-        
+
         # Error should include path like "name"
         error = result.errors[0]
         assert error.path is not None
@@ -281,11 +279,11 @@ class TestValidationErrorDetails:
             "metadata": {
                 "author": "John Doe",
                 "license": "INVALID_LICENSE",  # Not a valid license
-            }
+            },
         }
-        
+
         result = model_validator.validate_dict(role_data, AnsibleRole)
-        
+
         # Should provide helpful error message
         if not result.is_valid:
             assert len(result.errors) > 0

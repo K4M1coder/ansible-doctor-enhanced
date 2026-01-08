@@ -503,7 +503,6 @@ More content
 
         # Generate cross-references for all roles
         generator = CrossReferenceGenerator(base_path=tmp_path)
-        link_manager = LinkManager(base_path=tmp_path)
 
         # Navigate: api -> database -> frontend
         current_doc = AnsibleCollection / "roles" / "api" / "README.md"
@@ -892,7 +891,6 @@ Config steps here.
         assert installation_link.link_type == LinkType.INTERNAL_SECTION
 
         # URL should be: guide.md#installation
-        expected_url = f"{doc_path.name}#installation"
         # The target includes the anchor
         assert installation_link.target == "#installation"
 

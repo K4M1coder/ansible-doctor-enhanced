@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- 
+-
 
 ## [0.12.0] - 2026-01-08
 
@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Test Coverage**: 271/271 implemented tests passing, 48 TDD Red phase stubs marked as skipped, ready for v0.12.0 release
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
+
 - Created links module structure (`ansibledoctor/links/`)
 - Implemented Link, LinkType, LinkStatus pydantic models with validation (234 lines, 99% coverage)
 - Created LinkParser utility supporting Markdown, HTML, and RST formats (201 lines, 94% coverage)
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added dependencies: `requests>=2.28`, `beautifulsoup4>=4.11`, type stubs
 
 **Phase 2: Foundational Infrastructure ✅ COMPLETE (T006-T013)**
+
 - Implemented Link model with factory methods (`from_markdown()`, `from_html()`)
 - Link type inference (external/internal/section/relative/absolute)
 - Path resolution and anchor extraction (integrated in Link.extract_anchor() and LinkManager.extract_anchor())
@@ -33,11 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All tests passing (100% pass rate)
 
 **Phase 3A: US1 Tests ✅ COMPLETE (T014-T018)**
+
 - 5 integration tests for US1 (Navigate Between Docs)
 - Test coverage: dependency links, parent collection links, project context, related roles, browser navigation
 - Tests written in TDD Red phase (failing as expected until implementation complete)
 
 **Phase 3B: US1 Implementation ✅ 100% COMPLETE (T019-T029)**
+
 - ✅ CrossReferenceGenerator class (303 lines, 74% coverage)
   - generate_references() for roles and collections
   - Dependency link generation (T020)
@@ -58,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "Related Documentation" sections to role templates
 
 **Phase 4: US2 Broken Link Detection 🚧 80% COMPLETE (T030-T044, 12/15 tasks done)**
+
 - ✅ Test suite for link validation (T030-T034)
   - 16 integration tests (8 internal + 8 external validation)
   - Broken internal links, missing roles, invalid anchors
@@ -101,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 6: US4 External Resources ✅ 100% COMPLETE (T057-T068, 13/13 tasks done)**
 
 #### Tests (T057-T061) - ✅ All Complete
+
 - ✅ Test suite for module documentation linking (T057)
   - 3 integration tests: ansible.builtin, community.general modules, multiple modules
   - Test coverage: FQCN parsing, namespace-based URLs, batch generation
@@ -118,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test coverage: /ansible/{version}/ path construction
 
 #### ExternalLinkIntegrator Implementation (T062-T068) - ✅ Complete
+
 - ✅ ExternalLinkIntegrator class implementation (T062-T067)
   - ansibledoctor/links/external_link_integrator.py (433+ lines, 52% coverage)
   - integrate_links() method: Main entry point for external resource linking
@@ -155,6 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 7: US5 Index-Based Navigation ✅ 100% COMPLETE (T069-T079, 11/11 tasks done)**
 
 #### Tests (T069-T073) - ✅ All Complete (27 tests)
+
 - ✅ Test suite for alphabetical index (T069)
   - 4 integration tests: letter grouping, working links, special character handling, case-insensitive sorting
   - Test coverage: A-Z grouping, unicode normalization, _private → P, numbers → #
@@ -172,6 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test coverage: inverted index, term scoring, partial search, stop word filtering
 
 #### IndexGenerator Extensions (T074-T076) - ✅ Complete
+
 - ✅ Extended DefaultIndexGenerator class (T074-T076)
   - ansibledoctor/generator/indexes.py: Added 512+ lines of new methods (46% coverage, up from 6%)
   - generate_alphabetical_index() (T075):
@@ -195,9 +204,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Tokenization: regex-based word extraction, lowercased
     - Stop words filtering: 34 common words excluded ("the", "and", "or", etc.)
     - Scoring algorithm:
-      * Base score: term frequency
-      * +10 bonus: term in item name
-      * +20 bonus: exact name match
+      - Base score: term frequency
+      - +10 bonus: term in item name
+      - +20 bonus: exact name match
     - Returns: Dict[term, List[dict]] with name, path, type, score
   - search() method (T076):
     - Multi-term query support with result aggregation
@@ -208,6 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Results sorted by score descending
 
 #### LinkGraph Implementation (T077-T078) - ✅ Complete
+
 - ✅ LinkGraph class (T077-T078)
   - ansibledoctor/utils/link_graph.py: 421 lines, 96% coverage
   - RelationshipType enum: DEPENDS_ON, INCLUDES, REFERENCES, LINKS_TO, PARENT_OF, CHILD_OF
@@ -222,22 +232,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - String and enum relationship type support (isinstance checks)
 
 #### Tag Navigation Page (T079) - ✅ Complete
+
 - ✅ Tag navigation page generation (T079)
   - generate_tag_navigation_page(): Standalone tag index page method
   - Templates created:
-    * markdown/index/tags.j2: Simple tag sections with item lists
-    * html/index/tags.j2: Styled tag page with counts and responsive design
+    - markdown/index/tags.j2: Simple tag sections with item lists
+    - html/index/tags.j2: Styled tag page with counts and responsive design
   - Tag links made clickable:
-    * Updated markdown/index/list.j2: Tags link to ../tags.md#tag-{tag}
-    * Updated markdown/index/table.j2: Table format includes tag links
+    - Updated markdown/index/list.j2: Tags link to ../tags.md#tag-{tag}
+    - Updated markdown/index/table.j2: Table format includes tag links
   - Features:
-    * Tags sorted by popularity (most items first)
-    * Item counts per tag
-    * Anchor links to specific tags (#tag-{tag})
-    * Fallback markdown generation if template engine unavailable
+    - Tags sorted by popularity (most items first)
+    - Item counts per tag
+    - Anchor links to specific tags (#tag-{tag})
+    - Fallback markdown generation if template engine unavailable
   - 4 integration tests: page generation, clickable links, item counts, popularity sorting
 
 **Progress Summary**:
+
 - Phase 7: 11/11 tasks complete (100%) ✅
 - Phase 8: 6/11 tasks complete (55%), 4 deferred, 1 optional ✅
 - Total: 77/90 tasks complete (86%) - **MVP Complete**
@@ -247,16 +259,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Commits: ff46f12 (LinkGraph), 8017161 (IndexGenerator), 2563b55 (cleanup), d289608 (tag nav), 8815062 (docs), 9e13d53 (status), cffd5c8 (tests), c24e74c (completion)
 - **Ready for v0.12.0 release** ✅
 
-
-    - external_links.features: Enable/disable flags
-      - module_docs: Enable/disable module documentation linking
-      - galaxy_links: Enable/disable Galaxy linking
-      - best_practices: Enable/disable best practices linking
-      - new_tab: Enable/disable target="_blank" for external links
-      - version_specific: Enable/disable version-specific URLs
-    - external_links.validation: Link validation settings (timeout, retries, cache_ttl)
-    - output.html: HTML-specific settings (external_icon, nofollow)
-    - links: Auto-generation settings (auto_cross_reference, auto_external_links, table_of_contents)
+  - external_links.features: Enable/disable flags
+    - module_docs: Enable/disable module documentation linking
+    - galaxy_links: Enable/disable Galaxy linking
+    - best_practices: Enable/disable best practices linking
+    - new_tab: Enable/disable target="_blank" for external links
+    - version_specific: Enable/disable version-specific URLs
+  - external_links.validation: Link validation settings (timeout, retries, cache_ttl)
+  - output.html: HTML-specific settings (external_icon, nofollow)
+  - links: Auto-generation settings (auto_cross_reference, auto_external_links, table_of_contents)
   - Feature flag implementation:
     - extract_module_links() checks self.enable_module_docs
     - extract_best_practice_links() checks self.enable_best_practices
@@ -274,9 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **All US4 tests complete**: 27 total tests (13 integration + 14 configuration)
 - **Next**: Phase 7 - US5 Index-Based Navigation (11 tasks)
 
-
-
 #### Tests (T045-T049) - ✅ All Complete
+
 - ✅ Test suite for table of contents generation (T045)
   - 16 unit tests for NavigationBuilder.build_toc()
   - Test cases: simple headings, mixed levels, special characters, code blocks
@@ -298,6 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test cases: collapsible TOC, touch-friendly targets, responsive width
 
 #### NavigationBuilder Implementation (T050-T052) - ✅ Complete
+
 - ✅ NavigationBuilder class implementation (T050-T052)
   - ansibledoctor/links/navigation_builder.py (280+ lines, 85% coverage)
   - build_toc() method: Parse headings, generate TOC in Markdown/HTML
@@ -330,6 +341,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Phase 6: US4 Access External Resources 🚧 54% COMPLETE (T057-T067, 7/13 tasks done)**
 
 #### Tests (T057-T061) - ✅ All Complete
+
 - ✅ Module documentation link tests (3 tests): ansible.builtin → docs.ansible.com, community modules → namespace URLs
 - ✅ Galaxy page link tests (2 tests): Collections/roles → galaxy.ansible.com URLs  
 - ✅ Best practices link tests (3 tests): Keywords → official guides (security, testing, performance)
@@ -337,6 +349,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Version-specific link tests (3 tests): Ansible version → correct URL paths
 
 #### ExternalLinkIntegrator Implementation (T062-T067) - ✅ Core Complete
+
 - ✅ ExternalLinkIntegrator class (350+ lines): from_config(), integrate_links()
 - ✅ Module documentation linking: extract_module_links() with YAML parsing, FQCN → docs URLs
 - ✅ Galaxy linking: generate_galaxy_link() for collections, generate_role_galaxy_link() for roles
@@ -367,6 +380,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 🔄 Next: Integration with document generation pipeline
 
 **Remaining Phases**:
+
 - Phase 4: US2 - Broken Link Detection (P1 MVP)
 - Phase 5: US3 - Section Navigation (P2)
 - Phase 6: US4 - External Resources (P2)
@@ -395,6 +409,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This feature introduces JSON Schema validation and export for ansible-doctor, enabling IDE autocomplete integration, format conversion, and comprehensive data validation.
 
 **Documentation & Polish** (Phase 8, T080-T091):
+
 - **Comprehensive Documentation**:
   - Created `docs/SCHEMA_GUIDE.md` - Complete user guide with usage examples, IDE integration, troubleshooting
   - Updated `README.md` - Added dedicated schema features section with examples
@@ -460,6 +475,7 @@ This feature introduces JSON Schema validation and export for ansible-doctor, en
   - Example 7: Performance benchmarking validation script
 
 **Documentation & Polish** (Phase 8, T080-T091):
+
 - **Comprehensive Documentation**:
   - Created `docs/SCHEMA_GUIDE.md` - Complete user guide with usage examples, IDE integration, troubleshooting
   - Updated `README.md` - Added dedicated schema features section with examples
@@ -484,6 +500,7 @@ This feature introduces JSON Schema validation and export for ansible-doctor, en
   - Example 7: Performance benchmarking validation script
 
 **Schema Documentation** (`ansibledoctor/serialization/`, T069-T079):
+
 - **SchemaDocumenter** (`ansibledoctor/serialization/schema_documenter.py`):
   - Generate human-readable Markdown documentation from JSON Schema
   - Comprehensive property documentation with types, defaults, descriptions
@@ -511,6 +528,7 @@ This feature introduces JSON Schema validation and export for ansible-doctor, en
   - 16 unit tests passing
 
 **Examples**:
+
 ```bash
 # Generate schema docs to stdout
 python -m ansibledoctor schema docs config
@@ -523,6 +541,7 @@ python -m ansibledoctor schema docs role --output role-schema.md
 ```
 
 **Data Model Validation** (`ansibledoctor/validation/`, T057-T068):
+
 - **DataModelValidator** (`ansibledoctor/validation/model_validator.py`):
   - Validate Role and Collection data against pydantic models
   - Schema generation from pydantic models (JSON Schema Draft 2020-12)
@@ -549,6 +568,7 @@ python -m ansibledoctor schema docs role --output role-schema.md
   - 11 integration tests passing
 
 **Examples**:
+
 ```bash
 # Validate role data from YAML file
 ansible-doctor schema validate-model role role_data.yml
@@ -561,6 +581,7 @@ ansible-doctor schema validate-model role role.yml --verbose
 ```
 
 **Integration Tests** (`tests/integration/test_schema_validation_e2e.py`):
+
 - End-to-end validation scenarios demonstrating real-world usage
 - Valid role/collection data validation (happy path)
 - Invalid data caught early (preventing parser failures)
@@ -571,6 +592,7 @@ ansible-doctor schema validate-model role role.yml --verbose
 - 11 integration tests passing
 
 **Format Conversion** (`ansibledoctor/serialization/`, T044-T056):
+
 - **FormatConverter** (`ansibledoctor/serialization/format_converter.py`):
   - Convert between YAML, JSON, XML, and Mermaid diagram formats
   - Round-trip conversion preserves data fidelity (YAML ↔ JSON)
@@ -593,6 +615,7 @@ ansible-doctor schema validate-model role role.yml --verbose
   - 7 CLI tests passing
 
 **Examples**:
+
 ```bash
 # Convert YAML to JSON with pretty formatting
 ansible-doctor schema convert config.yml --to json --pretty
@@ -605,6 +628,7 @@ ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
 ```
 
 **Schema Export** (`ansibledoctor/serialization/`, T030-T043):
+
 - **SchemaExporter** (`ansibledoctor/serialization/schema_exporter.py`):
   - Export Pydantic models as JSON Schema (Draft 2020-12)
   - Export as OpenAPI 3.1 specifications for API documentation
@@ -627,6 +651,7 @@ ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
   - Complete setup guide with troubleshooting
 
 **Configuration Validation** (`ansibledoctor/validation/`, T001-T029):
+
 - **Schema Models** (`ansibledoctor/models/schemas.py`):
   - ValidationError model with severity levels (ERROR, WARNING, INFO)
   - ValidationResult model with error/warning aggregation and reporting
@@ -654,9 +679,11 @@ ansible-doctor schema convert config.yml --to mermaid --output diagram.mmd
   - 8 CLI integration tests passing
 
 **Dependencies Added**:
+
 - jsonschema ^4.0 (JSON Schema validation)
 
 **Testing**:
+
 - 64 total tests passing (29 Phase 3 + 18 Phase 4 + 17 Phase 5)
 - Phase 3: 21 validation + 8 CLI tests
 - Phase 4: 6 schema export + 12 CLI tests
@@ -686,6 +713,7 @@ This feature introduces comprehensive index generation, navigation structures, a
 **Phase 8: Filtering & Search ✅ (10 tasks complete)**
 
 **Filter Implementation** (`ansibledoctor/models/index.py`, `ansibledoctor/cli/collection.py`, T074-T083):
+
 - --filter CLI flag: Multiple filter support with AND logic
   - Format: `--filter 'field:value'` (e.g., `--filter 'tag:web' --filter 'namespace:my_ns'`)
   - Supported fields: tag, namespace, type, metadata fields
@@ -706,6 +734,7 @@ This feature introduces comprehensive index generation, navigation structures, a
 **Phase 7: Mermaid Diagram Visualization ✅ (11 tasks complete)**
 
 **MermaidBuilder Class** (`ansibledoctor/utils/mermaid_builder.py`, T063-T073):
+
 - build_flowchart(): Generates graph TD (top-down) or LR (left-right) Mermaid flowcharts
   - Recursive item collection via _collect_all_items() includes all children
   - Type-specific node shapes: [] (collection), () (role), [[]] (plugin), {} (playbook)
@@ -728,12 +757,14 @@ This feature introduces comprehensive index generation, navigation structures, a
   - test_sanitize_special_characters: Node ID cleaning
 
 **Diagram Template** (`ansibledoctor/generator/templates/markdown/index/diagram.j2`, T073):
+
 - Wraps Mermaid code in ```mermaid fenced blocks
 - Component details section with metadata
 - Pagination support for large diagrams
 - Filter status display (filters applied, filtered count)
 
 **Test Coverage & Validation**:
+
 - 50+ tests passing (estimated 55+ total)
 - 8 Mermaid diagram tests: 100% coverage
 - 5 filter tests: tag, namespace, type, multiple, empty
@@ -749,6 +780,7 @@ This feature introduces comprehensive index generation, navigation structures, a
 This comprehensive feature introduces professional index generation and navigation for Ansible documentation with multiple visualization formats, filtering capabilities, and embedded sections.
 
 **Key Capabilities**:
+
 1. **Multiple Index Formats**: list, table, tree, nested-table, diagram (Mermaid)
 2. **Hierarchical Organization**: Collections → Roles/Plugins/Playbooks with parent-child relationships
 3. **Embedded Section Indexes**: {{ index() }} function for inline indexes in templates
@@ -757,6 +789,7 @@ This comprehensive feature introduces professional index generation and navigati
 6. **Nested Tables**: Inline display of children with role/plugin counts
 
 **CLI Flags**:
+
 - --include-index: Enable index generation
 - --index-style: list, table, tree, nested-table, diagram
 - --index-format: full (standalone pages) or section (embedded)
@@ -765,6 +798,7 @@ This comprehensive feature introduces professional index generation and navigati
 - --filter: Filter by field:value (multiple filters use AND logic)
 
 **Templates & Visualization**:
+
 - 5 index templates: list.j2, table.j2, tree.j2, nested_table.j2, diagram.j2
 - TreeVisualizer with ASCII/Unicode box-drawing characters
 - MermaidBuilder for flowcharts and mindmaps
@@ -772,12 +806,14 @@ This comprehensive feature introduces professional index generation and navigati
 - Filter status display (showing X of Y components)
 
 **Performance & Testing**:
+
 - 50+ comprehensive tests (integration, unit, filters, diagrams)
 - 100% coverage for critical components (MermaidBuilder)
 - Handles 500+ components efficiently
 - TDD approach throughout all phases
 
 **Integration Points**:
+
 - IndexGenerator protocol with DefaultIndexGenerator implementation
 - IndexFilter for tag/namespace/type/metadata filtering
 - SectionIndex model for embedded rendering
@@ -789,6 +825,7 @@ This comprehensive feature introduces professional index generation and navigati
 **Phase 6: Nested Table Format ✅ (10 tasks complete)**
 
 **Nested Table Visualization** (`ansibledoctor/generator/templates/markdown/index/nested_table.j2`, T053-T062):
+
 - 5-column table: Collection | Namespace | Roles | Plugins | Description
 - Inline children display with ↳ prefix
   - ↳ **Roles:** comma-separated role names
@@ -809,6 +846,7 @@ This comprehensive feature introduces professional index generation and navigati
 **Phase 5: Embedded Section Indexes ✅ (12 tasks complete) - MVP MILESTONE REACHED!**
 
 **SectionIndex Model Enhancements** (`ansibledoctor/models/index.py`, T041-T051):
+
 - render_inline(): Inline rendering with optional template engine or simple inline mode
 - _render_simple_inline(): Generate list/table/tree formats without template engine
   - List format: Markdown links with descriptions (- [name](link) - description)
@@ -824,6 +862,7 @@ This comprehensive feature introduces professional index generation and navigati
 - 75% code coverage
 
 **Template Engine Integration** (T047-T048):
+
 - TemplateEngine.create(): Now accepts optional index_generator parameter
 - index() Jinja2 global function registered for use in templates
   - Signature: index(component_type, format='list', limit=None, filter=None, group_by=None, **kwargs)
@@ -834,6 +873,7 @@ This comprehensive feature introduces professional index generation and navigati
 - Integration with existing translation provider registration
 
 **Tests Added** (T041-T045):
+
 - test_embedded_indexes.py: 6 comprehensive integration tests (all passing)
   - test_template_marker_parsing: Basic {{ index('roles') }} parsing and rendering
   - test_embedded_table_format: format='table' rendering with proper table structure
@@ -845,6 +885,7 @@ This comprehensive feature introduces professional index generation and navigati
 - Tests verify inline rendering output format and content
 
 **Demo Template** (T052):
+
 - collection-readme-with-indexes.md.j2 (`demo/templates/`)
 - Shows practical {{ index() }} usage in collection README
 - Demonstrates format='table' for roles section
@@ -852,6 +893,7 @@ This comprehensive feature introduces professional index generation and navigati
 - Real-world example of embedded indexes in documentation
 
 **Test Coverage**:
+
 - 34 tests passing total:
   - 19 integration tests (index generation + hierarchy)
   - 9 TreeVisualizer unit tests
@@ -865,6 +907,7 @@ This comprehensive feature introduces professional index generation and navigati
 **Phase 4: Hierarchical Indexing ✅ (14 tasks complete)**
 
 **TreeVisualizer Class** (`ansibledoctor/generator/tree_visualizer.py`, T032-T034):
+
 - Hierarchical tree rendering with ASCII and Unicode box-drawing characters
 - render_tree(): Main method for full tree with vertical lines (├── └── │)
 - render_compact(): Simpler indentation without connecting lines
@@ -875,6 +918,7 @@ This comprehensive feature introduces professional index generation and navigati
 - 62% code coverage
 
 **Enhanced Hierarchy Building** (T027-T030, T035, T037-T038):
+
 - build_hierarchy(): Collections → Roles/Plugins/Playbooks tree structure
 - Path-based child assignment (components under collection if path starts with collection path)
 - Plugin indexing: Modules, filters, lookups nested under collections
@@ -883,6 +927,7 @@ This comprehensive feature introduces professional index generation and navigati
 - 4 integration tests validating hierarchy structure (all passing)
 
 **Tree Template and CLI Integration** (T036, T040):
+
 - tree.j2 template (`ansibledoctor/generator/templates/markdown/index/tree.j2`)
 - Displays tree visualization in fenced code block (```)
 - Component details section with type, path, namespace, tags, dependencies, children
@@ -890,12 +935,14 @@ This comprehensive feature introduces professional index generation and navigati
 - max_depth parameter threaded through generate_and_write_indexes()
 
 **Test Coverage**:
+
 - 28 tests passing (9 TreeVisualizer unit + 19 integration)
 - indexes.py: 57% coverage
 - tree_visualizer.py: 62% coverage
 - Progress: 40/95 tasks (42.1%)
 
 **Core Index Models (T001-T010)**:
+
 - **IndexItem Model** (`ansibledoctor/models/index.py`):
   - Hierarchical component representation with parent-child relationships
   - Properties: name, type, description, path, doc_link, tags, namespace, metadata
@@ -920,6 +967,7 @@ This comprehensive feature introduces professional index generation and navigati
   - parse() classmethod for "field:value" string conversion
 
 **Index Generator Implementation (T002, T017-T021, T024-T026)**:
+
 - **IndexGenerator Protocol** (`ansibledoctor/generator/indexes.py`):
   - generate_index_page(): Create standalone index pages with pagination
   - generate_section_index(): Create embedded sections
@@ -940,6 +988,7 @@ This comprehensive feature introduces professional index generation and navigati
   - Dependency link resolution with markdown link generation
 
 **Templates (T018-T019)**:
+
 - **List Format** (`ansibledoctor/generator/templates/markdown/index/list.j2`):
   - Bulleted list with links, descriptions, tags, dependencies
   - Filter display and pagination navigation
@@ -949,6 +998,7 @@ This comprehensive feature introduces professional index generation and navigati
   - Truncated descriptions for readability
 
 **CLI Integration (T022-T023)**:
+
 - **Collection Generate Command** (`ansibledoctor/cli/collection.py`):
   - `--include-index/--no-include-index`: Enable index generation (default: False)
   - `--index-style {list,table,tree,nested-table,diagram}`: Visualization style (default: list)
@@ -957,6 +1007,7 @@ This comprehensive feature introduces professional index generation and navigati
   - Reports total index files generated with logging integration
 
 **Test Coverage (T012-T016)**:
+
 - 40 unit tests (100% passing) with 94% coverage on index models
 - 15 integration tests (100% passing):
   - Role index generation with pagination, tags, dependencies, empty collections
@@ -981,6 +1032,7 @@ This comprehensive feature introduces professional index generation and navigati
 This release introduces a complete error reporting infrastructure with IDE integration, verbose debugging support, and recovery suggestions.
 
 **Core Error Reporting Infrastructure (T001-T020)**:
+
 - **Error Code System** (`ansibledoctor/exceptions/codes.py`):
   - Standardized error codes: `E1xx` (parsing), `E2xx` (validation), `E3xx` (generation), `E4xx` (I/O)
   - Warning codes: `W1xx-W4xx` following same categories
@@ -1003,6 +1055,7 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Automatic sorting by file path and line number
 
 **Recovery Suggestions (T021-T030)**:
+
 - **RecoverySuggestionProvider** (`ansibledoctor/exceptions/recovery.py`):
   - Context-aware suggestions based on error code and context
   - File operation errors → check permissions, paths, disk space
@@ -1012,6 +1065,7 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Suggestion caching for performance
 
 **Graceful Degradation (T031-T040)**:
+
 - **Partial Success Mode**:
   - Processing continues after non-fatal errors
   - File-level success/failure tracking
@@ -1024,12 +1078,15 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Prevents memory exhaustion on large codebases
 
 **Error Code Suppression (T041-T050)**:
+
 - **Suppression via CLI**:
+
   ```bash
   ansible-doctor --ignore-codes E201,W101 roles/
   ```
 
 - **Suppression via Configuration**:
+
   ```yaml
   # .ansibledoctor.yml
   ignore_codes:
@@ -1042,6 +1099,7 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Useful for monitoring suppression effectiveness
 
 **IDE-Friendly SARIF Output (T051-T070)**:
+
 - **SARIF 2.1.0 Format** (`ansibledoctor/utils/sarif.py`):
   - Static Analysis Results Interchange Format for IDE integration
   - Compatible with VS Code, IntelliJ IDEA, GitHub Security tab
@@ -1049,14 +1107,17 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Tool metadata: name, version, information URI
 
 - **File:Line:Column Format**:
+
   ```
   roles/web/tasks/main.yml:15:3: error[E101]: YAML syntax error
   ```
+
   - Parseable by IDE terminals (VS Code, IntelliJ)
   - Enables "Go to Error" functionality
   - Follows standard error format conventions
 
 **Error Context Preservation (T071-T080) - NEW**:
+
 - **Verbose Mode (`--verbose`)**:
   - Full stack traces from Python exceptions
   - Source code context (7 lines: 3 before + error line + 3 after)
@@ -1076,6 +1137,7 @@ This release introduces a complete error reporting infrastructure with IDE integ
   - Useful for debugging complex template rendering errors
 
 **Text Output Format**:
+
 ```
 ERROR REPORT
 ================================================================================
@@ -1102,6 +1164,7 @@ roles/web/tasks/main.yml:
 ```
 
 **JSON Output Format**:
+
 ```json
 {
   "correlation_id": "abc123",
@@ -1130,17 +1193,20 @@ roles/web/tasks/main.yml:
 ```
 
 **SARIF Output** (for IDE integration):
+
 ```bash
 ansible-doctor --error-format sarif --error-output errors.sarif roles/
 ```
 
 Generated SARIF file can be:
+
 - Viewed in VS Code Problems panel
 - Uploaded to GitHub Security tab
 - Processed by CI/CD pipelines
 - Integrated with any SARIF-compatible tool
 
 **Documentation (T081-T085)**:
+
 - **Error Code Reference** (`docs/ERROR_CODES.md`):
   - Comprehensive guide for all error and warning codes
   - Examples, common causes, and recovery suggestions
@@ -1154,6 +1220,7 @@ Generated SARIF file can be:
   - `--verbose`: Enable verbose output with stack traces and context
 
 **Testing**:
+
 - **100% Test Coverage** for error reporting components:
   - Unit tests for ErrorEntry, ErrorReport, ErrorAggregator
   - Unit tests for SARIF formatter and recovery suggestions
@@ -1168,33 +1235,40 @@ Generated SARIF file can be:
   - Error reporting tested in isolation and integration
 
 **Performance**:
+
 - Error report generation: <10ms overhead per file
 - Source context extraction: <5ms per error (when enabled)
 - SARIF formatting: <20ms for typical reports (50 errors)
 - Memory bounded: Max 1000 errors prevents OOM
 
 **Backward Compatibility**:
+
 - ✅ Existing exception handling unchanged
 - ✅ Default behavior identical (no breaking changes)
 - ✅ New features opt-in via flags or configuration
 - ✅ All existing tests pass without modification
 
 ### Changed
+
 - **ErrorReport.to_text()** now accepts `verbose: bool` parameter for detailed output
 - **ErrorAggregator.add_error()** extended with `stack_trace` and `capture_context` parameters
 
 ### Deprecated
+
 - None
 
 ### Removed
+
 - None
 
 ### Fixed
+
 - Error deduplication now works correctly across file boundaries
 - Stack traces properly captured and formatted
 - Source context extraction handles edge cases (file start/end)
 
 ### Security
+
 - Error messages sanitized to prevent information leakage
 - File paths normalized to prevent directory traversal
 - Memory limits enforced to prevent DoS via error flooding
@@ -1206,6 +1280,7 @@ Generated SARIF file can be:
 **Phase 7-8: Exit Code System & CI/CD Integration ✅ COMPLETE**
 
 **Exit Code System (T071-T080)**:
+
 - **Standardized Exit Codes** in `ansibledoctor/exceptions.py`:
   - `EXIT_SUCCESS = 0`: Command succeeded (with or without warnings)
   - `EXIT_ERROR = 1`: Fatal error (parsing failed, file not found, validation failed)
@@ -1233,6 +1308,7 @@ Generated SARIF file can be:
   - Warnings issued for missing directories instead of errors
 
 **Documentation & CI/CD Integration (T081-T084)**:
+
 - **CLI Help Documentation**:
   - Added comprehensive "Exit Codes:" section to both `parse` and `generate` commands
   - Includes usage examples and exit code explanations
@@ -1252,6 +1328,7 @@ Generated SARIF file can be:
   - Function signatures include type hints and return value docs
 
 **Testing & Validation (T071-T075, T091-T094)**:
+
 - **Exit Code Test Suite**: 9/9 tests passing (100%)
   - Success scenarios for parse and generate commands
   - Error handling (nonexistent paths, invalid YAML, validation errors)
@@ -1267,6 +1344,7 @@ Generated SARIF file can be:
   - Exit code system adds no new test failures
 
 **CI/CD Integration Support**:
+
 - Exit codes now enable pipeline automation:
   - `EXIT_SUCCESS (0)`: Safe to proceed, deploy allowed
   - `EXIT_ERROR (1)`: Block pipeline, investigation required
@@ -1275,7 +1353,8 @@ Generated SARIF file can be:
 - Compatible with GitHub Actions, GitLab CI, Jenkins, CircleCI, Azure DevOps
 - Execution reports (--report flag) provide detailed metrics for dashboards
 
-**Phase Status**: 
+**Phase Status**:
+
 - Phase 1-6: All user stories complete (42 tests passing)
 - Phase 7: Exit code implementation complete (9 tests passing)
 - Phase 8: Documentation and polish complete (all tasks done)
@@ -1287,11 +1366,13 @@ Generated SARIF file can be:
 ### Added - Execution Reports & Structured Logging (Spec 009 Phase 1-6 Complete) ✅
 
 **Phase 1: Setup (T001-T003)**
+
 - **Reporting Module**: Created `ansibledoctor/reporting/__init__.py` with module documentation
 - **Models Structure**: Created `ansibledoctor/models/execution_report.py` placeholder for execution models
 - **Test Structure**: Created test directories for `tests/unit/models/`, `tests/unit/reporting/`, `tests/integration/`
 
 **Phase 2: Foundation (T004-T011)**
+
 - **ExecutionMetrics Model**: Pydantic model for performance metrics (files, roles, collections, projects counts, phase timing)
 - **ExecutionWarning Model**: Pydantic model for warnings with file location and line number
 - **ExecutionError Model**: Pydantic model for errors with suggestions and stack traces
@@ -1302,6 +1383,7 @@ Generated SARIF file can be:
 - **Exit Code Property**: Added `exit_code` property to `AnsibleDoctorError` base class (default: 1, ConfigError: 3)
 
 **Phase 3: User Story 1 Tests (T012-T019) - RED Phase ✅**
+
 - **Unit Tests**: `test_execution_report.py` with 8 comprehensive tests:
   - Serialization to JSON (ISO 8601 datetime, all fields)
   - Model validation (required fields, status enum, non-negative duration)
@@ -1315,6 +1397,7 @@ Generated SARIF file can be:
 - **Test Status**: 8/8 unit tests PASS, 0/7 integration tests PASS (expected - no CLI implementation yet)
 
 **Phase 3: User Story 1 Implementation (T020-T028) - GREEN Phase ✅**
+
 - **Serializers**: `ansibledoctor/reporting/serializers.py` with 3 output formats:
   - `serialize_to_json()`: JSON with ISO 8601 datetime (Z suffix), indented, Path → str conversion
   - `serialize_to_text()`: Human-readable text with sections (metrics, phase timing, warnings, errors)
@@ -1333,6 +1416,7 @@ Generated SARIF file can be:
 - **User Story 1**: Complete MVP - JSON/text/summary reports with metrics, warnings, errors ✅
 
 **Phase 4: User Story 2 Tests (T029-T034) - RED Phase ✅**
+
 - **Unit Tests**: `test_metrics_collector.py` with 10 comprehensive tests:
   - `TestMetricsCollectorPhaseTiming` (3 tests): start/end_phase duration tracking, multiple phases independently, error on end without start
   - `TestMetricsCollectorCounters` (3 tests): increment by default (1), custom values, multiple counters independently
@@ -1345,6 +1429,7 @@ Generated SARIF file can be:
 - **Test Status**: 13/14 tests FAILING with NotImplementedError (expected RED phase) ✅
 
 **Phase 4: User Story 2 Implementation (T035-T043) - GREEN Phase ✅**
+
 - **MetricsCollector Core**: `ansibledoctor/reporting/metrics_collector.py` complete implementation:
   - High-precision timing with `time.perf_counter()` (<5% accuracy requirement)
   - Phase tracking: `start_phase()`, `end_phase()` with ValueError on invalid operations
@@ -1368,6 +1453,7 @@ Generated SARIF file can be:
 - **User Story 2**: Complete - Performance metrics with <5% timing accuracy, verbose mode display ✅
 
 **Phase 5: User Story 3 Tests (T044-T049) - RED/GREEN Hybrid ✅**
+
 - **Unit Tests**: `tests/unit/utils/test_correlation.py` with 10 comprehensive tests:
   - `TestCorrelationIDGeneration` (3 tests): UUID4 format validation, uniqueness across calls, parseability as UUID object
   - `TestCorrelationIDPropagation` (4 tests): set/get operations, None when unset, clear functionality, context isolation between operations
@@ -1382,6 +1468,7 @@ Generated SARIF file can be:
 - **User Story 3**: Tests validate existing functionality - correlation IDs in reports, log propagation, nested operations ✅
 
 **Phase 5: User Story 3 Implementation (T050-T057) - GREEN Phase ✅**
+
 - **CLI Enhancement**: `ansibledoctor/cli/__init__.py` parse and generate commands:
   - Added `--correlation-id ID` optional flag to both commands
   - If not provided, auto-generates UUID4 via `generate_correlation_id()`
@@ -1398,6 +1485,7 @@ Generated SARIF file can be:
 - **User Story 3**: Complete - Correlation ID tracing across operations, custom IDs via CLI, structlog binding ✅
 
 **Phase 6: User Story 4 Tests (T058-T062) - RED Phase ✅**
+
 - **Unit Tests**: `tests/unit/reporting/test_error_aggregation.py` with 7 comprehensive tests:
   - `TestErrorAggregationByFile` (2 tests): Errors grouped by file in summary, multiple errors show count
   - `TestWarningAggregationByFile` (2 tests): Warnings grouped by file, mixed warnings/errors both displayed
@@ -1412,6 +1500,7 @@ Generated SARIF file can be:
 - **User Story 4**: Tests define requirements for aggregated error/warning summaries at command completion ✅
 
 **Phase 6: User Story 4 Implementation (T063-T070b) - GREEN Phase ✅**
+
 - **Summary Formatter Enhancement**: `ansibledoctor/reporting/serializers.py` `serialize_to_summary()`:
   - Groups errors by file path with count per file (e.g., "tasks/main.yml (2):")
   - Groups warnings by file path with count per file
@@ -1420,6 +1509,7 @@ Generated SARIF file can be:
   - Structured indented format for readability
   - Path normalization: Windows backslashes → forward slashes for consistency
 - **Example Enhanced Summary**:
+
   ```
   ✗ Failed in 1.0s
   3 files processed, 1 roles documented
@@ -1431,6 +1521,7 @@ Generated SARIF file can be:
       - Line 10: yaml_error - Invalid YAML syntax
       - Line 25: parsing_error - Missing required field
   ```
+
 - **Test Status**: All 9 tests PASSING (7 unit + 2 integration tests) ✅
   - Error aggregation by file validated
   - Warning aggregation by file validated
@@ -1438,6 +1529,7 @@ Generated SARIF file can be:
 - **User Story 4**: Complete - Aggregated error/warning summaries grouped by file for easy troubleshooting ✅
 
 **Phase 7: User Story 5 Tests (T071-T075) - RED Phase ✅**
+
 - **Integration Tests**: `tests/integration/test_exit_codes.py` with 9 comprehensive tests:
   - `TestExitCodeSuccess` (2 tests): Exit code 0 on successful parse/generate
   - `TestExitCodeFatalError` (2 tests): Exit code 1 on nonexistent role, invalid YAML
@@ -1465,7 +1557,6 @@ Generated SARIF file can be:
 - **Backward Compatibility**: `_generate_execution_report()` accepts both new (metrics) and legacy (files_processed, roles_documented) parameters
 - **Test Status**: All 14 tests PASSING (10 unit + 4 integration tests) ✅
 - **User Story 2**: Complete - Performance metrics with <5% timing accuracy, throughput counts, verbose mode display ✅
-
 
   - Correlation ID generation and propagation (UUID4, contextvars)
   - Execution timing tracking (started_at, completed_at, duration_ms)
@@ -1643,11 +1734,11 @@ Generated SARIF file can be:
 ### Security - Feature 008: Template Sandboxing
 
 - **NEW**: `SecureSandboxedEnvironment` class - Extends Jinja2's SandboxedEnvironment with additional security restrictions
-  - Blocks access to dangerous dunder attributes (__class__, __mro__, __globals__, etc.)
+  - Blocks access to dangerous dunder attributes (**class**, **mro**, **globals**, etc.)
   - Restricts unsafe callable objects (eval, exec, compile, open, type)
   - Prevents private attribute access (attributes starting with _)
 - **NEW**: `DANGEROUS_PATTERNS` list - Pattern-based detection for unsafe template constructs
-  - Detects __import__, eval, exec, open, os.system, subprocess, getattr, setattr
+  - Detects **import**, eval, exec, open, os.system, subprocess, getattr, setattr
 - **NEW**: `UNSAFE_ATTRIBUTES` frozenset - List of blocked attribute names for sandboxing
 - **NEW**: `validate_security()` method - Check templates for dangerous patterns
 - **NEW**: `is_safe_template()` method - Quick safety check returning boolean
@@ -1733,8 +1824,8 @@ Generated SARIF file can be:
 
 - **NEW**: `ansibledoctor/models/project.py` - Pydantic models for Project, Playbook, RoleInfo, CollectionInfo and InventoryItem
 - **NEW**: `ansibledoctor/parser/project_parser.py` - ProjectParser discovers roles and collections and sets project metadata when ansible.cfg is present
- - **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors monorepo detection (nearest ancestor `ansible.cfg`), respects `ansible.cfg` `[defaults] inventory` path(s), supports inventory file/directory parsing and merging across multiple inventory sources (T204/T314/T315/T316)
- - **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors `ansible.cfg` `[defaults] roles_path` and `collections_path` settings, resolving both relative and absolute paths, and supports multiple path entries (colon/comma separated) for robust discovery (T204)
+- **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors monorepo detection (nearest ancestor `ansible.cfg`), respects `ansible.cfg` `[defaults] inventory` path(s), supports inventory file/directory parsing and merging across multiple inventory sources (T204/T314/T315/T316)
+- **ENHANCED**: `ansibledoctor/parser/project_parser.py` - ProjectParser honors `ansible.cfg` `[defaults] roles_path` and `collections_path` settings, resolving both relative and absolute paths, and supports multiple path entries (colon/comma separated) for robust discovery (T204)
 - **NEW**: `ansibledoctor/generator/project_generator.py` - Minimal ProjectDocumentationGenerator supporting Markdown/HTML/RST outputs
 - **NEW**: `ansibledoctor/cli/project.py` - `project` CLI group with `generate` command and relative output path behavior for project docs
 - **NEW**: Demo artifacts in `demo/` moved into `demo/role_demo_namespace.demo_demo_role`, `demo/collection_demo_namespace.demo_collection`, and `demo/project_demo_namespace.demo_project` to be canonical fixtures for integration tests
@@ -1743,11 +1834,13 @@ Generated SARIF file can be:
 ### Testing
 
 - **TEST**: Unit tests added for `ansibledoctor/utils/slug.py` and `ansibledoctor/generator/project_generator.py` to cover slug generation and project README outputs (Markdown/HTML/RST)
- - **TEST**: Unit tests added for inventory parsing and project parser behavior: `tests/unit/test_inventory_parser.py`, `tests/unit/test_project_parser.py` (monorepo root detection, ansible.cfg inventory path handling, inventory merging) (T314/T315/T316)
- - **TEST**: Unit tests added for `group_vars` and `host_vars` parsing and variable precedence (`tests/unit/test_inventory_parser.py`) and redaction config (`tests/unit/test_inventory_parser.py`) (T316/T317/T318)
+- **TEST**: Unit tests added for inventory parsing and project parser behavior: `tests/unit/test_inventory_parser.py`, `tests/unit/test_project_parser.py` (monorepo root detection, ansible.cfg inventory path handling, inventory merging) (T314/T315/T316)
+- **TEST**: Unit tests added for `group_vars` and `host_vars` parsing and variable precedence (`tests/unit/test_inventory_parser.py`) and redaction config (`tests/unit/test_inventory_parser.py`) (T316/T317/T318)
+
 ### Changed - Project Parser & Inventory (additional)
 
 - **ENHANCED**: `ansibledoctor/parser/project_parser.py` now loads `group_vars/` and `host_vars/`, computes merged effective variables per host (role defaults -> group_vars -> host_vars precedence), and exposes `project.group_vars`, `project.host_vars`, and `project.effective_vars` (T316).
+
 ## [0.5.1] - 2025-11-29
 
 ### Added - Feature 005: Internationalization (i18n) Support
@@ -1759,8 +1852,8 @@ Generated SARIF file can be:
 - **TEST**: New tests: `tests/unit/test_translation_provider.py`, `tests/unit/test_translation_loader.py`, `tests/integration/test_multilang_e2e.py`, `tests/integration/test_i18n_fallback.py`.
 
 - **ENHANCED**: `ansibledoctor/cli/project.py` added `--redact-values/--no-redact-values` flag; `ProjectParser` supports redaction and reads `.ansibledoctor.yml` redaction config to override patterns and placeholder (T317/T318).
- - **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
- - **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
+- **ENHANCED**: `ansibledoctor/generator/project_generator.py` now supports custom Jinja2 templates via `template_path` to render outputs (T206)
+- **TEST**: Integration and unit tests for CLI exception handling and template rendering added: `tests/unit/test_cli_project.py`, updated `tests/unit/test_project_generator.py` (template tests)
 
 ### Changed
 
@@ -1772,12 +1865,12 @@ Generated SARIF file can be:
 - **ENHANCED**: `ansibledoctor/parser/project_parser.py` now resolves project root using nearest ancestor `ansible.cfg` if present and uses this canonical path for discovery of roles, collections, playbooks, and inventory. This change reduces ambiguity in monorepo layouts where projects may be nested (T315).
 - **ENHANCED**: Inventory discovery now merges groups from multiple sources and supports both INI and YAML inventory formats, including inventory directories and single file paths specified via `ansible.cfg` (T314/T316).
 
-
 ## [0.5.0] - 2025-11-21
 
 ### Added - Feature 004: Ansible Collection Documentation Support
 
 **User Story 8: Parse Collection Metadata (T001-T085)** ✅ Complete
+
 - **NEW**: `collection parse` command - Parse Ansible collection metadata and structure
 - **NEW**: `ansibledoctor/models/galaxy.py` - GalaxyMetadata Pydantic model with validation
   - Required fields: namespace, name, version, authors, dependencies
@@ -1802,6 +1895,7 @@ Generated SARIF file can be:
   - Returns complete AnsibleCollection model
 
 **User Story 9: Generate Collection Documentation (T086-T172)** ✅ Complete
+
 - **NEW**: `collection generate` command - Generate comprehensive collection documentation
 - **NEW**: `ansibledoctor/models/plugin.py` - Plugin value object and PluginCatalog
   - Plugin model: name, type, path, short_description (frozen)
@@ -1833,6 +1927,7 @@ Generated SARIF file can be:
   - **FIX**: Jinja2 syntax for length calculation with proper parentheses
 
 **User Story 10: Cross-Role Dependency Analysis (T173-T204)** ✅ Complete
+
 - **NEW**: `collection analyze` command - Visualize and validate role dependencies
 - **NEW**: `ansibledoctor/parser/dependency_graph.py` - DependencyGraph class
   - build_graph() method: parse role dependencies from meta/main.yml
@@ -1902,61 +1997,62 @@ Generated SARIF file can be:
 ## Previous Releases
 
 ### Added - Feature 003: Watch Mode Documentation (v0.4.0)
-  - **User Story 9: Generate Collection Documentation (T086-T163 partial)**
-    - `ansibledoctor/models/plugin.py`: Plugin model and PluginCatalog repository (98% coverage)
-      - Plugin value object: frozen Pydantic model with name, type, path, short_description
-      - PluginCatalog: Repository pattern for grouping/querying plugins by type
-      - Methods: group_by_type(), list_all_names(), list_names_by_type(), count()
-    - `ansibledoctor/models/collection_role.py`: CollectionRole extending AnsibleRole (100% coverage)
-      - Adds collection_fqcn field for FQCN context
-      - full_role_name property returns "namespace.collection.role_name"
-      - Inherits all AnsibleRole parsing logic (metadata, variables, tags, etc.)
-    - `ansibledoctor/parser/plugin_discovery.py`: PluginDiscovery service (87% coverage)
-      - Discovers Python plugins in collection plugins/ directory recursively
-      - Detects plugin type from directory structure (modules/, filters/, lookups/, etc.)
-      - Returns Plugin objects with metadata for documentation generation
-    - `ansibledoctor/generator/templates/markdown/collection.j2`: Collection documentation template (163 lines)
-      - Header with FQCN, version, generation date, table of contents
-      - Installation section with ansible-galaxy commands (install, version, upgrade)
-      - Roles section (configurable table or list format)
-      - Plugins section grouped by type (modules, filters, lookups, tests, inventory, callbacks)
-      - Dependencies table with version constraints
-      - Examples section with playbook code blocks
-      - License footer and generator attribution
-    - `ansibledoctor/generator/templates/html/collection.j2`: HTML collection template (125 lines)
-      - Complete HTML5 structure with embedded CSS
-      - Responsive design matching role template style
-      - Sections: overview, installation, roles, plugins, dependencies, examples
-    - `ansibledoctor/generator/templates/rst/collection.j2`: RST collection template (148 lines)
-      - Sphinx-compatible reStructuredText format
-      - Proper heading underlines and code blocks
-      - Table of contents with configurable depth
-    - `ansibledoctor/generator/collection_generator.py`: CollectionDocumentationGenerator (94% coverage)
-      - Main documentation generator for Ansible collections
-      - build_context() method: builds template context from collection data
-      - generate() method: renders docs in markdown/html/rst formats
-      - Custom template support via template_path parameter
-      - File writing with output_path parameter
-      - Lazy initialization of TemplateEngine and EmbeddedTemplateLoader
-      - Comprehensive error handling with actionable messages
-    - Test suite: 61 tests passing (14 new generator tests added)
-      - 17 Plugin model tests, 8 PluginCatalog tests
-      - 8 Plugin Discovery tests, 8 CollectionRole tests (100% coverage)
-      - 7 Collection template rendering tests (all formats)
-      - 7 CollectionDocumentationGenerator tests (RED-GREEN cycle)
-      - 6 property-based tests with Hypothesis
-    - TDD cycle: Strict RED-GREEN-REFACTOR followed for all implementations
-      - RED phase (T106-T112): Tests written first, all fail with ModuleNotFoundError
-      - GREEN phase (T146-T155): Implementation makes all tests pass
-      - REFACTOR phase: Template improvements, error handling
-    - `ansibledoctor/cli/collection.py`: collection generate CLI command
-      - Options: --output-dir, --format (markdown/html/rst), --template, --config
-      - Integration: CollectionParser → PluginDiscovery → CollectionDocumentationGenerator
-      - Progress output with checkmarks and plugin counts
-      - Error handling for parsing, generation, and I/O errors
-      - Manual testing: ✓ Markdown, HTML, RST outputs verified
-    - 8 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef), CHANGELOG (c0cacaf), Generator Tests (6b5798a), Generator Implementation (bdd6c1b), CLI (e7eea21)
-    - Progress: 75/87 User Story 9 tasks complete (86%)
+
+- **User Story 9: Generate Collection Documentation (T086-T163 partial)**
+  - `ansibledoctor/models/plugin.py`: Plugin model and PluginCatalog repository (98% coverage)
+    - Plugin value object: frozen Pydantic model with name, type, path, short_description
+    - PluginCatalog: Repository pattern for grouping/querying plugins by type
+    - Methods: group_by_type(), list_all_names(), list_names_by_type(), count()
+  - `ansibledoctor/models/collection_role.py`: CollectionRole extending AnsibleRole (100% coverage)
+    - Adds collection_fqcn field for FQCN context
+    - full_role_name property returns "namespace.collection.role_name"
+    - Inherits all AnsibleRole parsing logic (metadata, variables, tags, etc.)
+  - `ansibledoctor/parser/plugin_discovery.py`: PluginDiscovery service (87% coverage)
+    - Discovers Python plugins in collection plugins/ directory recursively
+    - Detects plugin type from directory structure (modules/, filters/, lookups/, etc.)
+    - Returns Plugin objects with metadata for documentation generation
+  - `ansibledoctor/generator/templates/markdown/collection.j2`: Collection documentation template (163 lines)
+    - Header with FQCN, version, generation date, table of contents
+    - Installation section with ansible-galaxy commands (install, version, upgrade)
+    - Roles section (configurable table or list format)
+    - Plugins section grouped by type (modules, filters, lookups, tests, inventory, callbacks)
+    - Dependencies table with version constraints
+    - Examples section with playbook code blocks
+    - License footer and generator attribution
+  - `ansibledoctor/generator/templates/html/collection.j2`: HTML collection template (125 lines)
+    - Complete HTML5 structure with embedded CSS
+    - Responsive design matching role template style
+    - Sections: overview, installation, roles, plugins, dependencies, examples
+  - `ansibledoctor/generator/templates/rst/collection.j2`: RST collection template (148 lines)
+    - Sphinx-compatible reStructuredText format
+    - Proper heading underlines and code blocks
+    - Table of contents with configurable depth
+  - `ansibledoctor/generator/collection_generator.py`: CollectionDocumentationGenerator (94% coverage)
+    - Main documentation generator for Ansible collections
+    - build_context() method: builds template context from collection data
+    - generate() method: renders docs in markdown/html/rst formats
+    - Custom template support via template_path parameter
+    - File writing with output_path parameter
+    - Lazy initialization of TemplateEngine and EmbeddedTemplateLoader
+    - Comprehensive error handling with actionable messages
+  - Test suite: 61 tests passing (14 new generator tests added)
+    - 17 Plugin model tests, 8 PluginCatalog tests
+    - 8 Plugin Discovery tests, 8 CollectionRole tests (100% coverage)
+    - 7 Collection template rendering tests (all formats)
+    - 7 CollectionDocumentationGenerator tests (RED-GREEN cycle)
+    - 6 property-based tests with Hypothesis
+  - TDD cycle: Strict RED-GREEN-REFACTOR followed for all implementations
+    - RED phase (T106-T112): Tests written first, all fail with ModuleNotFoundError
+    - GREEN phase (T146-T155): Implementation makes all tests pass
+    - REFACTOR phase: Template improvements, error handling
+  - `ansibledoctor/cli/collection.py`: collection generate CLI command
+    - Options: --output-dir, --format (markdown/html/rst), --template, --config
+    - Integration: CollectionParser → PluginDiscovery → CollectionDocumentationGenerator
+    - Progress output with checkmarks and plugin counts
+    - Error handling for parsing, generation, and I/O errors
+    - Manual testing: ✓ Markdown, HTML, RST outputs verified
+  - 8 atomic commits: Plugin model (c540f6c), Plugin Discovery (5d25ccd), CollectionRole (44540b4), Template (1e0c0ef), CHANGELOG (c0cacaf), Generator Tests (6b5798a), Generator Implementation (bdd6c1b), CLI (e7eea21)
+  - Progress: 75/87 User Story 9 tasks complete (86%)
   
 - **Feature 004: Collection Documentation (v0.5.0)** - Foundation and US8 complete
   - `ansibledoctor/models/galaxy.py`: GalaxyMetadata model (schema 1.0.0, required fields only)
@@ -2006,6 +2102,7 @@ Generated SARIF file can be:
 **Feature 003 Complete**: Achieves 100% role-level parity with original ansible-doctor. This release completes all three user stories for configuration file support, watch mode, and config discovery/validation.
 
 **Key Achievements**:
+
 - ✅ Config file support with parent directory discovery
 - ✅ Watch mode for auto-regeneration on file changes
 - ✅ Enhanced config validation with detailed error messages
@@ -2092,7 +2189,7 @@ Generated SARIF file can be:
     - `FileChangeHandler`: Processes watchdog file system events with pattern filtering (95% coverage)
     - `WatchMonitor`: Monitors role directory recursively using watchdog.observers.Observer (100% coverage)
     - Watches: meta/, defaults/, vars/, tasks/, handlers/, .ansibledoctor.yml
-    - Excludes: *.pyc, __pycache__/, .git/, *.swp, *.tmp
+    - Excludes: *.pyc, **pycache**/, .git/,*.swp, *.tmp
     - 19 unit tests (8 debouncer + 11 monitor/handler), all passing
   
   - **Watch CLI Command (T022-T024)**:
@@ -2121,6 +2218,7 @@ Generated SARIF file can be:
 ## [0.4.0-alpha.1] - 2025-01-19
 
 ### Added
+
 ## Links
 
 The release history in this file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) conventions and adheres to [Semantic Versioning (SemVer)](https://semver.org/spec/v2.0.0.html).
@@ -2344,10 +2442,10 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - 9 unit tests with 100% coverage
 
 - **T208**: Custom Jinja2 filters
-  - markdown_escape: Escape Markdown special characters (\\ ` * _ { } [ ] ( ) # + - . !)
+  - markdown_escape: Escape Markdown special characters (\\ ` *_ { } [ ] ( ) # + - . !)
   - code_fence: Wrap code in Markdown fenced code blocks (```language)
   - format_priority: Format TODO priorities with emoji indicators (🟢🟡🔴🚨)
-  - rst_escape: Escape reStructuredText special characters (\\ * ` _ | )
+  - rst_escape: Escape reStructuredText special characters (\\ * `_ | )
   - html_attrs: Convert dict to HTML attribute string (class="value")
   - list_items: Format list items as Markdown (ordered/unordered)
   - FILTERS registry for Jinja2 environment registration
@@ -2554,6 +2652,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 **Phase 8 - Task Tags & TODO/Examples** - Feature Complete
 
 **Task Tags Parser (US3 - T101-T107)**
+
 - Created `Tag` value object with name, description, usage_count, file_locations
 - Implemented `TaskParser` domain service to extract tags from tasks/*.yml
 - Parses both string and list tag formats
@@ -2563,6 +2662,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - 21 tests with 94% coverage
 
 **TODO Annotations Parser (US4 - T108-T110)**
+
 - Created `TodoItem` value object with description, file_path, line_number, priority
 - Implemented `TodoParser` domain service for @todo annotation extraction
 - Supports formats: `@todo:`, `@TODO`, `@todo(priority)`
@@ -2571,6 +2671,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - 23 tests with 81% coverage
 
 **Example Code Blocks Parser (US4 - T111-T113)**
+
 - Created `Example` value object with title, code, description, language
 - Implemented `ExampleParser` domain service for @example block extraction
 - Parses multiline blocks: `@example Title\n# code\n@end`
@@ -2580,30 +2681,33 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - 17 tests with 96% coverage
 
 **CLI Integration (T114)**
+
 - Integrated TaskParser, TodoParser, ExampleParser into CLI _parse_single_role()
 - Added `tags[]`, `todos[]`, `examples[]` to JSON output structure
 - Graceful error handling with structured logging for all parsers
 - Tested with minimal_role and complex_role fixtures
 
 **Integration Tests (T115-T117)**
+
 - Created phase8_test_role fixture with complete Phase 8 features
 - Added 18 integration tests validating end-to-end parsing workflow:
-  * 4 tests for task tag extraction and aggregation
-  * 5 tests for TODO annotation parsing with priorities
-  * 5 tests for example code block extraction
-  * 4 tests for complete integration and JSON serialization
+  - 4 tests for task tag extraction and aggregation
+  - 5 tests for TODO annotation parsing with priorities
+  - 5 tests for example code block extraction
+  - 4 tests for complete integration and JSON serialization
 - All 262 tests passing (244 baseline + 18 new)
 - 84% code coverage maintained
 
 **Documentation (T118-T120)**
+
 - Updated README with US3/US4 examples in output JSON
 - Added Task Tags Parser and TODO/Examples Parser to feature list
 - Created comprehensive ANNOTATION_GUIDE.md (400+ lines):
-  * Variable annotations (@var) with all attributes
-  * TODO annotations (@todo) with priority levels
-  * Example annotations (@example) with multiline blocks
-  * Tag documentation and usage statistics
-  * Best practices and complete template examples
+  - Variable annotations (@var) with all attributes
+  - TODO annotations (@todo) with priority levels
+  - Example annotations (@example) with multiline blocks
+  - Tag documentation and usage statistics
+  - Best practices and complete template examples
 - Updated CHANGELOG for v0.2.0 release
 
 ### Changed
@@ -2624,6 +2728,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 **Phase 7 - Quality Assurance & Testing** - MVP Release
 
 **Bug Fixes & Test Completion (T086-T087)**
+
 - Fixed JSON annotation parsing: Strip `$` prefix before JSON parsing
 - Fixed CLI test mocks: Remove invalid RoleParser mock
 - Fixed test fixtures: Align minimal_role defaults with test expectations
@@ -2632,12 +2737,14 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - **81% code coverage** (exceeds 80% target per Constitution Article III)
 
 **Property-Based Testing (T088)**
+
 - Added 9 hypothesis-based property tests for annotation parsing
 - Tests cover: variable names, descriptions, tags, multiline annotations
 - JSON attribute variations, comment counts, whitespace handling
 - Edge case validation for annotation extractor robustness
 
 **Performance Benchmarks (T091)**  
+
 - Created 5 performance tests validating SC-002 requirements
 - Minimal role parsing: <500ms ✅
 - Complex role parsing: <2s ✅
@@ -2646,11 +2753,13 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - YAML loading (1000 vars): <500ms ✅
 
 **CLI Module Entry Point (T089)**
+
 - Added `ansibledoctor/__main__.py` for `python -m ansibledoctor` execution
 - Validated all README quickstart examples
 - CLI help, parse command, JSON output, file output all functional
 
 **Documentation (T093-T097)**
+
 - Added comprehensive Architecture section to README
   - DDD component structure diagram
   - Design principles (immutability, ubiquitous language, type safety)
@@ -2662,6 +2771,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 **Phase 6 - CLI Interface (T072-T082)** - MVP Feature
 
 **Configuration Tests (T083-T085)** - Quality Gates
+
 - Unit tests: `tests/unit/test_config.py` (11 test methods)
   - Project structure validation
   - Constitution compliance checks
@@ -2672,6 +2782,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Entry points configuration
 
 **Documentation Enhancement (T093-T095)**
+
 - README.md: Updated with MVP completion status
   - Project status section with completed features
   - Core functionality breakdown (US1, US2, CLI)
@@ -2682,6 +2793,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 **Phase 6 - CLI Interface (T072-T082)** - MVP Feature
 
 **CLI Tests Written First (T072-T074)** - TDD Red Phase
+
 - Unit tests: `tests/unit/test_cli.py` (20 test methods)
   - CLI entry point and command structure
   - Parse command with role_path argument
@@ -2693,6 +2805,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Error handling: missing paths, invalid roles
 
 **CLI Implementation (T075-T078)** - TDD Green Phase
+
 - `ansibledoctor/cli.py`: Command-line interface with click
   - `cli()`: Main group with version option
   - `parse()`: Parse command with full flag support
@@ -2715,12 +2828,14 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Comprehensive error handling with user-friendly messages
 
 **Entry Point Configuration (T079-T080)**
+
 - pyproject.toml: Entry point `ansible-doctor-enhanced = ansibledoctor.cli:main`
 - CLI callable via `ansible-doctor-enhanced parse <role_path>`
 
 **Phase 3 - User Story 2: Variables Parser (T032-T047)** - MVP Feature
 
 **Tests Written First (T032-T034)** - TDD Red Phase
+
 - Unit tests: `tests/unit/test_annotation_extractor.py` (21 test methods)
   - Single-line @var annotations
   - Multiline @var annotations with YAML attributes
@@ -2742,6 +2857,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Deprecated variable filtering
 
 **AnnotationExtractor Implementation (T035-T037)** - TDD Green Phase
+
 - `ansibledoctor/parser/annotation_extractor.py`: Domain service for annotation parsing
   - `extract_annotations()`: Main entry point for extracting all annotation types
   - Regex patterns for @var, @tag, @todo, @example, @meta
@@ -2751,6 +2867,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Structured logging for observability
 
 **VariableParser Implementation (T038-T043)** - TDD Green Phase
+
 - `ansibledoctor/parser/variable_parser.py`: Domain service for variable extraction
   - `parse_role_variables()`: Parse both defaults/ and vars/ directories
   - `parse_variables_file()`: Parse single file with annotation merging
@@ -2763,6 +2880,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 **Phase 2 - User Story 1: Metadata Parser (T021-T031)** - MVP Feature
 
 **Tests Written First (T021-T022)** - TDD Red Phase
+
 - Unit tests: `tests/unit/test_metadata_parser.py` (18 test methods)
   - Basic galaxy_info parsing
   - Complex metadata with dependencies
@@ -2777,6 +2895,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Error scenarios with graceful degradation
 
 **MetadataParser Implementation (T023-T028)** - TDD Green Phase
+
 - `ansibledoctor/parser/metadata_parser.py`: Domain service for metadata extraction
   - `parse_metadata()`: Main entry point combining galaxy_info + argument_specs
   - `parse_galaxy_info()`: Extract author, description, license, platforms, dependencies
@@ -2787,6 +2906,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
   - Comprehensive error handling with ParsingError context
 
 **Domain Model Enhancement**
+
 - `RoleMetadata`: Added `galaxy_info` raw dict field for extensibility
 - `meta_file_path` tracking for debugging and error context
 - Project initialization with spec-kit methodology
@@ -2814,6 +2934,7 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - Integration test fixtures: minimal_role and complex_role with comprehensive test data
 
 ### Changed
+
 - Enhanced Article III: Test-First renamed to Test-Driven Development (TDD) with explicit Red-Green-Refactor cycle
 - Constitution version bump: v1.1.0 → v1.2.0
 - Enhanced Article VI: Semantic Versioning with detailed SemVer 2.0.0 specification (MAJOR.MINOR.PATCH)
@@ -2821,15 +2942,19 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 - Updated code review checklist to verify documentation completeness (10 principles instead of 9)
 
 ### Deprecated
+
 - N/A
 
 ### Removed
+
 - N/A
 
 ### Fixed
+
 - N/A
 
 ### Security
+
 - N/A
 
 ## Release History
@@ -2837,5 +2962,3 @@ The release history in this file follows [Keep a Changelog](https://keepachangel
 *No releases yet - project in initial development*
 
 ---
-
-[Unreleased]: https://github.com/yourusername/ansible-doctor-enhanced/compare/HEAD

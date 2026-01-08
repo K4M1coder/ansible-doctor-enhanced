@@ -9,9 +9,10 @@ Generates cross-references between related documentation:
 
 from pathlib import Path
 from typing import Any
-from ansibledoctor.models.role import AnsibleRole
-from ansibledoctor.models.collection import AnsibleCollection
+
 from ansibledoctor.models.link import Link, LinkType
+from ansibledoctor.models.role import AnsibleRole
+from ansibledoctor.parser.role_parser import RoleParser
 
 
 class CrossReferenceGenerator:
@@ -93,11 +94,13 @@ class CrossReferenceGenerator:
                 line_number=None,
             )
 
-            dependencies.append({
-                "name": dep_name,
-                "version": dep_version,
-                "link": link,
-            })
+            dependencies.append(
+                {
+                    "name": dep_name,
+                    "version": dep_version,
+                    "link": link,
+                }
+            )
 
         return dependencies
 
@@ -154,48 +157,56 @@ class CrossReferenceGenerator:
             collection = role.parent_collection
 
             # Collection level
-            context["breadcrumb"].append({
-                "name": collection.name,
-                "link": Link(
-                    source_file=role.path / "README.md",
-                    target=str(collection.path / "README.md"),
-                    link_type=LinkType.CROSS_REFERENCE,
-                    text=collection.name,
-                    line_number=None,
-                ),
-            })
+            context["breadcrumb"].append(
+                {
+                    "name": collection.name,
+                    "link": Link(
+                        source_file=role.path / "README.md",
+                        target=str(collection.path / "README.md"),
+                        link_type=LinkType.CROSS_REFERENCE,
+                        text=collection.name,
+                        line_number=None,
+                    ),
+                }
+            )
 
             # Roles directory level
             roles_dir = collection.path / "roles"
             if roles_dir.exists():
-                context["breadcrumb"].append({
-                    "name": "roles",
-                    "link": Link(
-                        source_file=role.path / "README.md",
-                        target=str(roles_dir / "README.md"),
-                        link_type=LinkType.CROSS_REFERENCE,
-                        text="roles",
-                        line_number=None,
-                    ),
-                })
+                context["breadcrumb"].append(
+                    {
+                        "name": "roles",
+                        "link": Link(
+                            source_file=role.path / "README.md",
+                            target=str(roles_dir / "README.md"),
+                            link_type=LinkType.CROSS_REFERENCE,
+                            text="roles",
+                            line_number=None,
+                        ),
+                    }
+                )
 
             # Role level
-            context["breadcrumb"].append({
-                "name": role.name,
-                "link": Link(
-                    source_file=role.path / "README.md",
-                    target=str(role.path / "README.md"),
-                    link_type=LinkType.CROSS_REFERENCE,
-                    text=role.name,
-                    line_number=None,
-                ),
-            })
+            context["breadcrumb"].append(
+                {
+                    "name": role.name,
+                    "link": Link(
+                        source_file=role.path / "README.md",
+                        target=str(role.path / "README.md"),
+                        link_type=LinkType.CROSS_REFERENCE,
+                        text=role.name,
+                        line_number=None,
+                    ),
+                }
+            )
 
             # Hierarchy information
             context["hierarchy"] = {
                 "collection": collection.name,
                 "roles_dir": "roles",
-                "role_category": role.path.parent.name if role.path.parent.name != "roles" else None,
+                "role_category": (
+                    role.path.parent.name if role.path.parent.name != "roles" else None
+                ),
             }
 
         return context if context["breadcrumb"] else None
@@ -236,7 +247,8 @@ class CrossReferenceGenerator:
 
             try:
                 # Parse role to get tags
-                other_role = Role.from_path(role_path)
+                role_parser = RoleParser()
+                other_role = role_parser.parse(role_path)
                 other_tags = set(getattr(other_role, "galaxy_tags", []))
 
                 # Calculate relevance (number of shared tags)
@@ -255,12 +267,14 @@ class CrossReferenceGenerator:
                     line_number=None,
                 )
 
-                related_roles.append({
-                    "name": other_role.name,
-                    "relevance_score": relevance_score,
-                    "shared_tags": list(shared_tags),
-                    "link": link,
-                })
+                related_roles.append(
+                    {
+                        "name": other_role.name,
+                        "relevance_score": relevance_score,
+                        "shared_tags": list(shared_tags),
+                        "link": link,
+                    }
+                )
 
             except Exception:
                 # Skip roles that can't be parsed
@@ -300,4 +314,3 @@ class CrossReferenceGenerator:
                 context["role_name"] = parts[idx + 1]
 
         return context
-

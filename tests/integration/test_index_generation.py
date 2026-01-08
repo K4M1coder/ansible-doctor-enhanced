@@ -736,18 +736,14 @@ class TestNestedTables:
                 name="role1",
                 type="role",
                 description="First role",
-                path=Path(
-                    "collections/ansible_collections/my_namespace/my_collection/roles/role1"
-                ),
+                path=Path("collections/ansible_collections/my_namespace/my_collection/roles/role1"),
                 namespace="my_namespace",
             ),
             IndexItem(
                 name="role2",
                 type="role",
                 description="Second role",
-                path=Path(
-                    "collections/ansible_collections/my_namespace/my_collection/roles/role2"
-                ),
+                path=Path("collections/ansible_collections/my_namespace/my_collection/roles/role2"),
                 namespace="my_namespace",
             ),
             # Plugins under collection 1
@@ -786,9 +782,7 @@ class TestNestedTables:
                 name="another_collection",
                 type="collection",
                 description="Second collection",
-                path=Path(
-                    "collections/ansible_collections/other_namespace/another_collection"
-                ),
+                path=Path("collections/ansible_collections/other_namespace/another_collection"),
                 namespace="other_namespace",
                 metadata={"role_count": 1, "plugin_count": 1},
             ),
@@ -842,9 +836,7 @@ class TestNestedTables:
         collection1 = next(item for item in page.items if item.name == "my_collection")
         assert len(collection1.children) == 5  # 2 roles + 3 plugins
 
-        collection2 = next(
-            item for item in page.items if item.name == "another_collection"
-        )
+        collection2 = next(item for item in page.items if item.name == "another_collection")
         assert len(collection2.children) == 2  # 1 role + 1 plugin
 
     def test_nested_depth_limiting(self, generator, nested_structure):
@@ -893,9 +885,7 @@ class TestNestedTables:
         # Verify children can be accessed for inline display
         collection1 = next(item for item in page.items if item.name == "my_collection")
         roles = [c for c in collection1.children if c.type == "role"]
-        plugins = [
-            c for c in collection1.children if c.type in ("module", "plugin")
-        ]
+        plugins = [c for c in collection1.children if c.type in ("module", "plugin")]
 
         assert len(roles) == 2
         assert len(plugins) == 3
@@ -911,11 +901,7 @@ class TestNestedTables:
         # Count children by type
         roles = [c for c in collection1.children if c.type == "role"]
         modules = [c for c in collection1.children if c.type == "module"]
-        plugins = [
-            c
-            for c in collection1.children
-            if c.type == "plugin" or c.type == "module"
-        ]
+        plugins = [c for c in collection1.children if c.type == "plugin" or c.type == "module"]
 
         assert len(roles) == 2
         assert len(modules) == 1
@@ -924,4 +910,3 @@ class TestNestedTables:
         # Verify metadata for display
         assert collection1.metadata.get("role_count") == 2
         assert collection1.metadata.get("plugin_count") == 3
-

@@ -140,7 +140,6 @@ def validate_model(model_type: str, data_file: Path, strict_validation: bool, ve
     """
     import yaml
 
-
     validator = DataModelValidator()
 
     # Load data from file

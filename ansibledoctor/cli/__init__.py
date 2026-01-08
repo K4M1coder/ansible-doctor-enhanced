@@ -108,7 +108,7 @@ def _validate_generated_links(
     correlation_id: str,
 ) -> None:
     """Validate links in generated documentation (T044, Spec 013).
-    
+
     Args:
         output_path: Path to generated documentation file or directory
         timeout: HTTP timeout for external link validation
@@ -118,16 +118,16 @@ def _validate_generated_links(
     from ansibledoctor.links.link_validator import LinkValidator
     from ansibledoctor.models.link import LinkStatus
     from ansibledoctor.utils.link_parser import LinkParser
-    
+
     logger.info("Starting link validation", correlation_id=correlation_id)
     click.echo("\n🔗 Validating links in generated documentation...", err=True)
-    
+
     # Determine validation path
     if output_path.is_file():
         validation_path = output_path.parent
     else:
         validation_path = output_path
-    
+
     # Parse links
     parser = LinkParser()
     try:
@@ -136,33 +136,33 @@ def _validate_generated_links(
         logger.warning(f"Link validation failed: {e}", correlation_id=correlation_id)
         click.echo(f"⚠️  Warning: Link validation failed: {e}", err=True)
         return
-    
+
     if not all_links:
         click.echo("✅ No links found to validate", err=True)
         return
-    
+
     # Validate links
     validator = LinkValidator(base_path=validation_path, timeout=timeout, enable_cache=True)
     results = []
     broken_count = 0
     warning_count = 0
-    
+
     for link in all_links:
         result = validator.validate(link)
         results.append(result)
-        
+
         if result.status == LinkStatus.BROKEN:
             broken_count += 1
         elif result.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT):
             warning_count += 1
-    
+
     # Save cache for next run
     validator.save_cache()
-    
+
     # Report results
     total = len(results)
     valid = total - broken_count - warning_count
-    
+
     if verbose:
         # Detailed output
         if broken_count > 0:
@@ -174,7 +174,7 @@ def _validate_generated_links(
                         err=True,
                     )
                     click.echo(f"    Error: {result.error_message}", err=True)
-        
+
         if warning_count > 0:
             click.echo(f"\n⚠️  Warnings ({warning_count}):", err=True)
             for result in results:
@@ -184,13 +184,13 @@ def _validate_generated_links(
                         err=True,
                     )
                     click.echo(f"    Warning: {result.error_message}", err=True)
-    
+
     # Summary
     click.echo(
         f"\n📊 Link validation: {valid} valid, {warning_count} warnings, {broken_count} broken (total: {total})",
         err=True,
     )
-    
+
     if broken_count > 0:
         click.echo("⚠️  Found broken links - consider fixing them", err=True)
         logger.warning(

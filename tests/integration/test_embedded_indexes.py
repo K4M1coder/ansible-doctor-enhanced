@@ -195,5 +195,5 @@ class TestEmbeddedIndexes:
         # Render should show table with 1 web role + "and 1 more..."
         output = section_index.render_inline()
         assert "| Name |" in output  # Table format
-        assert ("webserver" in output or "loadbalancer" in output)
+        assert "webserver" in output or "loadbalancer" in output
         assert "and 1 more" in output

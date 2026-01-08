@@ -22,7 +22,6 @@ Tasks: T040-T044
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 import click
 
@@ -78,10 +77,10 @@ def linkcheck(
     clear_cache: bool,
 ) -> None:
     """Validate all links in documentation.
-    
+
     Scans all documentation files and validates internal file links,
     section anchors, and optionally external HTTP links.
-    
+
     Examples:
         ansible-doctor link check ./docs
         ansible-doctor link check ./docs --no-external
@@ -89,16 +88,16 @@ def linkcheck(
     """
     # Only show progress messages for non-JSON formats
     show_progress = format != "json"
-    
+
     if show_progress:
         click.echo(f"🔍 Validating links in: {path}")
-    
+
     # T041: Full implementation
     # Step 1: Scan directory for documentation files
     parser = LinkParser()
     if show_progress:
         click.echo("📂 Scanning documentation files...")
-    
+
     try:
         all_links = parser.parse_directory(path)
     except Exception as e:
@@ -107,39 +106,39 @@ def linkcheck(
         if exit_code:
             sys.exit(1)
         return
-    
+
     if not all_links:
         if show_progress:
             click.echo("⚠️  No links found in documentation")
         return
-    
+
     if show_progress:
         click.echo(f"🔗 Found {len(all_links)} links to validate")
-    
+
     # Step 2: Initialize validator
     validator = LinkValidator(base_path=path, timeout=timeout, enable_cache=True)
-    
+
     # Clear cache if requested (T043)
     if clear_cache:
         validator.clear_cache()
         if show_progress:
             click.echo("🗑️  Cache cleared")
-    
+
     # Step 3: Validate each link
     results: list[ValidationResult] = []
     broken_count = 0
     warning_count = 0
     valid_count = 0
-    
+
     for i, link in enumerate(all_links, start=1):
         # Skip external links if disabled
         if not external and link.link_type.name.startswith("EXTERNAL"):
             continue
-        
+
         # Validate link
         result = validator.validate(link)
         results.append(result)
-        
+
         # Count by status
         if result.status == LinkStatus.BROKEN:
             broken_count += 1
@@ -147,11 +146,11 @@ def linkcheck(
             warning_count += 1
         elif result.status == LinkStatus.VALID:
             valid_count += 1
-        
+
         # Show progress for large doc sets
         if show_progress and i % 100 == 0:
             click.echo(f"⏳ Progress: {i}/{len(all_links)} links validated...")
-    
+
     # Step 4: Format and output results
     if format == "json":
         _output_json_format(results)
@@ -159,10 +158,10 @@ def linkcheck(
         _output_summary_format(results, broken_count, warning_count, valid_count)
     else:  # text
         _output_text_format(results, broken_count, warning_count, valid_count)
-    
+
     # Step 5: Save cache for next run (T043)
     validator.save_cache()
-    
+
     # Step 6: Exit with appropriate code
     if exit_code and broken_count > 0:
         sys.exit(1)
@@ -178,7 +177,7 @@ def _output_text_format(
     click.echo("\n" + "=" * 60)
     click.echo("📊 Link Validation Results")
     click.echo("=" * 60)
-    
+
     # Show broken links
     if broken_count > 0:
         click.echo(f"\n❌ Broken Links ({broken_count}):")
@@ -189,7 +188,7 @@ def _output_text_format(
                     f"    Target: {result.link.target}\n"
                     f"    Error: {result.error_message}"
                 )
-    
+
     # Show warnings
     if warning_count > 0:
         click.echo(f"\n⚠️  Warnings ({warning_count}):")
@@ -200,7 +199,7 @@ def _output_text_format(
                     f"    Target: {result.link.target}\n"
                     f"    Warning: {result.error_message}"
                 )
-    
+
     # Summary
     click.echo("\n" + "=" * 60)
     click.echo(f"✅ Valid:   {valid_count}")
@@ -208,7 +207,7 @@ def _output_text_format(
     click.echo(f"❌ Broken:  {broken_count}")
     click.echo(f"📊 Total:   {len(results)}")
     click.echo("=" * 60)
-    
+
     if broken_count == 0 and warning_count == 0:
         click.echo("\n🎉 All links are valid!")
 
@@ -225,7 +224,7 @@ def _output_summary_format(
     click.echo(f"  Warning: {warning_count}")
     click.echo(f"  Broken:  {broken_count}")
     click.echo(f"  Total:   {len(results)}")
-    
+
     if broken_count > 0:
         click.echo(f"\n❌ {broken_count} broken link(s) found")
     elif warning_count > 0:
@@ -253,7 +252,9 @@ def _output_json_format(results: list[ValidationResult]) -> None:
         "summary": {
             "total": len(results),
             "valid": sum(1 for r in results if r.status == LinkStatus.VALID),
-            "warning": sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)),
+            "warning": sum(
+                1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)
+            ),
             "broken": sum(1 for r in results if r.status == LinkStatus.BROKEN),
         },
     }
@@ -274,22 +275,22 @@ def _output_json_format(results: list[ValidationResult]) -> None:
 )
 def linkfix(path: Path, dry_run: bool, backup: bool) -> None:
     """Attempt to automatically fix broken links.
-    
+
     Analyzes broken links and attempts to fix common issues:
     - Update moved file paths
     - Fix incorrect section anchors
     - Update renamed files
-    
+
     Examples:
         ansible-doctor link fix ./docs --dry-run
         ansible-doctor link fix ./docs --no-backup
     """
     click.echo(f"🔧 Fixing links in: {path}")
-    
+
     # Future enhancement (not in current spec)
     click.echo("⚠️  Link fixing not yet implemented")
     click.echo("📋 This will attempt to auto-fix broken links")
-    
+
     if dry_run:
         click.echo("🔍 Running in dry-run mode (no changes will be made)")
 
@@ -333,50 +334,50 @@ def linkreport(
     timeout: float,
 ) -> None:
     """Generate detailed link health report.
-    
+
     Creates comprehensive report of link validation results with statistics
     and recommendations.
-    
+
     Examples:
         ansible-doctor link report ./docs
         ansible-doctor link report ./docs --format html --output report.html
         ansible-doctor link report ./docs --group-by severity
     """
     click.echo(f"📊 Generating link report for: {path}")
-    
+
     # T042: Full implementation
     # Step 1: Run link validation (same as linkcheck)
     parser = LinkParser()
     click.echo("📂 Scanning documentation files...")
-    
+
     try:
         all_links = parser.parse_directory(path)
     except Exception as e:
         click.echo(f"❌ Error scanning directory: {e}", err=True)
         sys.exit(1)
-    
+
     if not all_links:
         click.echo("⚠️  No links found in documentation")
         return
-    
+
     click.echo(f"🔗 Found {len(all_links)} links to validate")
-    
+
     # Step 2: Validate all links
     validator = LinkValidator(base_path=path, timeout=timeout, enable_cache=True)
     results: list[ValidationResult] = []
-    
+
     for i, link in enumerate(all_links, start=1):
         # Skip external links if disabled
         if not external and link.link_type.name.startswith("EXTERNAL"):
             continue
-        
+
         result = validator.validate(link)
         results.append(result)
-        
+
         # Show progress for large doc sets
         if i % 100 == 0:
             click.echo(f"⏳ Progress: {i}/{len(all_links)} links validated...")
-    
+
     # Step 3: Generate report in requested format
     if format == "markdown":
         report_content = _generate_markdown_report(results, group_by, path)
@@ -386,10 +387,10 @@ def linkreport(
         report_content = _generate_json_report(results, group_by)
     else:  # text
         report_content = _generate_text_report(results, group_by, path)
-    
+
     # Step 4: Save cache for next run (T043)
     validator.save_cache()
-    
+
     # Step 5: Write to file or stdout
     if output:
         output.write_text(report_content, encoding="utf-8")
@@ -398,16 +399,18 @@ def linkreport(
         click.echo("\n" + report_content)
 
 
-def _generate_markdown_report(results: list[ValidationResult], group_by: str, base_path: Path) -> str:
+def _generate_markdown_report(
+    results: list[ValidationResult], group_by: str, base_path: Path
+) -> str:
     """Generate Markdown format report."""
     from datetime import datetime
-    
+
     # Calculate statistics
     total = len(results)
     valid = sum(1 for r in results if r.status == LinkStatus.VALID)
     warning = sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT))
     broken = sum(1 for r in results if r.status == LinkStatus.BROKEN)
-    
+
     # Build report
     report = f"""# Link Validation Report
 
@@ -424,7 +427,7 @@ def _generate_markdown_report(results: list[ValidationResult], group_by: str, ba
 | **Total** | **{total}** | **100%** |
 
 """
-    
+
     # Group and add details
     if group_by == "file":
         report += _group_by_file_markdown(results)
@@ -432,54 +435,60 @@ def _generate_markdown_report(results: list[ValidationResult], group_by: str, ba
         report += _group_by_severity_markdown(results)
     else:  # type
         report += _group_by_type_markdown(results)
-    
+
     # Add recommendations
     if broken > 0 or warning > 0:
         report += "\n## Recommendations\n\n"
         if broken > 0:
-            report += f"- 🔧 **Fix {broken} broken link(s)**: Update file paths or remove invalid links\n"
+            report += (
+                f"- 🔧 **Fix {broken} broken link(s)**: Update file paths or remove invalid links\n"
+            )
         if warning > 0:
             report += f"- ⚠️  **Review {warning} warning(s)**: Check external URLs for timeouts or redirects\n"
         report += "- 📝 **Run validation regularly**: Catch broken links early in development\n"
-        report += "- 🔄 **Use CI/CD integration**: Add `ansible-doctor link check` to your pipeline\n"
-    
+        report += (
+            "- 🔄 **Use CI/CD integration**: Add `ansible-doctor link check` to your pipeline\n"
+        )
+
     return report
 
 
 def _group_by_file_markdown(results: list[ValidationResult]) -> str:
     """Group results by source file for Markdown report."""
     from collections import defaultdict
-    
+
     by_file: dict[Path, list[ValidationResult]] = defaultdict(list)
     for result in results:
         by_file[result.source_file].append(result)
-    
+
     report = "## Results by File\n\n"
-    
+
     for file_path in sorted(by_file.keys()):
         file_results = by_file[file_path]
         broken = [r for r in file_results if r.status == LinkStatus.BROKEN]
-        warnings = [r for r in file_results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)]
-        
+        warnings = [
+            r for r in file_results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)
+        ]
+
         status_icon = "❌" if broken else ("⚠️" if warnings else "✅")
         report += f"### {status_icon} `{file_path.name}`\n\n"
         report += f"**Path**: `{file_path}`  \n"
         report += f"**Links**: {len(file_results)} total ({len(broken)} broken, {len(warnings)} warnings)\n\n"
-        
+
         if broken:
             report += "**Broken Links**:\n\n"
             for result in broken:
                 report += f"- Line {result.line_number}: `{result.link.target}`\n"
                 report += f"  - Error: {result.error_message}\n"
-        
+
         if warnings:
             report += "\n**Warnings**:\n\n"
             for result in warnings:
                 report += f"- Line {result.line_number}: `{result.link.target}`\n"
                 report += f"  - Warning: {result.error_message}\n"
-        
+
         report += "\n"
-    
+
     return report
 
 
@@ -488,73 +497,81 @@ def _group_by_severity_markdown(results: list[ValidationResult]) -> str:
     broken = [r for r in results if r.status == LinkStatus.BROKEN]
     warnings = [r for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)]
     valid = [r for r in results if r.status == LinkStatus.VALID]
-    
+
     report = "## Results by Severity\n\n"
-    
+
     if broken:
         report += f"### ❌ Broken Links ({len(broken)})\n\n"
         for result in broken:
-            report += f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+            report += (
+                f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+            )
             report += f"  - Error: {result.error_message}\n"
         report += "\n"
-    
+
     if warnings:
         report += f"### ⚠️  Warnings ({len(warnings)})\n\n"
         for result in warnings:
-            report += f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+            report += (
+                f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+            )
             report += f"  - Warning: {result.error_message}\n"
         report += "\n"
-    
+
     if valid:
         report += f"### ✅ Valid Links ({len(valid)})\n\n"
         report += f"All {len(valid)} links validated successfully.\n\n"
-    
+
     return report
 
 
 def _group_by_type_markdown(results: list[ValidationResult]) -> str:
     """Group results by link type for Markdown report."""
     from collections import defaultdict
-    
+
     by_type: dict[str, list[ValidationResult]] = defaultdict(list)
     for result in results:
         by_type[result.link.link_type.name].append(result)
-    
+
     report = "## Results by Link Type\n\n"
-    
+
     for link_type in sorted(by_type.keys()):
         type_results = by_type[link_type]
         broken = sum(1 for r in type_results if r.status == LinkStatus.BROKEN)
-        warnings = sum(1 for r in type_results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT))
+        warnings = sum(
+            1 for r in type_results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)
+        )
         valid = sum(1 for r in type_results if r.status == LinkStatus.VALID)
-        
+
         status_icon = "❌" if broken > 0 else ("⚠️" if warnings > 0 else "✅")
         report += f"### {status_icon} {link_type}\n\n"
         report += f"**Total**: {len(type_results)} | **Valid**: {valid} | **Warnings**: {warnings} | **Broken**: {broken}\n\n"
-        
+
         # Show broken links for this type
         broken_links = [r for r in type_results if r.status == LinkStatus.BROKEN]
         if broken_links:
             report += "**Broken**:\n\n"
             for result in broken_links[:10]:  # Limit to 10 per type
-                report += f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+                report += (
+                    f"- `{result.source_file.name}`:{result.line_number} → `{result.link.target}`\n"
+                )
             if len(broken_links) > 10:
                 report += f"- ... and {len(broken_links) - 10} more\n"
             report += "\n"
-    
+
     return report
 
 
 def _generate_html_report(results: list[ValidationResult], group_by: str, base_path: Path) -> str:
     """Generate HTML format report."""
     from datetime import datetime
-    
+
     # Calculate statistics
     total = len(results)
     valid = sum(1 for r in results if r.status == LinkStatus.VALID)
     warning = sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT))
     broken = sum(1 for r in results if r.status == LinkStatus.BROKEN)
-    
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -614,7 +631,7 @@ def _generate_html_report(results: list[ValidationResult], group_by: str, base_p
             </tr>
         </table>
 """
-    
+
     # Add recommendations
     if broken > 0 or warning > 0:
         html += """
@@ -631,7 +648,7 @@ def _generate_html_report(results: list[ValidationResult], group_by: str, base_p
             </ul>
         </div>
 """
-    
+
     html += """
     </div>
 </body>
@@ -643,13 +660,13 @@ def _generate_html_report(results: list[ValidationResult], group_by: str, base_p
 def _generate_text_report(results: list[ValidationResult], group_by: str, base_path: Path) -> str:
     """Generate plain text format report."""
     from datetime import datetime
-    
+
     # Calculate statistics
     total = len(results)
     valid = sum(1 for r in results if r.status == LinkStatus.VALID)
     warning = sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT))
     broken = sum(1 for r in results if r.status == LinkStatus.BROKEN)
-    
+
     report = f"""
 {'=' * 60}
 LINK VALIDATION REPORT
@@ -666,7 +683,7 @@ Broken:   {broken:4d} ({(broken/total*100):5.1f}%)
 Total:    {total:4d} (100.0%)
 
 """
-    
+
     # Show broken links
     broken_links = [r for r in results if r.status == LinkStatus.BROKEN]
     if broken_links:
@@ -677,7 +694,7 @@ Total:    {total:4d} (100.0%)
             report += f"Line: {result.line_number}\n"
             report += f"Target: {result.link.target}\n"
             report += f"Error: {result.error_message}\n"
-    
+
     # Show warnings
     warning_links = [r for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)]
     if warning_links:
@@ -688,7 +705,7 @@ Total:    {total:4d} (100.0%)
             report += f"Line: {result.line_number}\n"
             report += f"Target: {result.link.target}\n"
             report += f"Warning: {result.error_message}\n"
-    
+
     report += "\n" + "=" * 60 + "\n"
     return report
 
@@ -696,13 +713,15 @@ Total:    {total:4d} (100.0%)
 def _generate_json_report(results: list[ValidationResult], group_by: str) -> str:
     """Generate JSON format report."""
     from datetime import datetime
-    
+
     report = {
         "generated": datetime.now().isoformat(),
         "summary": {
             "total": len(results),
             "valid": sum(1 for r in results if r.status == LinkStatus.VALID),
-            "warning": sum(1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)),
+            "warning": sum(
+                1 for r in results if r.status in (LinkStatus.TIMEOUT, LinkStatus.REDIRECT)
+            ),
             "broken": sum(1 for r in results if r.status == LinkStatus.BROKEN),
         },
         "results": [
@@ -718,7 +737,7 @@ def _generate_json_report(results: list[ValidationResult], group_by: str) -> str
             for r in results
         ],
     }
-    
+
     return json.dumps(report, indent=2)
 
 

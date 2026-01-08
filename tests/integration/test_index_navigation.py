@@ -452,6 +452,7 @@ class TestSearchIndex:
         assert len(results) > 0
         assert results[0]["name"] == "postgresql"
 
+
 class TestTagNavigationPage:
     """Test tag navigation page generation."""
 
@@ -460,9 +461,24 @@ class TestTagNavigationPage:
         from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
-            {"name": "web_server", "tags": ["webserver", "production"], "path": "./web/README.md", "type": "role"},
-            {"name": "api_gateway", "tags": ["webserver", "api"], "path": "./api/README.md", "type": "role"},
-            {"name": "database", "tags": ["database", "production"], "path": "./db/README.md", "type": "role"},
+            {
+                "name": "web_server",
+                "tags": ["webserver", "production"],
+                "path": "./web/README.md",
+                "type": "role",
+            },
+            {
+                "name": "api_gateway",
+                "tags": ["webserver", "api"],
+                "path": "./api/README.md",
+                "type": "role",
+            },
+            {
+                "name": "database",
+                "tags": ["database", "production"],
+                "path": "./db/README.md",
+                "type": "role",
+            },
             {"name": "cache", "tags": ["cache"], "path": "./cache/README.md", "type": "module"},
         ]
 
@@ -487,8 +503,18 @@ class TestTagNavigationPage:
         from ansibledoctor.generator.indexes import DefaultIndexGenerator
 
         items = [
-            {"name": "web_server", "tags": ["webserver"], "path": "./web/README.md", "type": "role"},
-            {"name": "api_gateway", "tags": ["webserver"], "path": "./api/README.md", "type": "role"},
+            {
+                "name": "web_server",
+                "tags": ["webserver"],
+                "path": "./web/README.md",
+                "type": "role",
+            },
+            {
+                "name": "api_gateway",
+                "tags": ["webserver"],
+                "path": "./api/README.md",
+                "type": "role",
+            },
         ]
 
         generator = DefaultIndexGenerator(output_dir=tmp_path)

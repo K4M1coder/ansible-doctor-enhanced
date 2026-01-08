@@ -73,9 +73,7 @@ class MermaidBuilder:
 
         return "\n".join(lines)
 
-    def _collect_all_items(
-        self, items: list[IndexItem], collected: list[IndexItem]
-    ) -> None:
+    def _collect_all_items(self, items: list[IndexItem], collected: list[IndexItem]) -> None:
         """Recursively collect all items including children.
 
         Args:
@@ -113,9 +111,7 @@ class MermaidBuilder:
 
         return "\n".join(lines)
 
-    def _add_mindmap_node(
-        self, item: IndexItem, lines: list[str], indent: int
-    ) -> None:
+    def _add_mindmap_node(self, item: IndexItem, lines: list[str], indent: int) -> None:
         """Recursively add mindmap nodes.
 
         Args:

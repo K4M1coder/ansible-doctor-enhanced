@@ -1118,6 +1118,7 @@ class DefaultIndexGenerator:
         )
 
         return results
+
     def generate_tag_navigation_page(
         self,
         items: list[IndexItem] | list[dict[str, Any]],

@@ -27,13 +27,13 @@ def slugify(text: str) -> str:
     """Convert text to URL-safe slug for anchor links.
 
     Used for generating heading anchors in documentation.
-    
+
     Args:
         text: Text to slugify (e.g., heading text)
-    
+
     Returns:
         URL-safe slug (lowercase, hyphens, no special chars)
-    
+
     Example:
         >>> slugify("My Heading Text")
         'my-heading-text'

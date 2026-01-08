@@ -1,6 +1,7 @@
 """Unit tests for NavigationBuilder class."""
 
 import pytest
+
 from ansibledoctor.links.navigation_builder import NavigationBuilder
 
 
@@ -31,7 +32,7 @@ Content for section 2.
 Content for section 3.
 """
         toc = builder.build_toc(content)
-        
+
         assert toc is not None
         assert isinstance(toc, str)
         assert "Section 1" in toc
@@ -63,7 +64,7 @@ Other content.
 Deep content.
 """
         toc = builder.build_toc(content)
-        
+
         assert toc is not None
         assert "Section 1" in toc
         assert "Subsection 1.1" in toc
@@ -75,7 +76,7 @@ Deep content.
     def test_build_toc_empty_content(self, builder):
         """Test TOC generation with empty content."""
         toc = builder.build_toc("")
-        
+
         assert toc == "" or toc is None
 
     def test_build_toc_no_headings(self, builder):
@@ -85,7 +86,7 @@ No headings here.
 Just paragraphs.
 """
         toc = builder.build_toc(content)
-        
+
         assert toc == "" or toc is None
 
     def test_build_toc_with_special_characters(self, builder):
@@ -102,7 +103,7 @@ More content.
 Even more.
 """
         toc = builder.build_toc(content)
-        
+
         assert toc is not None
         assert "Special & Characters" in toc or "Special" in toc
         assert "Another Section" in toc
@@ -122,7 +123,7 @@ Even more.
 ## Another Real Section
 """
         toc = builder.build_toc(content)
-        
+
         assert "Real Section" in toc
         assert "Another Real Section" in toc
         # Code block headings should NOT appear
@@ -139,7 +140,7 @@ Content.
 More content.
 """
         toc = builder.build_toc(content)
-        
+
         assert "config" in toc
         assert "ansible-playbook" in toc
 
@@ -157,7 +158,7 @@ Some details.
 Second overview (duplicate name).
 """
         toc = builder.build_toc(content)
-        
+
         assert "Overview" in toc
         # Should handle duplicates (either with unique anchors or both listed)
         assert toc.count("Overview") >= 1
@@ -171,7 +172,7 @@ Second overview (duplicate name).
 ### Subsection 2.1
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Check for Markdown list syntax
         assert toc.startswith("-") or toc.startswith("*") or toc.startswith("1.")
         # Check for links
@@ -185,7 +186,7 @@ Second overview (duplicate name).
 ## Section 2
 """
         toc = builder.build_toc(content, format="html")
-        
+
         # Should contain HTML tags
         assert "<ul>" in toc or "<ol>" in toc
         assert "<li>" in toc
@@ -204,7 +205,7 @@ Second overview (duplicate name).
 """
         # Limit to level 3
         toc = builder.build_toc(content, max_depth=3)
-        
+
         assert "Level 2" in toc
         assert "Level 3" in toc
         # Level 4+ should not appear
@@ -220,7 +221,7 @@ Second overview (duplicate name).
 ## Section 2
 """
         toc = builder.build_toc(content, include_top_level=False)
-        
+
         # h1 should not be in TOC
         assert "Main" not in toc or toc.count("Main") == 0
 
@@ -237,12 +238,12 @@ Second overview (duplicate name).
 ### Child 2.1
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Check indentation or nesting
         lines = toc.split("\n")
         parent1_idx = next(i for i, line in enumerate(lines) if "Parent 1" in line)
         child11_idx = next((i for i, line in enumerate(lines) if "Child 1.1" in line), -1)
-        
+
         if child11_idx > parent1_idx:
             # Child should be indented more than parent
             parent1_indent = len(lines[parent1_idx]) - len(lines[parent1_idx].lstrip())
@@ -272,7 +273,7 @@ class TestNestedSubsections:
 ### Level 3 B.1
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Should contain all levels
         assert "Level 2 A" in toc
         assert "Level 3 A.1" in toc
@@ -294,22 +295,26 @@ class TestNestedSubsections:
 ## Section 2
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         lines = [line for line in toc.split("\n") if line.strip()]
-        
+
         # Check indentation patterns
         # h2 should have base indentation
         # h3 should be indented more than h2
         # h4 should be indented more than h3
         section1_lines = [line for line in lines if "Section 1" in line and "Sub" not in line]
-        subsection11_lines = [line for line in lines if "Subsection 1.1" in line and "Sub-sub" not in line]
+        subsection11_lines = [
+            line for line in lines if "Subsection 1.1" in line and "Sub-sub" not in line
+        ]
         subsubsection_lines = [line for line in lines if "Sub-subsection 1.1.1" in line]
-        
+
         if section1_lines and subsection11_lines and subsubsection_lines:
             section1_indent = len(section1_lines[0]) - len(section1_lines[0].lstrip())
             subsection11_indent = len(subsection11_lines[0]) - len(subsection11_lines[0].lstrip())
-            subsubsection_indent = len(subsubsection_lines[0]) - len(subsubsection_lines[0].lstrip())
-            
+            subsubsection_indent = len(subsubsection_lines[0]) - len(
+                subsubsection_lines[0].lstrip()
+            )
+
             # Each level should be indented more than previous
             assert subsection11_indent > section1_indent
             assert subsubsection_indent > subsection11_indent
@@ -323,11 +328,11 @@ class TestNestedSubsections:
 #### Grandchild
 """
         toc = builder.build_toc(content, format="html")
-        
+
         # Should have nested <ul> or <ol> tags
         assert toc.count("<ul>") >= 1 or toc.count("<ol>") >= 1
         assert toc.count("<li>") >= 3
-        
+
         # Nested lists should be inside parent list items
         # Pattern: <li>Parent<ul><li>Child</li></ul></li> or similar
         if "<ul>" in toc:
@@ -336,13 +341,13 @@ class TestNestedSubsections:
             current_depth = 0
             i = 0
             while i < len(toc):
-                if toc[i:i+4] == "<ul>" or toc[i:i+4] == "<ol>":
+                if toc[i : i + 4] == "<ul>" or toc[i : i + 4] == "<ol>":
                     current_depth += 1
                     max_depth = max(max_depth, current_depth)
-                elif toc[i:i+5] == "</ul>" or toc[i:i+5] == "</ol>":
+                elif toc[i : i + 5] == "</ul>" or toc[i : i + 5] == "</ol>":
                     current_depth -= 1
                 i += 1
-            
+
             assert max_depth >= 2  # At least 2 levels of nesting
 
     def test_inconsistent_nesting_levels(self, builder):
@@ -356,7 +361,7 @@ class TestNestedSubsections:
 ##### Sub-subsection 2.1.1 (skipped h4)
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Should still include all headings
         assert "Section 1" in toc
         assert "Subsection 1.1" in toc
@@ -374,7 +379,7 @@ class TestNestedSubsections:
 ###### Level 6
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Should include all levels (excluding h1 if include_top_level=False by default)
         assert "Level 2" in toc or "Level 1" in toc
         assert "Level 3" in toc
@@ -393,7 +398,7 @@ class TestNestedSubsections:
 """
         # Limit to 3 levels (h2, h3, h4)
         toc = builder.build_toc(content, max_depth=4, format="markdown")
-        
+
         # Should include up to level 4
         assert "Level 2" in toc
         assert "Level 3" in toc
@@ -417,7 +422,7 @@ class TestNestedSubsections:
 ## Section 3
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # All siblings should be included
         assert "Section 1" in toc
         assert "Section 2" in toc
@@ -441,7 +446,7 @@ Content here.
 ### Child 2
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Should include all headings regardless of content
         assert "Empty Parent Section" in toc
         assert "Child with content" in toc
@@ -459,10 +464,10 @@ Content here.
 ### Cache Configuration
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         # Should have proper anchor format
         assert "[" in toc and "]" in toc and "(" in toc and ")" in toc
-        
+
         # Anchors should be slugified
         assert "#configuration" in toc.lower() or "configuration" in toc.lower()
         assert "#database" in toc.lower() or "database" in toc.lower()
@@ -477,19 +482,19 @@ Content here.
 #### Sub-subsection 1.1.1
 """
         toc = builder.build_toc(content, format="markdown")
-        
+
         lines = [line.strip() for line in toc.split("\n") if line.strip()]
-        
+
         # Markdown lists typically use -, *, or numbered markers
         # Check that list markers are present
         for line in lines:
             # Each line should start with a list marker or be indented
             assert (
-                line.startswith("-") or
-                line.startswith("*") or
-                line.startswith("1") or
-                line.startswith(" ") or
-                line.startswith("\t")
+                line.startswith("-")
+                or line.startswith("*")
+                or line.startswith("1")
+                or line.startswith(" ")
+                or line.startswith("\t")
             )
 
     def test_nested_html_with_css_classes(self, builder):
@@ -500,7 +505,7 @@ Content here.
 ### Subsection
 """
         toc = builder.build_toc(content, format="html")
-        
+
         # HTML should have structure suitable for CSS styling
         assert "<li>" in toc
         # May include class attributes for different levels

@@ -11,7 +11,6 @@ Spec: 013-links-cross-references, User Story 3
 """
 
 import re
-from pathlib import Path
 from typing import Any
 
 from ansibledoctor.utils.slug import slugify
@@ -75,9 +74,7 @@ class NavigationBuilder:
 
         # Filter by depth and top level
         min_level = 1 if include_top_level else 2
-        filtered_headings = [
-            h for h in headings if min_level <= h["level"] <= max_depth
-        ]
+        filtered_headings = [h for h in headings if min_level <= h["level"] <= max_depth]
 
         if not filtered_headings:
             return ""

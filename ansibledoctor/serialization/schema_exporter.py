@@ -18,16 +18,16 @@ from ansibledoctor.config.models import ConfigModel
 
 class SchemaExporter:
     """Export Pydantic models as JSON Schema or OpenAPI specifications.
-    
+
     Supports exporting configuration models with enriched metadata including
     descriptions, examples, and default values for IDE autocomplete integration.
-    
+
     Example:
         >>> exporter = SchemaExporter()
         >>> schema = exporter.export_config_schema(format_type="json-schema")
         >>> schema["$schema"]
         'https://json-schema.org/draft/2020-12/schema'
-        
+
         >>> exporter.export_to_file("config", Path("schema.json"))
     """
 
@@ -35,14 +35,14 @@ class SchemaExporter:
         self, format_type: Literal["json-schema", "openapi"] = "json-schema"
     ) -> dict[str, Any]:
         """Export configuration model schema in specified format.
-        
+
         Args:
             format_type: Output format - "json-schema" for JSON Schema Draft 2020-12,
                         or "openapi" for OpenAPI 3.1 specification
-                        
+
         Returns:
             Schema dictionary with proper structure for specified format
-            
+
         Example:
             >>> exporter = SchemaExporter()
             >>> schema = exporter.export_config_schema("json-schema")
@@ -65,12 +65,12 @@ class SchemaExporter:
         format_type: Literal["json-schema", "openapi"] = "json-schema",
     ) -> None:
         """Export schema to a file.
-        
+
         Args:
             schema_type: Type of schema to export (currently only "config" supported)
             output_path: Path where schema file will be written
             format_type: Output format (json-schema or openapi)
-            
+
         Example:
             >>> exporter = SchemaExporter()
             >>> exporter.export_to_file("config", Path("schema.json"))
@@ -89,14 +89,14 @@ class SchemaExporter:
 
     def _export_json_schema(self, model: type[BaseModel]) -> dict[str, Any]:
         """Export Pydantic model as JSON Schema Draft 2020-12.
-        
+
         T036: Implements pydantic to JSON Schema conversion
         T038: Adds metadata enrichment (descriptions, examples, defaults)
         T039: Injects $schema property for IDE recognition
-        
+
         Args:
             model: Pydantic model class to export
-            
+
         Returns:
             JSON Schema dictionary with enriched metadata
         """
@@ -144,12 +144,12 @@ class SchemaExporter:
 
     def _export_openapi_schema(self, model: type[BaseModel]) -> dict[str, Any]:
         """Export Pydantic model as OpenAPI 3.1 specification.
-        
+
         T037: Implements OpenAPI 3.1 schema export
-        
+
         Args:
             model: Pydantic model class to export
-            
+
         Returns:
             OpenAPI 3.1 specification with config schema
         """

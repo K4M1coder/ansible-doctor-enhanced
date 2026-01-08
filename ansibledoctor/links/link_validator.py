@@ -19,16 +19,14 @@ Tasks: T035-T039, T043
 import json
 import re
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import requests
 from requests.exceptions import ConnectionError, RequestException, Timeout
 
 from ansibledoctor.models.link import Link, LinkStatus, LinkType
 from ansibledoctor.utils.logging import get_logger
-
 
 logger = get_logger(__name__)
 
@@ -45,7 +43,7 @@ class ValidationResult:
         resolved_path: Path | None = None,
     ) -> None:
         """Initialize validation result.
-        
+
         Args:
             link: The link that was validated
             is_valid: Whether validation passed
@@ -72,14 +70,14 @@ class ValidationResult:
 
 class LinkValidator:
     """Validates documentation links.
-    
+
     Features:
     - Internal file link validation (checks file existence)
     - Section anchor validation (parses headers from target file)
     - External HTTP link validation (HEAD requests with timeout/retry)
     - Caching for external links (avoid duplicate checks)
     - Configurable timeout and retry behavior
-    
+
     Example:
         >>> validator = LinkValidator(base_path=Path("/docs"))
         >>> result = validator.validate(link)
@@ -97,7 +95,7 @@ class LinkValidator:
         cache_ttl: int = 86400,  # 24 hours in seconds
     ) -> None:
         """Initialize link validator.
-        
+
         Args:
             base_path: Base directory for resolving relative paths
             timeout: HTTP request timeout in seconds
@@ -111,25 +109,25 @@ class LinkValidator:
         self.max_retries = max_retries
         self.enable_cache = enable_cache
         self.cache_ttl = cache_ttl
-        
+
         # Set default cache file location
         if cache_file is None:
             cache_file = base_path / ".ansibledoctor-link-cache.json"
         self.cache_file = cache_file
-        
+
         # In-memory cache
         self._external_cache: dict[str, ValidationResult] = {}
-        
+
         # Load persistent cache
         if enable_cache:
             self._load_cache()
 
     def validate(self, link: Link) -> ValidationResult:
         """Validate a link.
-        
+
         Args:
             link: The link to validate
-            
+
         Returns:
             ValidationResult with status and error details
         """
@@ -144,12 +142,12 @@ class LinkValidator:
 
     def _validate_internal_file(self, link: Link) -> ValidationResult:
         """Validate internal file link (T036).
-        
+
         Checks if target file exists, resolving relative paths from source file.
-        
+
         Args:
             link: Link with internal file target
-            
+
         Returns:
             ValidationResult indicating if file exists
         """
@@ -197,12 +195,12 @@ class LinkValidator:
 
     def _validate_section_anchor(self, link: Link) -> ValidationResult:
         """Validate section anchor link (T037).
-        
+
         Parses target Markdown file to extract headers and verify anchor exists.
-        
+
         Args:
             link: Link with section anchor (e.g., "file.md#section")
-            
+
         Returns:
             ValidationResult indicating if anchor exists in target file
         """
@@ -267,13 +265,13 @@ class LinkValidator:
 
     def _extract_markdown_anchors(self, file_path: Path) -> set[str]:
         """Extract anchor IDs from Markdown headers.
-        
+
         Converts headers like "## My Section" to anchor "my-section".
         Follows GitHub Markdown anchor generation rules.
-        
+
         Args:
             file_path: Path to Markdown file
-            
+
         Returns:
             Set of anchor IDs found in file
         """
@@ -306,13 +304,13 @@ class LinkValidator:
 
     def _validate_external(self, link: Link) -> ValidationResult:
         """Validate external HTTP link (T038-T039).
-        
+
         Makes HEAD request to check if URL is accessible.
         Includes retry logic for transient failures and caching for performance.
-        
+
         Args:
             link: Link with external HTTP/HTTPS URL
-            
+
         Returns:
             ValidationResult with HTTP status information
         """
@@ -340,11 +338,11 @@ class LinkValidator:
 
     def _validate_external_with_retry(self, link: Link, url: str) -> ValidationResult:
         """Validate external URL with exponential backoff retry.
-        
+
         Args:
             link: Link object
             url: URL to validate
-            
+
         Returns:
             ValidationResult
         """
@@ -376,17 +374,19 @@ class LinkValidator:
                         error_message=f"HTTP {response.status_code}: {url}",
                     )
 
-            except Timeout as e:
+            except Timeout:
                 last_error = f"Connection timeout: {url}"
                 logger.debug(f"Timeout on attempt {attempt + 1}/{self.max_retries}: {url}")
 
-            except ConnectionError as e:
+            except ConnectionError:
                 last_error = f"Connection failed: {url}"
                 logger.debug(f"Connection error on attempt {attempt + 1}/{self.max_retries}: {url}")
 
             except RequestException as e:
                 last_error = f"Request failed: {e}"
-                logger.debug(f"Request exception on attempt {attempt + 1}/{self.max_retries}: {url}")
+                logger.debug(
+                    f"Request exception on attempt {attempt + 1}/{self.max_retries}: {url}"
+                )
 
             # Wait before retry (exponential backoff)
             if attempt < self.max_retries - 1:
@@ -400,25 +400,26 @@ class LinkValidator:
             status=LinkStatus.TIMEOUT,  # TIMEOUT for network issues vs BROKEN for 404
             error_message=last_error or f"Failed to validate: {url}",
         )
+
     def _load_cache(self) -> None:
         """Load persistent cache from disk (T043).
-        
+
         Loads cached external link validation results from JSON file.
         Validates cache entries against TTL and removes expired entries.
         """
         if not self.cache_file.exists():
             logger.debug(f"Cache file not found: {self.cache_file}")
             return
-        
+
         try:
             cache_data = json.loads(self.cache_file.read_text(encoding="utf-8"))
             now = datetime.now()
-            
+
             for url, entry in cache_data.items():
                 # Check if entry is expired
                 checked_at = datetime.fromisoformat(entry["checked_at"])
                 age = (now - checked_at).total_seconds()
-                
+
                 if age < self.cache_ttl:
                     # Reconstruct ValidationResult from cache
                     # Note: We don't have the original Link object, so create a dummy one
@@ -427,38 +428,38 @@ class LinkValidator:
                         target=url,
                         link_type=LinkType.EXTERNAL_URL,
                     )
-                    
+
                     result = ValidationResult(
                         link=dummy_link,
                         is_valid=entry["is_valid"],
                         status=LinkStatus(entry["status"]),
                         error_message=entry.get("error_message"),
                     )
-                    
+
                     self._external_cache[url] = result
                     logger.debug(f"Loaded cached result for: {url} (age: {age:.0f}s)")
                 else:
                     logger.debug(f"Expired cache entry for: {url} (age: {age:.0f}s)")
-            
+
             logger.info(f"Loaded {len(self._external_cache)} cached link validations")
-        
+
         except Exception as e:
             logger.warning(f"Failed to load cache file: {e}")
             self._external_cache = {}
 
     def save_cache(self) -> None:
         """Save persistent cache to disk (T043).
-        
+
         Writes external link validation results to JSON file for reuse
         across multiple validation runs.
         """
         if not self.enable_cache or not self._external_cache:
             return
-        
+
         try:
             cache_data = {}
             now = datetime.now()
-            
+
             for url, result in self._external_cache.items():
                 cache_data[url] = {
                     "url": url,
@@ -468,24 +469,21 @@ class LinkValidator:
                     "source_file": str(result.source_file),
                     "checked_at": now.isoformat(),
                 }
-            
-            self.cache_file.write_text(
-                json.dumps(cache_data, indent=2),
-                encoding="utf-8"
-            )
+
+            self.cache_file.write_text(json.dumps(cache_data, indent=2), encoding="utf-8")
             logger.info(f"Saved {len(cache_data)} link validations to cache: {self.cache_file}")
-        
+
         except Exception as e:
             logger.warning(f"Failed to save cache file: {e}")
 
     def clear_cache(self) -> None:
         """Clear all cached validation results (T043).
-        
+
         Removes both in-memory cache and persistent cache file.
         Useful for forcing fresh validation of all links.
         """
         self._external_cache = {}
-        
+
         if self.cache_file.exists():
             try:
                 self.cache_file.unlink()

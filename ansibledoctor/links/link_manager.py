@@ -4,6 +4,7 @@ Manages link creation, resolution, and formatting across different output format
 """
 
 from pathlib import Path
+
 from ansibledoctor.models.link import Link, LinkType
 
 

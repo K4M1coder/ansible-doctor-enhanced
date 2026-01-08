@@ -5,7 +5,6 @@ Tests the FormatConverter with YAML, JSON, XML, and Mermaid format conversions.
 
 import json
 import xml.etree.ElementTree as ET
-from pathlib import Path
 
 import pytest
 from ruamel.yaml import YAML
@@ -56,7 +55,7 @@ class TestFormatConversion:
 
     def test_yaml_to_json_conversion(self, format_converter, sample_yaml_file):
         """Test converting YAML to JSON preserves data structure.
-        
+
         T044: Validates that YAML to JSON conversion:
         - Parses YAML correctly
         - Outputs valid JSON
@@ -64,9 +63,7 @@ class TestFormatConversion:
         - Round-trip preserves original data
         """
         # Convert YAML to JSON
-        result = format_converter.convert_file(
-            sample_yaml_file, to_format="json", pretty=False
-        )
+        result = format_converter.convert_file(sample_yaml_file, to_format="json", pretty=False)
 
         # Verify result is valid JSON string
         assert isinstance(result, str)
@@ -81,7 +78,7 @@ class TestFormatConversion:
 
     def test_json_to_xml_conversion(self, format_converter, sample_json_file):
         """Test converting JSON to XML produces valid XML structure.
-        
+
         T045: Validates that JSON to XML conversion:
         - Parses JSON correctly
         - Outputs valid XML
@@ -89,9 +86,7 @@ class TestFormatConversion:
         - Nested objects become nested elements
         """
         # Convert JSON to XML
-        result = format_converter.convert_file(
-            sample_json_file, to_format="xml", pretty=True
-        )
+        result = format_converter.convert_file(sample_json_file, to_format="xml", pretty=True)
 
         # Verify result is valid XML
         assert isinstance(result, str)
@@ -99,21 +94,19 @@ class TestFormatConversion:
 
         # Verify XML structure
         assert root.tag == "root"
-        
+
         # Check for key elements
         output_format = root.find("output_format")
         assert output_format is not None
         assert output_format.text == "markdown"
-        
+
         recursive = root.find("recursive")
         assert recursive is not None
         assert recursive.text.lower() == "true"  # Python bool → "True" or "true"
 
-    def test_yaml_to_json_round_trip(
-        self, format_converter, sample_yaml_file, sample_config_data
-    ):
+    def test_yaml_to_json_round_trip(self, format_converter, sample_yaml_file, sample_config_data):
         """Test YAML to JSON and back preserves data fidelity.
-        
+
         T047: Validates that:
         - YAML → JSON → YAML preserves all data
         - No data loss in conversion
@@ -133,11 +126,9 @@ class TestFormatConversion:
         assert isinstance(json_data["exclude_patterns"], list)  # List preserved
         assert isinstance(json_data["theme"], dict)  # Dict preserved
 
-    def test_convert_with_pretty_formatting(
-        self, format_converter, sample_yaml_file
-    ):
+    def test_convert_with_pretty_formatting(self, format_converter, sample_yaml_file):
         """Test pretty formatting produces readable output.
-        
+
         T048: Validates that --pretty flag:
         - Adds proper indentation to JSON
         - Adds newlines between elements
@@ -157,9 +148,7 @@ class TestFormatConversion:
         data = json.loads(pretty_result)
         assert "output_format" in data
 
-    def test_convert_without_pretty_formatting(
-        self, format_converter, sample_yaml_file
-    ):
+    def test_convert_without_pretty_formatting(self, format_converter, sample_yaml_file):
         """Test conversion without pretty formatting is compact."""
         # Convert without pretty formatting
         compact_result = format_converter.convert_file(
@@ -168,7 +157,7 @@ class TestFormatConversion:
 
         # Verify compact formatting (minimal whitespace)
         assert isinstance(compact_result, str)
-        
+
         # Compact should have fewer newlines than pretty
         pretty_result = format_converter.convert_file(
             sample_yaml_file, to_format="json", pretty=True
@@ -178,9 +167,7 @@ class TestFormatConversion:
     def test_json_to_yaml_conversion(self, format_converter, sample_json_file):
         """Test converting JSON back to YAML."""
         # Convert JSON to YAML
-        result = format_converter.convert_file(
-            sample_json_file, to_format="yaml", pretty=True
-        )
+        result = format_converter.convert_file(sample_json_file, to_format="yaml", pretty=True)
 
         # Verify result is valid YAML
         assert isinstance(result, str)
@@ -193,7 +180,7 @@ class TestFormatConversion:
 
     def test_xml_to_json_conversion(self, format_converter, tmp_path):
         """Test converting XML to JSON.
-        
+
         T052: Validates XML to JSON conversion
         """
         # Create sample XML file
@@ -219,16 +206,14 @@ class TestFormatConversion:
 
     def test_mermaid_diagram_generation(self, format_converter, sample_yaml_file):
         """Test generating Mermaid diagrams from config data.
-        
+
         T046: Validates Mermaid generation:
         - Extends Spec 011 MermaidBuilder
         - Generates valid Mermaid syntax
         - Represents config structure as diagram
         """
         # Convert to Mermaid diagram
-        result = format_converter.convert_file(
-            sample_yaml_file, to_format="mermaid", pretty=True
-        )
+        result = format_converter.convert_file(sample_yaml_file, to_format="mermaid", pretty=True)
 
         # Verify Mermaid syntax
         assert isinstance(result, str)
@@ -244,9 +229,7 @@ class TestFormatConversion:
     def test_convert_to_same_format(self, format_converter, sample_json_file):
         """Test converting to the same format (should work as passthrough)."""
         # Convert JSON to JSON (should parse and re-serialize)
-        result = format_converter.convert_file(
-            sample_json_file, to_format="json", pretty=True
-        )
+        result = format_converter.convert_file(sample_json_file, to_format="json", pretty=True)
 
         # Verify it's valid JSON
         data = json.loads(result)

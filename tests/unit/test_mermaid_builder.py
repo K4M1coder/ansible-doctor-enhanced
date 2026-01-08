@@ -114,18 +114,10 @@ class TestMermaidBuilder:
         builder = MermaidBuilder(use_clickable_nodes=False)
 
         items = [
-            IndexItem(
-                name="test_collection", type="collection", path=Path("c"), description=""
-            ),
-            IndexItem(
-                name="test_role", type="role", path=Path("r"), description=""
-            ),
-            IndexItem(
-                name="test_module", type="module", path=Path("m"), description=""
-            ),
-            IndexItem(
-                name="test_playbook", type="playbook", path=Path("p"), description=""
-            ),
+            IndexItem(name="test_collection", type="collection", path=Path("c"), description=""),
+            IndexItem(name="test_role", type="role", path=Path("r"), description=""),
+            IndexItem(name="test_module", type="module", path=Path("m"), description=""),
+            IndexItem(name="test_playbook", type="playbook", path=Path("p"), description=""),
         ]
 
         result = builder.build_flowchart(items)
