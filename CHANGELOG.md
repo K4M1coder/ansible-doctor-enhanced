@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2026-01-08
 
-### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (45/90 tasks - 50%)
+### Added - Links & Cross-References (Spec 013) - 🚧 **IN PROGRESS** (46/90 tasks - 51%)
 
-**Current Phase**: Phase 5 - US3 Navigate Within Documents (8% complete - 1/12 tasks done)  
-**Status**: Phase 4 complete, starting Phase 5 with TOC tests
+**Current Phase**: Phase 5 - US3 Navigate Within Documents (17% complete - 2/12 tasks done)  
+**Status**: Phase 4 complete, Phase 5 tests in progress
 
 **Phase 1: Setup ✅ COMPLETE (T001-T005)**
 - Created links module structure (`ansibledoctor/links/`)
@@ -98,13 +98,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Logging: Correlation ID tracking for tracing
 - 🔄 **REMAINING**: T045-T090 (User Stories 3-5, Polish, Documentation)
 
-**Phase 5: US3 Section Navigation 🚧 8% COMPLETE (T045, 1/12 tasks done)**
+**Phase 5: US3 Section Navigation 🚧 17% COMPLETE (T045-T046, 2/12 tasks done)**
 - ✅ Test suite for table of contents generation (T045)
   - 16 unit tests for NavigationBuilder.build_toc()
   - Test cases: simple headings, mixed levels, special characters, code blocks
   - Formats: Markdown and HTML
   - Features: max_depth, nested structure, duplicate handling
   - Tests written in TDD Red phase (failing until implementation)
+- ✅ Test suite for section link jumping (T046)
+  - 10 integration tests for section navigation
+  - Test cases: TOC links to headings, nested sections, special characters
+  - Cross-document section links (file.md#anchor)
+  - Case insensitivity, duplicate headings, inline code in headings
+  - Multiple links to same section
+  - Tests written in TDD Red phase (failing until NavigationBuilder implemented)
 - ✅ Unit Test Suite (tests/unit/test_cross_reference.py)
   - 15 tests: 8 LinkManager + 7 CrossReferenceGenerator
   - 100% pass rate, validates all core functionality

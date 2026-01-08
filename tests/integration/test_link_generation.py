@@ -501,3 +501,324 @@ More content
         assert len(visited) == 3
         assert visited[-1].parent.name == "frontend"
 
+
+class TestSectionLinkJumping:
+    """T046: Test section link jumping to correct headings."""
+
+    def test_toc_link_jumps_to_correct_heading(self, tmp_path):
+        """TOC link should jump to the correct heading in the document."""
+        # Create a document with sections
+        doc_path = tmp_path / "docs" / "guide.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# User Guide
+
+## Table of Contents
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+
+## Installation
+
+Install the role using ansible-galaxy.
+
+## Configuration
+
+Configure variables in defaults/main.yml.
+
+## Usage
+
+Use the role in your playbook.
+"""
+        doc_path.write_text(doc_content)
+        
+        # Parse document and extract section links
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Find TOC section links
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) == 3
+        
+        # Verify each link points to correct heading
+        targets = [link.target for link in section_links]
+        assert "#installation" in targets
+        assert "#configuration" in targets
+        assert "#usage" in targets
+        
+        # Verify heading anchors exist in document
+        content_lower = doc_content.lower()
+        for target in targets:
+            anchor = target.lstrip("#")
+            # Check heading exists (case-insensitive)
+            assert f"## {anchor.replace('-', ' ')}" in content_lower or f"# {anchor.replace('-', ' ')}" in content_lower
+
+    def test_nested_section_links(self, tmp_path):
+        """Nested section links should jump to correct subsections."""
+        doc_path = tmp_path / "docs" / "advanced.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Advanced Topics
+
+## Database Configuration
+### MySQL Setup
+### PostgreSQL Setup
+
+## Performance Tuning
+### Caching
+#### Redis Configuration
+#### Memcached Configuration
+
+Jump to [Redis Configuration](#redis-configuration) for details.
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Find the Redis link
+        redis_links = [link for link in links if "redis" in link.target.lower()]
+        assert len(redis_links) >= 1
+        
+        redis_link = redis_links[0]
+        assert redis_link.target == "#redis-configuration"
+        
+        # Verify the target heading exists
+        assert "#### Redis Configuration" in doc_content
+
+    def test_anchor_with_special_characters(self, tmp_path):
+        """Section anchors with special characters should be properly slugified."""
+        doc_path = tmp_path / "docs" / "faq.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# FAQ
+
+## What is Ansible?
+Information about Ansible.
+
+## How do I install it?
+Installation instructions.
+
+## Can't connect to remote host?
+Troubleshooting guide.
+
+See [installation instructions](#how-do-i-install-it) above.
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Find section link with special chars
+        install_links = [link for link in links if "install" in link.target.lower()]
+        assert len(install_links) >= 1
+        
+        # Anchor should be slugified (lowercase, hyphens, no special chars)
+        install_link = install_links[0]
+        assert install_link.target == "#how-do-i-install-it"
+        # Should not contain apostrophes or question marks
+        assert "?" not in install_link.target
+        assert "'" not in install_link.target
+
+    def test_same_page_navigation(self, tmp_path):
+        """Links within the same page should have empty or relative paths."""
+        doc_path = tmp_path / "README.md"
+        doc_content = """# Project Documentation
+
+Jump to:
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+
+## Getting Started
+See [API Reference](#api-reference) for details.
+
+## API Reference
+Return to [Getting Started](#getting-started).
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        from ansibledoctor.models.link import LinkType
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # All section links should be internal section type
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) >= 4
+        
+        for link in section_links:
+            assert link.link_type == LinkType.INTERNAL_SECTION
+            assert link.target.startswith("#")
+
+    def test_cross_document_section_link(self, tmp_path):
+        """Links to sections in other documents should work correctly."""
+        # Create main document
+        main_doc = tmp_path / "docs" / "index.md"
+        main_doc.parent.mkdir(parents=True)
+        main_content = """# Documentation Index
+
+See [Installation Guide - Prerequisites](install.md#prerequisites) for setup.
+"""
+        main_doc.write_text(main_content)
+        
+        # Create target document
+        install_doc = tmp_path / "docs" / "install.md"
+        install_content = """# Installation Guide
+
+## Prerequisites
+- Python 3.8+
+- Ansible 2.9+
+
+## Steps
+1. Install dependencies
+2. Configure
+"""
+        install_doc.write_text(install_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(main_doc)
+        
+        # Find cross-document section link
+        cross_links = [link for link in links if "install.md" in link.target]
+        assert len(cross_links) == 1
+        
+        cross_link = cross_links[0]
+        assert "install.md#prerequisites" in cross_link.target
+        
+        # Link should be relative path type with anchor
+        assert cross_link.link_type in [
+            LinkType.RELATIVE_PATH,
+            LinkType.INTERNAL_FILE,
+        ]
+
+    def test_heading_case_insensitivity(self, tmp_path):
+        """Section links should work regardless of heading case."""
+        doc_path = tmp_path / "docs" / "guide.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Guide
+
+## UPPERCASE HEADING
+Content here.
+
+## lowercase heading
+More content.
+
+## MiXeD CaSe Heading
+Even more.
+
+Links:
+- [First](#uppercase-heading)
+- [Second](#lowercase-heading)
+- [Third](#mixed-case-heading)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) == 3
+        
+        # All anchors should be lowercase
+        for link in section_links:
+            assert link.target == link.target.lower()
+            assert link.target.startswith("#")
+
+    def test_multiple_links_to_same_section(self, tmp_path):
+        """Multiple links pointing to the same section should all work."""
+        doc_path = tmp_path / "docs" / "reference.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# API Reference
+
+See [variables](#variables) section.
+
+## Overview
+Check [variables](#variables) for options.
+
+## Variables
+Available variables listed here.
+
+## Usage
+Refer to [variables](#variables) above.
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        # Should find 3 links to #variables
+        variables_links = [link for link in links if link.target == "#variables"]
+        assert len(variables_links) == 3
+        
+        # All should be internal section links
+        for link in variables_links:
+            assert link.link_type == LinkType.INTERNAL_SECTION
+
+    def test_markdown_heading_with_inline_code(self, tmp_path):
+        """Headings with inline code should generate correct anchors."""
+        doc_path = tmp_path / "docs" / "vars.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Variables
+
+## The `nginx_port` Variable
+Default port configuration.
+
+## The `ssl_enabled` Flag
+Enable SSL/TLS.
+
+Links:
+- [Port config](#the-nginx_port-variable)
+- [SSL flag](#the-ssl_enabled-flag)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) >= 2
+        
+        # Anchors should include the inline code text (without backticks)
+        targets = [link.target for link in section_links]
+        assert "#the-nginx_port-variable" in targets or "#the-nginx-port-variable" in targets
+        assert "#the-ssl_enabled-flag" in targets or "#the-ssl-enabled-flag" in targets
+
+    def test_duplicate_heading_names(self, tmp_path):
+        """Documents with duplicate heading names should have unique anchors."""
+        doc_path = tmp_path / "docs" / "changelog.md"
+        doc_path.parent.mkdir(parents=True)
+        doc_content = """# Changelog
+
+## Version 2.0
+### New Features
+### Bug Fixes
+
+## Version 1.0
+### New Features
+### Bug Fixes
+
+- [v2 features](#new-features)
+- [v2 fixes](#bug-fixes)
+- [v1 features](#new-features-1)
+- [v1 fixes](#bug-fixes-1)
+"""
+        doc_path.write_text(doc_content)
+        
+        from ansibledoctor.utils.link_parser import LinkParser
+        parser = LinkParser()
+        links = parser.parse_file(doc_path)
+        
+        section_links = [link for link in links if link.target.startswith("#")]
+        assert len(section_links) >= 4
+        
+        # Should have unique anchors for duplicates
+        targets = [link.target for link in section_links]
+        # First occurrence: #new-features, #bug-fixes
+        # Second occurrence: #new-features-1, #bug-fixes-1 (or similar)
+        assert any("new-features" in t for t in targets)
+        assert any("bug-fixes" in t for t in targets)
+
