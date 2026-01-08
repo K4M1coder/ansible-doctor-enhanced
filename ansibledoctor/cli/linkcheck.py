@@ -64,12 +64,18 @@ def link_commands():
     default=True,
     help="Exit with non-zero code if broken links found",
 )
+@click.option(
+    "--clear-cache",
+    is_flag=True,
+    help="Clear cache before validation (force fresh check)",
+)
 def linkcheck(
     path: Path,
     format: str,
     external: bool,
     timeout: float,
     exit_code: bool,
+    clear_cache: bool,
 ) -> None:
     """Validate all links in documentation.
     
@@ -113,6 +119,12 @@ def linkcheck(
     # Step 2: Initialize validator
     validator = LinkValidator(base_path=path, timeout=timeout, enable_cache=True)
     
+    # Clear cache if requested (T043)
+    if clear_cache:
+        validator.clear_cache()
+        if show_progress:
+            click.echo("🗑️  Cache cleared")
+    
     # Step 3: Validate each link
     results: list[ValidationResult] = []
     broken_count = 0
@@ -148,7 +160,10 @@ def linkcheck(
     else:  # text
         _output_text_format(results, broken_count, warning_count, valid_count)
     
-    # Step 5: Exit with appropriate code
+    # Step 5: Save cache for next run (T043)
+    validator.save_cache()
+    
+    # Step 6: Exit with appropriate code
     if exit_code and broken_count > 0:
         sys.exit(1)
 
@@ -372,7 +387,10 @@ def linkreport(
     else:  # text
         report_content = _generate_text_report(results, group_by, path)
     
-    # Step 4: Write to file or stdout
+    # Step 4: Save cache for next run (T043)
+    validator.save_cache()
+    
+    # Step 5: Write to file or stdout
     if output:
         output.write_text(report_content, encoding="utf-8")
         click.echo(f"✅ Report written to: {output}")
