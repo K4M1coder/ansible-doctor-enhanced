@@ -144,3 +144,5 @@ Thumbs.db
 diff_*.txt
 fsck_out.txt
 stash_*.patch
+tmp_test_output.md
+tmp_test_role/

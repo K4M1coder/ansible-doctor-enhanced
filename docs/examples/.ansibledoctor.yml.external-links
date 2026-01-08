@@ -1,0 +1,64 @@
+# Example .ansibledoctor.yml with external link configuration
+# Spec 013: Links & Cross-References
+# Phase 6: US4 - Access External Resources (T068)
+
+# Ansible version for documentation links
+ansible_version: "2.15"  # or "latest", "2.14", etc.
+
+# External link configuration
+external_links:
+  # Base URL for Ansible documentation
+  ansible_docs_base: "https://docs.ansible.com"
+  
+  # Base URL for Ansible Galaxy
+  galaxy_base: "https://galaxy.ansible.com"
+  
+  # Custom module documentation mappings
+  # Override default URL patterns for specific modules
+  module_docs:
+    # Example: Custom documentation URL for a specific module
+    "my_company.custom.special_module": "https://docs.mycompany.com/ansible/special_module.html"
+  
+  # Best practices keyword mappings
+  # Add custom keywords that should link to specific guides
+  best_practices:
+    "compliance": "https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#compliance"
+    "idempotency": "https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html#idempotency"
+    "variables": "https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html"
+    "handlers": "https://docs.ansible.com/ansible/latest/user_guide/playbooks_handlers.html"
+  
+  # Enable/disable external link features
+  features:
+    module_docs: true          # Enable module documentation linking
+    galaxy_links: true         # Enable Galaxy collection/role linking
+    best_practices: true       # Enable best practices guide linking
+    new_tab: true              # Open external links in new tab
+    version_specific: true     # Use version-specific documentation URLs
+  
+  # Link validation settings
+  validation:
+    check_external: true       # Validate external links (HTTP checks)
+    timeout: 5                 # HTTP request timeout in seconds
+    retries: 3                 # Number of retries for failed requests
+    cache_ttl: 3600           # Cache TTL in seconds (1 hour)
+
+# Output format settings
+output:
+  format: "markdown"  # or "html", "rst"
+  
+  # HTML-specific external link settings
+  html:
+    external_icon: true        # Add icon to external links
+    nofollow: false            # Add rel="nofollow" to external links
+    
+# Link generation settings
+links:
+  # Generate cross-references automatically
+  auto_cross_reference: true
+  
+  # Generate external resource links automatically
+  auto_external_links: true
+  
+  # Include TOC in generated documentation
+  table_of_contents: true
+  toc_max_depth: 3            # Maximum heading level in TOC (1-6)

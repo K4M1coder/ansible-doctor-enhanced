@@ -14,7 +14,7 @@
 | Name | Description | Tags | Dependencies |
 |------|-------------|------|--------------|
 {% for item in items %}
-| [{{ item.name }}]({{ item.doc_link }}) | {{ item.description | default('') | truncate(80) | replace('\n', ' ') }} | {% if item.tags %}{% for tag in item.tags %}`{{ tag }}`{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} | {% if item.dependencies %}{% for dep in item.dependencies %}{{ dep }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} |
+| [{{ item.name }}]({{ item.doc_link }}) | {{ item.description | default('') | truncate(80) | replace('\n', ' ') }} | {% if item.tags %}{% for tag in item.tags %}[`{{ tag }}`](../tags.md#tag-{{ tag }}){% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} | {% if item.dependencies %}{% for dep in item.dependencies %}{{ dep }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}-{% endif %} |
 {% endfor %}
 {% else %}
 {% if filters_applied %}

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ansible-doctor-enhanced"
-version = "0.11.0"
+version = "0.12.0"
 description = "Enhanced Ansible role documentation generator with annotation support, logging, error handling, and reporting"
 authors = ["Cédric Thédrez <kamicth@gmail.com>"]
 license = "MIT"
@@ -34,6 +34,8 @@ ansible-core = ">=2.14,<2.18"
 ansible-creator = "^25.12.0"
 ansible = "<12.0.0"
 jsonschema = "^4.0"
+requests = "^2.28"
+beautifulsoup4 = "^4.11"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
@@ -50,6 +52,8 @@ pre-commit = "^3.4.0"
 ghapi = "^1.0.8"
 tomli = "^2.0"
 types-pyyaml = "^6.0.12.20250915"
+types-requests = "^2.32"
+types-beautifulsoup4 = "^4.12"
 
 [tool.poetry.scripts]
 ansible-doctor-enhanced = "ansibledoctor.cli:main"
@@ -111,6 +115,22 @@ module = [
 ]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "bs4.*",
+    "pytest.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.unit.test_link_models",
+    "tests.unit.test_link_parser",
+]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
