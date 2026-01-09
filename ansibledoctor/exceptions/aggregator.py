@@ -136,10 +136,10 @@ class ErrorAggregator:
         self,
         code: str,
         message: str,
-        file_path: str = None,
-        line: int = None,
-        column: int = None,
-        recovery_suggestion: str = None,
+        file_path: Optional[str] = None,
+        line: Optional[int] = None,
+        column: Optional[int] = None,
+        recovery_suggestion: Optional[str] = None,
     ) -> None:
         """Add a warning to the aggregator.
 

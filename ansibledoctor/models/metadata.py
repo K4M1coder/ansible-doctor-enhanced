@@ -74,13 +74,13 @@ class RoleMetadata(BaseModel):
     )
 
     # Galaxy Info (from galaxy_info section)
-    author: Optional[str] = Field(None, description="Role author name")
-    description: Optional[str] = Field(None, description="Role description")
-    license: Optional[str] = Field(None, description="License (e.g., MIT, BSD)")
-    company: Optional[str] = Field(None, description="Company or organization")
+    author: Optional[str] = Field(default=None, description="Role author name")
+    description: Optional[str] = Field(default=None, description="Role description")
+    license: Optional[str] = Field(default=None, description="License (e.g., MIT, BSD)")
+    company: Optional[str] = Field(default=None, description="Company or organization")
 
     min_ansible_version: Optional[str] = Field(
-        None, description="Minimum Ansible version required (e.g., '2.9')"
+        default=None, description="Minimum Ansible version required (e.g., '2.9')"
     )
 
     @field_validator("min_ansible_version", mode="before")
@@ -107,7 +107,9 @@ class RoleMetadata(BaseModel):
     )
 
     # Source tracking
-    meta_file_path: Optional[str] = Field(None, description="Path to meta/main.yml for context")
+    meta_file_path: Optional[str] = Field(
+        default=None, description="Path to meta/main.yml for context"
+    )
 
     model_config = {"frozen": True}
 

@@ -432,7 +432,9 @@ class ExternalLinkIntegrator:
             all_links.extend(self.extract_module_links(role_dir))
 
         if collection:
-            all_links.append(self.generate_galaxy_link(collection))
+            galaxy_link = self.generate_galaxy_link(collection)
+            if galaxy_link:
+                all_links.append(galaxy_link)
 
         all_links.extend(self.extract_best_practice_links(content))
 

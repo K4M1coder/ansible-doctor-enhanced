@@ -69,7 +69,8 @@ class SchemaCache:
         self._cache.move_to_end(key)
         self._hits += 1
 
-        return entry["schema"]
+        schema_data: dict[str, Any] | None = entry["schema"]
+        return schema_data
 
     def set(self, key: str, schema: Dict[str, Any]) -> None:
         """Store schema in cache.

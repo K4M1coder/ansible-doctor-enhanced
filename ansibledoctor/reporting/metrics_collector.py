@@ -124,5 +124,5 @@ class MetricsCollector:
             projects_documented=self.counters.get("projects_documented", 0),
             warnings_count=self.counters.get("warnings_count", 0),
             errors_count=self.counters.get("errors_count", 0),
-            phase_timing=self.phase_timing.copy(),
+            phase_timing={k: int(v) for k, v in self.phase_timing.items()},
         )

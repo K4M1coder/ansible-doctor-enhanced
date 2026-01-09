@@ -85,7 +85,7 @@ def setup_logging(
     structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
 
 
-def get_logger(name: str) -> structlog.stdlib.BoundLogger:
+def get_logger(name: str) -> structlog.stdlib.BoundLogger:  # type: ignore[no-any-return]
     """
     Get a structured logger instance with the given name.
 

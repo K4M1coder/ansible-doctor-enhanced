@@ -13,6 +13,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -374,9 +375,9 @@ def parse(
     )
 
     # Initialize execution tracking
-    warnings_list = []
-    errors_list = []
-    output_files = []
+    warnings_list: list[str] = []
+    errors_list: list[str] = []
+    output_files: list[Path] = []
     files_processed = 0
     roles_documented = 0
 
@@ -959,7 +960,7 @@ def _parse_roles_recursive(
     """
     logger.info("parsing_roles_recursive", roles_dir=str(roles_dir))
 
-    results = {
+    results: dict[str, Any] = {
         "roles_dir": str(roles_dir),
         "roles": {},
     }
@@ -1265,9 +1266,9 @@ def generate(
     )
 
     # Initialize execution tracking
-    warnings_list = []
-    errors_list = []
-    output_files = []
+    warnings_list: list[str] = []
+    errors_list: list[str] = []
+    output_files: list[Path] = []
     files_processed = 0
     roles_documented = 0
 

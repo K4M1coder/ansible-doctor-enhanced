@@ -254,7 +254,8 @@ class ContextDetector:
                 try:
                     with open(galaxy_path) as f:
                         data = yaml.safe_load(f)
-                    return data.get("namespace", "unknown")
+                    namespace_val: str = data.get("namespace", "unknown")
+                    return namespace_val
                 except Exception:
                     pass
         # Fallback to parent directory name or "unknown"

@@ -6,7 +6,7 @@ IntelliJ IDEA, and PyCharm.
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from ansibledoctor.models.error_report import ErrorEntry, ErrorReport
 
@@ -27,7 +27,7 @@ class SARIFFormatter:
         self.tool_name = tool_name
         self.tool_version = tool_version
 
-    def format(self, error_report: ErrorReport, working_dir: Path = None) -> dict:
+    def format(self, error_report: ErrorReport, working_dir: Optional[Path] = None) -> dict:
         """Convert ErrorReport to SARIF 2.1.0 format.
 
         Args:
@@ -63,7 +63,8 @@ class SARIFFormatter:
         }
 
         # Add invocation metadata
-        sarif_doc["runs"][0]["invocations"] = [
+        runs_list: list = sarif_doc["runs"]  # type: ignore[assignment]
+        runs_list[0]["invocations"] = [
             {
                 "executionSuccessful": error_report.error_count == 0,
                 "endTimeUtc": error_report.timestamp.isoformat() + "Z",
@@ -128,7 +129,7 @@ class SARIFFormatter:
         results = []
 
         for issue in issues:
-            result = {
+            result: dict = {
                 "ruleId": issue.code,
                 "level": self._get_sarif_level(issue.severity),
                 "message": {"text": issue.message},
@@ -157,9 +158,9 @@ class SARIFFormatter:
 
                 # Add line and column if available
                 if issue.line:
-                    location["physicalLocation"]["region"]["startLine"] = issue.line
+                    location["physicalLocation"]["region"]["startLine"] = str(issue.line)
                     if issue.column:
-                        location["physicalLocation"]["region"]["startColumn"] = issue.column
+                        location["physicalLocation"]["region"]["startColumn"] = str(issue.column)
 
                 result["locations"] = [location]
 
