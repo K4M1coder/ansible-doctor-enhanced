@@ -13,6 +13,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Literal
 
 import click
 
@@ -374,9 +375,9 @@ def parse(
     )
 
     # Initialize execution tracking
-    warnings_list = []
-    errors_list = []
-    output_files = []
+    warnings_list: list[dict[str, Any]] = []
+    errors_list: list[dict[str, Any]] = []
+    output_files: list[Path] = []
     files_processed = 0
     roles_documented = 0
 
@@ -959,7 +960,7 @@ def _parse_roles_recursive(
     """
     logger.info("parsing_roles_recursive", roles_dir=str(roles_dir))
 
-    results = {
+    results: dict[str, Any] = {
         "roles_dir": str(roles_dir),
         "roles": {},
     }
@@ -1265,9 +1266,9 @@ def generate(
     )
 
     # Initialize execution tracking
-    warnings_list = []
-    errors_list = []
-    output_files = []
+    warnings_list: list[dict[str, Any]] = []
+    errors_list: list[dict[str, Any]] = []
+    output_files: list[Path] = []
     files_processed = 0
     roles_documented = 0
 
@@ -1349,7 +1350,13 @@ def generate(
         # Handle recursive generation
         if recursive:
             _generate_recursive(
-                role_path, format, output_dir, template, embed_css, generate_toc, sphinx_compat
+                role_path,
+                format,
+                output_dir,
+                str(template) if template else None,
+                embed_css,
+                generate_toc,
+                sphinx_compat,
             )
             roles_documented = sum(
                 1
@@ -1403,6 +1410,7 @@ def generate(
         logger.debug(f"Generated {len(cross_references)} cross-references")
 
         # Select renderer based on format
+        renderer: MarkdownRenderer | HtmlRenderer | RstRenderer
         if format.lower() == "markdown":
             renderer = MarkdownRenderer(template_path=str(template) if template else None)
             output_format = OutputFormat.MARKDOWN
@@ -1421,8 +1429,8 @@ def generate(
         else:
             raise ValidationError(
                 f"Format '{format}' not yet implemented",
-                "Use 'markdown', 'html', or 'rst' format.",
-                {"requested_format": format},
+                context={"requested_format": format},
+                suggestion="Use 'markdown', 'html', or 'rst' format.",
             )
 
         # Build theme configuration from CLI options
@@ -1702,6 +1710,7 @@ def _generate_recursive(
             role = _parse_role_for_generation(role_path)
 
             # Select renderer based on format
+            renderer: MarkdownRenderer | HtmlRenderer | RstRenderer
             if format.lower() == "markdown":
                 renderer = MarkdownRenderer(template_path=template)
                 output_format = OutputFormat.MARKDOWN
@@ -1719,8 +1728,8 @@ def _generate_recursive(
             else:
                 raise ValidationError(
                     f"Format '{format}' not yet implemented",
-                    "Use 'markdown', 'html', or 'rst' format.",
-                    {"requested_format": format},
+                    context={"requested_format": format},
+                    suggestion="Use 'markdown', 'html', or 'rst' format.",
                 )
 
             # Create template context
@@ -2028,7 +2037,8 @@ def validate(path: Path):
 
             if isinstance(e, YAMLError):
                 # YAML syntax error - extract line/column info
-                click.echo(f"  YAML Syntax Error: {e.problem}", err=True)
+                problem = getattr(e, "problem", str(e))
+                click.echo(f"  YAML Syntax Error: {problem}", err=True)
                 if hasattr(e, "problem_mark") and e.problem_mark:
                     mark = e.problem_mark
                     click.echo(f"  Line {mark.line + 1}, Column {mark.column + 1}", err=True)
@@ -2135,6 +2145,7 @@ def watch(role_path: str, format: str, output: str | None):
             role = _parse_role_for_generation(role_path_obj)
 
             # Select renderer based on format
+            renderer: MarkdownRenderer | HtmlRenderer | RstRenderer
             if output_format == "markdown":
                 renderer = MarkdownRenderer()
             elif output_format == "html":
@@ -2219,7 +2230,7 @@ cli.add_command(link_commands)
 
 def _generate_execution_report(
     report_path: Path,
-    report_format: str,
+    report_format: str,  # Validated by click.Choice, cast to Literal internally
     correlation_id: str,
     command: str,
     status: str,
@@ -2285,7 +2296,11 @@ def _generate_execution_report(
         # Generate and write report
         generator = ReportGenerator()
         report = generator.generate(context)
-        generator.write_report(report, report_path, report_format)
+        # Cast report_format from str to Literal (validated by click.Choice)
+        from typing import cast
+
+        format_literal = cast(Literal["json", "text", "summary"], report_format)
+        generator.write_report(report, report_path, format_literal)
 
         logger.info(
             "execution_report_generated",

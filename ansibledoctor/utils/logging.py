@@ -99,7 +99,7 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
         >>> logger = get_logger(__name__)
         >>> logger.info("task_completed", task_id="T001", duration_ms=150.5)
     """
-    return structlog.get_logger(name)
+    return structlog.get_logger(name)  # type: ignore[no-any-return]
 
 
 def bind_context(**kwargs: Any) -> None:

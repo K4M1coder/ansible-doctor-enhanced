@@ -76,7 +76,8 @@ class RecoverySuggestionProvider:
         """
         suggestion_data = self._suggestions.get(error_code)
         if suggestion_data:
-            return suggestion_data.get("steps", [])
+            steps: list[str] = suggestion_data.get("steps", [])
+            return steps
         return []
 
 

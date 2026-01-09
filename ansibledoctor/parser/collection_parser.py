@@ -25,6 +25,7 @@ from typing import Dict, List, Union
 from ansibledoctor.exceptions import ParsingError
 from ansibledoctor.models.collection import AnsibleCollection, PlaybookInfo
 from ansibledoctor.models.plugin import Plugin, PluginType
+from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.parser.base_validator import BaseValidator
 from ansibledoctor.parser.collection_walker import CollectionStructureWalker
 from ansibledoctor.parser.docs_extractor import DocsExtractor
@@ -166,7 +167,7 @@ class CollectionParser:
 
             # Discover roles
             roles_dir = self._path_resolver.get_roles_directory(collection_path)
-            roles = []
+            roles: list[str | AnsibleRole] = []
             if roles_dir and roles_dir.exists():
                 if deep_parse:
                     role_parser = RoleParser()
@@ -181,7 +182,7 @@ class CollectionParser:
                                 )
                                 roles.append(role_path_item.name)
                 else:
-                    roles = self._structure_walker.discover_roles(roles_dir)
+                    roles.extend(self._structure_walker.discover_roles(roles_dir))
                 logger.debug(f"Discovered {len(roles)} roles")
             else:
                 logger.debug("No roles directory found")

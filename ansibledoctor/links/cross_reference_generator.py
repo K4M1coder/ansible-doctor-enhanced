@@ -39,7 +39,7 @@ class CrossReferenceGenerator:
             - project_context: Project context and breadcrumbs
             - see_also: Related roles
         """
-        references = {}
+        references: dict[str, Any] = {}
 
         # Generate dependency links
         depends_on = self._generate_dependency_links(role)
@@ -72,7 +72,7 @@ class CrossReferenceGenerator:
         Returns:
             List of dependency information with links
         """
-        dependencies = []
+        dependencies: list[dict[str, Any]] = []
 
         # Access dependencies through role.metadata
         if not role.metadata.dependencies:
@@ -147,7 +147,7 @@ class CrossReferenceGenerator:
         Returns:
             Project context with breadcrumbs and hierarchy
         """
-        context = {
+        context: dict[str, Any] = {
             "breadcrumb": [],
             "hierarchy": {},
         }
@@ -220,7 +220,7 @@ class CrossReferenceGenerator:
         Returns:
             List of related roles with relevance scores
         """
-        related_roles = []
+        related_roles: list[dict[str, Any]] = []
 
         # Get role's tags from metadata
         role_tags = set(getattr(role.metadata, "galaxy_tags", []))
@@ -281,7 +281,7 @@ class CrossReferenceGenerator:
                 continue
 
         # Sort by relevance score (descending)
-        related_roles.sort(key=lambda r: r["relevance_score"], reverse=True)
+        related_roles.sort(key=lambda r: float(r["relevance_score"]), reverse=True)
 
         return related_roles
 

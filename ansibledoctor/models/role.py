@@ -42,7 +42,7 @@ class AnsibleRole(BaseModel):
 
     # Components (Value Objects and Entities)
     metadata: RoleMetadata = Field(
-        default_factory=RoleMetadata, description="Galaxy metadata from meta/main.yml"
+        default_factory=lambda: RoleMetadata(), description="Galaxy metadata from meta/main.yml"
     )
 
     variables: list[Variable] = Field(
@@ -68,7 +68,7 @@ class AnsibleRole(BaseModel):
     )
 
     existing_docs: ExistingDocs = Field(
-        default_factory=ExistingDocs,
+        default_factory=lambda: ExistingDocs(),
         description="Existing documentation (README, CHANGELOG, LICENSE, etc.)",
     )
 

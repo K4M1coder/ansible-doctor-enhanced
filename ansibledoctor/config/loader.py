@@ -5,7 +5,7 @@ T010-T012: find_config_file(), load_config(), merge_config()
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from ruamel.yaml import YAML
 
@@ -118,7 +118,7 @@ def load_config(config_path: Path) -> ConfigModel:
 
 def merge_config(
     file_config: Optional[ConfigModel],
-    cli_config: dict,
+    cli_config: ConfigModel | dict[str, Any],
 ) -> ConfigModel:
     """Merge configuration from file and CLI with proper precedence.
 
@@ -127,7 +127,7 @@ def merge_config(
 
     Args:
         file_config: Configuration loaded from file (or None if not found)
-        cli_config: Configuration from CLI arguments as dict
+        cli_config: Configuration from CLI arguments as ConfigModel or dict
 
     Returns:
         Merged ConfigModel with proper precedence applied
@@ -148,12 +148,16 @@ def merge_config(
     defaults = ConfigModel()
 
     # Build merged dict with priority: CLI > file > defaults
-    merged_data = {}
+    merged_data: dict[str, Any] = {}
 
     # Get all fields from ConfigModel
     for field_name in ConfigModel.model_fields.keys():
-        cli_value = getattr(cli_config, field_name)
-        file_value = getattr(file_config, field_name) if file_config else None
+        # Handle both ConfigModel and dict for cli_config
+        if isinstance(cli_config, dict):
+            cli_value = cli_config.get(field_name)
+        else:
+            cli_value = getattr(cli_config, field_name, None)
+        file_value = getattr(file_config, field_name, None) if file_config else None
         default_value = getattr(defaults, field_name)
 
         # Priority: CLI (if not None) > file (if not None/default) > default

@@ -9,6 +9,7 @@ Part of Phase 8 US4 (TODO/Examples extraction).
 
 import re
 from pathlib import Path
+from typing import Literal
 
 import structlog
 
@@ -108,11 +109,17 @@ class TodoParser:
 
                 # Create TodoItem
                 try:
+                    priority_value: Literal["low", "medium", "high", "critical"] | None = None
+                    if priority:
+                        priority_lower = priority.lower()
+                        if priority_lower in {"low", "medium", "high", "critical"}:
+                            priority_value = priority_lower  # type: ignore[assignment]
+
                     todo = TodoItem(
                         description=description,
                         file_path=str(file_path),
                         line_number=line_number,
-                        priority=priority.lower() if priority else None,
+                        priority=priority_value,
                     )
                     todos.append(todo)
                 except Exception as exc:

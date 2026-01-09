@@ -12,13 +12,17 @@ class ExistingDocs(BaseModel):
     of template and file assets.
     """
 
-    readme_content: Optional[str] = Field(None, description="README file content")
-    readme_format: Optional[str] = Field(None, description="README format: 'markdown' or 'rst'")
-    changelog_content: Optional[str] = Field(None, description="CHANGELOG file content")
-    contributing_content: Optional[str] = Field(None, description="CONTRIBUTING file content")
-    license_content: Optional[str] = Field(None, description="LICENSE file content")
+    readme_content: Optional[str] = Field(default=None, description="README file content")
+    readme_format: Optional[str] = Field(
+        default=None, description="README format: 'markdown' or 'rst'"
+    )
+    changelog_content: Optional[str] = Field(default=None, description="CHANGELOG file content")
+    contributing_content: Optional[str] = Field(
+        default=None, description="CONTRIBUTING file content"
+    )
+    license_content: Optional[str] = Field(default=None, description="LICENSE file content")
     license_type: Optional[str] = Field(
-        None,
+        default=None,
         description="Detected license type: 'MIT', 'Apache-2.0', 'GPL-3.0', 'BSD-3-Clause', or 'Unknown'",
     )
     templates_list: list[str] = Field(

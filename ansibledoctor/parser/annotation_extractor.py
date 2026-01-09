@@ -259,8 +259,8 @@ class AnnotationExtractor:
                 attrs = self._yaml.load(content)
                 # Only accept dict results, reject None or other types
                 if isinstance(attrs, dict):
-                    # Filter out None keys (edge case: content is just ":")
-                    attrs = {k: v for k, v in attrs.items() if k is not None}
+                    # Filter out None keys and ensure all keys are strings
+                    attrs = {str(k): v for k, v in attrs.items() if k is not None}
                     return attrs
             except Exception:
                 logger.debug("yaml_parse_failed", content_preview=content[:50])

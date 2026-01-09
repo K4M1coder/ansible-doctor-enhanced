@@ -193,7 +193,7 @@ class ProjectParser:
 
         # Inventory discovery: support parsing of inventory files under 'inventory' dir
         # Also respect 'inventory' path set in ansible.cfg under [defaults]
-        inventory_cfg_dir: Optional[Path] = None
+        inventory_cfg_dir: Optional[Path] | list[Path] = None
         if cfg_path:
             try:
                 cfg = ConfigParser()
@@ -221,34 +221,27 @@ class ProjectParser:
             if isinstance(inventory_cfg_dir, list):
                 for ip in inventory_cfg_dir:
                     if ip.is_dir():
-                        for item in parse_inventory_dir(Path(ip)):
-                            project.inventory.append(item)
+                        project.inventory.extend(parse_inventory_dir(Path(ip)))
                     elif ip.is_file():
                         ext = ip.suffix
                         if ext in {".yml", ".yaml"}:
-                            for item in parse_yaml_inventory(ip):
-                                project.inventory.append(item)
+                            project.inventory.extend(parse_yaml_inventory(ip))
                         else:
-                            for item in parse_ini_inventory(ip):
-                                project.inventory.append(item)
+                            project.inventory.extend(parse_ini_inventory(ip))
             else:
                 if inventory_cfg_dir.is_dir():
-                    for item in parse_inventory_dir(Path(inventory_cfg_dir)):
-                        project.inventory.append(item)
+                    project.inventory.extend(parse_inventory_dir(Path(inventory_cfg_dir)))
                 elif inventory_cfg_dir.is_file():
                     # parse single file
                     ext = inventory_cfg_dir.suffix
                     if ext in {".yml", ".yaml"}:
-                        for item in parse_yaml_inventory(inventory_cfg_dir):
-                            project.inventory.append(item)
+                        project.inventory.extend(parse_yaml_inventory(inventory_cfg_dir))
                     else:
-                        for item in parse_ini_inventory(inventory_cfg_dir):
-                            project.inventory.append(item)
+                        project.inventory.extend(parse_ini_inventory(inventory_cfg_dir))
         else:
             inventory_dir = os.path.join(str(path_obj), "inventory")
             if os.path.isdir(inventory_dir):
-                for item in parse_inventory_dir(Path(inventory_dir)):
-                    project.inventory.append(item)
+                project.inventory.extend(parse_inventory_dir(Path(inventory_dir)))
 
         # Playbook discovery: look for 'playbooks' directory or any top-level .yml files
         playbooks_dir = os.path.join(str(path_obj), "playbooks")
@@ -366,19 +359,19 @@ class ProjectParser:
 
         # Parse role defaults (lowest precedence)
         role_defaults_map: dict[str, dict] = {}
-        for role in project.roles:
-            defaults_file = Path(role.path) / "defaults" / "main.yml"
+        for role_info in project.roles:
+            defaults_file = Path(role_info.path) / "defaults" / "main.yml"
             if defaults_file.exists():
                 try:
                     r_data = yaml_loader.load_file(defaults_file)
                     if isinstance(r_data, dict):
-                        role_defaults_map[role.name] = r_data
+                        role_defaults_map[role_info.name] = r_data
                 except Exception:
-                    role_defaults_map[role.name] = {}
+                    role_defaults_map[role_info.name] = {}
 
         # Compute effective vars per host
         # Allow project-level redaction config in .ansibledoctor.yml
-        redact_patterns = None
+        redact_patterns: list[str] | None = None
         redact_placeholder = "***REDACTED***"
         config_candidate = Path(path_obj) / ".ansibledoctor.yml"
         if not config_candidate.exists():
@@ -387,12 +380,14 @@ class ProjectParser:
             try:
                 cfg_data = yaml_loader.load_file(config_candidate)
                 if isinstance(cfg_data, dict) and cfg_data.get("redaction"):
-                    r = cfg_data.get("redaction")
-                    if isinstance(r, dict):
-                        if r.get("patterns") and isinstance(r.get("patterns"), list):
-                            redact_patterns = r.get("patterns")
-                        if r.get("placeholder"):
-                            redact_placeholder = r.get("placeholder")
+                    r_val = cfg_data.get("redaction")
+                    if isinstance(r_val, dict):
+                        patterns_val = r_val.get("patterns")
+                        if patterns_val and isinstance(patterns_val, list):
+                            redact_patterns = patterns_val
+                        placeholder_val = r_val.get("placeholder")
+                        if placeholder_val:
+                            redact_placeholder = placeholder_val
             except Exception:
                 pass
 
@@ -400,7 +395,8 @@ class ProjectParser:
             result = dict(base)
             for k, v in overrides.items():
                 if isinstance(v, dict) and isinstance(result.get(k), dict):
-                    result[k] = _merge_dicts(result.get(k, {}), v)
+                    base_val: dict = result.get(k, {})
+                    result[k] = _merge_dicts(base_val, v)
                 else:
                     result[k] = v
             return result
@@ -424,7 +420,8 @@ class ProjectParser:
                             return redact_placeholder
                     return val
 
-            return redact_value(d)
+            result_dict: dict = redact_value(d)
+            return result_dict
 
         for host_item in project.inventory:
             host = host_item.name

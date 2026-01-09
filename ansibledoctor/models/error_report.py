@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ErrorEntry(BaseModel):
@@ -37,10 +37,8 @@ class ErrorEntry(BaseModel):
         default=None, description="Source lines around error (3 before + error line + 3 after)"
     )
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "code": "E101",
                 "severity": "error",
@@ -53,6 +51,7 @@ class ErrorEntry(BaseModel):
                 "doc_url": "https://docs.ansible-doctor.com/errors/E101",
             }
         }
+    )
 
 
 class ErrorReport(BaseModel):
@@ -88,10 +87,8 @@ class ErrorReport(BaseModel):
     successful_files: int = Field(default=0, ge=0, description="Files processed successfully")
     failed_files: int = Field(default=0, ge=0, description="Files that failed processing")
 
-    class Config:
-        """Pydantic model configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "correlation_id": "01HXYZ123ABC456789",
                 "timestamp": "2025-12-03T10:30:00Z",
@@ -112,6 +109,7 @@ class ErrorReport(BaseModel):
                 "partial_success": False,
             }
         }
+    )
 
     def to_text(self, verbose: bool = False) -> str:
         """Format report as human-readable text for terminal.

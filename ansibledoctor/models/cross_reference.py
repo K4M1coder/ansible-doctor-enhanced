@@ -134,7 +134,9 @@ class CrossReference(BaseModel):
         """
         return self.link_type in ("dependency", "parent", "child")
 
-    def get_inverse_link_type(self) -> str:
+    def get_inverse_link_type(
+        self,
+    ) -> Literal["dependency", "used_by", "related", "parent", "child"]:
         """Get the inverse link type for bidirectional relationships.
 
         Returns:
@@ -151,7 +153,7 @@ class CrossReference(BaseModel):
             >>> ref.get_inverse_link_type()
             'used_by'
         """
-        inverse_map = {
+        inverse_map: dict[str, Literal["dependency", "used_by", "related", "parent", "child"]] = {
             "dependency": "used_by",
             "used_by": "dependency",
             "parent": "child",
