@@ -667,7 +667,7 @@ erDiagram
 ## Performance Characteristics
 
 | Operation | Target | Strategy |
-|-----------|--------|----------|
+| ----------- | -------- | ---------- |
 | Schema validation (uncached) | <10ms per config | Compile schema once |
 | Schema validation (cached) | <2ms per config | Use compiled validator |
 | Format conversion (<1MB) | <100ms | Streaming parsing |

@@ -785,6 +785,6 @@ ansible-doctor schema docs role --format html --output docs/role_schema.html
 **Output**: `quickstart.md`, `data-model.md`, `contracts/schema-validator.yaml`, `contracts/format-converter.yaml`, `contracts/config-schema.json`
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
+| ----------- | ------------ | ------------------------------------- |
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

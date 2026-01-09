@@ -122,7 +122,7 @@
 ## 🚦 Merge Decision Matrix
 
 | Criteria | Status | Blocker? | Notes |
-|----------|--------|----------|-------|
+| ---------- | -------- | ---------- | ------- |
 | **Functionality** | ✅ Complete | No | All user stories implemented |
 | **Tests** | ✅ 121 passing | No | 100% pass rate, 100% coverage |
 | **Type Safety** | ✅ 0 errors | No | 100% type-safe |
