@@ -39,16 +39,17 @@ class MultiLanguageGenerator:
         for lang in languages:
             provider = self.loader.load(lang, Path(project.path))
             gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)
+            project_name = project.name if project.name is not None else "project"
             if output_dir is not None:
                 target = (
-                    Path(output_dir) / "lang" / lang / project_slug(project.name)
+                    Path(output_dir) / "lang" / lang / project_slug(project_name)
                     if not legacy_output
                     else Path(output_dir) / "lang" / lang
                 )
             else:
                 if not legacy_output:
                     target = (
-                        Path(project.path) / "docs" / "lang" / lang / project_slug(project.name)
+                        Path(project.path) / "docs" / "lang" / lang / project_slug(project_name)
                     )
                 else:
                     target = Path(project.path) / "docs" / "lang" / lang

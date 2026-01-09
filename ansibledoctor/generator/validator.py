@@ -226,7 +226,9 @@ class TemplateValidator:
             - warnings: list of warning messages
             - undeclared_variables: set of used variables
         """
-        result = {
+        from typing import Any
+
+        result: dict[str, Any] = {
             "valid": True,
             "errors": [],
             "warnings": [],
@@ -238,7 +240,8 @@ class TemplateValidator:
             self.validate_syntax(template_source, template_name)
         except TemplateValidationError as e:
             result["valid"] = False
-            result["errors"].append(str(e))
+            if isinstance(result.get("errors"), list):
+                result["errors"].append(str(e))
             return result
 
         # Get undeclared variables
@@ -250,7 +253,10 @@ class TemplateValidator:
             missing = required_vars - undeclared
             if missing:
                 result["valid"] = False
-                result["errors"].append(f"Missing required variables: {', '.join(sorted(missing))}")
+                if isinstance(result.get("errors"), list):
+                    result["errors"].append(
+                        f"Missing required variables: {', '.join(sorted(missing))}"
+                    )
 
         return result
 

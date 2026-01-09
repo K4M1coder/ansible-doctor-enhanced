@@ -104,7 +104,9 @@ class CollectionTemplateContext:
 
         # Build role data list
         roles_data = []
-        for role_name in self.collection.roles:
+        for role_item in self.collection.roles:
+            # role_item can be str or AnsibleRole - extract name
+            role_name = role_item if isinstance(role_item, str) else role_item.name
             # Calculate role slug
             r_slug = role_slug(self.collection.metadata.namespace, role_name)
             roles_data.append(RoleInfo(name=role_name, slug=r_slug))
