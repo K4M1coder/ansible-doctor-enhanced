@@ -145,4 +145,6 @@ diff_*.txt
 fsck_out.txt
 stash_*.patch
 tmp_test_output.md
-tmp_test_role/
+
+# Test temporary files and coverage reports
+tests/tmp/

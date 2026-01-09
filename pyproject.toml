@@ -134,11 +134,18 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --cov=ansibledoctor --cov-report=term-missing --cov-report=html --ignore=tests/fixtures"
+addopts = "-ra -q --strict-markers --cov=ansibledoctor --cov-report=term-missing --cov-report=html --ignore=tests/fixtures --basetemp=tests/tmp"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+# Use tests/tmp/ for all temporary test files
+tmp_path_retention_count = 3
+tmp_path_retention_policy = "failed"
+
+# Configure basetemp to use tests/tmp/ directory
+# This puts all pytest temp files (tmp_path fixtures) in tests/tmp/
+# instead of system temp directory or project root
 
 [tool.ruff]
 line-length = 100
@@ -165,6 +172,7 @@ ignore = [
 [tool.coverage.run]
 source = ["ansibledoctor"]
 omit = ["*/tests/*", "*/__pycache__/*", "*/venv/*"]
+data_file = "tests/tmp/.coverage"
 
 [tool.coverage.report]
 exclude_lines = [
@@ -177,6 +185,9 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
+
+[tool.coverage.html]
+directory = "tests/tmp/htmlcov"
 
 [build-system]
 requires = ["poetry-core"]
