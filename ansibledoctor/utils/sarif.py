@@ -149,18 +149,19 @@ class SARIFFormatter:
                     # If resolution fails, use as-is
                     pass
 
+                region: dict[str, int] = {}
                 location = {
                     "physicalLocation": {
                         "artifactLocation": {"uri": file_path.as_uri(), "uriBaseId": "%SRCROOT%"},
-                        "region": {},
+                        "region": region,
                     }
                 }
 
                 # Add line and column if available
                 if issue.line:
-                    location["physicalLocation"]["region"]["startLine"] = str(issue.line)
+                    region["startLine"] = issue.line
                     if issue.column:
-                        location["physicalLocation"]["region"]["startColumn"] = str(issue.column)
+                        region["startColumn"] = issue.column
 
                 result["locations"] = [location]
 

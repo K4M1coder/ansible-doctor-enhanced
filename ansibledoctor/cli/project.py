@@ -15,6 +15,7 @@ from ansibledoctor.config.models import ConfigModel
 from ansibledoctor.generator.project_generator import ProjectDocumentationGenerator
 from ansibledoctor.parser.playbook_analyzer import PlaybookAnalyzer
 from ansibledoctor.parser.project_parser import ProjectParser
+from ansibledoctor.translation.provider import TranslationProvider
 from ansibledoctor.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -48,7 +49,7 @@ def parse(project_path: Path, redact_values: bool, deep_parse: bool):
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path, deep_parse=deep_parse)
+        project = parser.parse(str(project_path), deep_parse=deep_parse)
         # Output as JSON
         output = project.model_dump_json(indent=2)
         click.echo(output)
@@ -96,7 +97,7 @@ def analyze(
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path, deep_parse=deep_parse)
+        project = parser.parse(str(project_path), deep_parse=deep_parse)
         # If playbook requested, run playbook analyzer
         if playbook:
             analyzer = PlaybookAnalyzer(project)
@@ -145,7 +146,7 @@ def visualize(project_path: Path, output_format: str, deep_parse: bool):
     """
     try:
         parser = ProjectParser()
-        project = parser.parse(project_path, deep_parse=deep_parse)
+        project = parser.parse(str(project_path), deep_parse=deep_parse)
         if output_format == "mermaid":
             # Generate simple Mermaid diagram
             diagram = f"""graph TD
@@ -256,7 +257,7 @@ def generate(
     """
     try:
         parser = ProjectParser(redact_sensitive=redact_values)
-        project = parser.parse(project_path, deep_parse=deep_parse)
+        project = parser.parse(str(project_path), deep_parse=deep_parse)
         # Load file config if present to check for language settings
         config_path = find_config_file(Path(project_path))
         file_config = load_config(config_path) if config_path else None
@@ -270,12 +271,14 @@ def generate(
         merged_config = merge_config(file_config, cli_config)
         # Apply merged values where CLI didn't specify explicit overrides
         format = merged_config.output_format or format
+        out_dir_path: Path | None = None
         if merged_config.output_dir and not output_dir:
             out_dir_path = Path(merged_config.output_dir)
         # Create translation provider if language specified
         from ansibledoctor.translation.loader import TranslationLoader
 
         loader = TranslationLoader()
+        provider: TranslationProvider | None = None
         # If output_dir is relative, write it under the project path; compute once
         if output_dir is not None:
             out_dir_path = Path(output_dir)
@@ -338,7 +341,6 @@ def generate(
             return
 
         # Single language case
-        provider = None
         if langs_list:
             provider = loader.load(langs_list[0], Path(project_path))
         gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)

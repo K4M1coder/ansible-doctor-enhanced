@@ -12,6 +12,7 @@ import click
 import structlog
 
 from ansibledoctor.exceptions import AnsibleDoctorError, ParsingError
+from ansibledoctor.models.role import AnsibleRole
 from ansibledoctor.parser.collection_parser import CollectionParser
 from ansibledoctor.utils.logging import get_logger
 from ansibledoctor.utils.slug import build_context_path, collection_slug
@@ -381,10 +382,14 @@ def generate(
             role_items: list[IndexItem] = []
             for role_name in ansible_collection.roles:
                 # Create IndexItem with basic metadata
+                # Extract role name as string (handle both str and AnsibleRole)
+                role_name_str: str = (
+                    role_name.name if isinstance(role_name, AnsibleRole) else str(role_name)
+                )
                 item = IndexItem(
-                    name=role_name,
+                    name=role_name_str,
                     type="role",
-                    path=collection_path / "roles" / role_name,
+                    path=collection_path / "roles" / role_name_str,
                     description=f"Role: {role_name}",  # TODO: Parse role metadata for description
                     tags=[],
                     namespace=ansible_collection.metadata.namespace,
@@ -394,9 +399,13 @@ def generate(
             # Build IndexItems from plugins
             plugin_items: list[IndexItem] = []
             for plugin in plugins:
+                # Cast plugin type to expected Literal type
+                plugin_type_str: str = (
+                    plugin.type.value if hasattr(plugin.type, "value") else str(plugin.type)
+                )
                 item = IndexItem(
                     name=plugin.name,
-                    type=plugin.type.value if hasattr(plugin.type, "value") else str(plugin.type),
+                    type=plugin_type_str,  # type: ignore[arg-type]
                     path=plugin.path,
                     description=plugin.short_description or f"Plugin: {plugin.name}",
                     tags=[],
@@ -544,21 +553,21 @@ def analyze(
 
             if output_format.lower() == "text":
                 # ASCII tree format - use UTF-8 encoding for box-drawing characters
-                output = graph.to_ascii_tree()
+                text_output = graph.to_ascii_tree()
                 # Write to stdout with UTF-8 encoding to support box-drawing characters
-                sys.stdout.buffer.write(output.encode("utf-8"))
+                sys.stdout.buffer.write(text_output.encode("utf-8"))
                 sys.stdout.buffer.write(b"\n")
                 sys.stdout.flush()
             elif output_format.lower() == "json":
                 # JSON format
                 import json
 
-                output = graph.to_json()
-                click.echo(json.dumps(output, indent=2))
+                json_output = graph.to_json()
+                click.echo(json.dumps(json_output, indent=2))
             elif output_format.lower() == "mermaid":
                 # Mermaid diagram format
-                output = graph.to_mermaid()
-                click.echo(output)
+                mermaid_output = graph.to_mermaid()
+                click.echo(mermaid_output)
 
         # If circular dependencies exist but we're not in check mode, exit normally
         if has_circular and not check_circular:
