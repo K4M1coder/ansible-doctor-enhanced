@@ -1,0 +1,24 @@
+# Custom German translations for demo project
+overview:
+  title: "Projektübersicht"
+  description: "Dieses Demonstrationsprojekt zeigt die Funktionen von ansible-doctor-enhanced."
+
+project:
+  title: "Demo-Projekt"
+  subtitle: "Beispiel-Ansible-Projekt für die Dokumentationsdemo"
+  
+installation:
+  title: "Installation"
+  instructions: "Klonen Sie dieses Repository und führen Sie die folgenden Befehle aus:"
+  
+architecture:
+  title: "Architektur"
+  description: "Projektarchitektur-Diagramm, das die Beziehungen zwischen Komponenten zeigt."
+
+roles:
+  title: "Rollen"
+  description: "In diesem Projekt enthaltene Ansible-Rollen."
+
+collections:
+  title: "Sammlungen"
+  description: "Von diesem Projekt verwendete Ansible-Sammlungen."

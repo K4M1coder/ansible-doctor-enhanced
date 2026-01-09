@@ -167,7 +167,7 @@ class CollectionParser:
 
             # Discover roles
             roles_dir = self._path_resolver.get_roles_directory(collection_path)
-            roles: list[str | AnsibleRole] = []
+            roles: list[AnsibleRole | str] = []
             if roles_dir and roles_dir.exists():
                 if deep_parse:
                     role_parser = RoleParser()

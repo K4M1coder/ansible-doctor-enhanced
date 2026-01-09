@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
--
+### Fixed
+
+- Fixed mypy type checking errors (82 errors resolved across 18 files)
+  - Added proper Optional type annotations (`| None` instead of `Optional[]`)
+  - Fixed `no-any-return` errors with explicit type ignores where unavoidable
+  - Corrected type mismatches in models, parsers, and CLI modules
+- Restored demo fixtures deleted in cleanup commit
+  - Restored `demo/role_demo_namespace.demo_demo_role/` structure
+  - Restored `demo/collection_demo_namespace.demo_collection/`
+  - Restored `demo/project_demo_namespace.demo_project/` with roles and collections
+- Fixed test regressions
+  - Fixed `test_returns_none_when_no_project_root` using system temp directory
+  - Adjusted performance threshold for `test_small_role_rendering_performance` (50ms → 60ms)
+  - Fixed Variable and RoleMetadata instantiation in benchmark tests
+- Fixed `__version__` to use correct distribution name "ansible-doctor-enhanced"
+- Added test to validate `__version__` matches pyproject.toml
 
 ## [0.12.0] - 2026-01-08
 

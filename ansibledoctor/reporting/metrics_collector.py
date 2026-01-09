@@ -117,6 +117,7 @@ class MetricsCollector:
             >>> print(metrics.files_processed)
             5
         """
+        phase_timing_int: dict[str, int] = {k: int(v) for k, v in self.phase_timing.items()}
         return ExecutionMetrics(
             files_processed=self.counters.get("files_processed", 0),
             roles_documented=self.counters.get("roles_documented", 0),
@@ -124,5 +125,5 @@ class MetricsCollector:
             projects_documented=self.counters.get("projects_documented", 0),
             warnings_count=self.counters.get("warnings_count", 0),
             errors_count=self.counters.get("errors_count", 0),
-            phase_timing={k: int(v) for k, v in self.phase_timing.items()},
+            phase_timing=phase_timing_int,
         )

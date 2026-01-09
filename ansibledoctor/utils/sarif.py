@@ -6,7 +6,7 @@ IntelliJ IDEA, and PyCharm.
 """
 
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from ansibledoctor.models.error_report import ErrorEntry, ErrorReport
 
@@ -63,7 +63,7 @@ class SARIFFormatter:
         }
 
         # Add invocation metadata
-        runs_list: list = sarif_doc["runs"]  # type: ignore[assignment]
+        runs_list: list[Any] = sarif_doc["runs"]  # type: ignore[assignment]
         runs_list[0]["invocations"] = [
             {
                 "executionSuccessful": error_report.error_count == 0,
@@ -149,8 +149,8 @@ class SARIFFormatter:
                     # If resolution fails, use as-is
                     pass
 
-                region: dict[str, int] = {}
-                location = {
+                region: dict[str, Any] = {}
+                location: dict[str, Any] = {
                     "physicalLocation": {
                         "artifactLocation": {"uri": file_path.as_uri(), "uriBaseId": "%SRCROOT%"},
                         "region": region,

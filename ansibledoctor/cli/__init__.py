@@ -1726,10 +1726,9 @@ def _generate_recursive(
                 output_format = OutputFormat.RST
                 ext = ".rst"
             else:
-                raise ValidationError(
-                    f"Format '{format}' not yet implemented",
-                    context={"requested_format": format},
-                    suggestion="Use 'markdown', 'html', or 'rst' format.",
+                # Use ValueError for simple error messages
+                raise ValueError(
+                    f"Format '{format}' not yet implemented. Use 'markdown', 'html', or 'rst' format."
                 )
 
             # Create template context

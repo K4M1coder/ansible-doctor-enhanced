@@ -39,8 +39,8 @@ class TestTemplateSource:
             level="role",
             discovered_at=datetime.now(),
         )
-        with pytest.raises(Exception):  # FrozenInstanceError
-            source.level = "collection"
+        with pytest.raises(AttributeError):  # pydantic frozen model raises AttributeError
+            source.level = "collection"  # type: ignore[misc]
 
     def test_template_source_str_format(self):
         """TemplateSource string should show level:path."""
@@ -436,15 +436,19 @@ class TestProjectRootDetection:
         root = loader._find_project_root(role_dir)
         assert root == project_dir
 
-    def test_returns_none_when_no_project_root(self, tmp_path):
+    def test_returns_none_when_no_project_root(self):
         """Should return None when no project markers found."""
+        import tempfile
+
         loader = CascadingTemplateLoader()
 
-        role_dir = tmp_path / "orphan_role"
-        role_dir.mkdir()
+        # Use system temp dir to ensure we're outside any git/project structure
+        with tempfile.TemporaryDirectory() as tmpdir:
+            role_dir = Path(tmpdir) / "orphan_role"
+            role_dir.mkdir()
 
-        root = loader._find_project_root(role_dir)
-        assert root is None
+            root = loader._find_project_root(role_dir)
+            assert root is None
 
 
 class TestLogging:

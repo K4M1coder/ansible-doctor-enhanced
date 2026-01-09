@@ -1,0 +1,25 @@
+# Custom English translations for demo project
+# These override the default embedded translations
+overview:
+  title: "Project Overview"
+  description: "This demonstration project showcases ansible-doctor-enhanced capabilities."
+
+project:
+  title: "Demo Project"
+  subtitle: "Sample Ansible Project for Documentation Demo"
+  
+installation:
+  title: "Installation"
+  instructions: "Clone this repository and run the following commands:"
+  
+architecture:
+  title: "Architecture"
+  description: "Project architecture diagram showing component relationships."
+
+roles:
+  title: "Roles"
+  description: "Ansible roles included in this project."
+
+collections:
+  title: "Collections"
+  description: "Ansible collections used by this project."

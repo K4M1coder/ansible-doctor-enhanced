@@ -284,8 +284,6 @@ def generate(
             out_dir_path = Path(output_dir)
             if not out_dir_path.is_absolute():
                 out_dir_path = Path(project_path) / out_dir_path
-        else:
-            out_dir_path = None
         # Normalize languages: --languages takes precedence over --language; if none supplied, use config file
         langs_list = None
         if languages:
@@ -344,13 +342,7 @@ def generate(
         if langs_list:
             provider = loader.load(langs_list[0], Path(project_path))
         gen = ProjectDocumentationGenerator(project=project, translation_provider=provider)
-        # If output_dir is relative, write it under the project path
-        if output_dir is not None:
-            out_dir_path = Path(output_dir)
-            if not out_dir_path.is_absolute():
-                out_dir_path = Path(project_path) / out_dir_path
-        else:
-            out_dir_path = None
+        # out_dir_path already computed above
         out_file = gen.generate(
             format=format,
             output_dir=out_dir_path,

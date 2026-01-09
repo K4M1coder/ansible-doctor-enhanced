@@ -1,7 +1,5 @@
 """Mermaid diagram builder for visualizing project structure."""
 
-from typing import Any
-
 from ansibledoctor.models.index import IndexItem
 
 
@@ -43,7 +41,7 @@ class MermaidBuilder:
         lines = [f"graph {direction}"]
 
         # Collect all items (including children recursively)
-        all_items: list[Any] = []
+        all_items: list[IndexItem] = []
         self._collect_all_items(items, all_items)
 
         # Define nodes
