@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ExecutionMetrics(BaseModel):
@@ -35,8 +35,8 @@ class ExecutionMetrics(BaseModel):
         description="Phase timing in milliseconds (e.g., parsing_ms, rendering_ms)",
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "files_processed": 15,
                 "roles_documented": 3,
@@ -47,6 +47,7 @@ class ExecutionMetrics(BaseModel):
                 "phase_timing": {"parsing_ms": 1200, "rendering_ms": 800, "writing_ms": 300},
             }
         }
+    )
 
 
 class ExecutionWarning(BaseModel):
@@ -61,8 +62,8 @@ class ExecutionWarning(BaseModel):
     message: str = Field(description="Warning message")
     warning_type: str = Field(description="Warning type (e.g., missing_annotation)")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "file": "defaults/main.yml",
                 "line": 42,
@@ -70,6 +71,7 @@ class ExecutionWarning(BaseModel):
                 "warning_type": "missing_annotation",
             }
         }
+    )
 
 
 class ExecutionError(BaseModel):
@@ -86,8 +88,8 @@ class ExecutionError(BaseModel):
     suggestion: Optional[str] = Field(default=None, description="Recovery suggestion")
     stack_trace: Optional[str] = Field(default=None, description="Stack trace for debugging")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "file": "tasks/main.yml",
                 "line": 15,
@@ -97,6 +99,7 @@ class ExecutionError(BaseModel):
                 "stack_trace": None,
             }
         }
+    )
 
 
 class ExecutionReport(BaseModel):
@@ -122,8 +125,8 @@ class ExecutionReport(BaseModel):
         default_factory=list, description="List of generated output files"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "correlation_id": "abc-123-def",
                 "command": "generate",
@@ -149,3 +152,4 @@ class ExecutionReport(BaseModel):
                 "output_files": ["docs/README.md", "docs/index.html"],
             }
         }
+    )
