@@ -10,23 +10,27 @@ This document presents research findings from Phase 0, documenting technology de
 ## 1. JSON Schema Validation Libraries
 
 ### Question
+
 Which Python library should we use for JSON Schema validation with best error messages, performance, and pydantic integration?
 
 ### Options Evaluated
 
 #### Option A: `jsonschema` (Python JSON Schema)
+
 - **Pros**: Reference implementation, Draft 2020-12 support, comprehensive error reporting, widely adopted
 - **Cons**: Slower than compiled validators, verbose API
 - **Performance**: ~1ms per validation for typical configs
 - **Error Quality**: Excellent (JSONPath, expected vs actual, schema path)
 
 #### Option B: `fastjsonschema`
+
 - **Pros**: 10x faster than jsonschema (code generation), good for high-volume validation
 - **Cons**: Draft 07 only (no 2020-12), basic error messages, no pydantic integration
 - **Performance**: ~0.1ms per validation
 - **Error Quality**: Basic (single error message, no context)
 
 #### Option C: `pydantic` Built-in Validation
+
 - **Pros**: Already used in project, generates JSON Schema via `.model_json_schema()`, excellent DX
 - **Cons**: Not a pure JSON Schema validator (validates Python objects), limited custom schema support
 - **Performance**: ~0.5ms per validation
@@ -35,6 +39,7 @@ Which Python library should we use for JSON Schema validation with best error me
 ### Decision: **jsonschema + pydantic**
 
 **Rationale**:
+
 - Use `pydantic` for data model validation (existing pattern)
 - Use `pydantic.model_json_schema()` to generate JSON Schema from models
 - Use `jsonschema` to validate external files (`.ansibledoctor.yml`) against generated schemas
@@ -43,6 +48,7 @@ Which Python library should we use for JSON Schema validation with best error me
 - Performance overhead (<10ms) acceptable for config validation use case
 
 **Implementation Pattern**:
+
 ```python
 from pydantic import BaseModel
 from jsonschema import validate, ValidationError as JSValidationError
@@ -65,21 +71,25 @@ except JSValidationError as e:
 ## 2. YAML Parsing with Comment Preservation
 
 ### Question
+
 Which YAML library preserves comments and formatting for round-trip config editing and migration?
 
 ### Options Evaluated
 
 #### Option A: `PyYAML`
+
 - **Pros**: Fast, standard library-like, widely used
 - **Cons**: **Loses comments**, loses formatting, YAML 1.1 only (deprecated)
 - **Use Case**: One-way parsing (read config, don't write back)
 
 #### Option B: `ruamel.yaml`
+
 - **Pros**: **Preserves comments**, preserves formatting, YAML 1.2 support, round-trip editing
 - **Cons**: Slower than PyYAML (2-3x), more complex API
 - **Use Case**: Config migration, format conversion with comment preservation
 
 #### Option C: `strictyaml`
+
 - **Pros**: Type-safe, security-focused (no arbitrary Python objects)
 - **Cons**: No comment preservation, limited YAML features (no anchors), restrictive
 - **Use Case**: Security-critical parsing (not needed for our use case)
@@ -87,12 +97,14 @@ Which YAML library preserves comments and formatting for round-trip config editi
 ### Decision: **ruamel.yaml for config, PyYAML for internal data**
 
 **Rationale**:
+
 - **Config files** (.ansibledoctor.yml): Use `ruamel.yaml` to preserve user comments during migration and validation
 - **Internal data** (role metadata, parsed structures): Use `PyYAML` for speed
 - Comment preservation critical for config migration tool (Spec 003 enhancement)
 - Example: User adds `# TODO: configure this later` → migration preserves comment
 
 **Implementation Pattern**:
+
 ```python
 from ruamel.yaml import YAML
 
@@ -121,17 +133,20 @@ with open('.ansibledoctor.yml', 'w') as f:
 ## 3. Schema Export Formats
 
 ### Question
+
 What schema formats should we support for IDE integration and what standards ensure compatibility?
 
 ### Formats Researched
 
 #### JSON Schema Draft 2020-12
-- **Standard**: https://json-schema.org/draft/2020-12/schema
+
+- **Standard**: <https://json-schema.org/draft/2020-12/schema>
 - **IDE Support**: VS Code, IntelliJ IDEA, WebStorm (via YAML extension)
 - **Features**: $schema, $id, $ref, definitions, allOf/anyOf/oneOf, examples, $comment
 - **Use Case**: Primary schema format for config validation
 
 **VS Code Integration**:
+
 ```json
 {
   "yaml.schemas": {
@@ -141,12 +156,14 @@ What schema formats should we support for IDE integration and what standards ens
 ```
 
 #### OpenAPI 3.1.0
-- **Standard**: https://spec.openapi.org/oas/v3.1.0
+
+- **Standard**: <https://spec.openapi.org/oas/v3.1.0>
 - **Compatibility**: OpenAPI 3.1+ uses JSON Schema Draft 2020-12 for schemas
 - **Use Case**: API documentation, Swagger UI for data models
 - **Benefit**: Can document internal data models as if they were API endpoints
 
 #### Pydantic JSON Schema Generation
+
 - **Method**: `BaseModel.model_json_schema(mode='serialization')`
 - **Output**: JSON Schema Draft 2020-12 compatible
 - **Features**: Automatic description from docstrings, Field(..., description=...), examples, constraints
@@ -155,6 +172,7 @@ What schema formats should we support for IDE integration and what standards ens
 ### Decision: **JSON Schema as primary, OpenAPI for docs**
 
 **Rationale**:
+
 - **Primary format**: JSON Schema Draft 2020-12 for all schema exports
 - **Documentation format**: OpenAPI 3.1.0 for human-readable schema docs (Swagger UI)
 - Pydantic → JSON Schema conversion via `.model_json_schema()` for all data models
@@ -162,6 +180,7 @@ What schema formats should we support for IDE integration and what standards ens
 - OpenAPI useful for visualizing data model relationships (components section)
 
 **Schema Export Strategy**:
+
 ```python
 # Export config schema for VS Code
 config_schema = ConfigModel.model_json_schema()
@@ -189,22 +208,26 @@ openapi_spec = {
 ## 4. Format Conversion Strategies
 
 ### Question
+
 How do we handle data format conversion (YAML/JSON/XML) while preserving data fidelity and detecting loss?
 
 ### Conversion Challenges
 
 #### Type Coercion
+
 - **YAML/JSON**: YAML has more types (octal, timestamps, null variants: ~, null)
 - **JSON → YAML**: Safe (JSON is subset of YAML)
 - **YAML → JSON**: Potential loss (YAML tags, anchors, complex keys)
 - **Solution**: Warn on data loss, preserve as strings when possible
 
 #### XML ↔ JSON
+
 - **Element vs Attribute**: `<tag attr="val">content</tag>` maps to `{"tag": {"@attr": "val", "#text": "content"}}`
 - **Convention**: Use `@` prefix for attributes, `#text` for text content
 - **Arrays**: XML doesn't distinguish single element vs array → heuristic needed
 
 #### Comment Preservation
+
 - **YAML**: ruamel.yaml preserves comments
 - **JSON**: No comment support (use `// ...` but non-standard)
 - **XML**: `<!-- ... -->` comments preserved via `xml.etree` with `method='html'`
@@ -213,6 +236,7 @@ How do we handle data format conversion (YAML/JSON/XML) while preserving data fi
 ### Decision: **Structured conversion with data loss warnings**
 
 **Rationale**:
+
 - Implement conversion with **explicit data loss detection**
 - Return `ConversionResult` with warnings list
 - Support round-trip testing: `data == convert(convert(data, to=X), to=original)`
@@ -220,6 +244,7 @@ How do we handle data format conversion (YAML/JSON/XML) while preserving data fi
 - For XML: Use convention (`@attr`, `#text`) with documentation
 
 **Conversion Rules**:
+
 ```python
 # YAML → JSON
 - Preserve: scalars, lists, dicts, booleans, null
@@ -235,6 +260,7 @@ How do we handle data format conversion (YAML/JSON/XML) while preserving data fi
 ```
 
 **Round-Trip Test**:
+
 ```python
 def test_yaml_json_round_trip():
     yaml_data = {"key": "value", "list": [1, 2, 3]}
@@ -253,23 +279,27 @@ def test_yaml_json_round_trip():
 ## 5. Schema Caching Performance
 
 ### Question
+
 How do we cache compiled JSON Schema validators for performance without excessive memory usage?
 
 ### Caching Strategies
 
 #### In-Memory Cache with LRU
+
 - **Strategy**: Cache compiled validators (jsonschema.validators.Draft202012Validator)
 - **Size**: Compiled validator ~10KB, limit to 100 schemas (~1MB memory)
 - **Eviction**: LRU (Least Recently Used) when cache full
 - **Hit Rate**: Expected >90% (most validation uses same config/role schemas)
 
 #### File-Based Cache
+
 - **Strategy**: Serialize compiled validators to disk
 - **Problem**: `jsonschema` validators not picklable (contain closures)
 - **Workaround**: Cache schema dict, compile on load (defeats purpose)
 - **Conclusion**: Not viable
 
 #### Schema Versioning
+
 - **Problem**: Schema changes during development invalidate cache
 - **Solution**: Include schema hash in cache key: `cache_key = f"{schema_id}:{hash(schema_json)}"`
 - **Benefit**: Automatic invalidation on schema change
@@ -277,6 +307,7 @@ How do we cache compiled JSON Schema validators for performance without excessiv
 ### Decision: **In-memory LRU cache with monitoring**
 
 **Rationale**:
+
 - In-memory cache with 100-schema limit (configurable)
 - LRU eviction via `collections.OrderedDict` or `functools.lru_cache`
 - Cache key: `f"{schema['$id']}:{hash(json.dumps(schema))}"`
@@ -284,6 +315,7 @@ How do we cache compiled JSON Schema validators for performance without excessiv
 - No disk cache (complexity not worth it)
 
 **Implementation**:
+
 ```python
 from functools import lru_cache
 import hashlib
@@ -327,11 +359,13 @@ class SchemaCache:
 ```
 
 **Performance Impact**:
+
 - First validation: ~5ms (compile schema)
 - Cached validation: ~1ms (use compiled validator)
 - Memory: ~1MB for 100 schemas (acceptable)
 
 **Metrics**:
+
 ```python
 # Log cache performance
 logger.info("Schema cache stats", extra={
@@ -348,7 +382,7 @@ logger.info("Schema cache stats", extra={
 ## Summary of Decisions
 
 | Research Topic | Decision | Rationale |
-|----------------|----------|-----------|
+| ---------------- | ---------- | ----------- |
 | JSON Schema Validation | jsonschema + pydantic | Best error messages, Draft 2020-12, pydantic integration |
 | YAML Parsing | ruamel.yaml (config), PyYAML (internal) | Comment preservation for config migration |
 | Schema Export | JSON Schema primary, OpenAPI for docs | IDE integration, standard compliance |

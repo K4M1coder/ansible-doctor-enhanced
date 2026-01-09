@@ -19,6 +19,7 @@ ansible-doctor generate collection/ --include-index
 ```
 
 **Output** (`roles/index.md`):
+
 ```markdown
 # Role Index
 
@@ -49,6 +50,7 @@ ansible-doctor generate project/ --include-index --index-style table
 ```
 
 **Output** (`collections/index.md`):
+
 ```markdown
 # Collection Index
 
@@ -69,6 +71,7 @@ ansible-doctor generate project/ --include-index --index-style tree
 ```
 
 **Output** (`index.md`):
+
 ```text
 # Project Index
 
@@ -108,6 +111,7 @@ ansible-doctor generate . --include-index --index-style list
 ```
 
 **Output**:
+
 ```markdown
 - webserver - Configure web servers
 - database - Install databases
@@ -125,6 +129,7 @@ ansible-doctor generate . --include-index --index-style table
 ```
 
 **Output**:
+
 ```markdown
 | Name | Description | Tags | Dependencies |
 |------|-------------|------|--------------|
@@ -143,6 +148,7 @@ ansible-doctor generate . --include-index --index-style tree --index-depth 3
 ```
 
 **Features**:
+
 - ASCII characters work on all terminals
 - `--use-unicode` flag for prettier output (├── └── │)
 - `--index-depth N` limits tree depth
@@ -158,6 +164,7 @@ ansible-doctor generate . --include-index --index-style nested-table
 ```
 
 **Output**:
+
 ```markdown
 | Collection | Roles | Plugins | Documentation |
 |------------|-------|---------|---------------|
@@ -176,6 +183,7 @@ ansible-doctor generate . --include-index --index-style diagram
 ```
 
 **Output**:
+
 ```markdown
 # Project Structure
 
@@ -210,6 +218,7 @@ graph TD
 ### Basic Embedding
 
 **Template** (`collection/README.md.j2`):
+
 ```jinja2
 # {{ collection.name }}
 
@@ -225,6 +234,7 @@ graph TD
 ```
 
 **Generated Output**:
+
 ```markdown
 # my_namespace.infrastructure
 
@@ -249,6 +259,7 @@ Infrastructure automation collection
 ### With Limit and "View More" Link
 
 **Template**:
+
 ```jinja2
 ## Featured Roles
 
@@ -256,6 +267,7 @@ Infrastructure automation collection
 ```
 
 **Output**:
+
 ```markdown
 ## Featured Roles
 
@@ -273,6 +285,7 @@ Infrastructure automation collection
 ### With Filtering
 
 **Template**:
+
 ```jinja2
 ## Database Roles
 
@@ -280,6 +293,7 @@ Infrastructure automation collection
 ```
 
 **Output**:
+
 ```markdown
 ## Database Roles
 
@@ -295,6 +309,7 @@ Infrastructure automation collection
 ### Grouped by Type
 
 **Template**:
+
 ```jinja2
 ## Plugins
 
@@ -302,6 +317,7 @@ Infrastructure automation collection
 ```
 
 **Output**:
+
 ```markdown
 ## Plugins
 
@@ -374,6 +390,7 @@ ansible-doctor generate . --include-index --validate-links
 ```
 
 **Output**:
+
 ```text
 ⚠️  Broken link detected: webserver depends on 'common' but no documentation found
 ⚠️  Broken link detected: database links to './mysql/README.md' which doesn't exist
@@ -407,6 +424,7 @@ ansible-doctor generate large-project/ --include-index
 ```
 
 **Output** (if 150 roles):
+
 ```text
 Generated:
   - roles/index.md (page 1, roles 1-50)
@@ -415,6 +433,7 @@ Generated:
 ```
 
 **Navigation** (`roles/index.md`):
+
 ```markdown
 # Role Index (Page 1 of 3)
 
@@ -485,6 +504,7 @@ ansible-doctor generate . \
 ```
 
 **Output**:
+
 - `roles/index.md` (Markdown)
 - `roles/index.html` (HTML with interactive features)
 
@@ -493,6 +513,7 @@ ansible-doctor generate . \
 ### HTML with Interactive Features
 
 HTML output includes:
+
 - **Sortable Tables**: Click column headers to sort
 - **Expandable Rows**: Click collection to show roles
 - **Client-Side Filtering**: Filter box at top of page
@@ -554,7 +575,7 @@ pages:
 ### 1. Use Appropriate Visualization Style
 
 | Project Size | Recommended Style | Rationale |
-|--------------|------------------|-----------|
+| -------------- | ------------------ | ----------- |
 | < 20 items | List | Quick and simple |
 | 20-50 items | Table | Compare metadata |
 | 50-100 items | Tree or Nested Table | Show structure |
@@ -617,6 +638,7 @@ Embed role list in collection README for immediate visibility:
 **Symptom**: No `index.md` file created
 
 **Solution**:
+
 1. Ensure `--include-index` flag is set
 2. Check that components have metadata (roles have `meta/main.yml`)
 3. Verify output directory is writable
@@ -628,6 +650,7 @@ Embed role list in collection README for immediate visibility:
 **Symptom**: Links show as plain text or 404
 
 **Solution**:
+
 1. Run with `--validate-links` to identify broken links
 2. Ensure all dependencies are documented
 3. Check relative path calculations
@@ -639,6 +662,7 @@ Embed role list in collection README for immediate visibility:
 **Symptom**: Tree output is unreadable with 10+ levels
 
 **Solution**:
+
 ```bash
 # Limit depth to 3 levels
 ansible-doctor generate . --include-index --index-style tree --index-depth 3
@@ -651,6 +675,7 @@ ansible-doctor generate . --include-index --index-style tree --index-depth 3
 **Symptom**: Single index file is huge (> 1MB)
 
 **Solution**:
+
 ```bash
 # Enable pagination with smaller page size
 ansible-doctor generate . --include-index --page-size 25
@@ -663,6 +688,7 @@ ansible-doctor generate . --include-index --page-size 25
 **Symptom**: Diagram shows as code block in GitHub
 
 **Solution**:
+
 1. Verify Mermaid syntax is valid
 2. Check GitHub/GitLab Mermaid support
 3. Reduce node count if diagram is too large (> 100 nodes)

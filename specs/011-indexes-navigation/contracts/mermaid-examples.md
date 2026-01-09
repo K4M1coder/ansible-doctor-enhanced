@@ -44,6 +44,7 @@ graph TD
 ```
 
 **Features**:
+
 - Solid lines: parent-child relationships
 - Dashed lines: dependencies
 - Clickable nodes linking to documentation
@@ -86,6 +87,7 @@ graph TD
 ```
 
 **Features**:
+
 - Subgraphs for collections
 - Custom styling by importance
 - Multiple relationship types (depends, monitors, notifies)
@@ -117,6 +119,7 @@ graph LR
 ```
 
 **Features**:
+
 - Left-to-right layout (LR)
 - More compact for wide structures
 
@@ -163,6 +166,7 @@ mindmap
 ```
 
 **Features**:
+
 - Radial layout handles density better
 - Hierarchical grouping by category
 - No explicit links (implied by structure)
@@ -204,6 +208,7 @@ graph TD
 ```
 
 **Features**:
+
 - Focus on dependencies, not hierarchy
 - Color-coding: red=application, green=common/shared
 - Shows which roles are foundational (common)
@@ -244,6 +249,7 @@ graph TD
 ```
 
 **Features**:
+
 - Different node colors for plugins vs roles
 - Shows plugin usage by roles
 - Clear separation of concerns
@@ -289,6 +295,7 @@ graph TD
 ```
 
 **Features**:
+
 - Playbooks shown as distinct type
 - "uses" relationships show role usage
 - Yellow for playbooks, default for roles
@@ -318,6 +325,7 @@ graph TD
 ```
 
 **Features**:
+
 - Red border for roles in cycle
 - Dashed line with "circular!" label
 - Helps identify problematic dependencies
@@ -352,6 +360,7 @@ graph TD
 ```
 
 **Features**:
+
 - Collapsed collections showing count
 - Links to collection README (expanded view)
 - Keeps diagram readable at project level
@@ -379,6 +388,7 @@ graph TD
 ```
 
 **Features**:
+
 - Green: stable/production
 - Yellow: beta/testing
 - Red + dashed: deprecated
@@ -469,13 +479,14 @@ graph TD
 ## Performance Considerations
 
 | Node Count | Recommended Diagram Type | Rationale |
-|------------|-------------------------|-----------|
+| ------------ | ------------------------- | ----------- |
 | 1-20 | Flowchart (TD/LR) | Simple, easy to read |
 | 21-50 | Flowchart with subgraphs | Organized by collection |
 | 51-100 | Mindmap | Radial layout handles density |
 | 100+ | Clustered flowchart | Show collections with counts, link to details |
 
 **Browser Rendering**:
+
 - Mermaid renders on client-side (JavaScript)
 - Large diagrams (100+ nodes) may be slow
 - Consider splitting into multiple diagrams per collection

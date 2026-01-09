@@ -16,6 +16,7 @@ This document defines the data models for index generation, component hierarchie
 **Purpose**: Single entry in an index representing a component with metadata.
 
 **Schema**:
+
 ```python
 from pydantic import BaseModel, Field
 from pathlib import Path
@@ -101,11 +102,13 @@ class IndexItem(BaseModel):
 ```
 
 **Relationships**:
+
 - Parent-child via `children` list (hierarchical structure)
 - Dependencies via `dependencies` list (directed graph)
 - Links to documentation via `doc_link` (cross-reference)
 
 **Validation Rules**:
+
 - `name`: Non-empty string
 - `type`: Must be one of allowed types
 - `path`: Must be relative path (no absolute paths)
@@ -119,6 +122,7 @@ class IndexItem(BaseModel):
 **Purpose**: Standalone index page for a component type.
 
 **Schema**:
+
 ```python
 class IndexPage(BaseModel):
     \"\"\"Standalone index page listing components.\"\"\"
@@ -196,6 +200,7 @@ class IndexPage(BaseModel):
 ```
 
 **Validation Rules**:
+
 - `page_number` <= `total_pages`
 - `filtered_count` <= `total_count` if set
 - `len(items)` <= `total_count`
@@ -207,6 +212,7 @@ class IndexPage(BaseModel):
 **Purpose**: Embedded index section within parent documentation.
 
 **Schema**:
+
 ```python
 class SectionIndex(BaseModel):
     \"\"\"Embedded index section for template markers.\"\"\"
@@ -277,6 +283,7 @@ class SectionIndex(BaseModel):
 **Purpose**: Criteria for filtering index content.
 
 **Schema**:
+
 ```python
 class IndexFilter(BaseModel):
     \"\"\"Filter criteria for index content.\"\"\"
@@ -364,6 +371,7 @@ class IndexFilter(BaseModel):
 **Purpose**: Link between components with validation status.
 
 **Schema**:
+
 ```python
 class CrossReference(BaseModel):
     \"\"\"Cross-reference link between components.\"\"\"
@@ -419,6 +427,7 @@ class CrossReference(BaseModel):
 **Purpose**: Generate index pages and sections.
 
 **Protocol**:
+
 ```python
 from typing import Protocol
 
@@ -476,6 +485,7 @@ class IndexGenerator(Protocol):
 ### IndexItem Validation
 
 1. **No Circular Dependencies**:
+
    ```python
    def validate_no_cycles(root: IndexItem) -> bool:
        visited = set()
@@ -577,7 +587,7 @@ erDiagram
 ## Performance Characteristics
 
 | Operation | Time Complexity | Space Complexity |
-|-----------|----------------|------------------|
+| ----------- | ---------------- | ------------------ |
 | Build flat index | O(n) | O(n) |
 | Build hierarchy | O(n log n) | O(n) |
 | Filter by tag | O(1) with index | O(k) where k = matches |
@@ -586,6 +596,7 @@ erDiagram
 | Paginate | O(n) | O(n) |
 
 **Memory Usage**:
+
 - IndexItem: ~500 bytes per item
 - 500 components: ~250KB
 - With hierarchy: ~400KB (includes parent references)

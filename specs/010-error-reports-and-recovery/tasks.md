@@ -6,6 +6,7 @@
 **Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
 
 **Cross-Spec Dependencies**:
+
 - **Extends**: Existing `ansibledoctor/exceptions.py` exception hierarchy
 - **Consumed by Spec 009**: ErrorAggregator provides error summaries for ExecutionReport
 - **Provides**: ErrorEntry, ErrorAggregator, RecoverySuggestions models for all specs
@@ -191,7 +192,7 @@
 - [X] T066 [US5] Implement SARIFFormatter._create_result() for ErrorEntry conversion in `ansibledoctor/utils/sarif.py` *(Verified existing)*
 - [X] T067 [US5] Implement SARIFFormatter._create_location() with physicalLocation in `ansibledoctor/utils/sarif.py` *(Verified existing + fixed path resolution)*
 - [X] T068 [US5] Add SARIF tool driver metadata (name, version, informationUri) in `ansibledoctor/utils/sarif.py` *(Verified existing)*
-- [X] T069 [US5] Implement ErrorReport.to_sarif() using SARIFFormatter in `ansibledoctor/models/error_report.py` *(via CLI __init__.py)*
+- [X] T069 [US5] Implement ErrorReport.to_sarif() using SARIFFormatter in `ansibledoctor/models/error_report.py` *(via CLI **init**.py)*
 - [X] T070 [US5] Implement error sorting by file, then line number in ErrorAggregator.get_report()
 - [X] T071 [US5] Format text errors as `file:line:column: error[CODE]: message` for IDE terminal parsing
 
@@ -250,10 +251,12 @@
 ### Parallel Execution Opportunities
 
 **After T010 (Foundational Complete)**:
+
 - User Story 1, 2, 3 can be worked on in parallel by different developers
 - User Story 4, 5, 6 can start after US1 (ErrorAggregator) is complete
 
 **Within Each User Story**:
+
 - All test tasks marked [P] can run in parallel
 - US1 implementation tasks T017-T021 can run in parallel (different files)
 - US2 database population tasks T033-T036 can run in parallel
@@ -271,12 +274,14 @@ MVP delivery requires completing User Stories 1, 2, and 3 (aggregation + suggest
 ## Suggested MVP Scope
 
 **Minimum Viable Product** (first release):
+
 - ✅ User Story 1: Aggregated Error Report
 - ✅ User Story 2: Intelligent Recovery Suggestions
 - ✅ User Story 3: Graceful Degradation
 - ⏭️ User Story 4-6: Can be delivered in subsequent releases
 
 **Estimated Effort**:
+
 - Setup + Foundation: 10 hours
 - User Story 1 (MVP): 14 hours
 - User Story 2 (MVP): 12 hours

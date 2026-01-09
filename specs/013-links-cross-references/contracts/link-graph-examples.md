@@ -1,4 +1,5 @@
 # Link Graph Examples & Patterns
+
 ## Spec 013: Links & Cross-References
 
 This document provides examples of link graph structures, cycle detection patterns, and PageRank analysis for documentation link management.
@@ -22,6 +23,7 @@ graph LR
 **Link Count**: 4 links, 5 files
 
 **Analysis**:
+
 - ✅ No circular dependencies
 - ✅ Clear progression path
 - ⚠️ Low cross-linking (each file has 1 outgoing link)
@@ -51,6 +53,7 @@ graph TD
 **Link Count**: 10 links (5 forward, 5 backward), 6 files
 
 **Analysis**:
+
 - ✅ No circular dependencies (bidirectional ≠ circular)
 - ✅ Easy navigation (all pages accessible from index)
 - ✅ High PageRank for index.md (5 incoming links)
@@ -76,6 +79,7 @@ graph LR
 **Link Count**: 7 links, 4 files
 
 **Analysis**:
+
 - ✅ High discoverability (multiple paths between pages)
 - ✅ Balanced PageRank scores
 - ⚠️ Contains cycle: `index → guide → examples → index`
@@ -121,6 +125,7 @@ graph LR
 **Recommendation**: ⚠️ Break cycle by removing `usage → installation` link
 
 **Fixed Structure**:
+
 ```mermaid
 graph LR
     A[index.md] --> B[installation.md]
@@ -150,6 +155,7 @@ graph TD
 ```
 
 **Cycles**:
+
 1. `guide.md → advanced.md → guide.md`
 2. `api.md → examples.md → api.md`
 
@@ -158,6 +164,7 @@ graph TD
 **Recommendation**: ❌ Refactor to hierarchical structure
 
 **Fixed Structure**:
+
 ```mermaid
 graph TD
     A[index.md] --> B[guide.md]
@@ -191,10 +198,12 @@ graph LR
 **Description**: Role dependency tree with bidirectional "depends on" / "used by" links.
 
 **Link Types**:
+
 - Solid arrows: `dependency` (forward)
 - Dashed arrows: `used_by` (backward)
 
 **Analysis**:
+
 - ✅ No circular dependencies (proper dependency hierarchy)
 - ✅ `base_role` has highest PageRank (most depended upon)
 - ✅ Clear upgrade path (update base → propagates to dependents)
@@ -220,11 +229,13 @@ graph TD
 **Description**: Collection contains roles/modules/plugins with usage relationships.
 
 **Link Types**:
+
 - `parent` (collection → role): "contains"
 - `child` (role → collection): "part of"
 - `dependency` (role → module): "uses"
 
 **Analysis**:
+
 - ✅ Clear hierarchy (no parent cycles)
 - ✅ Bidirectional parent-child links for navigation
 - ✅ Usage tracking (role → module)
@@ -246,11 +257,13 @@ graph TD
 **Description**: Similarity-based cross-references (dashed lines with strength scores).
 
 **Link Strength** (0.0-1.0):
+
 - **0.85**: High similarity (backup ↔ restore)
 - **0.72**: Medium similarity (backup ↔ archive)
 - **0.68**: Lower similarity (restore ↔ archive)
 
 **Analysis**:
+
 - ✅ Symmetric relationships (A→B strength ≈ B→A strength)
 - ✅ Helps discover related content
 - ⚠️ Threshold recommendation: Show links with strength ≥ 0.70
@@ -262,6 +275,7 @@ graph TD
 ### Example: Ansible Role Documentation
 
 **Link Structure**:
+
 ```python
 # Incoming links per file
 index.md: 5 links (from all topic pages)
@@ -273,6 +287,7 @@ examples.md: 2 links (from index, usage)
 ```
 
 **PageRank Scores** (10 iterations, damping=0.85):
+
 ```python
 {
     'index.md': 0.2841,        # Highest (most incoming links)
@@ -285,11 +300,13 @@ examples.md: 2 links (from index, usage)
 ```
 
 **Interpretation**:
+
 - **index.md**: Most important (landing page, highly linked)
 - **usage.md**: Second most important (central to workflow)
 - **installation.md**: Least important (leaf node in graph)
 
 **Use Cases**:
+
 1. **Search Ranking**: Show high-PageRank pages first
 2. **Navigation**: Highlight important pages in TOC
 3. **Maintenance**: Prioritize updates to high-PageRank pages
@@ -299,12 +316,14 @@ examples.md: 2 links (from index, usage)
 ### Comparison: Before/After Optimization
 
 **Before** (linear structure):
+
 ```python
 index → installation → configuration → usage → api
 PageRank: [0.23, 0.18, 0.18, 0.18, 0.23]  # Flat distribution
 ```
 
 **After** (hub-and-spoke + cross-links):
+
 ```python
 index ↔ installation
 index ↔ configuration
@@ -316,6 +335,7 @@ PageRank: [0.31, 0.15, 0.18, 0.22, 0.14]  # Index dominates
 ```
 
 **Impact**:
+
 - ✅ Index PageRank increased by 35%
 - ✅ Usage PageRank increased by 22%
 - ✅ Better reflects document importance
@@ -329,6 +349,7 @@ PageRank: [0.31, 0.15, 0.18, 0.22, 0.14]  # Index dominates
 **Query**: Find files related to `installation.md` within 2 hops
 
 **Graph**:
+
 ```mermaid
 graph LR
     A[installation.md] --> B[configuration.md]
@@ -339,6 +360,7 @@ graph LR
 ```
 
 **BFS Traversal** (starting from `installation.md`, max_depth=2):
+
 ```python
 Depth 0: installation.md
 Depth 1: configuration.md (via direct link)
@@ -348,6 +370,7 @@ Depth 2: usage.md (via configuration.md)
 ```
 
 **Result**:
+
 ```python
 [
     (Path('configuration.md'), 1),     # 1 hop away
@@ -361,6 +384,7 @@ Depth 2: usage.md (via configuration.md)
 ### Shortest Path Between Files
 
 **Graph**:
+
 ```mermaid
 graph LR
     A[index.md] --> B[guide.md]
@@ -373,12 +397,14 @@ graph LR
 **Query**: Shortest path from `index.md` to `advanced.md`
 
 **Paths**:
+
 1. `index → guide → examples → advanced` (3 hops)
 2. `index → api → examples → advanced` (3 hops)
 
 **Result**: Both paths have equal length (3 hops)
 
 **Dijkstra's Algorithm** (weighted):
+
 ```python
 # If links have weights (e.g., click-through rates)
 weights = {
@@ -398,6 +424,7 @@ weights = {
 ### Dead-End Detection
 
 **Graph**:
+
 ```mermaid
 graph LR
     A[index.md] --> B[guide.md]
@@ -412,6 +439,7 @@ graph LR
 **Query**: Find all dead-end files
 
 **Algorithm**:
+
 ```python
 dead_ends = [
     file for file, links in graph.nodes.items()
@@ -421,6 +449,7 @@ dead_ends = [
 ```
 
 **Recommendations**:
+
 - ⚠️ Add "Back to index" link
 - ⚠️ Add "Related content" section
 - ⚠️ Or accept as intentional (e.g., detailed API reference pages)
@@ -432,6 +461,7 @@ dead_ends = [
 ### Overall Health Score
 
 **Formula**:
+
 ```python
 health_score = (
     0.4 * success_rate +           # 40%: Link validity
@@ -448,6 +478,7 @@ where:
 ```
 
 **Example Calculation**:
+
 ```python
 # Documentation with 1000 files, 5000 links
 valid_links = 4850
@@ -471,6 +502,7 @@ health_score = (
 ```
 
 **Interpretation**:
+
 - **90-100%**: Excellent (production-ready)
 - **80-90%**: Good (minor issues)
 - **70-80%**: Fair (needs attention)
@@ -495,6 +527,7 @@ Links | Files | Bar
 ```
 
 **Analysis**:
+
 - ✅ Healthy distribution (most files have 1-10 links)
 - ⚠️ 30 dead-end files (0 links)
 - ⚠️ 20 hub files (21+ links) - review for maintenance burden
@@ -504,6 +537,7 @@ Links | Files | Bar
 ## 7. Real-World Example: Ansible Collection
 
 **Collection Structure**:
+
 ```
 demo.collection/
 ├── docs/
@@ -527,6 +561,7 @@ demo.collection/
 ```
 
 **Link Graph** (simplified):
+
 ```mermaid
 graph TD
     Index[index.md] --> Install[installation.md]
@@ -549,6 +584,7 @@ graph TD
 ```
 
 **Metrics**:
+
 - Total files: 13
 - Total links: 12
 - Average links per file: 0.92
@@ -559,6 +595,7 @@ graph TD
 **Health Score**: **74.2%** (Fair - needs more cross-linking)
 
 **Recommendations**:
+
 1. ✅ Add "Related" sections to dead-end files
 2. ✅ Link module docs to roles that use them
 3. ✅ Add bidirectional dependency links
@@ -571,6 +608,7 @@ graph TD
 ### Mermaid Diagram Export
 
 **Generated Code**:
+
 ```mermaid
 graph TD
     A[index.md] -->|main| B[installation.md]
@@ -587,6 +625,7 @@ graph TD
 ```
 
 **Customization**:
+
 - Green: Index/landing pages (high PageRank)
 - Blue: Regular pages
 - Red: Broken links (not shown in example)
@@ -622,6 +661,7 @@ digraph docs {
 ## Summary
 
 **8 Link Graph Pattern Categories**:
+
 1. ✅ Linear links (simple, no cycles)
 2. ✅ Hub-and-spoke (central navigation)
 3. ✅ Mesh network (high cross-linking)
@@ -632,12 +672,14 @@ digraph docs {
 8. ✅ Similarity-based relations (content discovery)
 
 **Key Metrics**:
+
 - **PageRank**: Importance scoring
 - **Cycle Detection**: DFS algorithm
 - **Related Files**: BFS traversal
 - **Health Score**: Composite metric (success rate, cycles, cross-links, dead ends)
 
 **Next Steps**:
+
 1. Implement `LinkGraph` class with these algorithms
 2. Add visualization exports (Mermaid, GraphViz)
 3. Build health monitoring dashboard

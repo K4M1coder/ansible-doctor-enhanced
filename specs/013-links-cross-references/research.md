@@ -1,4 +1,5 @@
 # Phase 0: Research & Technology Decisions
+
 ## Spec 013: Links & Cross-References
 
 This document captures the research findings and technology decisions made during Phase 0 of the implementation planning process.
@@ -10,11 +11,13 @@ This document captures the research findings and technology decisions made durin
 ### Decision: `requests` + `beautifulsoup4`
 
 **Rationale**:
+
 - **requests**: Industry-standard HTTP client with excellent error handling, timeout/retry support, and session management for connection pooling
 - **beautifulsoup4**: Mature HTML parsing library with simple API for extracting anchors and links
 - Combined: Covers both external link validation (HTTP) and anchor extraction (HTML parsing)
 
 **Alternatives Considered**:
+
 1. **urllib3**: Lower-level HTTP library
    - ❌ More complex API, requires manual connection pooling
    - ❌ Less intuitive error handling
@@ -35,6 +38,7 @@ This document captures the research findings and technology decisions made durin
    - **Verdict**: Rejected - beautifulsoup4 more robust for real-world HTML
 
 **Implementation Notes**:
+
 - Use `requests.Session()` for connection pooling across multiple external link checks
 - Set reasonable timeouts (10s default, configurable via CLI)
 - Implement exponential backoff for retry logic (3 retries with 1s, 2s, 4s delays)
@@ -47,11 +51,13 @@ This document captures the research findings and technology decisions made durin
 ### Decision: DFS-based Cycle Detection + Adjacency List
 
 **Rationale**:
+
 - **DFS (Depth-First Search)**: Simple, efficient cycle detection in O(V+E) time
 - **Adjacency List**: Memory-efficient for sparse graphs (typical documentation link structure)
 - **Bidirectional Index**: Maintain both forward and reverse links for fast reverse lookups
 
 **Alternatives Considered**:
+
 1. **Tarjan's Strongly Connected Components**:
    - ✅ Finds all cycles in single pass O(V+E)
    - ✅ Identifies cycle clusters
@@ -73,12 +79,14 @@ This document captures the research findings and technology decisions made durin
    - **Verdict**: Rejected - adjacency list better for sparse documentation graphs
 
 **Implementation Notes**:
+
 - Custom `LinkGraph` class with `dict[Path, set[Link]]` adjacency list
 - Maintain reverse index `dict[Path, set[Link]]` for incoming links (bidirectional)
 - DFS cycle detection: Mark nodes as VISITING/VISITED, cycle found if VISITING encountered
 - Related files discovery: Breadth-First Search (BFS) with configurable max depth
 
 **Performance Targets**:
+
 - Build graph: <5s for 5000 files
 - Cycle detection: <1s for complete graph
 - Related files (depth=2): <100ms per query
@@ -90,11 +98,13 @@ This document captures the research findings and technology decisions made durin
 ### Decision: Format-Specific Parsers with GitHub-Compatible Slugs
 
 **Rationale**:
+
 - Each format has unique anchor generation rules
 - GitHub-compatible slugs most widely used standard
 - Markdown: Headers (#), HTML: id attributes, RST: Sphinx-style anchors
 
 **GitHub Anchor Generation Algorithm**:
+
 ```python
 def generate_anchor(header_text: str) -> str:
     """Generate GitHub-compatible anchor from header text."""
@@ -131,6 +141,7 @@ def generate_anchor(header_text: str) -> str:
    - Or: Use Sphinx anchor generation rules if Sphinx detected
 
 **Alternatives Considered**:
+
 1. **Pandoc for Unified Parsing**:
    - ✅ Single parser for all formats
    - ❌ External binary dependency
@@ -144,6 +155,7 @@ def generate_anchor(header_text: str) -> str:
    - **Verdict**: Rejected - AST parsing more robust
 
 **Implementation Notes**:
+
 - Cache extracted anchors per file to avoid re-parsing
 - Handle duplicate anchors (GitHub appends `-1`, `-2`, etc.)
 - Detect anchor changes across doc regenerations (warn if links break)
@@ -155,6 +167,7 @@ def generate_anchor(header_text: str) -> str:
 ### Decision: HTTP HEAD + Caching + Rate Limiting
 
 **Rationale**:
+
 - **HTTP HEAD**: Faster than GET (only checks existence, no body download)
 - **Caching**: Avoid re-checking same URLs (TTL: 24 hours)
 - **Rate Limiting**: Respect external servers (max 10 req/sec per domain)
@@ -196,6 +209,7 @@ def generate_anchor(header_text: str) -> str:
    - Some servers block requests without User-Agent
 
 **Alternatives Considered**:
+
 1. **Always Use GET Requests**:
    - ❌ Slower (downloads full page)
    - ❌ Wastes bandwidth
@@ -215,12 +229,14 @@ def generate_anchor(header_text: str) -> str:
    - **Verdict**: Rejected - respect robots.txt
 
 **Implementation Notes**:
+
 - Parallel validation using `ThreadPoolExecutor` (max 10 workers)
 - Separate workers for internal vs external links (internal faster)
 - Progress bar for long validations (`click` with `tqdm`)
 - Skip external validation by default (opt-in with `--external`)
 
 **Performance Targets**:
+
 - External link validation: ~500ms per link (with retries)
 - Parallel validation: 10-20 links/sec (depending on server latency)
 - Cached results: <1ms per link
@@ -232,6 +248,7 @@ def generate_anchor(header_text: str) -> str:
 ### Decision: Template-Based Conversion with Format-Specific Renderers
 
 **Rationale**:
+
 - Each output format has unique link syntax
 - Template-based approach integrates with existing Jinja2 rendering (Spec 002)
 - Relative path resolution handled by `pathlib.Path.relative_to()`
@@ -245,11 +262,13 @@ def generate_anchor(header_text: str) -> str:
 | RST      | `` `text <url>`_ `` or `:ref:`label`` | `` `Role Guide <../roles/demo_role.html>`_ ``     |
 
 **Relative Path Resolution**:
+
 - All links stored as absolute paths internally
 - Resolved to relative paths during rendering based on current file location
 - Use `pathlib.Path.relative_to()` for cross-platform compatibility
 
 **URL Escaping**:
+
 - Markdown: Escape `()` in URLs as `%28` and `%29`
 - HTML: Escape `&`, `<`, `>`, `"` as HTML entities
 - RST: Escape backticks as `` `` (double backtick)
@@ -276,6 +295,7 @@ def generate_anchor(header_text: str) -> str:
 ```
 
 **Alternatives Considered**:
+
 1. **Pandoc for Link Conversion**:
    - ✅ Handles all format conversions
    - ❌ External dependency (binary)
@@ -290,12 +310,14 @@ def generate_anchor(header_text: str) -> str:
    - **Verdict**: Accepted - use template-based renderers with shared utilities
 
 **Implementation Notes**:
+
 - Extend existing `ansibledoctor/generator/renderers.py` with link rendering
 - Add `relative_to` Jinja2 filter for path resolution
 - Add `escape_link` filter for format-specific escaping
 - Integrate with existing template system (no new dependencies)
 
 **Integration with Spec 002 (Doc Generation)**:
+
 - Hook into document generation pipeline after content rendering
 - Generate cross-references automatically based on metadata
 - Build navigation sections (TOC) during rendering
@@ -320,6 +342,7 @@ def generate_anchor(header_text: str) -> str:
 **No New Major Dependencies**: All libraries align with Python standard library + existing project dependencies (pydantic, Jinja2 already in use).
 
 **Performance Profile**:
+
 - Link extraction: <50ms per file (1000 files in ~50s)
 - Internal link validation: <100ms per link
 - External link validation: ~500ms per link (with retries, cached <1ms)
@@ -327,6 +350,7 @@ def generate_anchor(header_text: str) -> str:
 - Related files query: <100ms per file
 
 **Testing Strategy**:
+
 - Mock HTTP responses using `responses` library (already in project)
 - Fixture-based tests with sample docs containing various link types
 - Property-based testing for anchor generation (ensure idempotency, uniqueness)
@@ -345,6 +369,7 @@ def generate_anchor(header_text: str) -> str:
 ---
 
 **Document Metadata**:
+
 - Created: {{ now }}
 - Spec: 013-links-cross-references
 - Phase: 0 (Research)

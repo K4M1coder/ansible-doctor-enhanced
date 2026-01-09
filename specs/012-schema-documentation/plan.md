@@ -159,6 +159,7 @@ No violations - all gates pass. No additional complexity justification required.
 ### Data Model Design
 
 **SchemaModel** (Base):
+
 ```python
 class SchemaModel(BaseModel):
     \"\"\"Base model for all schema-related data structures.\"\"\"
@@ -170,6 +171,7 @@ class SchemaModel(BaseModel):
 ```
 
 **ValidationError**:
+
 ```python
 class ValidationError(BaseModel):
     \"\"\"Single validation error with location and context.\"\"\"
@@ -188,6 +190,7 @@ class ValidationError(BaseModel):
 ```
 
 **ValidationResult**:
+
 ```python
 class ValidationResult(BaseModel):
     \"\"\"Result of schema validation with errors and warnings.\"\"\"
@@ -205,6 +208,7 @@ class ValidationResult(BaseModel):
 ```
 
 **SchemaDefinition**:
+
 ```python
 class SchemaDefinition(SchemaModel):
     \"\"\"JSON Schema definition for data models.\"\"\"
@@ -225,6 +229,7 @@ class SchemaDefinition(SchemaModel):
 ```
 
 **FormatType**:
+
 ```python
 class FormatType(str, Enum):
     \"\"\"Supported serialization formats.\"\"\"
@@ -236,6 +241,7 @@ class FormatType(str, Enum):
 ```
 
 **ConversionResult**:
+
 ```python
 class ConversionResult(BaseModel):
     \"\"\"Result of format conversion with metadata.\"\"\"
@@ -254,6 +260,7 @@ class ConversionResult(BaseModel):
 ### API Contracts
 
 **SchemaValidator Protocol**:
+
 ```python
 class SchemaValidator(Protocol):
     \"\"\"Protocol for validating data against JSON Schema.\"\"\"
@@ -288,6 +295,7 @@ class SchemaValidator(Protocol):
 ```
 
 **ConfigurationValidator**:
+
 ```python
 class ConfigurationValidator:
     \"\"\"Validates ansible-doctor configuration files.\"\"\"
@@ -323,6 +331,7 @@ class ConfigurationValidator:
 ```
 
 **FormatConverter**:
+
 ```python
 class FormatConverter:
     \"\"\"Convert between supported data formats.\"\"\"
@@ -376,6 +385,7 @@ class FormatConverter:
 ```
 
 **SchemaExporter**:
+
 ```python
 class SchemaExporter:
     \"\"\"Export schemas in various formats for IDE integration.\"\"\"
@@ -431,6 +441,7 @@ class SchemaExporter:
 ```
 
 **SchemaDocumenter**:
+
 ```python
 class SchemaDocumenter:
     \"\"\"Generate human-readable documentation from schemas.\"\"\"
@@ -469,12 +480,13 @@ class SchemaDocumenter:
         Generate Markdown table of properties.
         
         | Property | Type | Required | Default | Description |
-        |----------|------|----------|---------|-------------|
+        | ---------- | ------ | ---------- | --------- | ------------- |
         \"\"\"
         ...
 ```
 
 **SchemaCache**:
+
 ```python
 class SchemaCache:
     \"\"\"Cache compiled schemas for performance.\"\"\"
@@ -557,6 +569,7 @@ def convert_command(file: str, target_format: str, output: str | None, pretty: b
 ### Integration with Spec 003 (Config)
 
 **Enhanced Config Validation**:
+
 ```python
 # In ansibledoctor/config/__init__.py
 
@@ -583,6 +596,7 @@ class Config:
 ### Output Contracts
 
 **JSON Schema Export** (for `.ansibledoctor.yml`):
+
 ```json
 {
   \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",
@@ -624,6 +638,7 @@ class Config:
 ```
 
 **Validation Error Output**:
+
 ```text
 Configuration validation failed:
 
@@ -642,6 +657,7 @@ $.unknown_field: unknown property (not in schema)
 ```
 
 **Schema Documentation** (Markdown):
+
 ```markdown
 # Configuration Schema
 
@@ -673,6 +689,7 @@ output_format: markdown
 - **Allowed values**: \"en\", \"fr\", \"de\"
 
 **Example**:
+
 ```yaml
 languages:
   default: en
@@ -680,6 +697,7 @@ languages:
     - en
     - fr
 ```
+
 ```
 
 ### Integration Points
@@ -719,6 +737,7 @@ ansible-doctor schema validate my_config.yml --schema custom_schema.json
 ```
 
 **Export Schemas**:
+
 ```bash
 # Export config schema for VS Code
 ansible-doctor schema export config --format json-schema --output .vscode/ansibledoctor.schema.json
@@ -731,6 +750,7 @@ ansible-doctor schema export role --pretty
 ```
 
 **Convert Formats**:
+
 ```bash
 # Convert YAML to JSON
 ansible-doctor convert .ansibledoctor.yml --to json --output config.json
@@ -743,6 +763,7 @@ ansible-doctor convert data.json --to json --pretty --output pretty_data.json
 ```
 
 **Generate Schema Documentation**:
+
 ```bash
 # Generate Markdown docs from config schema
 ansible-doctor schema docs config --format markdown --output docs/CONFIG_SCHEMA.md
@@ -752,6 +773,7 @@ ansible-doctor schema docs role --format html --output docs/role_schema.html
 ```
 
 **VS Code Integration** (`.vscode/settings.json`):
+
 ```json
 {
   \"yaml.schemas\": {

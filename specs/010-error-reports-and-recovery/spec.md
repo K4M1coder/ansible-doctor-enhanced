@@ -23,11 +23,13 @@ Error Reports & Recovery provides structured error handling and user guidance:
 - **Machine-Readable Errors**: Structured error output for tooling integration
 
 **Existing Infrastructure** (from `exceptions.py` and `generator/errors.py`):
+
 - `AnsibleDoctorError` base class with message, context, and suggestion attributes
 - Specialized exceptions: `ParsingError`, `ValidationError`, `ConfigError`, `TemplateError`
 - Generator-specific: `TemplateNotFoundError`, `TemplateValidationError`, `RenderError`
 
 **Enhancement Goals**:
+
 - Add error aggregation collector for multi-file processing
 - Implement recovery suggestion database with common fixes
 - Provide partial success reporting (N of M files processed)
@@ -35,6 +37,7 @@ Error Reports & Recovery provides structured error handling and user guidance:
 - Enable IDE integration with file:line error references
 
 **Error Report Structure Example**:
+
 ```json
 {
   "summary": {

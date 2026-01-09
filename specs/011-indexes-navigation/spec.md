@@ -7,6 +7,7 @@
 **Status**: Draft
 
 **Cross-Spec Dependencies**:
+
 - **Consumes Spec 013**: CrossReference model and LinkValidator for cross-references (US7 moved to Spec 013)
 - **Consumes Spec 012**: MermaidBuilder can use SchemaService for diagram validation
 - **Integrates Spec 009**: Index generation metrics feed into ExecutionReport
@@ -29,6 +30,7 @@ Indexes & Navigation provides structured navigation and discovery for documentat
 - **Filtering**: Filter indexes by criteria (namespace, tags, type, status)
 
 **Indexed Component Types**:
+
 - **Collections**: Ansible Galaxy collections with namespace.name
 - **Roles**: Individual Ansible roles with metadata
 - **Plugins**: Filter, lookup, callback, inventory plugins

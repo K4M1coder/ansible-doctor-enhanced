@@ -6,9 +6,11 @@
 ## 1. Tree Visualization Libraries
 
 ### Decision
+
 Adopt **anytree** library for tree data structures with custom ASCII renderer.
 
 ### Rationale
+
 - **Rich API**: Node creation, traversal, filtering built-in
 - **ASCII Rendering**: RenderTree with customizable characters
 - **Performance**: Efficient tree operations, lazy loading support
@@ -17,12 +19,14 @@ Adopt **anytree** library for tree data structures with custom ASCII renderer.
 ### Key Findings
 
 **anytree Advantages**:
+
 - Pre-order, post-order, level-order traversal out of the box
 - Find operations (find_by_attr, findall)
 - Tree validation (cycle detection, depth checking)
 - Custom rendering styles easy to implement
 
 **Custom Implementation Rejected**:
+
 - Would need to reimplement traversal algorithms
 - Edge cases (circular dependencies, deep nesting) complex
 - Testing burden high for tree operations
@@ -48,11 +52,13 @@ for pre, _, node in RenderTree(root):
 ```
 
 **ASCII Character Sets**:
+
 - **Default (ASCII-only)**: `├── └── │` (works on all terminals)
 - **Unicode (opt-in)**: `├── └── │` (prettier but requires UTF-8 terminal)
 - Configurable via `--use-unicode` flag
 
 ### Performance Characteristics
+
 - Tree building: O(n) where n = number of components
 - Traversal: O(n) for rendering full tree
 - Find operations: O(log n) with proper indexing
@@ -63,9 +69,11 @@ for pre, _, node in RenderTree(root):
 ## 2. Mermaid Diagram Patterns
 
 ### Decision
+
 Use **flowchart** for hierarchies, **mindmap** for large projects, with clickable node links.
 
 ### Rationale
+
 - **GitHub/GitLab Support**: Flowchart and mindmap both render natively
 - **Clickable Links**: `click` directive enables navigation to docs
 - **Clustering**: Subgraphs keep large diagrams organized
@@ -74,6 +82,7 @@ Use **flowchart** for hierarchies, **mindmap** for large projects, with clickabl
 ### Key Findings
 
 **Flowchart (TD) - Recommended for <50 Nodes**:
+
 ```mermaid
 graph TD
     Project["My Project"]
@@ -91,6 +100,7 @@ graph TD
 ```
 
 **Mindmap - Better for 50+ Nodes**:
+
 ```mermaid
 mindmap
   root((Project))
@@ -104,6 +114,7 @@ mindmap
 ```
 
 **Subgraphs for Organization**:
+
 ```mermaid
 graph TD
     subgraph "Infrastructure Collection"
@@ -120,13 +131,14 @@ graph TD
 ### Diagram Selection Logic
 
 | Component Count | Diagram Type | Rationale |
-|----------------|--------------|-----------|
+| ---------------- | -------------- | ----------- |
 | 1-20 | Flowchart (TD) | Simple hierarchy, easy to read |
 | 21-50 | Flowchart (LR) + subgraphs | Horizontal saves space, cluster by collection |
 | 51-100 | Mindmap | Compact, radial layout handles density |
 | 100+ | Multiple diagrams | One per collection to avoid clutter |
 
 ### Implementation Notes
+
 - Generate Mermaid code as string, embed in Markdown code fence
 - Validate syntax before embedding (basic parser check)
 - Escape special characters in node names (quotes, brackets)
@@ -137,9 +149,11 @@ graph TD
 ## 3. Link Validation Strategies
 
 ### Decision
+
 Validate links during generation with file existence checks, report broken links as warnings.
 
 ### Rationale
+
 - **Early Detection**: Catch broken links before publishing
 - **User Experience**: Prevents 404 errors in generated docs
 - **Performance**: File existence check is fast (<1ms per link)
@@ -195,6 +209,7 @@ class LinkValidator:
 ```
 
 **Circular Dependency Detection**:
+
 ```python
 def detect_cycles(items: list[IndexItem]) -> list[tuple[str, str]]:
     \"\"\"Return list of (source, target) pairs forming cycles.\"\"\"
@@ -209,6 +224,7 @@ def detect_cycles(items: list[IndexItem]) -> list[tuple[str, str]]:
 ```
 
 ### Error Reporting
+
 - **Inline Warnings**: Log during generation with line numbers
 - **Summary Report**: List all broken links at end of execution
 - **Exit Code**: Return 2 (warning) if broken links found, 1 if validation fails
@@ -219,9 +235,11 @@ def detect_cycles(items: list[IndexItem]) -> list[tuple[str, str]]:
 ## 4. Pagination Patterns
 
 ### Decision
+
 Static pagination generating multiple files (`index-1.md`, `index-2.md`) with navigation links.
 
 ### Rationale
+
 - **Simplicity**: Static files work everywhere (GitHub, GitLab, local)
 - **Performance**: No JavaScript required, fast page loads
 - **SEO**: Each page is indexable by search engines
@@ -230,6 +248,7 @@ Static pagination generating multiple files (`index-1.md`, `index-2.md`) with na
 ### Key Findings
 
 **Static Pagination (Adopted)**:
+
 ```markdown
 <!-- roles/index-1.md -->
 # Role Index (Page 1 of 5)
@@ -242,12 +261,14 @@ Static pagination generating multiple files (`index-1.md`, `index-2.md`) with na
 ```
 
 **Virtual Scrolling (Rejected for Markdown)**:
+
 - Requires JavaScript and HTML output
 - Not compatible with pure Markdown viewers
 - Adds complexity for minimal benefit
 - Better suited for web-only documentation
 
 **Pagination Configuration**:
+
 - **Default**: 50 items per page (balances readability and file count)
 - **Configurable**: `--page-size N` flag
 - **Adaptive**: Single page if <50 items (no pagination needed)
@@ -280,11 +301,13 @@ def paginate_items(
 ```
 
 **File Naming Convention**:
+
 - Single page: `index.md`
 - Multiple pages: `index-1.md`, `index-2.md`, etc.
 - First page also accessible as `index.md` (symlink or copy)
 
 ### Performance Impact
+
 - 500 components @ 50/page = 10 files
 - File generation: <50ms per page
 - Total overhead: ~500ms for large project (acceptable)
@@ -294,9 +317,11 @@ def paginate_items(
 ## 5. Filtering Performance
 
 ### Decision
+
 In-memory filtering with inverted index for tags, cached filter results.
 
 ### Rationale
+
 - **Performance**: O(1) tag lookup with inverted index
 - **Simplicity**: No database, pure Python data structures
 - **Flexibility**: Support complex filter combinations (AND/OR)
@@ -305,6 +330,7 @@ In-memory filtering with inverted index for tags, cached filter results.
 ### Key Findings
 
 **Inverted Index for Tags**:
+
 ```python
 # Build tag index once
 tag_index: dict[str, list[IndexItem]] = defaultdict(list)
@@ -317,6 +343,7 @@ filtered = tag_index["database"]  # Instant
 ```
 
 **Multi-Criteria Filtering**:
+
 ```python
 class FilterEngine:
     def apply_filters(
@@ -339,6 +366,7 @@ class FilterEngine:
 ```
 
 **Filter Caching**:
+
 - Cache filter results by filter hash
 - Invalidate on item list change
 - Memory: ~1KB per cached filter result
@@ -347,18 +375,21 @@ class FilterEngine:
 ### Filter Syntax
 
 **Supported Filters**:
+
 - `tag:database` - Match items with tag "database"
 - `namespace:my_namespace` - Match namespace
 - `type:role` - Match component type
 - `status:stable` - Match custom metadata field
 
 **Filter Operators**:
+
 - `equals` (default): Exact match
 - `contains`: Substring match
 - `startswith`: Prefix match
 - `in`: Value in list (comma-separated)
 
 **Examples**:
+
 ```bash
 # Single filter
 ansible-doctor generate . --include-index --filter 'tag:database'
@@ -375,7 +406,7 @@ ansible-doctor generate . --include-index --filter 'tag:web,database'
 ### Performance Benchmarks
 
 | Operation | 100 Components | 500 Components | 1000 Components |
-|-----------|----------------|----------------|-----------------|
+| ----------- | ---------------- | ---------------- | ----------------- |
 | Build index | 10ms | 45ms | 90ms |
 | Single tag filter | 0.5ms | 0.5ms | 0.5ms |
 | Multi-filter (3) | 2ms | 3ms | 5ms |
@@ -386,7 +417,7 @@ ansible-doctor generate . --include-index --filter 'tag:web,database'
 ## Summary
 
 | Topic | Decision | Rationale |
-|-------|----------|-----------|
+| ------- | ---------- | ----------- |
 | **Tree Visualization** | anytree library | Rich API, ASCII rendering, cycle detection |
 | **Mermaid Diagrams** | Flowchart (<50 nodes), Mindmap (50+) | GitHub/GitLab support, clickable links |
 | **Link Validation** | File existence checks | Fast, actionable warnings, no network deps |

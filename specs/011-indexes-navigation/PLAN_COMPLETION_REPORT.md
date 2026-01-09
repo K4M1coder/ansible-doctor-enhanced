@@ -12,6 +12,7 @@
 Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through Phase 1. All required planning artifacts have been created, reviewed, and validated against the project constitution.
 
 **Key Features Planned**:
+
 - Comprehensive index generation for roles, collections, projects, and playbooks
 - Multiple visualization styles: list, table, tree, nested-table, diagram (Mermaid)
 - Embedded section indexes with template markers
@@ -20,6 +21,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 - Pagination support for large inventories
 
 **Technology Decisions**:
+
 - **anytree**: Tree data structures with ASCII rendering
 - **Mermaid**: Flowchart diagrams (<50 nodes), mindmap (50+)
 - **Jinja2**: Template integration via custom filters/functions
@@ -35,6 +37,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Sections**: Summary, Technical Context, Constitution Check, Project Structure, Phase 0 Research, Phase 1 Design
 
 **Key Content**:
+
 - **Technical Context**: Python 3.11+, Jinja2/pydantic/anytree dependencies, performance goals (<200ms per 100 components, <100KB memory per 1000 items)
 - **Constitution Check**: All 5 gates pass (TDD, Library-First, CLI Mandate, Observability, Backward Compatibility)
 - **Project Structure**: New files in `models/index.py`, `generator/indexes.py`, `utils/mermaid_builder.py`, `templates/index/`
@@ -49,7 +52,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Key Decisions**:
 
 | Topic | Decision | Rationale |
-|-------|----------|-----------|
+| ------- | ---------- | ----------- |
 | Tree Visualization | anytree library | Rich API, ASCII rendering, parent-child management |
 | Mermaid Diagrams | Flowchart (<50 nodes), Mindmap (50+) | Flowchart readable for small, mindmap handles density |
 | Link Validation | File existence + cycle detection | Path.exists() for local, HTTP HEAD for remote |
@@ -57,6 +60,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 | Filtering | Inverted index by tag/namespace | O(1) lookup, pre-built at generation time |
 
 **Alternatives Considered**:
+
 - treelib (rejected: less maintained)
 - PlantUML (rejected: Java dependency)
 - Dynamic pagination (rejected: client-side JavaScript)
@@ -71,19 +75,19 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 1. **IndexItem**: Component entry with metadata, children, dependencies
    - Fields: name, type, namespace, description, path, url, tags, status, children, dependencies
    - Validation: max 1000 children, circular dependency detection
-   
+
 2. **IndexPage**: Standalone index page with pagination
    - Fields: title, components, page_number, total_pages, filters, show_dependencies
    - Validation: 1-10000 items per page
-   
+
 3. **SectionIndex**: Embedded section for template markers
    - Fields: title, components, limit, group_by, show_count
    - Validation: max 100 items per section
-   
+
 4. **IndexFilter**: Filter criteria with DSL parsing
    - Fields: tags, namespaces, types, statuses, query
    - Methods: from_string() DSL parser (e.g., "tag:monitoring,type:role")
-   
+
 5. **CrossReference**: Link validation and rendering
    - Fields: source, target, link_type, is_valid, title
    - Validation: cycle detection for "depends_on" links
@@ -96,6 +100,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Sections**: Basic Usage, Visualization Styles, Embedded Indexes, Filtering, Link Validation, Pagination, Advanced Usage, CI/CD Integration, Best Practices, Troubleshooting
 
 **Example Coverage**:
+
 - All 5 visualization styles with CLI commands
 - Template marker syntax for embedded indexes
 - Filter DSL examples (e.g., `tag:monitoring,namespace:my_namespace`)
@@ -104,6 +109,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 - GitHub Actions/GitLab CI workflow snippets
 
 **Use Cases**:
+
 - Project-level indexes (all collections/roles)
 - Collection-level indexes (roles within collection)
 - Role README sections (dependencies, similar roles)
@@ -117,12 +123,14 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Schemas**: 5 (IndexItem, IndexPage, SectionIndex, IndexFilter, CrossReference)
 
 **Protocol Methods**: 4
+
 1. `generate_index_page()`: Full-page index with pagination
 2. `generate_section_index()`: Embedded section for templates
 3. `build_hierarchy()`: Construct tree from flat list
 4. `apply_filters()`: Filter items by criteria
 
 **Examples**: 3 usage patterns
+
 - Basic index page generation
 - Embedded section with filtering
 - Hierarchical tree with dependencies
@@ -133,6 +141,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Diagrams**: 10 examples
 
 **Example Types**:
+
 1. Simple flowchart (top-down)
 2. Flowchart with subgraphs (grouping)
 3. Left-right layout (wide hierarchy)
@@ -159,7 +168,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Constitution Compliance
 
 | Gate | Status | Evidence |
-|------|--------|----------|
+| ------ | -------- | ---------- |
 | TDD Mandate | ✅ Pass | Test fixtures defined in plan (test_build_hierarchy, test_apply_filters, test_circular_dependencies) |
 | Library-First | ✅ Pass | anytree for tree structures, Mermaid for diagrams |
 | CLI Mandate | ✅ Pass | New CLI flags: --generate-index, --index-style, --index-filter, --validate-links |
@@ -169,7 +178,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Completeness
 
 | Artifact | Status | Quality |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | plan.md | ✅ Complete | Comprehensive Phase 0 & 1 |
 | research.md | ✅ Complete | 5 topics with decisions/rationale |
 | data-model.md | ✅ Complete | 5 models + protocol, validation rules |
@@ -184,6 +193,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Coverage
 
 **Feature Coverage**:
+
 - ✅ All visualization styles documented (list, table, tree, nested-table, diagram)
 - ✅ Embedded section indexes with template markers
 - ✅ Advanced filtering (tag, namespace, type, status)
@@ -194,6 +204,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 - ✅ CLI integration specified
 
 **Documentation Coverage**:
+
 - ✅ User-facing examples (quickstart.md)
 - ✅ API contracts (OpenAPI specification)
 - ✅ Data models with validation rules
@@ -207,6 +218,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 **Rationale Documented**: Yes, for all decisions
 
 **Research Rigor**:
+
 - Tree library: 2 libraries evaluated (anytree selected)
 - Diagram format: 2 formats evaluated (Mermaid selected over PlantUML)
 - Pagination: 2 strategies evaluated (static selected)
@@ -220,7 +232,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Existing Specs
 
 | Spec | Integration Type | Details |
-|------|------------------|---------|
+| ------ | ------------------ | --------- |
 | Spec 002 (Templates) | Template markers | {{ index(...) }} function, custom filters |
 | Spec 009 (Execution Reports) | Cross-reference | Link to execution logs from index |
 | Spec 013 (Links) | Validation | CrossReference model validates links from Spec 013 |
@@ -228,7 +240,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### New Dependencies
 
 | Library | Purpose | Impact |
-|---------|---------|--------|
+| --------- | --------- | -------- |
 | anytree | Tree structures | NEW dependency, ~500KB |
 | Mermaid | Diagrams | Client-side rendering (no Python dependency) |
 
@@ -239,7 +251,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Technical Risks
 
 | Risk | Likelihood | Mitigation |
-|------|-----------|------------|
+| ------ | ----------- | ------------ |
 | Large project performance | Medium | Pagination (50/page), lazy loading, clustering for 100+ |
 | Mermaid diagram complexity | Low | Automatic style selection (flowchart vs mindmap), clustering |
 | Circular dependency detection | Low | Validation in IndexFilter.from_components(), user warnings |
@@ -248,7 +260,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Design Risks
 
 | Risk | Likelihood | Mitigation |
-|------|-----------|------------|
+| ------ | ----------- | ------------ |
 | Template marker complexity | Low | Simple DSL ({{ index('roles', format='tree') }}), examples in quickstart |
 | Filter DSL usability | Medium | Comprehensive examples, error messages with suggestions |
 | Mermaid browser compatibility | Low | Mermaid widely supported (GitHub, GitLab, VS Code) |
@@ -262,7 +274,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Target Metrics (from plan.md)
 
 | Operation | Target | Strategy |
-|-----------|--------|----------|
+| ----------- | -------- | ---------- |
 | Index generation | <200ms per 100 components | Lazy tree building, inverted index |
 | Memory usage | <100KB per 1000 items | Streaming generation, no full DOM |
 | Link validation | <50ms per 100 links | Parallel validation, caching |
@@ -293,6 +305,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Implementation Order
 
 **Phase 2a - Core Models** (Estimated: 8 hours):
+
 1. IndexItem model with validation
 2. IndexPage model with pagination logic
 3. SectionIndex model with limit enforcement
@@ -300,12 +313,14 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 5. CrossReference model with cycle detection
 
 **Phase 2b - Utilities** (Estimated: 10 hours):
+
 1. TreeVisualizer class (ASCII rendering via anytree)
 2. MermaidBuilder class (flowchart/mindmap generation)
 3. LinkValidator class (file existence, HTTP HEAD, cycle detection)
 4. PaginationHelper class (page number calculation, navigation)
 
 **Phase 2c - Generator** (Estimated: 12 hours):
+
 1. IndexGenerator protocol implementation
 2. build_hierarchy() method (flat list → tree)
 3. apply_filters() method (inverted index)
@@ -313,12 +328,14 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 5. generate_section_index() method (embedded sections)
 
 **Phase 2d - CLI Integration** (Estimated: 6 hours):
+
 1. Add --generate-index flag
 2. Add --index-style flag (list/table/tree/nested-table/diagram)
 3. Add --index-filter flag (DSL support)
 4. Add --validate-links flag
 
 **Phase 2e - Template Integration** (Estimated: 8 hours):
+
 1. Jinja2 index() function
 2. Template markers {{ index(...) }}
 3. Custom filters (e.g., {{ components|index_tree }})
@@ -329,10 +346,12 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Dependencies
 
 **Before Starting Implementation**:
+
 - ✅ Spec 002 (Templates) must be complete (template marker support)
 - ✅ Spec 009 (Execution Reports) optional (cross-reference links)
 
 **Parallel Development**:
+
 - Spec 013 (Links) can develop in parallel (CrossReference shared model)
 
 ---
@@ -342,6 +361,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### User-Facing Documentation
 
 **Updates Required**:
+
 1. Main README.md: Add "Index Generation" section
 2. ANNOTATION_GUIDE.md: Add index-related annotations (@index_exclude, @index_priority)
 3. TEMPLATE_GUIDE.md: Add {{ index(...) }} function documentation
@@ -350,6 +370,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 ### Developer Documentation
 
 **New Files**:
+
 1. docs/INDEX_ARCHITECTURE.md: Implementation details
 2. docs/MERMAID_INTEGRATION.md: Diagram generation guide
 3. tests/fixtures/indexes/: Test data for index generation
@@ -388,6 +409,7 @@ Implementation plan for **Spec 011 (Indexes & Navigation)** is complete through 
 Implementation plan for **Spec 011 (Indexes & Navigation)** is complete and ready for task breakdown. All required artifacts have been created, validated against the project constitution, and reviewed for quality.
 
 **Key Achievements**:
+
 - Comprehensive planning with 7 artifacts (~2900 lines)
 - Technology decisions with rationale (anytree, Mermaid)
 - Complete data model with 5 models + protocol

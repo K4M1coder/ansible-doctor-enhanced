@@ -16,6 +16,7 @@ This document defines the data models for error reporting, error codes, recovery
 **Purpose**: Aggregated error report for a single execution run.
 
 **Schema**:
+
 ```python
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -67,11 +68,13 @@ class ErrorReport(BaseModel):
 ```
 
 **Relationships**:
+
 - Links to `ExecutionReport` via `correlation_id` (Spec 009)
 - Contains multiple `ErrorEntry` instances
 - Consumed by `SARIFFormatter` for IDE output
 
 **Validation Rules**:
+
 - `correlation_id`: Must be valid UUID4 or ULID
 - `error_count` >= `len(errors)` (may include suppressed errors)
 - `max_errors_reached`: True only if `error_count > 1000`
@@ -83,6 +86,7 @@ class ErrorReport(BaseModel):
 **Purpose**: Single error or warning with full context.
 
 **Schema**:
+
 ```python
 class ErrorEntry(BaseModel):
     """Single error with location, message, and recovery suggestions."""
@@ -136,6 +140,7 @@ class ErrorEntry(BaseModel):
 ```
 
 **Validation Rules**:
+
 - `code`: Must match `ErrorCode` enum
 - `severity`: "error" for E-codes, "warning" for W-codes
 - `category`: Must be one of: parsing, validation, generation, io
@@ -148,6 +153,7 @@ class ErrorEntry(BaseModel):
 **Purpose**: Enumeration of all error and warning codes.
 
 **Schema**:
+
 ```python
 from enum import Enum
 
@@ -219,6 +225,7 @@ class ErrorCode(str, Enum):
 ```
 
 **Extension Strategy**:
+
 - Add new codes in gaps (E106, E107) or at end (E199)
 - Never reuse retired codes (mark as deprecated)
 - Document all changes in CHANGELOG
@@ -230,6 +237,7 @@ class ErrorCode(str, Enum):
 **Purpose**: Maps error codes to recovery actions.
 
 **Schema**:
+
 ```python
 class RecoverySuggestion(BaseModel):
     """Recovery suggestions for a specific error code."""
@@ -259,6 +267,7 @@ class RecoverySuggestion(BaseModel):
 ```
 
 **Example Database**:
+
 ```python
 RECOVERY_SUGGESTIONS = {
     "E101": RecoverySuggestion(
@@ -297,6 +306,7 @@ RECOVERY_SUGGESTIONS = {
 **Purpose**: Collects errors during execution with bounded memory.
 
 **Protocol**:
+
 ```python
 from typing import Protocol
 
@@ -362,6 +372,7 @@ class ErrorAggregator(Protocol):
 ```
 
 **Implementation Contract**:
+
 - **Memory Bound**: Max 1000 unique errors
 - **Deduplication**: Same error at same location counted once
 - **Order Preservation**: Errors reported in occurrence order
@@ -376,6 +387,7 @@ class ErrorAggregator(Protocol):
 **Purpose**: Human-readable terminal output.
 
 **Example**:
+
 ```text
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ❌ ERRORS: 5 | ⚠️  WARNINGS: 12
@@ -423,6 +435,7 @@ Summary by Category:
 **Purpose**: Machine-readable for CI/CD integration.
 
 **Schema**:
+
 ```json
 {
   "correlation_id": "01HN7XYKFQJBM3N8YXRW5PTGAQ",
@@ -462,9 +475,10 @@ Summary by Category:
 
 **Purpose**: IDE Problems panel integration.
 
-**Schema**: See SARIF specification at https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
+**Schema**: See SARIF specification at <https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html>
 
 **Example** (abbreviated):
+
 ```json
 {
   "version": "2.1.0",

@@ -6,6 +6,7 @@
 **Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
 
 **Cross-Spec Dependencies**:
+
 - **Extends Spec 002**: Add link generation to existing `ansibledoctor/generator/` document generation
 - **Extends Spec 011**: Enhance index pages with smart cross-referencing (provides CrossReference model)
 - **Owns**: CrossReference model, LinkValidator, LinkManager - single source of truth for linking
@@ -19,7 +20,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create links module at ansibledoctor/links/__init__.py ✅ Module créé avec __init__.py
+- [X] T001 Create links module at ansibledoctor/links/**init**.py ✅ Module créé avec **init**.py
 - [X] T002 [P] Create link models at ansibledoctor/models/link.py with Link, LinkType, LinkStatus enums ✅ Link, LinkType, LinkStatus implémentés (234 lines, 99% coverage)
 - [X] T003 [P] Create link parser utilities at ansibledoctor/utils/link_parser.py for extracting links from Markdown/HTML/RST ✅ LinkParser implémenté (201 lines, 94% coverage)
 - [X] T004 [P] Create test fixtures directory at tests/fixtures/docs_with_links/ with valid_links.md, broken_links.md, circular_refs.md ✅ Fixtures créés (valid_links.md, broken_links.md, circular_refs.md)
@@ -71,7 +72,7 @@
 - [X] T023 [US1] Implement "See Also" generation in CrossReferenceGenerator (find related roles by tags/functionality) ✅ Unit tests pass
 - [X] T024 [US1] Create LinkManager class in ansibledoctor/links/link_manager.py with create_link(), resolve_link() methods ✅ (166 lines, 92% coverage)
 - [X] T025 [US1] Implement link resolution in LinkManager (resolve relative paths to absolute, handle anchors) ✅ Core logic complete, unit tests pass
-- [X] T026 [US1] Integrate link generation into document generation in ansibledoctor/generator/__init__.py (call CrossReferenceGenerator) ✅ Integrated in CLI
+- [X] T026 [US1] Integrate link generation into document generation in ansibledoctor/generator/**init**.py (call CrossReferenceGenerator) ✅ Integrated in CLI
 - [X] T027 [US1] Add cross-reference sections to templates (update role/collection templates with "Depends On", "See Also" sections) ✅ Added to markdown/role.j2
 - [X] T028 [US1] Implement bidirectional relationships in ansibledoctor/models/cross_reference.py (extend Spec 011 CrossReference model) ✅ Complete (218 lines)
 - [X] T029 [US1] Add link formatting for different output formats in LinkManager (Markdown: [text](url), HTML: <a href="url">text</a>) ✅ Unit tests pass (Markdown, HTML, RST)
@@ -105,7 +106,7 @@
 - [X] T041 [US2] Add `ansible-doctor linkcheck` CLI command in ansibledoctor/cli/linkcheck.py (validate all links in documentation) ✅ Complete with text/json/summary formats
 - [X] T042 [US2] Implement link validation report generation in LinkValidator (group errors by file, severity) ✅ Complete with markdown/html/text/json formats, grouping options
 - [X] T043 [US2] Add link validation caching in LinkValidator (cache external link results to avoid re-checking) ✅ Persistent cache with TTL, load/save/clear methods
-- [X] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/__init__.py (optional --validate-links flag) ✅ Complete with --validate-links flag and inline validation
+- [X] T044 [US2] Integrate link validation into generation workflow in ansibledoctor/generator/**init**.py (optional --validate-links flag) ✅ Complete with --validate-links flag and inline validation
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

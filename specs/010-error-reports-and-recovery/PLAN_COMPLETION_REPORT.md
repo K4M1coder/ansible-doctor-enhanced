@@ -51,12 +51,12 @@ Successfully created comprehensive implementation plan for **Error Reports & Rec
 
 ### 📜 API Contracts
 
-5. **contracts/error-aggregator.yaml** (OpenAPI 3.1.0 specification)
+1. **contracts/error-aggregator.yaml** (OpenAPI 3.1.0 specification)
    - **Schemas**: ErrorEntry, ErrorReport, RecoverySuggestion
    - **Protocol Methods**: add_error, add_warning, has_errors, generate_report, get_recovery_suggestions, clear
    - **Examples**: Basic usage workflow with code snippets
 
-6. **contracts/sarif-output.json** (SARIF 2.1.0 sample)
+2. **contracts/sarif-output.json** (SARIF 2.1.0 sample)
    - **Tool Driver**: ansible-doctor metadata, 3 rule definitions (E101, E201, W201)
    - **Invocations**: Execution metadata (command line, timing, exit code)
    - **Artifacts**: File index for IDE navigation
@@ -74,7 +74,7 @@ Successfully created comprehensive implementation plan for **Error Reports & Rec
 ### ✅ Constitution Compliance
 
 | Gate | Status | Key Design Decisions |
-|------|--------|---------------------|
+| ------ | -------- | --------------------- |
 | **Test-First Development** | ✅ PASS | Error scenarios are testable fixtures (invalid YAML, missing files) |
 | **Library-First Architecture** | ✅ PASS | Pure Python exceptions/, models/, utils/ modules; CLI wraps library |
 | **CLI Mandate** | ✅ PASS | New flags: `--error-format`, `--continue-on-error`, `--max-errors`, `--error-output` |
@@ -154,7 +154,7 @@ specs/010-error-reports-and-recovery/
 ### Parsing Errors (E1xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E101 | YAML syntax error | Indentation, missing colons, special characters |
 | E102 | Invalid metadata structure | Malformed galaxy_info, meta/main.yml issues |
 | E103 | Unsupported Ansible version | Version constraints not met |
@@ -164,7 +164,7 @@ specs/010-error-reports-and-recovery/
 ### Validation Errors (E2xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E201 | Missing required annotation | No `@meta description` or `@var` for defaults |
 | E202 | Invalid annotation syntax | Typo in annotation keyword, wrong format |
 | E203 | Duplicate annotation key | Same annotation key repeated |
@@ -174,7 +174,7 @@ specs/010-error-reports-and-recovery/
 ### Generation Errors (E3xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E301 | Template rendering failed | Jinja2 syntax error, undefined variable |
 | E302 | Output file write error | Permission denied, disk full |
 | E303 | Invalid output format | Unsupported format requested |
@@ -184,7 +184,7 @@ specs/010-error-reports-and-recovery/
 ### I/O Errors (E4xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E401 | File not found | Missing required file (meta/main.yml, defaults/main.yml) |
 | E402 | Permission denied | Insufficient permissions to read/write file |
 | E403 | Invalid path | Path contains invalid characters or too long |
@@ -194,7 +194,7 @@ specs/010-error-reports-and-recovery/
 ### Warnings (W1xx-W4xx)
 
 | Code | Description | Action |
-|------|-------------|--------|
+| ------ | ------------- | -------- |
 | W101 | Deprecated YAML syntax | Update to current Ansible syntax |
 | W102 | Unused variable | Remove or document variable |
 | W103 | Empty metadata block | Add metadata or remove block |
@@ -263,10 +263,12 @@ git push origin 010-error-reports-and-recovery
 ## Dependencies
 
 ### Prerequisites
+
 - ✅ Spec 003: Core documentation generation (existing)
 - ✅ Spec 009: Execution reports and logging (planned)
 
 ### Enables
+
 - 🔮 Spec 011: Watch mode and incremental updates (error reporting during watch)
 - 🔮 Spec 012: Schema documentation (validation error reporting)
 - 🔮 Spec 013: Links & cross-references (broken link error reporting)
@@ -276,7 +278,7 @@ git push origin 010-error-reports-and-recovery
 ## Quality Metrics
 
 | Metric | Target | Notes |
-|--------|--------|-------|
+| -------- | -------- | ------- |
 | **Constitution Gates** | 5/5 PASS | All gates satisfied |
 | **Error Codes Defined** | 20+ codes | E1xx-E4xx, W1xx-W4xx |
 | **Recovery Suggestions** | 15+ entries | Static database coverage |

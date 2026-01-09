@@ -1,4 +1,5 @@
 # Data Model Design
+
 ## Spec 013: Links & Cross-References
 
 This document defines the data models, relationships, and validation rules for the Links & Cross-References feature.
@@ -12,6 +13,7 @@ This document defines the data models, relationships, and validation rules for t
 **Purpose**: Represents any link in documentation (internal file, section anchor, external URL, or cross-reference).
 
 **Model Definition**:
+
 ```python
 from enum import Enum
 from datetime import datetime
@@ -240,6 +242,7 @@ class Link(BaseModel):
 **Purpose**: Represents a section in document navigation (table of contents).
 
 **Model Definition**:
+
 ```python
 class NavigationSection(BaseModel):
     """
@@ -356,6 +359,7 @@ class NavigationSection(BaseModel):
 **Purpose**: Bidirectional cross-reference between documentation items.
 
 **Model Definition**:
+
 ```python
 from ansibledoctor.models.index import IndexItem  # From Spec 011
 
@@ -443,6 +447,7 @@ class CrossReference(BaseModel):
 **Purpose**: Aggregated result of link validation operation.
 
 **Model Definition**:
+
 ```python
 class LinkValidationResult(BaseModel):
     """
@@ -557,6 +562,7 @@ class LinkValidationResult(BaseModel):
 **Purpose**: Graph data structure for link relationships and cycle detection.
 
 **Model Definition**:
+
 ```python
 class LinkGraph:
     """
@@ -868,6 +874,7 @@ stateDiagram-v2
 ## Summary
 
 **6 Core Models**:
+
 1. **Link**: Base model for all link types with validation status
 2. **NavigationSection**: Hierarchical TOC structure with anchor generation
 3. **CrossReference**: Bidirectional relationships between documentation items
@@ -876,6 +883,7 @@ stateDiagram-v2
 6. **LinkStatus/LinkType Enums**: Type-safe status and type indicators
 
 **Key Features**:
+
 - Type-safe link representation with validation
 - GitHub-compatible anchor generation
 - Bidirectional cross-references (extends Spec 011)
@@ -884,11 +892,13 @@ stateDiagram-v2
 - Comprehensive validation with error reporting
 
 **Integration Points**:
+
 - **Spec 011 (Indexes)**: CrossReference extends IndexItem relationships
 - **Spec 002 (Doc Generation)**: NavigationSection generates TOCs
 - **Spec 012 (Schema)**: Validates link schemas
 
 **Next Steps**:
+
 1. Implement link parser utilities (Markdown/HTML/RST)
 2. Build LinkValidator protocol implementation
 3. Create CLI commands for link validation

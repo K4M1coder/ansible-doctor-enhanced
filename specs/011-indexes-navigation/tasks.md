@@ -7,6 +7,7 @@
 **Estimated Effort**: 60 hours (~7.5 developer days)
 
 **Cross-Spec Dependencies**:
+
 - **Consumes Spec 013**: CrossReference model and LinkValidator from `ansibledoctor/links/` (US7 functionality)
 - **Consumes Spec 012**: MermaidBuilder can use SchemaService for diagram validation
 - **Integrates Spec 009**: Index generation metrics feed into ExecutionReport
@@ -60,7 +61,7 @@
 - [X] T019 [P] [US1] Create table format template at ansibledoctor/templates/index/table.j2 (table with Name|Description|Tags|Dependencies columns)
 - [X] T020 [US1] Implement component metadata extraction in IndexGenerator (extract name, description, tags from parsed roles)
 - [X] T021 [US1] Implement dependency link generation in IndexGenerator (resolve dependency names to doc links)
-- [X] T022 [US1] Add CLI flags to ansibledoctor/cli/__init__.py (--include-index, --index-style, --index-format)
+- [X] T022 [US1] Add CLI flags to ansibledoctor/cli/**init**.py (--include-index, --index-style, --index-format)
 - [X] T023 [US1] Integrate index generation into main generation flow in ansibledoctor/generator/engine.py (call after main docs)
 - [X] T024 [US1] Implement empty collection handling in IndexGenerator (detect empty, show message)
 - [X] T025 [US1] Write index files to output directory in IndexGenerator (docs/lang/{code}/roles/index.md)
@@ -92,7 +93,7 @@
 - [X] T037 [US2] Implement plugin indexing in IndexGenerator (extract modules, filters, lookups, etc.)
 - [X] T038 [US2] Implement playbook indexing in IndexGenerator (parse playbook descriptions)
 - [X] T039 [US2] Add depth limiting logic in TreeVisualizer (max_depth parameter)
-- [X] T040 [US2] Add --index-depth CLI flag in ansibledoctor/cli/__init__.py (default 5)
+- [X] T040 [US2] Add --index-depth CLI flag in ansibledoctor/cli/**init**.py (default 5)
 
 ---
 
@@ -142,7 +143,7 @@
 - [X] T059 [US4] Add nested-depth parameter to IndexPage model (limit nesting levels)
 - [X] T060 [P] [US4] Implement HTML expandable rows in nested_table.j2 (JavaScript for expand/collapse)
 - [X] T061 [P] [US4] Implement Markdown static nested table in nested_table.j2 (comma-separated children)
-- [X] T062 [US4] Add --nested-depth CLI flag in ansibledoctor/cli/__init__.py (default 2)
+- [X] T062 [US4] Add --nested-depth CLI flag in ansibledoctor/cli/**init**.py (default 2)
 
 ---
 
@@ -188,9 +189,9 @@
 ### Implementation
 
 - [X] T079 [US6] Create IndexFilter model in ansibledoctor/models/index.py (field, operator, value, matches())
-- [X] T080 [US6] Implement filter parsing in CLI in ansibledoctor/cli/__init__.py (parse 'field:value' strings)
+- [X] T080 [US6] Implement filter parsing in CLI in ansibledoctor/cli/**init**.py (parse 'field:value' strings)
 - [X] T081 [US6] Implement filter application in IndexGenerator (apply filters before rendering)
-- [X] T082 [US6] Add --filter CLI flag in ansibledoctor/cli/__init__.py (multiple=True)
+- [X] T082 [US6] Add --filter CLI flag in ansibledoctor/cli/**init**.py (multiple=True)
 - [X] T083 [US6] Implement empty filter message in templates (show when filtered_count=0)
 
 ---
@@ -210,7 +211,7 @@ Spec 011 should consume CrossReference and LinkValidator from Spec 013's `ansibl
 - [X] T089 Performance test large project in tests/integration/test_index_performance.py (500+ components < 500ms) - Covered by test_large_project_clustering (150 collections, 450 components)
 - [X] T090 [P] Add index generation metrics to execution reports (integrate with Spec 009 ExecutionReport) - Logging already integrated in IndexGenerator.generate_and_write_indexes()
 - [X] T091 Create demo projects in demo/ showing index features (collection with indexes, project with tree) - Demo exists at demo/project_demo_namespace.demo_project/ and demo/role_demo_namespace.demo_demo_role/
-- [X] T092 Update cli help text in ansibledoctor/cli/__init__.py (document all index flags with examples) - CLI help already documents all flags with descriptions
+- [X] T092 Update cli help text in ansibledoctor/cli/**init**.py (document all index flags with examples) - CLI help already documents all flags with descriptions
 - [X] T093 Final code review and cleanup (remove debug logging, optimize imports, fix style) - Code follows project standards, pre-commit hooks enforce style
 
 ---

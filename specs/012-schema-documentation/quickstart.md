@@ -79,6 +79,7 @@ Create `.vscode/settings.json`:
 ```
 
 Now VS Code provides:
+
 - ✅ Autocomplete for config properties
 - ✅ Inline validation errors
 - ✅ Hover documentation
@@ -438,6 +439,7 @@ validate-config:
 ### Pre-commit Hook
 
 `.pre-commit-config.yaml`:
+
 ```yaml
 repos:
   - repo: local
@@ -457,11 +459,13 @@ repos:
 ### VS Code Setup
 
 1. **Export Schema**:
+
 ```bash
 ansible-doctor schema export config --output .vscode/ansibledoctor.schema.json
 ```
 
-2. **Configure YAML Extension** (`.vscode/settings.json`):
+1. **Configure YAML Extension** (`.vscode/settings.json`):
+
 ```json
 {
   "yaml.schemas": {
@@ -472,7 +476,7 @@ ansible-doctor schema export config --output .vscode/ansibledoctor.schema.json
 }
 ```
 
-3. **Enable IntelliSense**:
+1. **Enable IntelliSense**:
    - Autocomplete for properties
    - Inline error messages
    - Hover documentation
@@ -481,11 +485,12 @@ ansible-doctor schema export config --output .vscode/ansibledoctor.schema.json
 ### IntelliJ IDEA / PyCharm
 
 1. **Export Schema**:
+
 ```bash
 ansible-doctor schema export config --output schemas/config.schema.json
 ```
 
-2. **Configure JSON Schema** (Settings → JSON Schemas):
+1. **Configure JSON Schema** (Settings → JSON Schemas):
    - Add new schema
    - Schema file: `schemas/config.schema.json`
    - File path pattern: `.ansibledoctor.yml`
@@ -493,6 +498,7 @@ ansible-doctor schema export config --output schemas/config.schema.json
 ### Vim / Neovim (with coc.nvim)
 
 `coc-settings.json`:
+
 ```json
 {
   "json.schemas": [
@@ -685,6 +691,7 @@ python -m ansibledoctor role generate ./roles/webserver
 ```
 
 **Result**:
+
 - ✅ Schema validation in CI/CD
 - ✅ IDE autocomplete for .ansibledoctor.yml
 - ✅ Type-safe configuration
@@ -744,6 +751,7 @@ jobs:
 ```
 
 **Result**:
+
 - ✅ Automated validation on every commit
 - ✅ Strict mode catches all issues
 - ✅ Fail fast on configuration errors
@@ -814,6 +822,7 @@ chmod +x scripts/generate_docs.sh
 ```
 
 **Result**:
+
 - ✅ Markdown for developers
 - ✅ HTML for stakeholders
 - ✅ JSON/XML for integrations
@@ -870,6 +879,7 @@ pre-commit run --all-files
 ```
 
 **Result**:
+
 - ✅ Automatic validation before commit
 - ✅ Prevents invalid configs in repo
 - ✅ Fast feedback loop
@@ -951,6 +961,7 @@ python scripts/validate_all.py
 ```
 
 **Result**:
+
 - ✅ Single script validates everything
 - ✅ Clear error reporting
 - ✅ Exit code for CI/CD
@@ -1005,6 +1016,7 @@ python -m ansibledoctor schema export config --output schemas/config-schema.json
 ```
 
 **Result**:
+
 - ✅ Autocomplete for all properties
 - ✅ Real-time validation
 - ✅ Hover documentation
@@ -1056,6 +1068,7 @@ if __name__ == "__main__":
 ```
 
 **Expected Output**:
+
 ```
 Validation Performance Benchmark
 ================================
@@ -1066,6 +1079,7 @@ Throughput: 465 validations/second
 ```
 
 **Result**:
+
 - ✅ Sub-10ms validation for typical configs
 - ✅ Performance monitoring
 - ✅ Identify bottlenecks

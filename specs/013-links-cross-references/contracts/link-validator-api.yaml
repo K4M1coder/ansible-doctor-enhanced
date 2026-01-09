@@ -798,4 +798,4 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             error: not_found
-            message: File not found: /docs/nonexistent.md
+            message: "File not found: /docs/nonexistent.md"

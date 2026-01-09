@@ -23,12 +23,14 @@ Execution reporting provides visibility into ansible-doctor operations:
 - **Machine-Readable Output**: JSON reports for CI/CD integration and automation
 
 **Existing Infrastructure** (from `utils/logging.py`):
+
 - structlog with JSON/console output modes
 - Correlation ID binding via contextvars
 - Module-level logger factory (`get_logger()`)
 - Context binding (`bind_context()`, `clear_context()`)
 
 **Enhancement Goals**:
+
 - Add execution report generation at command completion
 - Implement performance metrics collection (timing, counts)
 - Provide aggregated error summaries with file locations
@@ -36,6 +38,7 @@ Execution reporting provides visibility into ansible-doctor operations:
 - Enable CI/CD-friendly exit codes and reports
 
 **Report Structure Example**:
+
 ```json
 {
   "correlation_id": "abc-123-def",

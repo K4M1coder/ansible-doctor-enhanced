@@ -108,7 +108,7 @@ No violations - all gates pass. No additional complexity justification required.
    - IDE support matrix (VS Code, PyCharm, IntelliJ SARIF extensions)
 
 2. **Error Code Numbering Conventions**: Research error code patterns in CLI tools
-   - Ansible error codes (https://docs.ansible.com/ansible/latest/reference_appendices/error_codes.html)
+   - Ansible error codes (<https://docs.ansible.com/ansible/latest/reference_appendices/error_codes.html>)
    - Python PEP 8 (E/W codes for linters like flake8, pylint)
    - ESLint, rustc, tsc error code patterns
    - Hierarchical numbering schemes (E1xx=parsing, E2xx=validation, E3xx=generation)
@@ -140,6 +140,7 @@ No violations - all gates pass. No additional complexity justification required.
 ### Data Model Design
 
 **ErrorReport** (Primary Aggregate):
+
 ```python
 class ErrorReport(BaseModel):
     """Aggregated error report for a single execution run."""
@@ -158,6 +159,7 @@ class ErrorReport(BaseModel):
 ```
 
 **ErrorEntry**:
+
 ```python
 class ErrorEntry(BaseModel):
     """Single error or warning with full context."""
@@ -174,6 +176,7 @@ class ErrorEntry(BaseModel):
 ```
 
 **ErrorCode** (Enumeration):
+
 ```python
 class ErrorCode(str, Enum):
     # Parsing errors (E1xx)
@@ -203,6 +206,7 @@ class ErrorCode(str, Enum):
 ```
 
 **RecoverySuggestion** (Database Entry):
+
 ```python
 class RecoverySuggestion(BaseModel):
     """Maps error codes to recovery actions."""
@@ -216,6 +220,7 @@ class RecoverySuggestion(BaseModel):
 ### API Contracts
 
 **ErrorAggregator Protocol**:
+
 ```python
 class ErrorAggregator(Protocol):
     """Collects errors during execution with bounded memory."""
@@ -256,6 +261,7 @@ class ErrorAggregator(Protocol):
 ```
 
 **SARIFFormatter**:
+
 ```python
 class SARIFFormatter:
     """Converts ErrorReport to SARIF 2.1.0 format."""
@@ -305,6 +311,7 @@ class SARIFFormatter:
 ### Output Contracts
 
 **SARIF 2.1.0 Structure**:
+
 ```json
 {
   "version": "2.1.0",
@@ -376,6 +383,7 @@ class SARIFFormatter:
 ### Quickstart Example
 
 **Basic Error Reporting**:
+
 ```bash
 # Default: fail fast with text errors to stderr
 ansible-doctor generate .

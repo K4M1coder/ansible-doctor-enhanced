@@ -23,17 +23,20 @@ Schema Documentation & Validation provides infrastructure services for:
 - **State-of-the-Art Libraries**: Use best-in-class libraries (pydantic, jsonschema, ruamel.yaml, etc.)
 
 **Existing Capabilities** (don't duplicate):
+
 - Spec 009: JSON report generation (consume this service)
 - Spec 011: Mermaid diagram generation (consume this service)
 - Spec 003: Basic config validation (extend with proper schema validation)
 
 **Enhancement Goals**:
+
 - Provide schema validation for all configuration files
 - Enable schema export for IDE integration and documentation
 - Support format conversion for interoperability
 - Provide unified serialization API for all features
 
 **Schema Export Example**:
+
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -221,4 +224,3 @@ To enable this feature, other specs need to expose their data models:
 **Spec 003** (Config): Add T104-T106 for schema exposure
 **Spec 001/004/006** (Parsers): Add T104-T106 for data model schemas
 **Spec 009** (Reports): Add T104-T106 for report schema export
-

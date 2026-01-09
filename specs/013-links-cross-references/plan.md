@@ -160,6 +160,7 @@ No violations - all gates pass. No additional complexity justification required.
 ### Data Model Design
 
 **Link** (Base Model):
+
 ```python
 from enum import Enum
 from pathlib import Path
@@ -205,6 +206,7 @@ class Link(BaseModel):
 ```
 
 **CrossReference** (Extended from Spec 011):
+
 ```python
 class CrossReference(BaseModel):
     \"\"\"Bidirectional cross-reference between documentation items.\"\"\"
@@ -222,6 +224,7 @@ class CrossReference(BaseModel):
 ```
 
 **NavigationSection**:
+
 ```python
 class NavigationSection(BaseModel):
     \"\"\"Section navigation entry for table of contents.\"\"\"
@@ -242,6 +245,7 @@ class NavigationSection(BaseModel):
 ```
 
 **LinkValidationResult**:
+
 ```python
 class LinkValidationResult(BaseModel):
     \"\"\"Result of link validation operation.\"\"\"
@@ -264,6 +268,7 @@ class LinkValidationResult(BaseModel):
 ```
 
 **LinkGraph**:
+
 ```python
 class LinkGraph:
     \"\"\"Graph data structure for link relationships.\"\"\"
@@ -292,6 +297,7 @@ class LinkGraph:
 ### API Contracts
 
 **LinkValidator Protocol**:
+
 ```python
 class LinkValidator(Protocol):
     \"\"\"Protocol for validating links in documentation.\"\"\"
@@ -345,6 +351,7 @@ class LinkValidator(Protocol):
 ```
 
 **CrossReferenceGenerator**:
+
 ```python
 class CrossReferenceGenerator:
     \"\"\"Generate automatic cross-references between documentation.\"\"\"
@@ -378,6 +385,7 @@ class CrossReferenceGenerator:
 ```
 
 **NavigationBuilder**:
+
 ```python
 class NavigationBuilder:
     \"\"\"Build navigation structures for documents.\"\"\"
@@ -409,6 +417,7 @@ class NavigationBuilder:
 ```
 
 **ExternalLinkIntegrator**:
+
 ```python
 class ExternalLinkIntegrator:
     \"\"\"Integrate links to external documentation resources.\"\"\"
@@ -494,6 +503,7 @@ def report_command(docs_dir: str, format: str, output: str | None):
 ### Quickstart Example
 
 **Validate Links**:
+
 ```bash
 # Check all links in documentation
 ansible-doctor linkcheck docs/
@@ -506,6 +516,7 @@ ansible-doctor linkcheck docs/ --output link-report.json
 ```
 
 **Fix Broken Links**:
+
 ```bash
 # Dry-run to preview fixes
 ansible-doctor linkcheck fix docs/ --dry-run
@@ -515,6 +526,7 @@ ansible-doctor linkcheck fix docs/ --backup
 ```
 
 **Generate Link Report**:
+
 ```bash
 # Text report
 ansible-doctor linkcheck report docs/
@@ -526,6 +538,6 @@ ansible-doctor linkcheck report docs/ --format html --output link-health.html
 **Output**: `quickstart.md`, `data-model.md`, `contracts/link-validator.yaml`, `contracts/link-graph-examples.md`
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
+| ----------- | ------------ | ------------------------------------- |
 | [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
 | [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

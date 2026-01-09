@@ -19,6 +19,7 @@ ansible-doctor generate roles/webserver
 ```
 
 **Output** (stderr):
+
 ```text
 ❌ [E101] YAML syntax error
   File: roles/webserver/tasks/main.yml
@@ -42,12 +43,14 @@ ansible-doctor generate roles/webserver --continue-on-error
 ```
 
 **Behavior**:
+
 - Processes all files even after errors
 - Generates documentation for valid files
 - Aggregates all errors in final report
 - Exit code `1` if any errors, `2` if warnings only
 
 **Output** (stderr):
+
 ```text
 ⚠️  Processing continues despite errors...
 
@@ -95,6 +98,7 @@ ansible-doctor generate . \
 ```
 
 **errors.json**:
+
 ```json
 {
   "correlation_id": "01HN7XYKFQJBM3N8YXRW5PTGAQ",
@@ -119,6 +123,7 @@ ansible-doctor generate . \
 ```
 
 **CI/CD Integration** (GitHub Actions):
+
 ```yaml
 - name: Generate documentation
   run: |
@@ -146,6 +151,7 @@ ansible-doctor generate . \
 ```
 
 **VS Code Integration**:
+
 1. Install "SARIF Viewer" extension (Microsoft)
 2. Open Command Palette (`Ctrl+Shift+P`)
 3. Select "SARIF: Open SARIF file"
@@ -153,11 +159,13 @@ ansible-doctor generate . \
 5. Errors appear in Problems panel (`Ctrl+Shift+M`)
 
 **PyCharm/IntelliJ Integration**:
+
 1. Install "Qodana SARIF Viewer" plugin
 2. File → Open → `results.sarif`
 3. Errors appear in Problems tool window
 
 **results.sarif** (abbreviated):
+
 ```json
 {
   "version": "2.1.0",
@@ -205,6 +213,7 @@ cat error-report.txt | grep "Summary by Category"
 ```
 
 **Output**:
+
 ```text
 Summary by Category:
   Parsing (E1xx):      12 errors
@@ -225,6 +234,7 @@ cat error-report.txt | grep -A 10 "\[E101\]"
 ```
 
 **Example**:
+
 ```text
 [E101] YAML syntax error
   File: roles/webserver/tasks/main.yml
@@ -236,6 +246,7 @@ cat error-report.txt | grep -A 10 "\[E101\]"
 ```
 
 **Action**:
+
 ```bash
 # Validate YAML
 yamllint roles/webserver/tasks/main.yml
@@ -276,6 +287,7 @@ ansible-doctor generate . \
 ```
 
 **Output**:
+
 ```text
 ⚠️  Max errors reached (100), further errors suppressed.
 See error report for details.
@@ -316,7 +328,7 @@ jq '.errors[] | select(.code | startswith("E2"))' errors.json
 ### Parsing Errors (E1xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E101 | YAML syntax error | Indentation, missing colons, special characters |
 | E102 | Invalid metadata structure | Malformed galaxy_info, meta/main.yml issues |
 | E103 | Unsupported Ansible version | Version constraints not met |
@@ -326,7 +338,7 @@ jq '.errors[] | select(.code | startswith("E2"))' errors.json
 ### Validation Errors (E2xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E201 | Missing required annotation | No `@meta description` or `@var` for defaults |
 | E202 | Invalid annotation syntax | Typo in annotation keyword, wrong format |
 | E203 | Duplicate annotation key | Same annotation key repeated |
@@ -336,7 +348,7 @@ jq '.errors[] | select(.code | startswith("E2"))' errors.json
 ### Generation Errors (E3xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E301 | Template rendering failed | Jinja2 syntax error, undefined variable |
 | E302 | Output file write error | Permission denied, disk full |
 | E303 | Invalid output format | Unsupported format requested |
@@ -346,7 +358,7 @@ jq '.errors[] | select(.code | startswith("E2"))' errors.json
 ### I/O Errors (E4xx)
 
 | Code | Description | Common Causes |
-|------|-------------|---------------|
+| ------ | ------------- | --------------- |
 | E401 | File not found | Missing required file (meta/main.yml, defaults/main.yml) |
 | E402 | Permission denied | Insufficient permissions to read/write file |
 | E403 | Invalid path | Path contains invalid characters or too long |
@@ -356,7 +368,7 @@ jq '.errors[] | select(.code | startswith("E2"))' errors.json
 ### Warnings (W1xx-W4xx)
 
 | Code | Description | Action |
-|------|-------------|--------|
+| ------ | ------------- | -------- |
 | W101 | Deprecated YAML syntax | Update to current Ansible syntax |
 | W201 | Missing recommended annotation | Add `@var` descriptions for better docs |
 | W202 | Deprecated annotation syntax | Update to current annotation format |
@@ -445,6 +457,7 @@ jq '.error_count' errors-*.json | awk '{print NR, $1}' | gnuplot -e "plot '-'"
 **Symptom**: Output shows "Max errors reached (1000)"
 
 **Solution**:
+
 ```bash
 # Increase cap (use cautiously, may consume memory)
 ansible-doctor generate . --max-errors 5000
@@ -463,12 +476,15 @@ jq '.errors[] | select(.code | startswith("E1"))' errors.json
 **Symptom**: SARIF file generated but no errors in Problems panel
 
 **Solution**:
+
 1. Verify SARIF extension installed (VS Code: "SARIF Viewer")
 2. Check file paths are absolute or relative to workspace root
 3. Validate SARIF schema:
+
    ```bash
    jq -e '.version == "2.1.0"' results.sarif
    ```
+
 4. Re-open SARIF file: Command Palette → "SARIF: Open SARIF file"
 
 ### Problem: Unhelpful Error Messages
@@ -476,6 +492,7 @@ jq '.errors[] | select(.code | startswith("E1"))' errors.json
 **Symptom**: Error message lacks context or suggestions
 
 **Solution**:
+
 ```bash
 # Enable debug logging for more context
 ansible-doctor generate . --log-level debug

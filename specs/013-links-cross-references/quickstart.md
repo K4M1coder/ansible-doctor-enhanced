@@ -1,4 +1,5 @@
 # Quickstart Guide
+
 ## Spec 013: Links & Cross-References
 
 This guide demonstrates how to use the link management and cross-reference features in ansible-doctor.
@@ -8,6 +9,7 @@ This guide demonstrates how to use the link management and cross-reference featu
 ## Overview
 
 The Links & Cross-References feature provides:
+
 - ✅ **Link Validation**: Check all internal and external links in documentation
 - 🔗 **Cross-References**: Automatic bidirectional links between related content
 - 🧭 **Navigation**: Generate table of contents with section links
@@ -37,6 +39,7 @@ ansible-doctor linkcheck check docs/ --external --timeout 30
 ```
 
 **Output**:
+
 ```text
 ========================================
 Link Validation Report
@@ -80,6 +83,7 @@ ansible-doctor linkcheck report docs/ --format html --output link-health.html
 ```
 
 **JSON Output Example**:
+
 ```json
 {
   "total_links": 142,
@@ -123,6 +127,7 @@ ansible-doctor linkcheck fix docs/ --no-backup
 ```
 
 **Supported Fixes**:
+
 - ✅ Update renamed file references
 - ✅ Follow redirects to update external URLs
 - ✅ Fix case mismatches in file paths
@@ -130,6 +135,7 @@ ansible-doctor linkcheck fix docs/ --no-backup
 - ✅ Update anchors to match current section titles
 
 **Dry-Run Output**:
+
 ```text
 Preview of Link Fixes:
 ------------------------------------------
@@ -190,6 +196,7 @@ ansible-doctor generate collection \
 ```
 
 **Bidirectional Links**:
+
 - Forward link: `demo_role.md` → "Depends on: common_role"
 - Backward link: `common_role.md` → "Used by: demo_role"
 
@@ -229,6 +236,7 @@ ansible-doctor linkcheck update-toc docs/ --max-depth 3
 ```
 
 **Features**:
+
 - ✅ Hierarchical structure (nested sections)
 - ✅ GitHub-compatible anchors
 - ✅ Configurable max depth (1-6)
@@ -381,6 +389,7 @@ for page, score in top_pages:
 ```
 
 **Output**:
+
 ```text
 ⚠️ Found 1 circular link dependency
   Cycle: docs/guide.md → docs/api.md → docs/guide.md
@@ -488,11 +497,13 @@ links:
 ### Optimize Link Validation
 
 1. **Skip External Links in CI** (check nightly instead):
+
    ```bash
    ansible-doctor linkcheck check docs/  # Internal only, fast
    ```
 
 2. **Use Caching for Repeated Validations**:
+
    ```yaml
    links:
      external:
@@ -500,11 +511,13 @@ links:
    ```
 
 3. **Increase Parallelism for Large Documentation**:
+
    ```bash
    ansible-doctor linkcheck check docs/ --parallel --max-workers 20
    ```
 
 4. **Filter by File Pattern**:
+
    ```bash
    # Only check files matching pattern
    ansible-doctor linkcheck check docs/ --include "docs/api/**/*.md"
@@ -519,6 +532,7 @@ links:
 **Issue**: "Target file not found" for valid files
 
 **Solution**: Ensure output directory is set correctly:
+
 ```bash
 ansible-doctor linkcheck check docs/ --output-dir /path/to/output
 ```
@@ -528,6 +542,7 @@ ansible-doctor linkcheck check docs/ --output-dir /path/to/output
 **Issue**: External link validation times out
 
 **Solution**: Increase timeout or skip slow domains:
+
 ```bash
 ansible-doctor linkcheck check docs/ --external --timeout 30
 ```
@@ -537,6 +552,7 @@ ansible-doctor linkcheck check docs/ --external --timeout 30
 **Issue**: False positives for redirects
 
 **Solution**: Configure redirect handling:
+
 ```yaml
 links:
   validation:
@@ -548,6 +564,7 @@ links:
 **Issue**: Circular dependency warnings
 
 **Solution**: Review link graph and break cycles:
+
 ```bash
 ansible-doctor linkcheck report docs/ --show-cycles
 ```

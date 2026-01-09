@@ -31,11 +31,13 @@ class SchemaModel(BaseModel):
 ```
 
 **Fields**:
+
 - `schema_version`: JSON Schema draft version (default: draft-2020-12)
-- `id`: Schema identifier URI (e.g., "https://ansibledoctor.com/schemas/config.json")
+- `id`: Schema identifier URI (e.g., "<https://ansibledoctor.com/schemas/config.json>")
 - `schema_uri`: Reference to JSON Schema specification
 
 **Usage**:
+
 ```python
 class MySchema(SchemaModel):
     title: str
@@ -80,6 +82,7 @@ class ValidationError(BaseModel):
 ```
 
 **Fields**:
+
 - `path`: JSONPath to error location (e.g., `$.output_format`)
 - `message`: Human-readable error description
 - `schema_path`: Path in schema that failed (e.g., `#/properties/output_format/enum`)
@@ -90,6 +93,7 @@ class ValidationError(BaseModel):
 - `line_number`: Source file line number (from YAML parser)
 
 **Example**:
+
 ```python
 error = ValidationError(
     path="$.output_format",
@@ -166,6 +170,7 @@ class ValidationResult(BaseModel):
 ```
 
 **Fields**:
+
 - `is_valid`: Overall validation status (False if any errors)
 - `errors`: List of validation errors (block usage)
 - `warnings`: List of validation warnings (informational)
@@ -175,6 +180,7 @@ class ValidationResult(BaseModel):
 - `duration_ms`: Validation duration in milliseconds
 
 **Example**:
+
 ```python
 result = ValidationResult(
     is_valid=False,
@@ -247,6 +253,7 @@ class SchemaDefinition(SchemaModel):
 ```
 
 **Fields**:
+
 - `title`: Schema title (e.g., "AnsibleDoctorConfig")
 - `description`: Schema description
 - `type`: JSON Schema type (object, array, string, number, boolean, null)
@@ -262,6 +269,7 @@ class SchemaDefinition(SchemaModel):
 - `default`: Default value
 
 **Example**:
+
 ```python
 config_schema = SchemaDefinition(
     title="AnsibleDoctorConfig",
@@ -368,6 +376,7 @@ class ConversionResult(BaseModel):
 ```
 
 **Fields**:
+
 - `source_format`: Original format
 - `target_format`: Converted format
 - `output`: Converted content as string
@@ -377,6 +386,7 @@ class ConversionResult(BaseModel):
 - `output_size_bytes`: Converted size
 
 **Example**:
+
 ```python
 result = ConversionResult(
     source_format=FormatType.YAML,
@@ -450,6 +460,7 @@ class SchemaValidator(Protocol):
 ```
 
 **Implementation Notes**:
+
 - Use `jsonschema.validate()` for core validation
 - Convert `jsonschema.ValidationError` to our `ValidationError` model
 - Extract line numbers from YAML parser for better error messages
@@ -580,18 +591,21 @@ class SchemaExporter(Protocol):
 ## Validation Rules
 
 ### Schema Validation
+
 - `is_valid = True` if no errors (warnings don't affect validity)
 - `strict = True` mode treats warnings as errors
 - Line numbers extracted from YAML parsing for user-friendly errors
 - Cache compiled schemas for repeated validations (5x speedup)
 
 ### Format Conversion
+
 - Round-trip fidelity: `data == convert(convert(data, to=X), to=original)` for lossless formats
 - Warn on data loss: YAML anchors, XML namespaces, comments (JSON/XML)
 - Preserve types: null, booleans, numbers when converting YAML/JSON
 - XML convention: `@attr` for attributes, `#text` for text content
 
 ### Schema Export
+
 - Add `$schema` property for IDE integration
 - Add `$id` property for schema references
 - Include examples from Field(..., examples=[...])
@@ -616,6 +630,7 @@ stateDiagram-v2
 ```
 
 **States**:
+
 1. **LoadConfig**: Load config file (YAML/JSON/XML)
 2. **ValidateSchema**: Validate against JSON Schema
 3. **Valid**: No errors, no warnings
@@ -639,6 +654,7 @@ erDiagram
 ```
 
 **Relationships**:
+
 - `SchemaDefinition` extends `SchemaModel` (inheritance)
 - `ValidationResult` contains multiple `ValidationError` (composition)
 - `ValidationResult` validated by `SchemaDefinition` (association)

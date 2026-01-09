@@ -154,6 +154,7 @@ No violations - all gates pass. No additional complexity justification required.
 ### Data Model Design
 
 **IndexItem** (Base Component):
+
 ```python
 class IndexItem(BaseModel):
     \"\"\"Single entry in an index with metadata and navigation.\"\"\"
@@ -174,6 +175,7 @@ class IndexItem(BaseModel):
 ```
 
 **IndexPage**:
+
 ```python
 class IndexPage(BaseModel):
     \"\"\"Standalone index page for a component type.\"\"\"
@@ -193,6 +195,7 @@ class IndexPage(BaseModel):
 ```
 
 **SectionIndex**:
+
 ```python
 class SectionIndex(BaseModel):
     \"\"\"Embedded index section within parent documentation.\"\"\"
@@ -209,6 +212,7 @@ class SectionIndex(BaseModel):
 ```
 
 **IndexFilter**:
+
 ```python
 class IndexFilter(BaseModel):
     \"\"\"Criteria for filtering index content.\"\"\"
@@ -222,6 +226,7 @@ class IndexFilter(BaseModel):
 ```
 
 **CrossReference**:
+
 ```python
 class CrossReference(BaseModel):
     \"\"\"Link between components with validation.\"\"\"
@@ -241,6 +246,7 @@ class CrossReference(BaseModel):
 ### API Contracts
 
 **IndexGenerator Protocol**:
+
 ```python
 class IndexGenerator(Protocol):
     \"\"\"Protocol for generating index pages and sections.\"\"\"
@@ -293,6 +299,7 @@ class IndexGenerator(Protocol):
 ```
 
 **TreeVisualizer**:
+
 ```python
 class TreeVisualizer:
     \"\"\"ASCII tree rendering with customizable characters.\"\"\"
@@ -328,6 +335,7 @@ class TreeVisualizer:
 ```
 
 **MermaidBuilder**:
+
 ```python
 class MermaidBuilder:
     \"\"\"Generate Mermaid diagrams for component hierarchies.\"\"\"
@@ -363,6 +371,7 @@ class MermaidBuilder:
 ```
 
 **LinkValidator**:
+
 ```python
 class LinkValidator:
     \"\"\"Validate cross-reference links between components.\"\"\"
@@ -447,6 +456,7 @@ class LinkValidator:
 ### Template Marker Syntax
 
 **Jinja2 Template Extension**:
+
 ```jinja2
 {# List all roles in collection #}
 {{ index('roles') }}
@@ -470,6 +480,7 @@ class LinkValidator:
 ### Output Contracts
 
 **List Format**:
+
 ```markdown
 ## Roles
 
@@ -485,6 +496,7 @@ class LinkValidator:
 ```
 
 **Table Format**:
+
 ```markdown
 ## Roles
 
@@ -495,6 +507,7 @@ class LinkValidator:
 ```
 
 **Tree Format**:
+
 ```text
 my_namespace.infrastructure/
 ├── roles/
@@ -512,6 +525,7 @@ my_namespace.infrastructure/
 ```
 
 **Mermaid Diagram**:
+
 ```mermaid
 graph TD
     Project[\"My Ansible Project\"]
@@ -559,6 +573,7 @@ graph TD
 ### Quickstart Example
 
 **Generate Role Index**:
+
 ```bash
 # Simple role index (list format)
 ansible-doctor generate collection/ --include-index
@@ -574,6 +589,7 @@ ansible-doctor generate collection/ --include-index --validate-links
 ```
 
 **Embedded Section Index**:
+
 ```markdown
 <!-- collection/README.md.j2 -->
 # {{ collection.name }}

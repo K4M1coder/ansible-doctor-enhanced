@@ -26,31 +26,37 @@ Enhance the existing structlog-based logging infrastructure to provide comprehen
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 ### ✅ Library-First Architecture
+
 - **Compliance**: ExecutionReport will be a standalone model with clear serialization interface
 - **Interface**: Pydantic models for reports, protocol for report generation, factory for creating from execution context
 - **Testability**: Independent unit tests for report generation, serialization, and metrics collection
 
 ### ✅ CLI Interface Mandate  
+
 - **Compliance**: New flags `--report`, `--report-format`, `--correlation-id`, `--fail-on-warnings`, `--continue-on-error`
 - **Output**: JSON (machine-readable) and text (human-readable) formats supported
 - **Exit Codes**: Standard convention: 0=success, 1=error, 2=warnings (with flag), 3=invalid usage
 - **Documentation**: All flags documented in `--help` output
 
 ### ✅ Test-Driven Development (TDD)
+
 - **TDD Cycle**: Write tests for report model → implement serialization → refactor
 - **Coverage Target**: 90% for report generation (core logic), 80% for CLI integration
 - **Test Types**: Unit tests for models/metrics, integration tests for CLI commands with report generation
 
 ### ✅ Integration & Contract Testing
+
 - **Integration Tests**: Report file writing, JSON validation, concurrent execution handling
 - **Contract Tests**: ExecutionReport schema validation, backward compatibility with existing logging
 
 ### ✅ Observability & Structured Logging
+
 - **Enhancement**: This feature EXTENDS existing structlog infrastructure
 - **Metrics**: Timing collection for parsing/rendering/writing phases
 - **Correlation IDs**: Already implemented via contextvars, will be extended to reports
 
 ### ✅ Semantic Versioning
+
 - **Version**: v0.9.0 (MINOR - new feature, backward compatible)
 - **Compatibility**: No breaking changes, reports only generated when flag specified
 
@@ -147,6 +153,7 @@ tests/
 ### Data Model Design
 
 **ExecutionReport** (Primary Aggregate):
+
 ```python
 class ExecutionReport(BaseModel):
     correlation_id: str
@@ -162,6 +169,7 @@ class ExecutionReport(BaseModel):
 ```
 
 **ExecutionMetrics**:
+
 ```python
 class ExecutionMetrics(BaseModel):
     files_processed: int
@@ -174,6 +182,7 @@ class ExecutionMetrics(BaseModel):
 ```
 
 **ExecutionWarning**:
+
 ```python
 class ExecutionWarning(BaseModel):
     file: Path
@@ -183,6 +192,7 @@ class ExecutionWarning(BaseModel):
 ```
 
 **ExecutionError**:
+
 ```python
 class ExecutionError(BaseModel):
     file: Path
@@ -196,6 +206,7 @@ class ExecutionError(BaseModel):
 ### API Contracts
 
 **ReportGenerator Protocol**:
+
 ```python
 class ReportGenerator(Protocol):
     def generate(self, context: ExecutionContext) -> ExecutionReport: ...
@@ -203,6 +214,7 @@ class ReportGenerator(Protocol):
 ```
 
 **MetricsCollector Protocol**:
+
 ```python
 class MetricsCollector(Protocol):
     def start_phase(self, phase_name: str) -> None: ...
@@ -214,6 +226,7 @@ class MetricsCollector(Protocol):
 ### CLI Integration
 
 **New Flags**:
+
 - `--report PATH`: Generate execution report at specified path
 - `--report-format {json,text,summary}`: Report output format (default: json)
 - `--correlation-id ID`: Use provided correlation ID instead of auto-generated
@@ -222,6 +235,7 @@ class MetricsCollector(Protocol):
 - `--verbose` (existing, enhanced): Show phase timing and progress
 
 **Exit Code Convention**:
+
 - `0`: Success
 - `1`: Fatal error (parsing failure, invalid config, exception)
 - `2`: Warnings present (only with `--fail-on-warnings`)
