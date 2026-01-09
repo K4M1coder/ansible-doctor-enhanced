@@ -1,8 +1,0 @@
----
-galaxy_info:
-  author: Test
-  description: Test role with links
-  license: MIT
-  min_ansible_version: 2.9
-  platforms:
-    - name: Ubuntu
