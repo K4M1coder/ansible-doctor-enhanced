@@ -76,7 +76,7 @@ Following industry standards (Tailwind CSS, Bootstrap 5, Material Design), we ad
 ### Color Token Categories
 
 | Category | Purpose | Variables |
-|----------|---------|-----------|
+| ---------- | --------- | ----------- |
 | Primary | Brand identity | `--ad-color-primary`, `-light`, `-dark` |
 | Semantic | Status indicators | success, warning, error, info |
 | Neutral | Background, text, borders | bg, text, border variants |
@@ -87,6 +87,7 @@ Following industry standards (Tailwind CSS, Bootstrap 5, Material Design), we ad
 ### Decision: Use `--ad-` Prefix
 
 Rationale:
+
 - Avoids collisions with user CSS
 - `ad` = Ansible Doctor (clear namespace)
 - Short but descriptive
@@ -98,6 +99,7 @@ Rationale:
 ### Current Template Loader Architecture
 
 From `ansibledoctor/generator/loaders.py`:
+
 - `EmbeddedTemplateLoader` - Loads from package resources
 - `FileSystemTemplateLoader` - Loads from custom directories
 - Both use `PackageLoader` or `FileSystemLoader` for Jinja2 includes
@@ -161,10 +163,8 @@ Jinja2's `{% extends %}` and `{% include %}` resolve templates relative to the l
 
 1. **Cross-level inheritance**: Role template extends collection template
    - Solution: Use `PrefixLoader` or `ChoiceLoader` with namespaced paths
-   
 2. **Circular includes**: A includes B, B includes A
    - Solution: Jinja2 handles this with recursion detection
-   
 3. **Missing parent template**: Child extends non-existent base
    - Solution: Fallback to embedded templates with clear error message
 
@@ -198,7 +198,7 @@ def build_environment(search_paths: list[Path]) -> Environment:
 ### Risk Assessment
 
 | Risk | Severity | Mitigation |
-|------|----------|------------|
+| ------ | ---------- | ------------ |
 | XSS via user templates | High | Sandbox Jinja2, escape output |
 | Arbitrary code execution | Critical | No `exec`/`eval` in templates |
 | File system access | Medium | Restrict template paths |
@@ -207,6 +207,7 @@ def build_environment(search_paths: list[Path]) -> Environment:
 ### Theme Toggle JS Requirements
 
 The toggle JavaScript must be:
+
 1. **Self-contained**: No external dependencies
 2. **Safe**: No `eval()`, `innerHTML` with user content
 3. **Accessible**: ARIA attributes, keyboard support
@@ -276,7 +277,7 @@ def create_safe_environment():
 ### CLI Flags Mapping
 
 | CLI Flag | YAML Config | Default | Description |
-|----------|-------------|---------|-------------|
+| ---------- | ------------- | --------- | ------------- |
 | `--variant` | `theme.variant` | `detailed` | Template variant |
 | `--color-scheme` | `theme.color_scheme` | `auto` | light/dark/auto |
 | `--no-theme-toggle` | `theme.enable_toggle` | `true` | Disable JS toggle |

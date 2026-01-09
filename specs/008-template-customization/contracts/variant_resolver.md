@@ -205,7 +205,7 @@ ansibledoctor/generator/templates/
 ### Variant Characteristics
 
 | Variant | Description | Use Case |
-|---------|-------------|----------|
+| --------- | ------------- | ---------- |
 | minimal | Compact, essential info only | README files, quick reference |
 | detailed | Full documentation (default) | Comprehensive docs |
 | modern | Rich UI, icons, enhanced styling | Web documentation portals |
@@ -217,6 +217,7 @@ ansibledoctor/generator/templates/
 ```
 
 Examples:
+
 - `role.modern.html.j2` - Modern HTML role template
 - `collection.minimal.md.j2` - Minimal Markdown collection template
 - `project.detailed.rst.j2` - Detailed RST project template

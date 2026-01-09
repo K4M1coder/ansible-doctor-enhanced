@@ -24,17 +24,20 @@ Template Customization provides a flexible theming system for documentation appe
 - **Backward Compatibility**: Theme changes don't break existing template data structures
 
 **Built-in Variants**:
+
 1. **Minimal**: Compact layout, essential information only, single-page output
 2. **Detailed**: Verbose layout with expanded sections, examples, and metadata
 3. **Modern**: Enhanced UI with rich formatting, collapsible sections, improved navigation
 
 **Template Discovery Hierarchy** (highest priority first):
+
 1. **Role-specific**: `role/.ansibledoctor/templates/`
 2. **Collection-specific**: `collection/.ansibledoctor/templates/`
 3. **Project-specific**: `project/.ansibledoctor/templates/`
 4. **Embedded defaults**: Package built-in templates
 
 **Theme Configuration Example**:
+
 ```yaml
 # .ansibledoctor.yml
 theme:
@@ -60,6 +63,7 @@ As a documentation maintainer, I want to configure theme settings in `.ansibledo
 **Independent Test**: Set `theme.name: modern` → Generated docs use modern layout
 
 **Acceptance Scenarios**:
+
 1. **Given** `.ansibledoctor.yml` with `theme.name: minimal`, **When** generating docs, **Then** use minimal variant templates (compact layout)
 2. **Given** `theme.variant: detailed`, **When** generating docs, **Then** include expanded sections and verbose metadata
 3. **Given** `theme.color_scheme: dark`, **When** generating HTML docs, **Then** inject dark mode CSS variables
@@ -75,6 +79,7 @@ As a developer customizing documentation, I want to override templates at multip
 **Independent Test**: Create `project/.ansibledoctor/templates/role.html.j2` → All roles use custom template
 
 **Acceptance Scenarios**:
+
 1. **Given** custom template in `role/.ansibledoctor/templates/role.html.j2`, **When** generating role docs, **Then** use role-specific template (highest priority)
 2. **Given** custom template in `collection/.ansibledoctor/templates/role.html.j2`, **When** generating collection roles, **Then** use collection-wide template for all roles in collection
 3. **Given** custom template in `project/.ansibledoctor/templates/role.html.j2`, **When** generating project docs, **Then** use project-wide template for all roles in project
@@ -91,6 +96,7 @@ As a documentation reader, I want to choose between minimal, detailed, or modern
 **Independent Test**: Generate with `--variant minimal` → Compact single-page output
 
 **Acceptance Scenarios**:
+
 1. **Given** `theme.variant: minimal`, **When** generating role docs, **Then** output compact layout with only essential sections (description, variables, dependencies)
 2. **Given** `theme.variant: detailed`, **When** generating role docs, **Then** include all sections with expanded metadata (authors, license, tags, full examples)
 3. **Given** `theme.variant: modern`, **When** generating HTML docs, **Then** include enhanced UI elements (collapsible sections, syntax highlighting, navigation sidebar)
@@ -106,6 +112,7 @@ As a documentation maintainer, I want to apply custom CSS styling so that docume
 **Independent Test**: Set `theme.css_url` → HTML output includes external stylesheet link
 
 **Acceptance Scenarios**:
+
 1. **Given** `theme.css_url: "https://example.com/brand.css"`, **When** generating HTML, **Then** inject `<link rel="stylesheet" href="...">` in document head
 2. **Given** `theme.css_inline` with CSS rules, **When** generating HTML, **Then** embed CSS in `<style>` tag after base theme styles
 3. **Given** both `css_url` and `css_inline`, **When** generating HTML, **Then** include both (URL first, inline second for overrides)
@@ -121,6 +128,7 @@ As a documentation reader, I want to toggle between dark and light themes so tha
 **Independent Test**: Open HTML docs with `color_scheme: auto` → Theme matches system preference
 
 **Acceptance Scenarios**:
+
 1. **Given** `theme.color_scheme: auto`, **When** generating HTML docs, **Then** inject CSS with `@media (prefers-color-scheme: dark)` query for automatic theme switching
 2. **Given** `theme.color_scheme: light`, **When** generating HTML, **Then** force light theme CSS variables (no dark mode)
 3. **Given** `theme.color_scheme: dark`, **When** generating HTML, **Then** force dark theme CSS variables (no light mode)
@@ -137,6 +145,7 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
 **Independent Test**: Create custom template with `{% extends "base/role.html.j2" %}` → Inherits base structure
 
 **Acceptance Scenarios**:
+
 1. **Given** custom template with `{% extends "role.html.j2" %}`, **When** rendering, **Then** inherit structure from embedded default template
 2. **Given** custom template overrides `{% block header %}`, **When** rendering, **Then** use custom header block, keep other blocks from parent
 3. **Given** custom template uses `{{ super() }}`, **When** rendering, **Then** include parent block content plus custom additions
@@ -178,8 +187,10 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
 ## Key Entities
 
 ### ThemeConfig
+
 **Purpose**: Store theme configuration from `.ansibledoctor.yml`  
 **Attributes**:
+
 - `name: str` - Base theme name (minimal, detailed, modern)
 - `variant: str` - Variant within theme (minimal, detailed, modern)
 - `color_scheme: Literal['auto', 'light', 'dark']` - Color scheme preference
@@ -188,13 +199,16 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
 - `template_dirs: List[Path]` - Additional template search directories
 
 **Operations**:
+
 - `from_config(config: Dict) -> ThemeConfig` - Parse from YAML configuration
 - `get_variant_template_name(base_name: str) -> str` - Resolve variant template (e.g., `role.minimal.html.j2`)
 - `has_custom_css() -> bool` - Check if custom CSS is configured
 
 ### CascadingTemplateLoader
+
 **Purpose**: Implement 4-level template discovery hierarchy  
 **Attributes**:
+
 - `role_path: Optional[Path]` - Role-specific template directory
 - `collection_path: Optional[Path]` - Collection-specific template directory
 - `project_path: Optional[Path]` - Project-specific template directory
@@ -202,43 +216,53 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
 - `search_paths: List[Path]` - Ordered list of search paths
 
 **Operations**:
+
 - `get_source(name: str) -> Tuple[str, str, Callable]` - Find template in cascade hierarchy
 - `list_templates() -> List[str]` - List all available templates across all sources
 - `_search_custom_paths(name: str) -> Optional[Path]` - Search custom template directories
 - `_log_template_source(name: str, source: str)` - Log which template source was used
 
 ### VariantTemplateResolver
+
 **Purpose**: Resolve variant-specific template names  
 **Attributes**:
+
 - `variant: str` - Current variant (minimal, detailed, modern)
 - `format: str` - Output format (html, markdown, rst)
 - `fallback_chain: List[str]` - Template name fallback order
 
 **Operations**:
+
 - `resolve_template_name(base: str) -> str` - Get variant template name (e.g., `role.html.j2` → `role.modern.html.j2`)
 - `build_fallback_chain(base: str) -> List[str]` - Create fallback list (variant-specific → base → default)
 - `variant_exists(template_name: str) -> bool` - Check if variant template exists
 
 ### CSSInjector
+
 **Purpose**: Inject custom CSS into HTML output  
 **Attributes**:
+
 - `theme_config: ThemeConfig` - Theme configuration with CSS settings
 - `color_scheme: str` - Color scheme (auto, light, dark)
 - `base_css: str` - Base theme CSS
 
 **Operations**:
+
 - `generate_css_tags() -> str` - Create `<link>` and `<style>` tags for HTML head
 - `inject_theme_variables(color_scheme: str) -> str` - Generate CSS custom properties for colors
 - `wrap_dark_mode_css(css: str) -> str` - Wrap CSS in `@media (prefers-color-scheme: dark)` query
 - `generate_theme_toggle_script() -> str` - Create JavaScript for theme toggle button
 
 ### ThemeToggleGenerator
+
 **Purpose**: Generate theme toggle UI and JavaScript  
 **Attributes**:
+
 - `enabled: bool` - Whether theme toggle is enabled
 - `default_scheme: str` - Default color scheme (light, dark, auto)
 
 **Operations**:
+
 - `generate_toggle_html() -> str` - Create theme toggle button markup
 - `generate_toggle_script() -> str` - JavaScript for theme switching and localStorage
 - `generate_theme_icons() -> str` - SVG icons for light/dark mode buttons
@@ -251,8 +275,8 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                    Documentation Generator                      │
-│                      (from Feature 002)                         │
+│                    Documentation Generator                     │
+│                      (from Feature 002)                        │
 └───────────────────────────┬────────────────────────────────────┘
                             │
                             ▼
@@ -270,7 +294,7 @@ As a template developer, I want to extend base templates using Jinja2 `{% extend
            ┌────────────┴───────────┐
            ▼                        ▼
   ┌─────────────────┐      ┌─────────────────┐
-  │ VariantTemplate│      │ Custom Template │
+  │ VariantTemplate │      │ Custom Template │
   │    Resolver     │      │   Directories   │
   └────────┬────────┘      └────────┬────────┘
            │                        │
@@ -388,8 +412,10 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ## Built-in Variants
 
 ### Minimal Variant
+
 **Purpose**: Compact, essential information only  
 **Characteristics**:
+
 - Single-page output (no separate sections)
 - Only required sections: Description, Variables, Dependencies
 - No metadata (authors, license, tags)
@@ -397,6 +423,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 - Best for: Quick reference, CI/CD pipelines
 
 **Example**: `role.minimal.html.j2`
+
 ```jinja2
 <!DOCTYPE html>
 <html>
@@ -419,8 +446,10 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ```
 
 ### Detailed Variant
+
 **Purpose**: Comprehensive documentation with all metadata  
 **Characteristics**:
+
 - Multi-section layout with navigation
 - All sections: Description, Variables, Dependencies, Examples, Authors, License, Tags
 - Expanded metadata and examples
@@ -428,6 +457,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 - Best for: Complete reference documentation
 
 **Example**: `role.detailed.html.j2`
+
 ```jinja2
 {% extends "base/role.html.j2" %}
 
@@ -459,8 +489,10 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ```
 
 ### Modern Variant
+
 **Purpose**: Enhanced UI with interactive elements  
 **Characteristics**:
+
 - Modern design with improved UX
 - Collapsible sections (JavaScript-enhanced)
 - Syntax highlighting for code blocks
@@ -469,6 +501,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 - Best for: Interactive web documentation
 
 **Example**: `role.modern.html.j2`
+
 ```jinja2
 {% extends "base/role.html.j2" %}
 
@@ -524,6 +557,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ## CSS Variables and Color Schemes
 
 ### Light Theme (Default)
+
 ```css
 :root {
   /* Primary colors */
@@ -554,6 +588,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ```
 
 ### Dark Theme (Auto-detected)
+
 ```css
 @media (prefers-color-scheme: dark) {
   :root {
@@ -586,6 +621,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ```
 
 ### Theme Toggle JavaScript
+
 ```javascript
 // Embedded in HTML output when theme.enable_toggle: true
 (function() {
@@ -634,6 +670,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ## Template Inheritance Examples
 
 ### Base Template (Embedded)
+
 ```jinja2
 {# templates/base/role.html.j2 #}
 <!DOCTYPE html>
@@ -693,6 +730,7 @@ ansible-doctor generate --template-dir ./my_templates ./roles/webserver
 ```
 
 ### Custom Template (Project-specific Override)
+
 ```jinja2
 {# project/.ansibledoctor/templates/role.html.j2 #}
 {% extends "base/role.html.j2" %}
@@ -742,13 +780,16 @@ Before starting this feature, MUST verify:
 ## Dependencies
 
 ### Upstream (Must Complete First)
+
 - ✅ Feature 002 (Template System) - For template rendering and Jinja2 support
 
 ### Optional Integration
+
 - 🔄 Feature 005 (i18n Support) - For multi-language theme labels (recommended but not required)
 - 🔄 Feature 007 (Hierarchical Context) - Theme can display breadcrumbs if available
 
 ### Downstream (Can Start After This)
+
 - Future features that customize documentation appearance
 - Plugin system for third-party themes
 
@@ -757,6 +798,7 @@ Before starting this feature, MUST verify:
 ## Out of Scope
 
 **Explicitly NOT included in v0.8.0**:
+
 - ❌ JavaScript-based themes requiring build tools (webpack, npm, etc.)
 - ❌ Dynamic CSS generation based on role metadata
 - ❌ Live theme preview in CLI or web UI
@@ -773,6 +815,7 @@ These may be considered for future versions (v0.9.0+) based on user feedback.
 ## Testing Strategy
 
 ### Unit Tests
+
 - `test_theme_config_loads_from_yaml()` - Parse theme configuration
 - `test_cascading_template_loader_hierarchy()` - Verify 4-level search order
 - `test_variant_template_resolver()` - Resolve variant-specific template names
@@ -783,6 +826,7 @@ These may be considered for future versions (v0.9.0+) based on user feedback.
 - `test_custom_template_overrides_embedded()` - Custom template takes precedence
 
 ### Integration Tests
+
 - `test_generate_with_minimal_variant()` - End-to-end minimal layout generation
 - `test_generate_with_modern_variant()` - End-to-end modern layout with features
 - `test_custom_css_url_in_output()` - External stylesheet link appears in HTML
@@ -793,6 +837,7 @@ These may be considered for future versions (v0.9.0+) based on user feedback.
 - `test_markdown_ignores_css()` - CSS settings don't affect Markdown output
 
 ### Performance Tests
+
 - `test_template_loading_cached()` - Template discovery results cached
 - `test_css_injection_minimal_overhead()` - CSS injection adds <50ms
 
@@ -808,6 +853,7 @@ Completing this feature (v0.8.0) provides advanced customization capabilities fo
 - **Custom themes and styling** (Feature 008)
 
 After v0.8.0:
+
 - **v0.9.0**: Stabilization, polish, performance tuning, bug fixes, documentation improvements
 - **v1.0.0**: Production release with stable API, comprehensive documentation, migration guides
 

@@ -30,7 +30,7 @@ This plan breaks Feature 008 into research, design, implementation, integration,
 ## Plan Phases
 
 ### Phase 0: Research & Decision (T321-T325) — 3–5 days
- 
+
 - [ ] T321 Research: CSS variable schema (common token names) and design trade-offs; produce research.md with chosen names and rationale
 - [ ] T322 Research: Template discovery & TemplateLoader behavior (fallback, caching); confirm necessary API changes to `ansibledoctor/generator/template_loader.py`
 - [ ] T323 Research: Jinja2 inheritance patterns & any limitations when resolving templates from multiple directories (role/collection/project)
@@ -38,7 +38,7 @@ This plan breaks Feature 008 into research, design, implementation, integration,
 - [ ] T325 Research & UX: CLI flags mapping (`--variant`, `--color-scheme`, `--no-theme-toggle`, `--template-dir`) and precedence over YAML config
 
 ### Phase 1: Design & Contracts (T326-T331) — 2–4 days
- 
+
 - [ ] T326 Design: Create `ThemeConfig` model in `ansibledoctor/config/theme.py` (Pydantic) and YAML-to-model mapping; specify validation: name ∈ {minimal, detailed, modern}, variant fallback rules
 - [ ] T327 Design: `CascadingTemplateLoader` interface & expected fallback chain; plan caching behavior and logging (source resolution message)
 - [ ] T328 Design: `VariantTemplateResolver` API; provide fallback chain builder & resolver for variant-to-template-name mapping
@@ -48,8 +48,8 @@ This plan breaks Feature 008 into research, design, implementation, integration,
 
 ### Phase 2: Implementation (T332-T342) — 5–10 days
 
-Follow TDD: write failing tests first, then implement minimal code to pass tests, then refactor.
- 
+Follow TDD: write failing tests first, then implement minimal code to pass tests, then refactor.  
+
 - [ ] T332 Unit test: `ThemeConfig` model loads from YAML and verifies defaults (e.g., `detailed` default); tests for invalid values (e.g., unsupported variant) in `tests/unit/test_theme_config.py`
 - [ ] T333 Implement: `ansibledoctor/config/theme.py` with `ThemeConfig` Pydantic model and registration in the CLI config loader
 - [ ] T334 Unit test: `CascadingTemplateLoader` search order & behavior; tests for role/collection/project/embedded precedence and cached discovery in `tests/unit/generator/test_cascading_template_loader.py`
@@ -125,4 +125,3 @@ Follow TDD: write failing tests first, then implement minimal code to pass tests
 7. Demos, docs, and release tasks (T350–T360)
 
 ## Risk Assessment & Mitigation
-

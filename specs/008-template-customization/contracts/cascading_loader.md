@@ -184,7 +184,7 @@ class CascadingTemplateLoader:
 ## Caching Behavior
 
 | Scenario | Behavior |
-|----------|----------|
+| ---------- | ---------- |
 | First access | Discover template, cache result |
 | Cache hit (< TTL) | Return cached template |
 | Cache hit (>= TTL) | Re-discover, update cache |

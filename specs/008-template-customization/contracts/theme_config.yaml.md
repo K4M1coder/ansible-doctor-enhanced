@@ -94,7 +94,7 @@ class ThemeConfig(BaseModel):
 ## Default Values
 
 | Field | Default | Rationale |
-|-------|---------|-----------|
+| ------- | --------- | ----------- |
 | name | "default" | Reserved for theme marketplace |
 | variant | "detailed" | Matches current behavior |
 | color_scheme | "auto" | Respects user OS preference |

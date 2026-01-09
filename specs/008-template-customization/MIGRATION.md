@@ -34,7 +34,7 @@ theme:
 New environment variables for theme configuration:
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+| ---------- | ------------- | --------- |
 | `ANSIBLE_DOCTOR_THEME_VARIANT` | Template variant | `detailed` |
 | `ANSIBLE_DOCTOR_COLOR_SCHEME` | Color scheme | `auto` |
 | `ANSIBLE_DOCTOR_CSS_URL` | External CSS URL | `null` |
@@ -74,6 +74,7 @@ project.<variant>.<format>.j2
 ```
 
 Examples:
+
 - `role.minimal.html.j2`
 - `role.detailed.md.j2`
 - `role.modern.html.j2`
@@ -81,6 +82,7 @@ Examples:
 ### Fallback Behavior
 
 If a variant-specific template is not found, the generator falls back to:
+
 1. Default variant template: `role.detailed.<format>.j2`
 2. Generic template: `role.<format>.j2`
 
@@ -91,7 +93,7 @@ If a variant-specific template is not found, the generator falls back to:
 Templates now receive additional variables:
 
 | Variable | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `css_tags` | `list[CSSTag]` | CSS tags for `<head>` injection |
 | `theme_toggle` | `str` | Toggle button HTML/JS (if enabled) |
 | `theme_config` | `ThemeConfig` | Full theme configuration object |
@@ -126,6 +128,7 @@ Configuration is now resolved with clear precedence:
 4. **Defaults** (lowest priority)
 
 Example:
+
 ```bash
 # CLI overrides config file
 ansible-doctor role ./my-role --variant modern
@@ -199,6 +202,7 @@ No action required. Existing setups continue to work.
 ### To Use New Features
 
 1. **Add theme configuration** to `.ansibledoctor.yml`:
+
    ```yaml
    theme:
      variant: modern
@@ -206,11 +210,13 @@ No action required. Existing setups continue to work.
    ```
 
 2. **Update custom templates** to include CSS tags:
+
    ```jinja2
    {{ css_tags | join('\n') | safe }}
    ```
 
 3. **Add toggle support** to templates:
+
    ```jinja2
    {% if theme_toggle %}
    {{ theme_toggle | safe }}
@@ -236,6 +242,7 @@ None in v0.8.0.
 ## Support
 
 For migration questions:
+
 - See [TEMPLATE_GUIDE.md](../../docs/TEMPLATE_GUIDE.md)
 - Open an issue on GitHub
 - Check demo examples in `demo/templates/`

@@ -6,6 +6,7 @@
 **Tests**: Tests are MANDATORY per Constitution §III (TDD). All tests must be written BEFORE implementation (Red-Green-Refactor).
 
 **Cross-Spec Dependencies**:
+
 - **Consumes Spec 010**: ErrorAggregator from `ansibledoctor/exceptions/aggregator.py` for error summaries
 - **Extends**: Existing `ansibledoctor/utils/logging.py` structlog infrastructure
 - **Consumed by**: Specs 011, 012, 013 for metrics integration
@@ -229,6 +230,7 @@ If Spec 010 is not yet implemented, use a simplified local implementation that c
 - [X] UPDATE_CHANGELOG Document Phase 7-8 completion in CHANGELOG.md
 
 **Deferred Tasks** (not required for Spec 009 completion):
+
 - [ ] T085 [P] Create user guide section for CI/CD integration in docs/ (README section sufficient)
 - [ ] T086 Add JSON schema export for ExecutionReport for external validation (out of scope)
 - [ ] T087 Performance optimization: ensure report generation <100ms overhead (already <100ms)
@@ -245,10 +247,12 @@ If Spec 010 is not yet implemented, use a simplified local implementation that c
 ### Parallel Execution Opportunities
 
 **After T011 (Foundational Complete)**:
+
 - User Story 1, 2, 3, 4, 5 can be worked on in parallel by different developers
 - Test writing for all stories can happen simultaneously
 
 **Within Each User Story**:
+
 - All test tasks marked [P] can run in parallel
 - Model/utility implementation can happen while tests are being written
 
@@ -265,11 +269,13 @@ MVP delivery requires completing User Stories 1 and 2 (report generation + metri
 ## Suggested MVP Scope
 
 **Minimum Viable Product** (first release):
+
 - ✅ User Story 1: Generate Execution Report
 - ✅ User Story 2: Performance Metrics Collection
 - ⏭️ User Story 3-5: Can be delivered in subsequent releases
 
 **Estimated Effort**:
+
 - Setup + Foundation: 8 hours
 - User Story 1 (MVP): 12 hours
 - User Story 2 (MVP): 10 hours
@@ -301,6 +307,7 @@ These tasks ensure existing functionality is not broken:
 - [X] T094 [REGRESSION] Test that existing CLI commands work without new flags
 
 **Regression Test Results**: ✅ PASSED
+
 - 334/334 integration tests pass without --report flag (100%)
 - 9/9 new exit code tests pass (100%)
 - Total: 1628/1640 tests passing (99.3%)
