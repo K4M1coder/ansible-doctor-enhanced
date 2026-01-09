@@ -192,3 +192,12 @@ repos:
         files: ^(pyproject\.toml|CHANGELOG\.md|README.*)$
         pass_filenames: false
         stages: [pre-commit]
+
+      - id: update-readme-toc
+        name: Update README Table of Contents
+        entry: python scripts/update_readme_toc.py
+        language: python
+        additional_dependencies: ["md-toc>=9.0.0"]
+        files: ^README\.md$
+        pass_filenames: false
+        stages: [pre-commit]
