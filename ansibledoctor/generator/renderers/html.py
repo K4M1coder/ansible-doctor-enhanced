@@ -103,7 +103,7 @@ class HtmlRenderer(DocumentRenderer):
             )
         return f"<pre><code>{escaped_code}</code></pre>"
 
-    def render(self, context: TemplateContext, **options: Any) -> str:
+    def render(self, context: TemplateContext, **options: Any) -> str:  # type: ignore[override]
         """Render role documentation to HTML format using Jinja2 template.
 
         Args:
@@ -131,9 +131,9 @@ class HtmlRenderer(DocumentRenderer):
             # Custom template provided - use FileSystemLoader for include support
             template_file = Path(self._template_path)
             template_dir = template_file.parent
-            loader = FileSystemLoader(str(template_dir))
+            fs_loader = FileSystemLoader(str(template_dir))
             env = Environment(
-                loader=loader,
+                loader=fs_loader,
                 trim_blocks=True,
                 lstrip_blocks=True,
             )
@@ -141,7 +141,9 @@ class HtmlRenderer(DocumentRenderer):
             template = env.get_template(template_file.name)
         else:
             # Use default embedded template
-            loader = self._get_embedded_loader()
+            from ansibledoctor.generator.loaders import EmbeddedTemplateLoader
+
+            loader: EmbeddedTemplateLoader = self._get_embedded_loader()
             template = loader.load_template("role", OutputFormat.HTML)
 
         # Add HTML-specific context variables

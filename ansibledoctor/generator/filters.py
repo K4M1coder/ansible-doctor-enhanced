@@ -95,11 +95,11 @@ def rst_escape(text: Any) -> str:
     if not text:
         return str(text) if text is not None else ""
 
-    text = str(text)
+    text_str: str = str(text)
     special_chars = r"\*`_|"
     for char in special_chars:
-        text = text.replace(char, f"\\{char}")
-    return text
+        text_str = text_str.replace(char, f"\\{char}")
+    return text_str
 
 
 def html_attrs(attrs: dict[str, Any]) -> str:

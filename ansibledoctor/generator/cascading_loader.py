@@ -307,7 +307,9 @@ class CascadingTemplateLoader:
         Returns:
             Configured Jinja2 Environment
         """
-        loaders = []
+        from jinja2 import BaseLoader
+
+        loaders: list[BaseLoader] = []
 
         # Primary path first (unless embedded marker)
         if template_path != Path("__embedded__"):
@@ -338,8 +340,10 @@ class CascadingTemplateLoader:
         Returns:
             Configured Jinja2 Environment
         """
+        from jinja2 import BaseLoader
+
         search_order = self._build_search_order(context_path)
-        loaders = []
+        loaders: list[BaseLoader] = []
 
         for level, path in search_order:
             if level != "embedded" and path.exists():

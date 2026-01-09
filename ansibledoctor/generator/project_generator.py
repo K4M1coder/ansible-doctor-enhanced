@@ -94,7 +94,8 @@ class ProjectDocumentationGenerator:
             if legacy_output:
                 out_dir = Path(self.project.path) / "docs"
             else:
-                slug = project_slug(self.project.name)
+                project_name = self.project.name if self.project.name is not None else "project"
+                slug = project_slug(project_name)
                 out_dir = Path(self.project.path) / "docs" / slug
         else:
             out_dir = Path(output_dir)

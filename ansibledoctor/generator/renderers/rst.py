@@ -60,7 +60,7 @@ class RstRenderer(DocumentRenderer):
         """
         return OutputFormat.RST
 
-    def escape(self, text: str | None) -> str | None:
+    def escape(self, text: str | None) -> str | None:  # type: ignore[override]
         """Escape RST special characters to prevent formatting issues.
 
         Escapes: * (emphasis), ` (inline code), _ (emphasis), \\ (escape), | (table)
@@ -120,7 +120,7 @@ class RstRenderer(DocumentRenderer):
 
         return "\n".join(lines)
 
-    def render(self, context: TemplateContext, **options: Any) -> str:
+    def render(self, context: TemplateContext, **options: Any) -> str:  # type: ignore[override]
         """Render role documentation in RST format.
 
         Args:

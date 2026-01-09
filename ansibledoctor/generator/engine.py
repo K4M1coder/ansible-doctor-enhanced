@@ -83,7 +83,7 @@ class TemplateEngine:
         # Register custom filters
         environment.filters.update(FILTERS)
         # Register translation function if provided
-        if translation_provider is not None:
+        if translation_provider is not None and hasattr(translation_provider, "t"):
             try:
                 # Provide 't' function in template context
                 environment.globals["t"] = translation_provider.t
@@ -126,17 +126,20 @@ class TemplateEngine:
                 items = kwargs.get("items", [])
 
                 # Generate section index using the generator
-                section_index = index_generator.generate_section_index(
-                    component_type=component_type,
-                    items=items,
-                    format=format,
-                    limit=limit,
-                    group_by=group_by,
-                    filter_expression=filter,
-                )
+                if hasattr(index_generator, "generate_section_index"):
+                    section_index = index_generator.generate_section_index(
+                        component_type=component_type,
+                        items=items,
+                        format=format,
+                        limit=limit,
+                        group_by=group_by,
+                        filter_expression=filter,
+                    )
 
-                # Render inline (without template engine to avoid recursion)
-                return section_index.render_inline()
+                    # Render inline (without template engine to avoid recursion)
+                    result: str = section_index.render_inline()
+                    return result
+                return ""
 
             environment.globals["index"] = index_func
 

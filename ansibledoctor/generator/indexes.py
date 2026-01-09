@@ -490,7 +490,7 @@ class DefaultIndexGenerator:
             if not page.items:
                 # Generate empty state message
                 content = f"# {page.title}\n\n*No {component_type} found.*\n"
-                if logger:
+                if logger and hasattr(logger, "info"):
                     logger.info(
                         "index_empty_collection",
                         component_type=component_type,
@@ -511,7 +511,7 @@ class DefaultIndexGenerator:
             written_files.append(file_path)
 
             # Logging (T026)
-            if logger:
+            if logger and hasattr(logger, "info"):
                 logger.info(
                     "index_page_written",
                     file_path=str(file_path),
@@ -522,7 +522,7 @@ class DefaultIndexGenerator:
 
         # Summary logging (T026)
         duration_ms = (time.time() - start_time) * 1000
-        if logger:
+        if logger and hasattr(logger, "info"):
             logger.info(
                 "index_generation_complete",
                 component_type=component_type,
@@ -568,7 +568,7 @@ class DefaultIndexGenerator:
                 for filter_obj in filters:
                     filtered_items = [item for item in filtered_items if filter_obj.matches(item)]
 
-            if logger:
+            if logger and hasattr(logger, "info"):
                 logger.info(
                     "index_generation_start",
                     component_type=component_type,
@@ -596,7 +596,7 @@ class DefaultIndexGenerator:
 
         # Overall summary logging
         total_duration_ms = (time.time() - start_time) * 1000
-        if logger:
+        if logger and hasattr(logger, "info"):
             logger.info(
                 "all_indexes_generated",
                 component_types=list(components.keys()),
@@ -641,7 +641,7 @@ class DefaultIndexGenerator:
                 item_type = str(item.get("type", "unknown"))
             else:
                 name = item.name.strip()
-                doc_link = item.doc_link
+                doc_link = item.doc_link if item.doc_link is not None else "#"
                 item_type = item.type
 
             if not name:
@@ -745,7 +745,7 @@ class DefaultIndexGenerator:
             else:
                 category = item.type or "other"
                 name = item.name
-                doc_link = item.doc_link
+                doc_link = item.doc_link if item.doc_link is not None else "#"
                 description = item.description or ""
 
             if category not in index:
@@ -816,7 +816,7 @@ class DefaultIndexGenerator:
             else:
                 tags = item.tags
                 name = item.name
-                doc_link = item.doc_link
+                doc_link = item.doc_link if item.doc_link is not None else "#"
                 item_type = item.type
 
             if not tags:
@@ -952,7 +952,7 @@ class DefaultIndexGenerator:
                 name = item.name
                 description = item.description or ""
                 tags = item.tags
-                doc_link = item.doc_link
+                doc_link = item.doc_link if item.doc_link is not None else "#"
                 item_type = item.type
 
             # Tokenize name, description, and tags
@@ -1009,7 +1009,11 @@ class DefaultIndexGenerator:
             # Sort by score descending
             sorted_items = sorted(
                 items_dict.values(),
-                key=lambda x: -x["score"] if isinstance(x.get("score"), int) else 0,
+                key=lambda x: (
+                    -x["score"]
+                    if isinstance(x.get("score"), int) and isinstance(x["score"], int)
+                    else 0
+                ),
             )
             final_index[term] = sorted_items
 
@@ -1114,7 +1118,11 @@ class DefaultIndexGenerator:
         # Sort by score descending
         results = sorted(
             result_map.values(),
-            key=lambda x: -x["score"] if isinstance(x.get("score"), int) else 0,
+            key=lambda x: (
+                -x["score"]
+                if isinstance(x.get("score"), int) and isinstance(x["score"], int)
+                else 0
+            ),
         )
 
         return results
@@ -1157,12 +1165,13 @@ class DefaultIndexGenerator:
                 count = data.get("count", 0) if isinstance(data, dict) else 0
                 content += f"## {tag} ({count})\n\n"
                 items_list = data.get("items", []) if isinstance(data, dict) else []
-                for item in items_list:
-                    if isinstance(item, dict):
-                        name = item.get("name", "")
-                        path = item.get("path", "#")
-                        item_type = item.get("type", "unknown")
-                        content += f"- [{name}]({path}) *{item_type}*\n"
+                if isinstance(items_list, list):  # Ensure it's a list before iterating
+                    for item in items_list:
+                        if isinstance(item, dict):
+                            name = item.get("name", "")
+                            path = item.get("path", "#")
+                            item_type = item.get("type", "unknown")
+                            content += f"- [{name}]({path}) *{item_type}*\n"
                 content += "\n"
             content += f"\n---\n\n**Total Tags**: {len(tag_index)}\n"
             return content
@@ -1179,12 +1188,13 @@ class DefaultIndexGenerator:
                 count = data.get("count", 0) if isinstance(data, dict) else 0
                 content += f"## {tag} ({count})\n\n"
                 items_list = data.get("items", []) if isinstance(data, dict) else []
-                for item in items_list:
-                    if isinstance(item, dict):
-                        name = item.get("name", "")
-                        path = item.get("path", "#")
-                        item_type = item.get("type", "unknown")
-                        content += f"- [{name}]({path}) *{item_type}*\n"
+                if isinstance(items_list, list):  # Ensure it's a list before iterating
+                    for item in items_list:
+                        if isinstance(item, dict):
+                            name = item.get("name", "")
+                            path = item.get("path", "#")
+                            item_type = item.get("type", "unknown")
+                            content += f"- [{name}]({path}) *{item_type}*\n"
                 content += "\n"
             content += f"\n---\n\n**Total Tags**: {len(tag_index)}\n"
             return content
