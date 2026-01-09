@@ -4,6 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ---
+
 ![Ansible Doctor](./docs/Ansible-Doctor-Enhanced.bmp)
 
 > A modernized fork of ansible-doctor with enhanced logging, error handling, documentation generation, and reporting capabilities built on KISS, SMART, and SOLID principles.
@@ -11,6 +12,79 @@
 ## 🎯 Project Description
 
 Ansible Doctor Enhanced is a comprehensive tool for automatically generating documentation from any Ansible project collection role plugins modules and inventory. It parses role structures, extracts metadata, variables, task tags, and inline annotations to produce high-quality, structured documentation in multiple formats. Built with specification-driven development using GitHub spec-kit methodology.
+
+## 📑 Table of Contents
+
+<!-- toc -->
+
+- [🎯 Project Description](#project-description)
+- [✨ Key Features](#key-features)
+- [📦 Ansible Collection Support (New in v0.5.0)](#ansible-collection-support-new-in-v050)
+  - [Parse Collection Metadata](#parse-collection-metadata)
+  - [Generate Collection Documentation](#generate-collection-documentation)
+  - [Analyze Role Dependencies](#analyze-role-dependencies)
+- [📊 Project Documentation Support (New in v0.6.0)](#project-documentation-support-new-in-v060)
+  - [Generate Project Documentation](#generate-project-documentation)
+  - [Parse Project Structure](#parse-project-structure)
+- [📑 Index Generation & Navigation (New in v0.5.0)](#index-generation-navigation-new-in-v050)
+  - [Generate Indexes](#generate-indexes)
+  - [Filter Indexes](#filter-indexes)
+  - [Embedded Section Indexes](#embedded-section-indexes)
+- [🔗 Links & Cross-References (New in v0.12.0)](#links-cross-references-new-in-v0120)
+  - [Automatic Cross-References](#automatic-cross-references)
+  - [Link Validation](#link-validation)
+  - [External Resource Integration](#external-resource-integration)
+  - [Index-Based Navigation](#index-based-navigation)
+  - [Section Navigation](#section-navigation)
+  - [Link Health Reporting](#link-health-reporting)
+  - [Bidirectional Relationships](#bidirectional-relationships)
+- [🌐 Internationalization (i18n) Support (New in v0.5.1)](#internationalization-i18n-support-new-in-v051)
+  - [Language Configuration](#language-configuration)
+  - [Generate Multi-Language Documentation](#generate-multi-language-documentation)
+  - [Custom Translations](#custom-translations)
+  - [Template Translation Markers](#template-translation-markers)
+- [🔍 Schema Validation & Documentation (New in v0.5.0)](#schema-validation-documentation-new-in-v050)
+  - [Configuration Validation](#configuration-validation)
+  - [Schema Export](#schema-export)
+  - [Format Conversion](#format-conversion)
+  - [Data Model Validation](#data-model-validation)
+  - [Schema Documentation](#schema-documentation)
+- [🏗️ Architecture](#architecture)
+  - [Core Components](#core-components)
+  - [Design Principles](#design-principles)
+  - [Data Flow](#data-flow)
+  - [Key Patterns](#key-patterns)
+- [🚀 Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [From Source (Development)](#from-source-development)
+- [⚙️ Configuration](#configuration)
+  - [Configuration File (`.ansibledoctor.yml`)](#configuration-file-ansibledoctoryml)
+  - [Configuration Commands](#configuration-commands)
+  - [Environment Variables](#environment-variables)
+- [CI/CD Integration](#cicd-integration)
+  - [Exit Codes](#exit-codes)
+  - [Using in CI/CD Pipelines](#using-in-cicd-pipelines)
+  - [Execution Reports](#execution-reports)
+  - [Correlation IDs](#correlation-ids)
+- [📚 Documentation](#documentation)
+- [🏗️ Project Architecture](#project-architecture)
+- [🛠️ Development](#development)
+  - [Setup Development Environment](#setup-development-environment)
+  - [Running Tests](#running-tests)
+  - [Running Tests](#running-tests-1)
+- [🤝 Contributing](#contributing)
+- [📊 Project Status](#project-status)
+- [🔄 Version Compatibility](#version-compatibility)
+- [📊 Project Status](#project-status-1)
+  - [Test Metrics](#test-metrics)
+  - [Completed Features](#completed-features)
+    - [✅ Core Functionality (MVP)](#core-functionality-mvp)
+    - [🎯 Roadmap to v1.0.0](#roadmap-to-v100)
+- [📄 License](#license)
+- [🙏 Acknowledgments](#acknowledgments)
+- [📞 Support & Contact](#support-contact)
+
+<!-- tocstop -->
 
 ## ✨ Key Features
 
@@ -90,6 +164,7 @@ Dependency Graph (TEXT format):
 ```
 
 **Features**:
+
 - ✅ Parse `galaxy.yml` metadata (namespace, name, version, dependencies)
 - ✅ Discover roles and plugins automatically
 - ✅ Generate comprehensive collection README with installation instructions
@@ -142,6 +217,7 @@ poetry run ansible-doctor-enhanced project parse ./ --output project.json --pret
 ```
 
 **Features**:
+
 - ✅ Parse `ansible.cfg`, inventory files, playbooks, roles, and collections
 - ✅ Generate project README with Mermaid architecture diagrams
 - ✅ Multi-language documentation support with i18n
@@ -218,6 +294,7 @@ Use `{{ index() }}` function in Jinja2 templates to embed indexes anywhere:
 ```
 
 **Features**:
+
 - ✅ **5 Index Formats**: list, table, tree, nested-table, diagram (Mermaid)
 - ✅ **Hierarchical Organization**: Collections → Roles/Plugins/Playbooks
 - ✅ **Embedded Sections**: `{{ index() }}` function for inline indexes
@@ -229,6 +306,7 @@ Use `{{ index() }}` function in Jinja2 templates to embed indexes anywhere:
 **Example Output**:
 
 **List Format:**
+
 ```markdown
 # Roles Index
 
@@ -250,6 +328,7 @@ Deploy PostgreSQL or MySQL database servers.
 ```
 
 **Tree Format:**
+
 ```
 Collection: my_namespace.my_collection
 ├── Role: webserver (tags: web, nginx)
@@ -260,6 +339,7 @@ Collection: my_namespace.my_collection
 ```
 
 **Nested Table Format:**
+
 ```markdown
 | Collection | Namespace | Roles | Plugins | Description |
 |------------|-----------|-------|---------|-------------|
@@ -269,6 +349,7 @@ Collection: my_namespace.my_collection
 ```
 
 **Mermaid Diagram:**
+
 ````markdown
 ```mermaid
 graph TD
@@ -287,6 +368,7 @@ graph TD
 **Documentation**: See [INDEX_GUIDE.md](docs/INDEX_GUIDE.md) for comprehensive usage guide with examples.
 
 **CLI Reference**:
+
 - `--include-index`: Enable index generation
 - `--index-style`: Format (list, table, tree, nested-table, diagram)
 - `--index-format`: Page format (full, section)
@@ -318,6 +400,7 @@ ansible-doctor-enhanced role ./my_role --output ./docs
 ```
 
 **Generated Links Include**:
+
 ```markdown
 ## Dependencies
 
@@ -354,6 +437,7 @@ ansible-doctor role ./my_role --output ./docs --validate-links
 ```
 
 **CI/CD Integration**:
+
 ```yaml
 # .github/workflows/docs.yml
 - name: Validate Documentation Links
@@ -366,6 +450,7 @@ ansible-doctor role ./my_role --output ./docs --validate-links
 ```
 
 **Exit Codes**:
+
 - `0`: All links valid ✅
 - `1`: Broken links found ❌
 - `2`: Validation error occurred ⚠️
@@ -380,12 +465,14 @@ ansible-doctor role ./my_role --output ./docs
 ```
 
 **Automatic Links Generated For**:
-- **Module Documentation**: `ansible.builtin.apt` → https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html
-- **Galaxy Pages**: Collections → https://galaxy.ansible.com/namespace/collection
+
+- **Module Documentation**: `ansible.builtin.apt` → <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html>
+- **Galaxy Pages**: Collections → <https://galaxy.ansible.com/namespace/collection>
 - **Best Practices**: Keywords like "security", "vault", "molecule" link to official guides
 - **Version-Specific**: Uses configured Ansible version (e.g., `/ansible/2.15/`)
 
 **Configuration**:
+
 ```yaml
 # .ansibledoctor.yml
 ansible_version: "2.15"
@@ -408,12 +495,14 @@ ansible-doctor collection ./my_collection --output ./docs
 ```
 
 **Generated Indexes**:
+
 - **Alphabetical Index**: Group by first letter (A-Z, #)
 - **Category Index**: Group by type (role, module, plugin)
 - **Tag Index**: Group by tags with popularity sorting
 - **Search Index**: Full-text search with relevance scoring
 
 **Tag Navigation Example**:
+
 ```markdown
 # Tags
 
@@ -439,6 +528,7 @@ ansible-doctor role ./my_role --output ./docs
 ```
 
 **Generated TOC**:
+
 ```markdown
 ## Table of Contents
 
@@ -451,6 +541,7 @@ ansible-doctor role ./my_role --output ./docs
 ```
 
 **Features**:
+
 - ✅ Automatic TOC generation for long documents
 - ✅ Nested structure support (H2-H6)
 - ✅ URL-safe anchor slugs
@@ -473,6 +564,7 @@ ansible-doctor linkreport ./docs --format json --group-by file
 ```
 
 **Report Includes**:
+
 - Valid links count with ✅ indicator
 - Warning links (redirects, slow responses)
 - Broken links with file:line locations
@@ -489,6 +581,7 @@ ansible-doctor collection ./my_collection --output ./docs
 ```
 
 **Relationship Visualization**:
+
 ```mermaid
 graph TD
     role_a -->|depends_on| role_b
@@ -497,6 +590,7 @@ graph TD
 ```
 
 **Features**:
+
 - ✅ **Automatic Cross-References**: Links between related roles/collections/projects
 - ✅ **Broken Link Detection**: Internal and external link validation
 - ✅ **External Integration**: Official Ansible docs and Galaxy links
@@ -507,6 +601,7 @@ graph TD
 - ✅ **CI/CD Ready**: JSON output, exit codes, automated validation
 
 **CLI Commands**:
+
 - `ansible-doctor linkcheck`: Validate all links
 - `ansible-doctor linkreport`: Generate link health report
 - `ansible-doctor linkfix`: Interactive broken link fixing (coming soon)
@@ -615,6 +710,7 @@ ansible-doctor-enhanced schema validate .ansibledoctor.yml --verbose
 ```
 
 **Example Output**:
+
 ```
 ✗ Configuration validation failed
   1 error(s):
@@ -664,6 +760,7 @@ ansible-doctor-enhanced schema convert .ansibledoctor.yml --to mermaid --output 
 ```
 
 **Mermaid Output Example**:
+
 ```mermaid
 graph TB
     root[Config]
@@ -688,6 +785,7 @@ ansible-doctor-enhanced schema validate-model role role.yml --strict-validation
 ```
 
 **Example Validation**:
+
 ```
 ✓ Role data is valid
   1 warning(s):
@@ -707,6 +805,7 @@ ansible-doctor-enhanced schema docs config --output schema-docs.md
 ```
 
 **Generated Documentation Example**:
+
 ```markdown
 # ConfigModel
 
@@ -729,6 +828,7 @@ Documentation format (markdown, html, or rst).
 ```
 
 **Features**:
+
 - ✅ **Configuration Validation**: Validate `.ansibledoctor.yml` with strict mode
 - ✅ **Schema Export**: JSON Schema Draft 2020-12 for IDE integration
 - ✅ **Format Conversion**: YAML ↔ JSON ↔ XML ↔ Mermaid
@@ -741,6 +841,7 @@ Documentation format (markdown, html, or rst).
 **Documentation**: See [SCHEMA_GUIDE.md](docs/SCHEMA_GUIDE.md) for comprehensive usage guide.
 
 **CLI Commands**:
+
 - `schema validate` - Validate configuration files
 - `schema export` - Export JSON Schema definitions
 - `schema convert` - Convert between formats
@@ -828,6 +929,7 @@ poetry install
 
 # Activate virtual environment
 poetry shell
+```
 
 Alternatively, if you prefer to run directly from the source without relying on Poetry,
 install the package into a local editable venv (makes the console script available):
@@ -846,6 +948,7 @@ Or invoke the module directly:
 ```powershell
 python -m ansibledoctor -- --help
 ```
+
 ```
 
 ### From PyPI (Coming Soon)
@@ -871,6 +974,7 @@ python -m twine upload dist/*
 ```
 
 Notes:
+
 - Make sure `tool.poetry.name` in `pyproject.toml` is set to the package name you want on PyPI (e.g., `ansible-doctor-enhanced`).
 - Configure release version in `pyproject.toml` and update `CHANGELOG.md` before publishing.
 - Use `test.pypi.org` to test the upload before publishing to production PyPI.
@@ -1010,6 +1114,7 @@ ansible-doctor role ./my-role --format html --theme-toggle
 ```
 
 Features:
+
 - ✅ Respects `prefers-color-scheme` system preference
 - ✅ Persists user choice to `localStorage`
 - ✅ ARIA attributes for accessibility
@@ -1178,6 +1283,7 @@ ansible-doctor-enhanced project generate ./ --languages en,fr,de
 ```
 
 **Full Command Reference**:
+
 - `role parse`: Parse role metadata, variables, and annotations
 - `role generate`: Generate role documentation in multiple formats
 - `collection parse`: Parse collection metadata and structure
@@ -1187,22 +1293,28 @@ ansible-doctor-enhanced project generate ./ --languages en,fr,de
 - `project generate`: Generate project-level documentation with architecture diagrams
 
 **Global Options**:
+
 - `--output FILE`: Write output to file instead of stdout
 - `--format FORMAT`: Output format (markdown, html, rst, json)
 - `--log-level LEVEL`: Set logging verbosity (DEBUG, INFO, WARNING, ERROR)
 - `--pretty`: Pretty-print JSON output
 
-# Generate reStructuredText documentation (NEW in v0.3.0 Phase 11)
+#### Generate reStructuredText documentation (NEW in v0.3.0 Phase 11)
+
 ansible-doctor generate /path/to/ansible-role --format rst --output docs/role.rst
 
-# RST with Sphinx directives (default: enabled)
+#### RST with Sphinx directives (default: enabled)
+
 ansible-doctor generate /path/to/ansible-role --format rst --sphinx-compat --output docs/role.rst
 
-# RST without Sphinx directives (plain RST)
+#### RST without Sphinx directives (plain RST)
+
 ansible-doctor generate /path/to/ansible-role --format rst --no-sphinx-compat --output docs/role.rst
 
-# Enable verbose logging
+#### Enable verbose logging
+
 ansible-doctor generate /path/to/ansible-role --verbose --output README.md
+
 ```
 
 **Sphinx Integration (RST Format):**
@@ -1246,6 +1358,7 @@ sphinx-build -b html docs docs/_build/html
 ```
 
 The `--sphinx-compat` flag enables Sphinx-specific directives:
+
 - `.. warning::` for high/critical priority TODOs
 - `.. note::` for documentation attribution
 - `.. code-block::` with syntax highlighting
@@ -1413,6 +1526,7 @@ ansible-doctor config show --path /path/to/role
 ```
 
 **Config File Discovery:**
+
 - Searches current directory for `.ansibledoctor.yml` or `.ansibledoctor.yaml`
 - If not found, searches parent directories up to filesystem root
 - Nearest config file wins (like `.gitconfig`)
@@ -1444,7 +1558,7 @@ Environment variables override config file settings:
 - `ANSIBLE_DOCTOR_OUTPUT`: Default output file path
 - `ANSIBLE_DOCTOR_TEMPLATE`: Default template name
 
-## � CI/CD Integration
+## CI/CD Integration
 
 Ansible Doctor Enhanced provides predictable exit codes and execution reports for seamless CI/CD pipeline integration.
 
@@ -1453,7 +1567,7 @@ Ansible Doctor Enhanced provides predictable exit codes and execution reports fo
 All commands follow a consistent exit code convention for automation:
 
 | Exit Code | Status | Description | When to Expect |
-|-----------|--------|-------------|----------------|
+| ----------- | -------- | ------------- | ---------------- |
 | `0` | ✅ Success | Command completed without errors | Normal execution with no issues |
 | `1` | ❌ Error | Fatal error occurred | YAML parse errors, file not found, permission denied |
 | `2` | ⚠️ Warning | Warnings present with `--fail-on-warnings` | Warnings found and flag set (CI/CD quality gates) |
@@ -1543,6 +1657,7 @@ ansible-doctor generate roles/my-role --report report.txt --report-format summar
 ```
 
 **Report Contents:**
+
 - ✅ Execution status (success, failed, completed_with_warnings)
 - ⏱️ Performance metrics (timing, file counts, throughput)
 - 🔍 Correlation ID for distributed tracing
@@ -1591,7 +1706,7 @@ ansible-doctor generate roles/my-role \
 
 All log entries and reports include the correlation ID for easy troubleshooting.
 
-## �📚 Documentation
+## 📚 Documentation
 
 - [Full Documentation](https://ansible-doctor-enhanced.readthedocs.io/) *(coming soon)*
 - [API Reference](docs/api.md) *(coming soon)*
@@ -1613,6 +1728,7 @@ See [Constitution](​.specify/memory/constitution.md) for development principle
 ## 🛠️ Development
 
 ### Setup Development Environment
+
 ### Running Tests
 
 ```bash
@@ -1670,15 +1786,19 @@ ansible-doctor-enhanced --help
 Option C: Use the helper scripts in `scripts/` to run in your environment:
 
 PowerShell
+
 ```powershell
 .\scripts\run_cli.ps1 -- --help
 .\scripts\run_tests.ps1 unit
 ```
+
 Unix
+
 ```bash
 ./scripts/run_cli.sh -- --help
 ./scripts/run_tests.sh unit
 ```
+
 ```
 
 ### Running Tests
@@ -1702,6 +1822,7 @@ pytest --cov=ansibledoctor --cov-report=html
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Key principles:
+
 - Follow the [Constitution](​.specify/memory/constitution.md) (all 9 principles)
 - Test-First Development (TDD mandatory)
 - Update CHANGELOG.md for all changes
@@ -1722,8 +1843,8 @@ Key principles:
 ## 🔄 Version Compatibility
 
 | ansible-doctor-enhanced | Python | Ansible | Status |
-|------------------------|--------|---------|--------|
-| 0.1.x (dev)           | 3.11+  | 2.9+    | MVP Complete |
+| ------------------------ | -------- | --------- | -------- |
+| 0.1.x (dev) | 3.11+ | 2.9+ | MVP Complete |
 
 ## 📊 Project Status
 
@@ -1731,6 +1852,7 @@ Key principles:
 **In Development**: v0.4.0 final - Documentation & Polish
 
 ### Test Metrics
+
 - **Total Tests**: 673 (262 Feature 001 + 233 Feature 002 + 178 Feature 003)
 - **Coverage**: 81% overall (Target: 80%+ achieved!)
 - **Status**: All passing ✅ (100% pass rate, including all property tests)
@@ -1738,6 +1860,7 @@ Key principles:
 ### Completed Features
 
 #### ✅ Core Functionality (MVP)
+
 - **Metadata Parser (US1)**: Extract role metadata from `meta/main.yml`
   - Author, description, license, company
   - Platform support with versions
@@ -1777,12 +1900,14 @@ Key principles:
 #### 🎯 Roadmap to v1.0.0
 
 **v0.3.0 - Role Documentation Generator** ✅ **COMPLETE**
+
 - ✅ Phase 9 Foundation (T201-T215): Template engine, loaders, renderers, validators
 - ✅ Phase 10: Markdown MVP (T216-T224) - 23 tests, property-based testing
 - ✅ Phase 11: HTML and RST renderers (T231-T255) - Multi-format support
 - **Released**: December 2024 with 495 tests, 89% coverage
 
 **v0.4.0-alpha.1 - Configuration File Support** ✅ **COMPLETE**
+
 - ✅ `.ansibledoctor.yml` config file discovery (current dir → parents)
 - ✅ Config loading with Pydantic validation (clear error messages)
 - ✅ Config merging with priority (CLI > file > defaults)
@@ -1791,6 +1916,7 @@ Key principles:
 - **Released**: November 2024 with 633 tests, 80% coverage
 
 **v0.4.0-alpha.2 - Watch Mode** ✅ **COMPLETE**
+
 - ✅ Debouncer for rate-limiting file changes (8 tests, 100% coverage)
 - ✅ FileChangeHandler for watchdog integration (8 tests, 95% coverage)
 - ✅ WatchMonitor for role directory monitoring (3 tests, 100% coverage)
@@ -1799,6 +1925,7 @@ Key principles:
 - **Released**: November 2024 with 660 tests, 79% coverage
 
 **v0.4.0-alpha.3 - Config Discovery & Validation** ✅ **COMPLETE**
+
 - ✅ Parent directory config discovery (walks up to root like Git)
 - ✅ Enhanced config validate with detailed error messages
 - ✅ Enhanced config show with resolved paths and setting origins
@@ -1807,6 +1934,7 @@ Key principles:
 - **Released**: November 2024 with 672 tests, 81% coverage
 
 **v0.4.0 - Documentation Parity** (Final Release - IN PROGRESS)
+
 - ✅ All feature implementation complete (US1, US2, US3)
 - ⏳ Documentation and migration guides (T030-T034)
 - ⏳ Final test validation and coverage review (T035)
@@ -1814,18 +1942,21 @@ Key principles:
 - ⏳ Cross-platform validation (Windows, macOS, Linux)
 
 **v0.5.0 - Collection Documentation** (NEW - Not in original)
+
 - Parse Ansible collections (multiple roles, plugins, modules)
 - Collection-level metadata (galaxy.yml, requirements.yml)
 - Cross-role dependency visualization
 - Collection README generation
 
 **v0.6.0 - Project Documentation** (NEW - Not in original)
+
 - Full Ansible project parsing (roles, collections, playbooks)
 - Project-level documentation (architecture, inventory, vars)
 - Playbook documentation with task flow
 - Multi-format project reports
 
 **v1.0.0 - Production Release**
+
 - Complete Ansible documentation solution (Role → Collection → Project)
 - Stable API and CLI interface
 - Comprehensive test coverage (90%+)
@@ -1833,6 +1964,7 @@ Key principles:
 - Complete user documentation
 
 **Post v1.0.0**
+
 - Web UI for interactive browsing
 - CI/CD integration templates
 - Plugin ecosystem for custom renderers
