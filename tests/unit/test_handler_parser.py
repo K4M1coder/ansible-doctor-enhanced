@@ -18,7 +18,7 @@ class TestHandlerParser:
   service:
     name: apache2
     state: restarted
-  
+
 - name: reload nginx
   service:
     name: nginx

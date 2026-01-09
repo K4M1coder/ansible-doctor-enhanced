@@ -176,7 +176,7 @@ class TestSchemaExporter:
         # Check recursive has description and type
         recursive = properties["recursive"]
         assert "description" in recursive or "title" in recursive
-        assert recursive.get("type") == "boolean" or recursive.get("default") == False
+        assert recursive.get("type") == "boolean" or not recursive.get("default")
 
         # Check output_dir has description
         output_dir = properties["output_dir"]

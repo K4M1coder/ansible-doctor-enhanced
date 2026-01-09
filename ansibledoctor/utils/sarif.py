@@ -88,7 +88,7 @@ class SARIFFormatter:
             List of SARIF rule objects
         """
         # Get unique error codes
-        unique_codes = set(issue.code for issue in issues)
+        unique_codes = {issue.code for issue in issues}
 
         rules = []
         for code in sorted(unique_codes):

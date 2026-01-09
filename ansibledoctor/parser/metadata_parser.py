@@ -288,7 +288,7 @@ class MetadataParser:
         for dep_data in dependencies_raw:
             # Format 1: Simple string (role name only)
             if isinstance(dep_data, str):
-                dependencies.append(Dependency(name=dep_data))
+                dependencies.append(Dependency(name=dep_data, version=None, source=None))
             # Format 2: Dictionary with name/version/source
             elif isinstance(dep_data, dict):
                 # Try 'name' key first, fallback to 'role' key

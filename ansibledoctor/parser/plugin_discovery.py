@@ -137,6 +137,7 @@ class PluginDiscovery:
             type=plugin_type,
             path=file_path,
             short_description=None,
+            examples=None,
         )
 
         return plugin
