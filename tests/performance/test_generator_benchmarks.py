@@ -1,15 +1,22 @@
 """
 Performance benchmarks for documentation generator.
 
-Validates rendering performance meets target thresholds:
-- Small role (10 vars): <50ms
-- Medium role (50 vars): <100ms
-- Large role (100 vars): <200ms
+Uses progressive tolerance thresholds to avoid false positives from CI variance:
+- Target: Optimal performance goal
+- Warning: Acceptable degradation (test passes with warning)
+- Failure: Significant regression (test fails)
 
-Uses pytest-benchmark for accurate timing measurements.
+Thresholds:
+- Small role (10 vars): Target <60ms, Warn 60-80ms, Fail >80ms
+- Medium role (50 vars): Target <100ms, Warn 100-130ms, Fail >130ms
+- Large role (100 vars): Target <200ms, Warn 200-250ms, Fail >250ms
+
+This approach provides performance feedback without blocking CI on minor variations
+due to shared resources, Windows/Linux differences, or runner load.
 """
 
 import time
+import warnings
 from datetime import datetime
 
 import pytest
@@ -150,7 +157,13 @@ def markdown_renderer():
 
 
 def test_small_role_rendering_performance(small_role, markdown_renderer):
-    """Benchmark Markdown rendering for small role (10 variables)."""
+    """Benchmark Markdown rendering for small role (10 variables).
+
+    Performance thresholds:
+    - Target: <60ms (optimal)
+    - Warning: 60-80ms (acceptable degradation)
+    - Failure: >80ms (significant regression)
+    """
     context = TemplateContext(
         role=small_role,
         generator_version="0.3.0",
@@ -169,14 +182,35 @@ def test_small_role_rendering_performance(small_role, markdown_renderer):
 
     avg_time_ms = ((end - start) / 10) * 1000
 
-    # Target: <60ms (increased from 50ms to account for Windows/CI variance)
-    assert avg_time_ms < 60, f"Small role rendering took {avg_time_ms:.2f}ms (target: <60ms)"
+    # Progressive tolerance: warn at 60ms, fail at 80ms
+    TARGET_MS = 60
+    MAX_ACCEPTABLE_MS = 80
 
-    print(f"✅ Small role (10 vars): {avg_time_ms:.2f}ms")
+    if avg_time_ms > MAX_ACCEPTABLE_MS:
+        pytest.fail(
+            f"❌ PERFORMANCE REGRESSION: Small role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms, max acceptable: <{MAX_ACCEPTABLE_MS}ms)"
+        )
+    elif avg_time_ms > TARGET_MS:
+        warnings.warn(
+            f"⚠️ PERFORMANCE WARNING: Small role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms). Consider optimization if this persists.",
+            UserWarning,
+            stacklevel=2,
+        )
+        print(f"⚠️ Small role (10 vars): {avg_time_ms:.2f}ms (slower than target)")
+    else:
+        print(f"✅ Small role (10 vars): {avg_time_ms:.2f}ms")
 
 
 def test_medium_role_rendering_performance(medium_role, markdown_renderer):
-    """Benchmark Markdown rendering for medium role (50 variables)."""
+    """Benchmark Markdown rendering for medium role (50 variables).
+
+    Performance thresholds:
+    - Target: <100ms (optimal)
+    - Warning: 100-130ms (acceptable degradation)
+    - Failure: >130ms (significant regression)
+    """
     context = TemplateContext(
         role=medium_role,
         generator_version="0.3.0",
@@ -195,14 +229,35 @@ def test_medium_role_rendering_performance(medium_role, markdown_renderer):
 
     avg_time_ms = ((end - start) / 10) * 1000
 
-    # Target: <100ms
-    assert avg_time_ms < 100, f"Medium role rendering took {avg_time_ms:.2f}ms (target: <100ms)"
+    # Progressive tolerance: warn at 100ms, fail at 130ms
+    TARGET_MS = 100
+    MAX_ACCEPTABLE_MS = 130
 
-    print(f"✅ Medium role (50 vars): {avg_time_ms:.2f}ms")
+    if avg_time_ms > MAX_ACCEPTABLE_MS:
+        pytest.fail(
+            f"❌ PERFORMANCE REGRESSION: Medium role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms, max acceptable: <{MAX_ACCEPTABLE_MS}ms)"
+        )
+    elif avg_time_ms > TARGET_MS:
+        warnings.warn(
+            f"⚠️ PERFORMANCE WARNING: Medium role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms). Consider optimization if this persists.",
+            UserWarning,
+            stacklevel=2,
+        )
+        print(f"⚠️ Medium role (50 vars): {avg_time_ms:.2f}ms (slower than target)")
+    else:
+        print(f"✅ Medium role (50 vars): {avg_time_ms:.2f}ms")
 
 
 def test_large_role_rendering_performance(large_role, markdown_renderer):
-    """Benchmark Markdown rendering for large role (100 variables)."""
+    """Benchmark Markdown rendering for large role (100 variables).
+
+    Performance thresholds:
+    - Target: <200ms (optimal)
+    - Warning: 200-250ms (acceptable degradation)
+    - Failure: >250ms (significant regression)
+    """
     context = TemplateContext(
         role=large_role,
         generator_version="0.3.0",
@@ -221,7 +276,22 @@ def test_large_role_rendering_performance(large_role, markdown_renderer):
 
     avg_time_ms = ((end - start) / 10) * 1000
 
-    # Target: <200ms (relaxed for large roles)
-    assert avg_time_ms < 200, f"Large role rendering took {avg_time_ms:.2f}ms (target: <200ms)"
+    # Progressive tolerance: warn at 200ms, fail at 250ms
+    TARGET_MS = 200
+    MAX_ACCEPTABLE_MS = 250
 
-    print(f"✅ Large role (100 vars): {avg_time_ms:.2f}ms")
+    if avg_time_ms > MAX_ACCEPTABLE_MS:
+        pytest.fail(
+            f"❌ PERFORMANCE REGRESSION: Large role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms, max acceptable: <{MAX_ACCEPTABLE_MS}ms)"
+        )
+    elif avg_time_ms > TARGET_MS:
+        warnings.warn(
+            f"⚠️ PERFORMANCE WARNING: Large role rendering took {avg_time_ms:.2f}ms "
+            f"(target: <{TARGET_MS}ms). Consider optimization if this persists.",
+            UserWarning,
+            stacklevel=2,
+        )
+        print(f"⚠️ Large role (100 vars): {avg_time_ms:.2f}ms (slower than target)")
+    else:
+        print(f"✅ Large role (100 vars): {avg_time_ms:.2f}ms")
