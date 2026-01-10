@@ -11,12 +11,17 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 <!-- Code Quality & Coverage -->
-[![Coverage](https://img.shields.io/badge/coverage-79%25-orange?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+[![Coverage](https://img.shields.io/badge/coverage-79%25-red?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Imports: isort](https://img.shields.io/badge/imports-isort-1674b1?labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Imports: isort](https://img.shields.io/badge/imports-isort-1674b1?style=flat&logo=python)](https://pycqa.github.io/isort/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue)](http://mypy-lang.org/)
-[![Tests](https://img.shields.io/badge/tests-2163%20passed-brightgreen?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+
+<!-- Test Results -->
+[![Tests Passed](https://img.shields.io/badge/tests%20passed-2163%2F2213-brightgreen?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+[![Tests Skipped](https://img.shields.io/badge/tests%20skipped-50%2F2213-yellow?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+[![Tests Failed](https://img.shields.io/badge/tests%20failed-0%2F2213-brightgreen?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+[![Tests Warnings](https://img.shields.io/badge/tests%20warnings-99-yellow?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 
 <!-- 
 📊 Dynamic Badge Setup Available!
