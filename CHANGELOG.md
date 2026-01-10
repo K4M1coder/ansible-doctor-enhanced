@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dynamic badge system with GitHub Actions integration
+  - Automatic badge updates via GitHub Gist + Shields.io
+  - Coverage badge with color coding (red <80%, orange 80-90%, green >90%)
+  - Quality tool badges (Black, isort, Ruff, mypy)
+  - Test status badges with pass/skip/fail counts
+  - Python version and package version badges
+  - Build status badges for all CI workflows
+- New workflows and scripts
+  - `.github/workflows/badges.yml` - Badge update workflow triggered after CI runs
+  - `scripts/parse_precommit_results.py` - Extract metrics from pre-commit output
+  - `scripts/generate_badge_metrics.py` - Generate Shields.io-compatible JSON files
+- Documentation
+  - `docs/BADGES.md` - Complete badge system setup and maintenance guide
+  - `BADGE_SETUP_QUICKSTART.md` - 5-minute quick start guide
+
+### Changed
+
+- Enhanced CI workflows to collect and publish metrics
+  - `ci-windows.yml` now runs full test suite with coverage collection
+  - `pre-commit.yml` captures tool status and test results as artifacts
+  - Both workflows upload artifacts for badge workflow consumption
+
 ### Fixed
 
 - Fixed mypy type checking errors (82 errors resolved across 18 files)

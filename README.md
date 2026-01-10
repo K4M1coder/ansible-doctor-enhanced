@@ -1,8 +1,25 @@
 # Ansible Doctor Enhanced
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+<!-- Build & CI Status -->
+[![Pre-commit](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/pre-commit.yml/badge.svg?branch=dev)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/pre-commit.yml)
+[![CI Windows](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/ci-windows.yml/badge.svg?branch=dev)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/ci-windows.yml)
+[![Update Badges](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/badges.yml/badge.svg)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/badges.yml)
+
+<!-- Version & License -->
+![Python Version](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/python-version.json)
+![Package Version](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/package-version.json)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+<!-- Code Quality & Coverage -->
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/coverage.json)
+![mypy](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/mypy.json)
+![Black](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/black.json)
+![isort](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/isort.json)
+![Ruff](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/ruff.json)
+
+<!-- Test Status -->
+![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/tests.json)
+
 ---
 
 ![Ansible Doctor](./docs/Ansible-Doctor-Enhanced.bmp)

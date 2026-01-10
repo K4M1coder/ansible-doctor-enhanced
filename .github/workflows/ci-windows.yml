@@ -36,9 +36,24 @@ jobs:
         run: |
           python -m pip install -e .
 
-      - name: Run tests (unit)
+      - name: Run tests with coverage
         run: |
-          poetry run pytest tests/unit -q --maxfail=1
+          poetry run pytest tests/ --cov=ansibledoctor --cov-report=term --cov-report=json:coverage-${{ matrix.python-version }}.json --junitxml=pytest-${{ matrix.python-version }}.xml
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage-${{ matrix.python-version }}.json
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pytest-results-${{ matrix.python-version }}
+          path: pytest-${{ matrix.python-version }}.xml
+          retention-days: 7
 
       - name: CLI smoke test
         run: |

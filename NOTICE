@@ -15,8 +15,8 @@ Ansible-Doctor-Enhanced is a comprehensive tool for enhancing and analyzing Ansi
 - Original work by Cédric Thédrez  
 - Inspired by ansible-doc (Red Hat) and ansible-doctor (thegeeklab)  
 - Speckit used to pilot generative AI for development assistance  
-- Claude Sonnet 3.5 - 4.5 in Copilot for VSCode to assist with spec generation  
-- Claude Sonnet 3.5 - 4.5 and Grok Code Fast in Copilot for VSCode for code assistance, testing, debugging, and code review  
+- Claude Sonnet / opus 3.5 - 4.5 and gemini 3 in Copilot for VSCode to assist with spec generation  
+- Claude Sonnet 3.5 - 4.5, raptor mini and Grok Code Fast in Copilot for VSCode for code assistance, testing, debugging, and code review  
 
 ---
 

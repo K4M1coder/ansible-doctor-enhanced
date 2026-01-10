@@ -1,0 +1,94 @@
+name: Update Badges
+
+on:
+  workflow_run:
+    workflows: ["Pre-commit", "CI - Windows"]
+    types: [completed]
+    branches: [dev, main]
+  workflow_dispatch:
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+      
+      - name: Install dependencies
+        run: |
+          poetry install --with dev
+      
+      - name: Download artifacts from triggering workflow
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      
+      - name: Run tests with coverage (fallback)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          poetry run pytest tests/ \
+            --cov=ansibledoctor \
+            --cov-report=term \
+            --cov-report=json:coverage.json \
+            --junitxml=pytest-results.xml
+      
+      - name: Run pre-commit for metrics (fallback)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          poetry run pre-commit run --all-files > precommit-output.txt 2>&1 || true
+          python scripts/parse_precommit_results.py precommit-output.txt > precommit-metrics.json
+      
+      - name: Generate badge JSONs
+        run: |
+          mkdir -p badges
+          python scripts/generate_badge_metrics.py \
+            --coverage coverage.json \
+            --precommit precommit-metrics.json \
+            --output badges/ \
+            --pyproject pyproject.toml
+      
+      - name: Display generated badges
+        run: |
+          echo "Generated badge files:"
+          ls -la badges/
+          echo ""
+          echo "Badge contents:"
+          for file in badges/*.json; do
+            echo "=== $file ==="
+            cat "$file"
+            echo ""
+          done
+      
+      - name: Update Gist with badges
+        if: env.GIST_TOKEN != '' && env.BADGE_GIST_ID != ''
+        uses: exuanbo/actions-deploy-gist@v1
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          BADGE_GIST_ID: ${{ secrets.BADGE_GIST_ID }}
+        with:
+          token: ${{ secrets.GIST_TOKEN }}
+          gist_id: ${{ secrets.BADGE_GIST_ID }}
+          file_path: badges/*.json
+      
+      - name: Upload badges as artifacts (for testing)
+        uses: actions/upload-artifact@v4
+        with:
+          name: badge-metrics
+          path: badges/*.json
+          retention-days: 90

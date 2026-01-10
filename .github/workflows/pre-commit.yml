@@ -29,5 +29,29 @@ jobs:
           poetry install --with dev
 
       - name: Run pre-commit hooks
+        id: precommit
         run: |
-          poetry run pre-commit run --all-files
+          poetry run pre-commit run --all-files > precommit-output.txt 2>&1 || true
+          cat precommit-output.txt
+
+      - name: Parse pre-commit results
+        if: always()
+        run: |
+          python scripts/parse_precommit_results.py precommit-output.txt > precommit-metrics.json
+          cat precommit-metrics.json
+
+      - name: Upload pre-commit metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: precommit-metrics
+          path: precommit-metrics.json
+          retention-days: 7
+
+      - name: Check if pre-commit passed
+        if: always()
+        run: |
+          if grep -q "Failed" precommit-output.txt; then
+            echo "Pre-commit hooks failed"
+            exit 1
+          fi
