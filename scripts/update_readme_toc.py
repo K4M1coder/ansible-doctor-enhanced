@@ -102,7 +102,7 @@ def generate_github_anchor(text: str) -> str:
 
     # Replace whitespace with hyphens
     anchor = re.sub(r"\s+", "-", anchor)
-    
+
     # Collapse multiple hyphens into single hyphen
     anchor = re.sub(r"-+", "-", anchor)
 
