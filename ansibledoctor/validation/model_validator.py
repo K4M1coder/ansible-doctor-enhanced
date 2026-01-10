@@ -7,8 +7,9 @@ from typing import Any, Type
 
 from pydantic import BaseModel, ValidationError
 
-from ansibledoctor.models.schemas import Severity, ValidationResult
+from ansibledoctor.models.schemas import Severity
 from ansibledoctor.models.schemas import ValidationError as SchemaValidationError
+from ansibledoctor.models.schemas import ValidationResult
 
 
 class DataModelValidator:
