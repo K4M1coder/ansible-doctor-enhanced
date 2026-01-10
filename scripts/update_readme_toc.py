@@ -69,14 +69,14 @@ def extract_headings(content: str, verbose: bool = False) -> List[Tuple[int, str
 def generate_github_anchor(text: str) -> str:
     """Generate GitHub-compatible anchor from heading text.
 
-    Markdownlint expects anchors that match GitHub's algorithm exactly,
-    which removes emojis and special characters but keeps the text.
+    GitHub converts emojis to hyphens in anchors and preserves leading hyphens.
+    For example: "📦 Ansible" becomes "-ansible".
 
     Args:
         text: The heading text
 
     Returns:
-        GitHub-style anchor (lowercase, hyphens, no emojis)
+        GitHub-style anchor (lowercase, hyphens, emoji → hyphen)
     """
     anchor = text
 
@@ -86,28 +86,28 @@ def generate_github_anchor(text: str) -> str:
     anchor = re.sub(r"`(.+?)`", r"\1", anchor)  # Code
     anchor = re.sub(r"\[(.+?)\]\(.+?\)", r"\1", anchor)  # Links
 
-    # Remove emojis (all Unicode emoji ranges)
-    # This must match what GitHub actually does
-    anchor = re.sub(r"[\U0001F000-\U0001F9FF]", "", anchor)  # Emoticons and symbols
-    anchor = re.sub(r"[\u2600-\u26FF]", "", anchor)  # Misc symbols
-    anchor = re.sub(r"[\u2700-\u27BF]", "", anchor)  # Dingbats
-    anchor = re.sub(r"[\U0001FA00-\U0001FAFF]", "", anchor)  # Extended symbols
-    anchor = re.sub(r"[\uFE00-\uFE0F]", "", anchor)  # Variation selectors
-    anchor = re.sub(r"[\u200D]", "", anchor)  # Zero-width joiner
-
     # Convert to lowercase
     anchor = anchor.lower()
 
-    # Replace special characters and punctuation with empty string or hyphen
-    # GitHub keeps alphanumeric and converts spaces/special chars to hyphens
+    # Replace emojis with hyphen (GitHub converts each emoji to single hyphen)
+    anchor = re.sub(r"[\U0001F000-\U0001F9FF]", "-", anchor)  # Emoticons and symbols
+    anchor = re.sub(r"[\u2600-\u26FF]", "-", anchor)  # Misc symbols
+    anchor = re.sub(r"[\u2700-\u27BF]", "-", anchor)  # Dingbats
+    anchor = re.sub(r"[\U0001FA00-\U0001FAFF]", "-", anchor)  # Extended symbols
+    anchor = re.sub(r"[\uFE00-\uFE0F]", "", anchor)  # Variation selectors (remove)
+    anchor = re.sub(r"[\u200D]", "", anchor)  # Zero-width joiner (remove)
+
+    # Remove special characters and punctuation (keep only alphanumeric, spaces, hyphens)
     anchor = re.sub(r"[^\w\s-]", "", anchor)
 
-    # Replace whitespace and multiple hyphens with single hyphen
-    anchor = re.sub(r"[\s_]+", "-", anchor)
+    # Replace whitespace with hyphens
+    anchor = re.sub(r"\s+", "-", anchor)
+    
+    # Collapse multiple hyphens into single hyphen
     anchor = re.sub(r"-+", "-", anchor)
 
-    # Remove leading/trailing hyphens
-    anchor = anchor.strip("-")
+    # Remove only trailing hyphens (keep leading hyphen from emoji)
+    anchor = anchor.rstrip("-")
 
     return anchor
 
