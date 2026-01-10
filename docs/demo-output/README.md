@@ -1,7 +1,7 @@
 # demo_namespace.demo_collection
 
 
-**Version:** 0.14.0 | **Generated:** 2025-11-21 02:36
+**Version:** 0.14.1 | **Generated:** 2025-11-21 02:36
 ---
 
 ## Table of Contents
@@ -14,7 +14,7 @@
 ## Overview
 
 **Collection:** demo_namespace.demo_collection  
-**Version:** 0.14.0  
+**Version:** 0.14.1  
 **Namespace:** demo_namespace  
 **Name:** demo_collection  
 

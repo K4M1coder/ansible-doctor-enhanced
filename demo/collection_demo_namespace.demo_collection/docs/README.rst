@@ -2,7 +2,7 @@ demo_namespace.demo_collection
 ==============================
 
 
-:Version: 0.14.0
+:Version: 0.14.1
 :Generated: 2025-11-30 04:17
 ----
 
@@ -17,7 +17,7 @@ Overview
 
 **Collection:** ``demo_namespace.demo_collection``
 
-**Version:** 0.14.0
+**Version:** 0.14.1
 
 **Namespace:** demo_namespace
 
