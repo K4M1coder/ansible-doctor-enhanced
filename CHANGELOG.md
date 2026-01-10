@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- 
+
+## [0.14.0] - 2026-01-10
+
 ### Added
 
+- Spec 014: Code Quality & CI/CD Infrastructure
+  - Fully implemented specification-driven infrastructure for quality assurance.
+  - Automated dynamic badge system with GitHub Gists and Shields.io.
+  - Performance telemetry with progressive tolerance (Target vs Max).
+  - Strict atomic commit validation and version synchronization.
 - Dynamic badge system with GitHub Actions integration
   - Automatic badge updates via GitHub Gist + Shields.io
   - Coverage badge with color coding (red <80%, orange 80-90%, green >90%)

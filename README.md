@@ -1,7 +1,7 @@
 # Ansible Doctor Enhanced
 
 <!-- Version & License -->
-[![Version](https://img.shields.io/badge/version-v0.12.0-blue)](https://github.com/K4M1coder/ansible-doctor-enhanced/releases)
+[![Version](https://img.shields.io/badge/version-v0.14.0-blue)](https://github.com/K4M1coder/ansible-doctor-enhanced/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <!-- Language Version & Code Quality Tools -->
@@ -125,6 +125,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - **Project Documentation (v0.6.0)**: Generate comprehensive project-level documentation with architecture diagrams, role/collection inventories, and multi-language support
 - **Internationalization (v0.5.1)**: Initial i18n support with translation files for English, French and German and a Jinja2 `t()` filter for templates
 - **Links & Cross-References (v0.12.0)**: Smart link management with automatic cross-references, broken link detection, external resource integration, and multiple navigation indexes
+- **Code Quality & CI/CD (v0.14.0)**: Advanced quality gates with 16 dynamic badges, performance telemetry, and strict atomic commit validation
 - **Structured Logging**: Advanced observability with structured logging, correlation IDs, and performance metrics
 - **Error Handling**: Graceful error recovery with actionable suggestions and detailed context
 - **Multiple Output Formats**: Generate documentation in Markdown, HTML, reStructuredText, and custom templates

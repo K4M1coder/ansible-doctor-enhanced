@@ -200,7 +200,7 @@ Once setup is complete, your badges will:
 ✅ Pre-commit: Passing
 ✅ CI Windows: Passing  
 🐍 Python: 3.11+
-📦 Version: v0.12.0
+📦 Version: v0.14.0
 📊 Coverage: 87.5% (orange)
 ✨ mypy: 0 errors (122 files)
 ✅ Black: passing

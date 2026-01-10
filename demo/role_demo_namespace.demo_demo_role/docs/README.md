@@ -2,7 +2,7 @@
 
 Demonstration role showcasing all ansible-doctor-enhanced features
 
-**Generated:** 2025-11-30 04:13 | **Version:** 0.12.0
+**Generated:** 2025-11-30 04:13 | **Version:** 0.14.0
 
 ---
 
