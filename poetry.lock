@@ -979,6 +979,21 @@ files = [
 fpyutils = ">=4.0.1,<5"
 
 [[package]]
+name = "md-toc"
+version = "9.0.0"
+description = "Automatically generate and add an accurate table of contents to markdown files"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "md_toc-9.0.0-py3-none-any.whl", hash = "sha256:dfd57de2faf252be1d6faf9bed7eab506e1caa7c4486ab6d6d04556426d5a7a5"},
+    {file = "md_toc-9.0.0.tar.gz", hash = "sha256:a4e73b59f71c20b94c8c16bc6ef3bc2e80d1d40c398050101f80c3567fda7271"},
+]
+
+[package.dependencies]
+fpyutils = ">=4.0.1,<5"
+
+[[package]]
 name = "mypy"
 version = "1.18.2"
 description = "Optional static typing for Python"
@@ -2065,3 +2080,4 @@ files = [
 lock-version = "2.1"
 python-versions = "^3.11"
 content-hash = "004eede8f4b4528fd469bf10b2451b27cbe932a670e06454e85e8a0ae6606679"
+content-hash = "63b6c3edf740197c0e3ef45f107c93fcd5d80f80b908b8b799eacd46d244b207"
