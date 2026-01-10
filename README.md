@@ -6,19 +6,24 @@
 [![Update Badges](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/badges.yml/badge.svg)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/badges.yml)
 
 <!-- Version & License -->
-![Python Version](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/python-version.json)
-![Package Version](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/package-version.json)
+[![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Version](https://img.shields.io/badge/version-v0.12.0-blue)](https://github.com/K4M1coder/ansible-doctor-enhanced/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 <!-- Code Quality & Coverage -->
-![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/coverage.json)
-![mypy](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/mypy.json)
-![Black](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/black.json)
-![isort](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/isort.json)
-![Ruff](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/ruff.json)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/imports-isort-1674b1?labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue)](http://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/tests-2163%20passed-brightgreen?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 
-<!-- Test Status -->
-![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/K4M1coder/<GIST_ID>/raw/tests.json)
+<!-- 
+📊 Dynamic Badge Setup Available!
+To enable auto-updating badges with live metrics (coverage %, mypy errors, test counts):
+1. Follow setup guide: BADGE_SETUP_QUICKSTART.md
+2. Replace static badges above with dynamic versions from docs/BADGES.md
+3. Badges will auto-update after each CI run with real-time stats
+-->
 
 ---
 
