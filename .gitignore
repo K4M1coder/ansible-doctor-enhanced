@@ -148,3 +148,4 @@ tmp_test_output.md
 
 # Test temporary files and coverage reports
 tests/tmp/
+performance-results.json
