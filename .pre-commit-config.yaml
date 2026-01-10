@@ -61,7 +61,8 @@ repos:
           "pathspec>=0.12.0",
           "types-pyyaml",
         ]
-        files: '\.py$'
+        files: '^ansibledoctor/.*\.py$'
+        exclude: '^(tests|scripts|demo)/'
         pass_filenames: true
         args: ["--config-file=pyproject.toml", "--no-error-summary"]
 

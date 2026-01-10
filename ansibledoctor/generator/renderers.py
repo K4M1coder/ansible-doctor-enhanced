@@ -4,7 +4,6 @@ import html
 from typing import Any, Dict, Optional
 
 from ansibledoctor.generator.engine import TemplateEngine
-from ansibledoctor.generator.loaders import FileSystemTemplateLoader
 from ansibledoctor.generator.models import OutputFormat, TemplateContext
 
 
@@ -33,19 +32,12 @@ class MarkdownRenderer:
         """
         self._template_path = template_path
         self._engine: Optional[TemplateEngine] = None
-        self._loader: Optional[FileSystemTemplateLoader] = None
 
     def _get_engine(self) -> TemplateEngine:
         """Get or create template engine instance (lazy initialization)."""
         if self._engine is None:
             self._engine = TemplateEngine.create()
         return self._engine
-
-    def _get_loader(self) -> FileSystemTemplateLoader:
-        """Get or create template loader instance (lazy initialization)."""
-        if self._loader is None:
-            self._loader = FileSystemTemplateLoader()
-        return self._loader
 
     def render(self, context: TemplateContext) -> str:
         """Render role documentation to Markdown format.

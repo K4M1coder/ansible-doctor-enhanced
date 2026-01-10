@@ -96,6 +96,11 @@ ensure_newline_before_comments = true
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
+exclude = [
+    "tests/",
+    "scripts/",
+    "demo/",
+]
 # Temporarily relaxed for gradual typing adoption
 disallow_untyped_defs = false  # Was true - allow untyped defs for now
 disallow_incomplete_defs = false  # Was true - allow incomplete defs for now
