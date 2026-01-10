@@ -173,6 +173,8 @@ repos:
           "pyyaml",
           "babel",
           "pathspec",
+          "requests>=2.28",  # Required for CLI import in test_cli_end_to_end_performance
+          "beautifulsoup4>=4.11",  # Required for link validation imports
         ]
         pass_filenames: false
         stages: [pre-commit, pre-push]
