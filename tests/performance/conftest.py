@@ -18,7 +18,8 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
     """Save performance results to JSON file after all tests."""
     if _perf_results:
-        output_file = Path("performance-results.json")
+        output_file = Path("tests/tmp/performance-results.json")
+        output_file.parent.mkdir(parents=True, exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(_perf_results, f, indent=2)
         print(f"\nPerformance results saved to {output_file}")

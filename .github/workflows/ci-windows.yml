@@ -54,7 +54,7 @@ jobs:
           name: pytest-results-${{ matrix.python-version }}
           path: |
             pytest-${{ matrix.python-version }}.xml
-            performance-results.json
+            tests/tmp/performance-results.json
           retention-days: 7
 
       - name: CLI smoke test

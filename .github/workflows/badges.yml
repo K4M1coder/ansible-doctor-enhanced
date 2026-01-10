@@ -52,11 +52,11 @@ jobs:
         id: find-perf
         run: |
           # Try to find performance-results.json from artifacts first
-          if [ -f "artifacts/pytest-results-3.13/performance-results.json" ]; then
-            echo "perf_path=artifacts/pytest-results-3.13/performance-results.json" >> $GITHUB_OUTPUT
+          if [ -f "artifacts/pytest-results-3.13/tests/tmp/performance-results.json" ]; then
+            echo "perf_path=artifacts/pytest-results-3.13/tests/tmp/performance-results.json" >> $GITHUB_OUTPUT
             echo "Found performance results from artifacts"
-          elif [ -f "performance-results.json" ]; then
-            echo "perf_path=performance-results.json" >> $GITHUB_OUTPUT
+          elif [ -f "tests/tmp/performance-results.json" ]; then
+            echo "perf_path=tests/tmp/performance-results.json" >> $GITHUB_OUTPUT
             echo "Using fallback performance results"
           else
             echo "perf_path=" >> $GITHUB_OUTPUT
