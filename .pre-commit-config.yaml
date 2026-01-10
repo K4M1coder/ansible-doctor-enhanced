@@ -1,6 +1,9 @@
 repos:
   - repo: local
     hooks:
+      # ========================================
+      # GROUPE 1: Formatage basique (rapide)
+      # ========================================
       - id: trailing-whitespace
         name: Remove trailing whitespace
         entry: bash -c 'exit 0' # placeholder - pre-commit's builtin used via local
@@ -21,6 +24,9 @@ repos:
         files: '\.ya?ml$'
         exclude: 'tests/fixtures/|specs/.*/contracts/.*\.yaml$'
 
+      # ========================================
+      # GROUPE 2: Formatage code Python
+      # ========================================
       - id: black
         name: Format Python code with Black
         entry: black
@@ -35,6 +41,9 @@ repos:
         additional_dependencies: ["isort==5.13.0"]
         files: '\.py$'
 
+      # ========================================
+      # GROUPE 3: Linting Python
+      # ========================================
       - id: ruff
         name: Lint with ruff (auto-fix)
         entry: ruff check --fix
@@ -42,6 +51,9 @@ repos:
         additional_dependencies: ["ruff>=0.1.0"]
         files: '\.py$'
 
+      # ========================================
+      # GROUPE 4: Type checking
+      # ========================================
       - id: mypy
         name: Type checking with mypy
         entry: mypy
@@ -66,11 +78,29 @@ repos:
         pass_filenames: true
         args: ["--config-file=pyproject.toml", "--no-error-summary"]
 
-  - repo: local
-    hooks:
+      # ========================================
+      # GROUPE 5: Documentation & Version
+      # ========================================
+      - id: sync-version
+        name: Sync version from pyproject to CHANGELOG and READMEs
+        entry: python scripts/sync_version.py --stage 1
+        language: python
+        additional_dependencies: ["tomli"]
+        files: ^(pyproject\.toml|CHANGELOG\.md|README.*)$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: update-readme-toc
+        name: Update README Table of Contents
+        entry: python scripts/update_readme_toc.py
+        language: python
+        additional_dependencies: ["md-toc>=9.0.0"]
+        files: ^README\.md$
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: validate-atomic-changelog
         name: Validate atomic changelog and README
-        # Use a python virtualenv for the hook so it runs consistently across platforms
         entry: python scripts/validate_atomic_changelog.py --base origin/main --head HEAD
         language: python
         additional_dependencies: ["tomli"]
@@ -79,6 +109,9 @@ repos:
         always_run: false
         pass_filenames: false
 
+      # ========================================
+      # GROUPE 6: Tests (du plus rapide au plus lent)
+      # ========================================
       - id: pytest-unit
         name: Run unit tests
         entry: python scripts/run_pytest_precommit.py
@@ -184,21 +217,3 @@ repos:
         ]
         pass_filenames: false
         stages: [pre-commit, pre-push]
-
-      - id: sync-version
-        name: Sync version from pyproject to CHANGELOG and READMEs
-        entry: python scripts/sync_version.py --stage 1
-        language: python
-        additional_dependencies: ["tomli"]
-        files: ^(pyproject\.toml|CHANGELOG\.md|README.*)$
-        pass_filenames: false
-        stages: [pre-commit]
-
-      - id: update-readme-toc
-        name: Update README Table of Contents
-        entry: python scripts/update_readme_toc.py
-        language: python
-        additional_dependencies: ["md-toc>=9.0.0"]
-        files: ^README\.md$
-        pass_filenames: false
-        stages: [pre-commit]
