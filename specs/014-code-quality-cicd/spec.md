@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-This specification documents the comprehensive code quality and CI/CD infrastructure implemented for ansible-doctor-enhanced. The system ensures code quality through automated checks, maintains non-regression through continuous testing, and provides visibility through metrics and badges.
+This specification documents the comprehensive code quality and CI/CD infrastructure to implement for ansible-doctor-enhanced. The system ensures code quality through automated checks, maintains non-regression through continuous testing, and provides visibility through metrics and badges.
 
 ## User Scenarios & Testing
 
@@ -27,7 +27,7 @@ As a developer, I want every commit to be automatically validated for code quali
 3. **Given** code has linting issues, **When** pre-commit runs, **Then** Ruff auto-fixes common issues
 4. **Given** code has type errors, **When** pre-commit runs, **Then** mypy reports type issues and blocks commit
 5. **Given** README.md is modified, **When** committing, **Then** Table of Contents is auto-updated
-6. **Given** version changes in pyproject.toml, **When** committing, **Then** version is synced to CHANGELOG and README
+6. **Given** version changes in pyproject.toml, **When** committing, **Then** version is synced to CHANGELOG and README, block commit if inconsistent with python source code
 
 ---
 
