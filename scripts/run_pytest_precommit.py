@@ -20,6 +20,13 @@ import pytest
 def main() -> int:
     # Allow passing pytest args via command line (preferred) or via env var
     cmdline_args = sys.argv[1:]
+
+    # Check for custom --fatal flag and remove it from args
+    is_fatal = os.environ.get("PRECOMMIT_FATAL_TESTS") in ("1", "true", "True")
+    if "--fatal" in cmdline_args:
+        is_fatal = True
+        cmdline_args.remove("--fatal")
+
     if cmdline_args:
         args = cmdline_args
     else:
@@ -50,8 +57,8 @@ def main() -> int:
 
     print(f"pytest: unit tests reported non-zero exit code: {exit_code}")
 
-    if os.environ.get("PRECOMMIT_FATAL_TESTS") in ("1", "true", "True"):
-        print("PRECOMMIT_FATAL_TESTS is set; returning pytest exit code to fail pre-commit")
+    if is_fatal:
+        print("Failure is FATAL; returning pytest exit code to fail pre-commit")
         return exit_code
 
     # Do not fail pre-commit: return 0 but provide verbose message

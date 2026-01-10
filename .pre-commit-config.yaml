@@ -90,6 +90,15 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      - id: validate-version-match
+        name: Validate version match (Installed Metadata vs pyproject.toml)
+        # We run this FATALLY to ensure developers re-install the package after bumping version
+        entry: python scripts/run_pytest_precommit.py tests/unit/test_version_matches_pyproject.py --fatal
+        language: system
+        files: ^(pyproject\.toml|ansibledoctor/__init__\.py)$
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: update-readme-toc
         name: Update README Table of Contents
         entry: python scripts/update_readme_toc.py

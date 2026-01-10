@@ -31,14 +31,14 @@ except Exception:
     import tomli as tomllib  # type: ignore
 
 
-def read_pyproject_version(pyproject_path: Path) -> str | None:
+def read_pyproject_metadata(pyproject_path: Path) -> dict[str, str]:
     try:
         content = pyproject_path.read_text(encoding="utf-8")
         parsed = tomllib.loads(content)
-        version = parsed.get("tool", {}).get("poetry", {}).get("version")
-        return version
+        poetry = parsed.get("tool", {}).get("poetry", {})
+        return {"version": poetry.get("version", ""), "name": poetry.get("name", "")}
     except Exception:
-        return None
+        return {"version": "", "name": ""}
 
 
 def update_changelog(changelog_path: Path, version: str) -> bool:
@@ -114,6 +114,25 @@ def update_readme_versions(repo_root: Path, version: str) -> int:
     return modified
 
 
+def check_init_file(repo_root: Path, app_name: str) -> bool:
+    """Check if ansibledoctor/__init__.py references the correct app name in version() call."""
+    init_file = repo_root / "ansibledoctor" / "__init__.py"
+    if not init_file.exists():
+        return True  # Skip if not found
+
+    content = init_file.read_text(encoding="utf-8")
+    expected = f'version("{app_name}")'
+    expected_alt = f"version('{app_name}')"
+
+    if expected in content or expected_alt in content:
+        return True
+
+    print(
+        f"ERROR: ansibledoctor/__init__.py does not reference app name '{app_name}' in version() call."
+    )
+    return False
+
+
 def stage_changes(paths: list[Path]) -> None:
     try:
         for p in paths:
@@ -138,9 +157,16 @@ def main() -> int:
     pyproject = repo_root / args.pyproject
     changelog = repo_root / args.changelog
 
-    version = read_pyproject_version(pyproject)
+    metadata = read_pyproject_metadata(pyproject)
+    version = metadata["version"]
+    app_name = metadata["name"]
+
     if not version:
         print("Could not read version from pyproject.toml")
+        return 1
+
+    # Check if app name in __init__.py matches
+    if not check_init_file(repo_root, app_name):
         return 1
 
     # Update changelog
