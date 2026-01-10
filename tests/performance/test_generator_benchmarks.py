@@ -156,7 +156,7 @@ def markdown_renderer():
     return MarkdownRenderer()
 
 
-def test_small_role_rendering_performance(small_role, markdown_renderer):
+def test_small_role_rendering_performance(small_role, markdown_renderer, record_perf):
     """Benchmark Markdown rendering for small role (10 variables).
 
     Performance thresholds:
@@ -186,6 +186,9 @@ def test_small_role_rendering_performance(small_role, markdown_renderer):
     TARGET_MS = 60
     MAX_ACCEPTABLE_MS = 80
 
+    # Record for badge generation
+    record_perf("small_role", avg_time_ms, TARGET_MS, MAX_ACCEPTABLE_MS)
+
     if avg_time_ms > MAX_ACCEPTABLE_MS:
         pytest.fail(
             f"❌ PERFORMANCE REGRESSION: Small role rendering took {avg_time_ms:.2f}ms "
@@ -203,7 +206,7 @@ def test_small_role_rendering_performance(small_role, markdown_renderer):
         print(f"✅ Small role (10 vars): {avg_time_ms:.2f}ms")
 
 
-def test_medium_role_rendering_performance(medium_role, markdown_renderer):
+def test_medium_role_rendering_performance(medium_role, markdown_renderer, record_perf):
     """Benchmark Markdown rendering for medium role (50 variables).
 
     Performance thresholds:
@@ -233,6 +236,9 @@ def test_medium_role_rendering_performance(medium_role, markdown_renderer):
     TARGET_MS = 100
     MAX_ACCEPTABLE_MS = 130
 
+    # Record for badge generation
+    record_perf("medium_role", avg_time_ms, TARGET_MS, MAX_ACCEPTABLE_MS)
+
     if avg_time_ms > MAX_ACCEPTABLE_MS:
         pytest.fail(
             f"❌ PERFORMANCE REGRESSION: Medium role rendering took {avg_time_ms:.2f}ms "
@@ -250,7 +256,7 @@ def test_medium_role_rendering_performance(medium_role, markdown_renderer):
         print(f"✅ Medium role (50 vars): {avg_time_ms:.2f}ms")
 
 
-def test_large_role_rendering_performance(large_role, markdown_renderer):
+def test_large_role_rendering_performance(large_role, markdown_renderer, record_perf):
     """Benchmark Markdown rendering for large role (100 variables).
 
     Performance thresholds:
@@ -279,6 +285,9 @@ def test_large_role_rendering_performance(large_role, markdown_renderer):
     # Progressive tolerance: warn at 200ms, fail at 250ms
     TARGET_MS = 200
     MAX_ACCEPTABLE_MS = 250
+
+    # Record for badge generation
+    record_perf("large_role", avg_time_ms, TARGET_MS, MAX_ACCEPTABLE_MS)
 
     if avg_time_ms > MAX_ACCEPTABLE_MS:
         pytest.fail(

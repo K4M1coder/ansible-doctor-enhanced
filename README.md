@@ -17,6 +17,7 @@
 [![Tests Skipped](https://img.shields.io/badge/tests%20skipped-50%2F2213-yellow?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 [![Tests Failed](https://img.shields.io/badge/tests%20failed-0%2F2213-brightgreen?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 [![Tests Warnings](https://img.shields.io/badge/tests%20warnings-99-yellow?logo=pytest)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
+[![Performance](https://img.shields.io/badge/perf%20%E2%9C%93-S%3A56ms%20%7C%20M%3A57ms%20%7C%20L%3A58ms-brightgreen)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions)
 
 <!-- Build & CI Status -->
 [![Pre-commit](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/pre-commit.yml/badge.svg?branch=dev)](https://github.com/K4M1coder/ansible-doctor-enhanced/actions/workflows/pre-commit.yml)

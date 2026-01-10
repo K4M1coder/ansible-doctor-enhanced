@@ -212,12 +212,112 @@ def generate_package_version_badge(pyproject_path: str) -> dict[str, Any]:
         }
 
 
+def parse_performance_results(perf_json_path: str) -> dict[str, Any]:
+    """Parse performance test results from performance-results.json.
+
+    Extracts timing information and determines status based on progressive thresholds.
+
+    Returns:
+        dict with status (pass/warn/fail), timings, and summary message
+    """
+    try:
+        with open(perf_json_path, encoding="utf-8") as f:
+            perf_data = json.load(f)
+
+        overall_status = "pass"  # pass, warn, fail
+        warnings_found = []
+        failures_found = []
+        pass_timings = []
+
+        # Analyze each test result
+        for test_name, result in perf_data.items():
+            status = result["status"]
+            time_ms = result["time_ms"]
+
+            # Map test names to short labels
+            label_map = {
+                "small_role": "S",
+                "medium_role": "M",
+                "large_role": "L",
+            }
+            short_name = label_map.get(test_name, test_name[:1].upper())
+
+            if status == "fail":
+                overall_status = "fail"
+                failures_found.append(f"{short_name}:{int(time_ms)}ms")
+            elif status == "warn":
+                if overall_status == "pass":
+                    overall_status = "warn"
+                warnings_found.append(f"{short_name}:{int(time_ms)}ms")
+            else:  # pass
+                pass_timings.append(f"{short_name}:{int(time_ms)}ms")
+
+        # Build summary message based on status
+        if overall_status == "fail":
+            message = " | ".join(failures_found) if failures_found else "failed"
+            color = "red"
+            label = "perf ❌"
+        elif overall_status == "warn":
+            message = " | ".join(warnings_found) if warnings_found else "warnings"
+            color = "orange"
+            label = "perf ⚠️"
+        else:
+            # Show all timings on pass
+            message = " | ".join(pass_timings) if pass_timings else "passing"
+            color = "brightgreen"
+            label = "perf ✓"
+
+        return {
+            "status": overall_status,
+            "message": message,
+            "color": color,
+            "label": label,
+            "details": perf_data,
+        }
+
+    except Exception as e:
+        print(f"Warning: Could not parse performance results: {e}", file=sys.stderr)
+        import traceback
+
+        traceback.print_exc()
+        return {
+            "status": "unknown",
+            "message": "no data",
+            "color": "lightgrey",
+            "label": "perf",
+            "details": {},
+        }
+
+
+def generate_performance_badge(perf_json_path: str | None) -> dict[str, Any]:
+    """Generate performance test badge from performance-results.json."""
+    if not perf_json_path or not Path(perf_json_path).exists():
+        return {
+            "schemaVersion": 1,
+            "label": "perf",
+            "message": "no data",
+            "color": "lightgrey",
+            "style": "flat-square",
+        }
+
+    perf_data = parse_performance_results(perf_json_path)
+
+    return {
+        "schemaVersion": 1,
+        "label": perf_data["label"],
+        "message": perf_data["message"],
+        "color": perf_data["color"],
+        "style": "flat-square",
+    }
+
+
 def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Generate badge JSON files for Shields.io")
     parser.add_argument("--coverage", required=False, help="Path to coverage.json from pytest-cov")
     parser.add_argument("--precommit", required=False, help="Path to precommit-metrics.json")
     parser.add_argument("--pyproject", required=True, help="Path to pyproject.toml")
+    parser.add_argument("--performance", required=False, help="Path to performance-results.json")
     parser.add_argument("--output", required=True, help="Output directory for badge JSON files")
 
     args = parser.parse_args()
@@ -252,6 +352,10 @@ def main() -> None:
         badges["isort.json"] = generate_tool_badge("isort", precommit_data)
         badges["ruff.json"] = generate_tool_badge("ruff", precommit_data, "ruff")
         badges["tests.json"] = generate_tests_badge(precommit_data)
+
+    # Add performance badge if performance JSON provided
+    if args.performance:
+        badges["performance.json"] = generate_performance_badge(args.performance)
 
     # Write badge files
     for filename, badge_data in badges.items():

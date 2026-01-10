@@ -48,6 +48,22 @@ jobs:
             --cov-report=json:coverage.json \
             --junitxml=pytest-results.xml
       
+      - name: Find performance results
+        id: find-perf
+        run: |
+          # Try to find performance-results.json from artifacts first
+          if [ -f "artifacts/pytest-results-3.13/performance-results.json" ]; then
+            echo "perf_path=artifacts/pytest-results-3.13/performance-results.json" >> $GITHUB_OUTPUT
+            echo "Found performance results from artifacts"
+          elif [ -f "performance-results.json" ]; then
+            echo "perf_path=performance-results.json" >> $GITHUB_OUTPUT
+            echo "Using fallback performance results"
+          else
+            echo "perf_path=" >> $GITHUB_OUTPUT
+            echo "No performance results found"
+          fi
+        shell: bash
+      
       - name: Run pre-commit for metrics (fallback)
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -57,11 +73,29 @@ jobs:
       - name: Generate badge JSONs
         run: |
           mkdir -p badges
-          python scripts/generate_badge_metrics.py \
-            --coverage coverage.json \
-            --precommit precommit-metrics.json \
-            --output badges/ \
-            --pyproject pyproject.toml
+          
+          # Build arguments for badge generation
+          ARGS="--pyproject pyproject.toml --output badges/"
+          
+          # Add coverage if available
+          if [ -f "coverage.json" ]; then
+            ARGS="$ARGS --coverage coverage.json"
+          elif [ -f "artifacts/coverage-3.13/coverage-3.13.json" ]; then
+            ARGS="$ARGS --coverage artifacts/coverage-3.13/coverage-3.13.json"
+          fi
+          
+          # Add precommit metrics if available
+          if [ -f "precommit-metrics.json" ]; then
+            ARGS="$ARGS --precommit precommit-metrics.json"
+          fi
+          
+          # Add performance results if available
+          if [ -n "${{ steps.find-perf.outputs.perf_path }}" ]; then
+            ARGS="$ARGS --performance ${{ steps.find-perf.outputs.perf_path }}"
+          fi
+          
+          python scripts/generate_badge_metrics.py $ARGS
+        shell: bash
       
       - name: Display generated badges
         run: |

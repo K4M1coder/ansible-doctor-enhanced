@@ -52,7 +52,9 @@ jobs:
         if: always()
         with:
           name: pytest-results-${{ matrix.python-version }}
-          path: pytest-${{ matrix.python-version }}.xml
+          path: |
+            pytest-${{ matrix.python-version }}.xml
+            performance-results.json
           retention-days: 7
 
       - name: CLI smoke test
