@@ -55,11 +55,11 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
 - [📊 Project Documentation Support (New in v0.6.0)](#-project-documentation-support-new-in-v060)
   - [Generate Project Documentation](#generate-project-documentation)
   - [Parse Project Structure](#parse-project-structure)
-- [📑 Index Generation & Navigation (New in v0.5.0)](#-index-generation-navigation-new-in-v050)
+- [📑 Index Generation & Navigation (New in v0.5.0)](#-index-generation--navigation-new-in-v050)
   - [Generate Indexes](#generate-indexes)
   - [Filter Indexes](#filter-indexes)
   - [Embedded Section Indexes](#embedded-section-indexes)
-- [🔗 Links & Cross-References (New in v0.12.0)](#-links-cross-references-new-in-v0120)
+- [🔗 Links & Cross-References (New in v0.12.0)](#-links--cross-references-new-in-v0120)
   - [Automatic Cross-References](#automatic-cross-references)
   - [Link Validation](#link-validation)
   - [External Resource Integration](#external-resource-integration)
@@ -72,7 +72,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
   - [Generate Multi-Language Documentation](#generate-multi-language-documentation)
   - [Custom Translations](#custom-translations)
   - [Template Translation Markers](#template-translation-markers)
-- [🔍 Schema Validation & Documentation (New in v0.5.0)](#-schema-validation-documentation-new-in-v050)
+- [🔍 Schema Validation & Documentation (New in v0.5.0)](#-schema-validation--documentation-new-in-v050)
   - [Configuration Validation](#configuration-validation)
   - [Schema Export](#schema-export)
   - [Format Conversion](#format-conversion)
@@ -111,7 +111,7 @@ Ansible Doctor Enhanced is a comprehensive tool for automatically generating doc
     - [🎯 Roadmap to v1.0.0](#-roadmap-to-v100)
 - [📄 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
-- [📞 Support & Contact](#-support-contact)
+- [📞 Support & Contact](#-support--contact)
 
 <!-- tocstop -->
 

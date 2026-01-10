@@ -95,24 +95,21 @@ def generate_github_anchor(text: str) -> str:
     # Convert to lowercase
     anchor = anchor.lower()
 
-    # Replace emojis with hyphen (GitHub converts each emoji to single hyphen)
-    anchor = re.sub(r"[\U0001F000-\U0001F9FF]", "-", anchor)  # Emoticons and symbols
-    anchor = re.sub(r"[\u2600-\u26FF]", "-", anchor)  # Misc symbols
-    anchor = re.sub(r"[\u2700-\u27BF]", "-", anchor)  # Dingbats
-    anchor = re.sub(r"[\U0001FA00-\U0001FAFF]", "-", anchor)  # Extended symbols
+    # Replace emojis with empty string (GitHub ignores emojis in anchors)
+    anchor = re.sub(r"[\U0001F000-\U0001F9FF]", "", anchor)  # Emoticons and symbols
+    anchor = re.sub(r"[\u2600-\u26FF]", "", anchor)  # Misc symbols
+    anchor = re.sub(r"[\u2700-\u27BF]", "", anchor)  # Dingbats
+    anchor = re.sub(r"[\U0001FA00-\U0001FAFF]", "", anchor)  # Extended symbols
     anchor = re.sub(r"[\uFE00-\uFE0F]", "", anchor)  # Variation selectors (remove)
     anchor = re.sub(r"[\u200D]", "", anchor)  # Zero-width joiner (remove)
 
     # Remove special characters and punctuation (keep only alphanumeric, spaces, hyphens)
     anchor = re.sub(r"[^\w\s-]", "", anchor)
 
-    # Replace whitespace with hyphens
-    anchor = re.sub(r"\s+", "-", anchor)
+    # Replace whitespace with hyphens (one hyphen per space, do not collapse)
+    anchor = re.sub(r"\s", "-", anchor)
 
-    # Collapse multiple hyphens into single hyphen
-    anchor = re.sub(r"-+", "-", anchor)
-
-    # Remove only trailing hyphens (keep leading hyphen from emoji)
+    # Remove only trailing hyphens
     anchor = anchor.rstrip("-")
 
     return anchor
