@@ -240,7 +240,7 @@ class TestReportWithErrors:
         output_dir.mkdir()
 
         # Act - use --continue-on-error to generate report even on failure
-        result = cli_runner.invoke(
+        cli_runner.invoke(
             cli,
             [
                 "generate",
@@ -334,7 +334,7 @@ class TestAggregatedSummaryDisplay:
         report_path = tmp_path / "report.txt"
 
         # Act - Run generate with summary report to console
-        result = cli_runner.invoke(
+        cli_runner.invoke(
             cli,
             [
                 "generate",
@@ -377,7 +377,7 @@ class TestAggregatedSummaryDisplay:
         report_path = tmp_path / "report.json"
 
         # Act
-        result = cli_runner.invoke(
+        cli_runner.invoke(
             cli,
             [
                 "generate",

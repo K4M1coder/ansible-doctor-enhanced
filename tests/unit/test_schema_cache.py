@@ -352,7 +352,7 @@ class TestCacheEdgeCases:
 
         # Should distinguish between cached None and cache miss
         # For this test, we expect None is stored and retrieved
-        result = cache.get("nullable")
+        cache.get("nullable")
         # Implementation detail: might need special handling
         # For now, test that it doesn't crash
 

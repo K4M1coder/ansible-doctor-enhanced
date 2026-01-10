@@ -170,6 +170,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"tests/**/*.py" = ["B017"]  # Allow pytest.raises(Exception) in tests
 
 [tool.coverage.run]
 source = ["ansibledoctor"]

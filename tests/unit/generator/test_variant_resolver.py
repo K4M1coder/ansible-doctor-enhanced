@@ -438,7 +438,7 @@ class TestDefaultVariantBehavior:
             ),
         )
 
-        result = resolver.resolve(
+        resolver.resolve(
             base_name="role",
             format=OutputFormat.HTML,
             context_path=tmp_path,

@@ -161,5 +161,5 @@ class TestVerboseModePhasing:
             report_data = json.load(f)
 
         # Both verbose output and report should contain timing
-        output = result.output + (result.stderr or "")
+        result.output + (result.stderr or "")
         assert "phase_timing" in json.dumps(report_data["metrics"])

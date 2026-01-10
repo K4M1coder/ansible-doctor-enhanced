@@ -408,7 +408,7 @@ packages:
             theme_config=theme_config,
         )
         context.to_dict()
-        first_elapsed = time.perf_counter() - start
+        time.perf_counter() - start
 
         # Subsequent renders
         start = time.perf_counter()
