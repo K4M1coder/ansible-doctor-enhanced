@@ -7,6 +7,12 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+# Force UTF-8 encoding for stdout on Windows
+if sys.platform == "win32":
+    import codecs
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, errors="replace")
+
 
 def extract_headings(content: str, verbose: bool = False) -> List[Tuple[int, str, str]]:
     """Extract headings from markdown content.

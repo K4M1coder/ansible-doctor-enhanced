@@ -2,7 +2,7 @@
 
 <!-- Version & License -->
 [![Version](https://img.shields.io/badge/version-v0.12.0-blue)](https://github.com/K4M1coder/ansible-doctor-enhanced/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 <!-- Language Version & Code Quality Tools -->
 [![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
@@ -2000,7 +2000,7 @@ Key principles:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
